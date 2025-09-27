@@ -1,24 +1,46 @@
 :root {
-    --color-bg: #fff4f8;          /* nền chính hồng nhạt */
-    --color-header: #ffd6e8;      /* header/footer hồng nude */
-    --color-text: #5a3e36;        /* chữ chính, nâu dịu mắt */
-    --color-button: #fff9c4;      /* button vàng nhạt */
-    --color-button-hover: #fff59d;
-    --color-intro-bg: #ffffffcc;  /* nền intro nhẹ */
-    --color-product-bg: #fff6f6;  /* nền sản phẩm */
+    /* CHẾ ĐỘ SÁNG (LIGHT MODE) - Tông Hồng và Trắng Sữa */
+    --color-primary: #e91e63;           /* Màu chủ đạo (Hồng Tím đậm) */
+    --color-secondary: #ff9800;         /* Màu nhấn (Cam/Vàng ấm) */
+    
+    --color-bg: #fdf5f7;                /* Nền chính (Trắng Sữa Hồng Nhạt) */
+    --color-header: #fce4ec;            /* Header/Footer (Hồng Nude/Rất Nhạt) */
+    --color-text: #4a3c3a;              /* Chữ chính (Nâu Dịu) */
+    --color-heading: #d81b60;           /* Tiêu đề (Hồng đậm) */
+    
+    --color-button: #ffb74d;            /* Nút (Cam/Vàng Sáng) */
+    --color-button-text: #3e2c30;       /* Chữ trên nút (Nâu đậm) */
+    --color-button-hover: #ff9800;      /* Nút Hover (Cam Đậm hơn) */
+    
+    --color-intro-bg: #ffffff;          /* Nền intro (Trắng tinh) */
+    --color-product-bg: #fffbfd;        /* Nền sản phẩm (Trắng sữa rất nhẹ) */
+    
+    --shadow-color: rgba(0, 0, 0, 0.15); /* Màu bóng đổ nhẹ */
 }
 
 @media (prefers-color-scheme: dark){
-    :root {
-        --color-bg: #3e2c30;         
-        --color-header: #5a3e36;     
-        --color-text: #f3e8e5;       /* chữ sáng dịu */
-        --color-button: #bcae7b;
-        --color-button-hover: #d0c48f;
-        --color-intro-bg: #4a3c3acc;
-        --color-product-bg: #4a3c3a;
-    }
+    /* CHẾ ĐỘ TỐI (DARK MODE) - Tông Nâu Đậm và Hồng Tím Sáng */
+    --color-primary: #ec407a;           /* Hồng sáng */
+    --color-secondary: #ffb74d;         /* Cam sáng */
+    
+    --color-bg: #2e1d23;                /* Nền chính (Nâu Tím Đậm) */
+    --color-header: #423035;            /* Header/Footer (Nâu Đậm) */
+    --color-text: #fbecec;              /* Chữ sáng (Trắng Sữa Ấm) */
+    --color-heading: #ff80ab;           /* Tiêu đề (Hồng Sáng) */
+    
+    --color-button: #e91e63;            /* Nút (Hồng Đậm) */
+    --color-button-text: #ffffff;       /* Chữ trên nút (Trắng) */
+    --color-button-hover: #d81b60;      /* Nút Hover (Hồng Tối hơn) */
+    
+    --color-intro-bg: #3e2c30;          /* Nền intro (Nền đậm hơn chút) */
+    --color-product-bg: #3a282b;        /* Nền sản phẩm */
+    
+    --shadow-color: rgba(255, 255, 255, 0.05); /* Màu bóng đổ rất nhẹ */
 }
+
+/* ---------------------------------------------------------------- */
+/* ÁP DỤNG CƠ BẢN VÀ SỬA LỖI TÊN BIẾN */
+/* ---------------------------------------------------------------- */
 
 /* Áp dụng cho body và tất cả section */
 body {
@@ -27,46 +49,95 @@ body {
     background: var(--color-bg);
     color: var(--color-text);
 }
+
 header {
-    background: var(--header-footer-bg);
+    /* ĐÃ SỬA: Thay var(--header-footer-bg) thành var(--color-header) */
+    background: var(--color-header); 
     padding: 20px 10%;
     border-bottom-left-radius: 20px;
     border-bottom-right-radius: 20px;
     text-align: center;
     position: relative;
     z-index: 10;
+    /* Đã dùng biến mới: --shadow-color */
     box-shadow: 0 4px 10px var(--shadow-color);
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.main-nav a { margin: 0 10px; color: var(--text); font-weight: 500; }
-
-.cart-container {
-    position: relative;
-    cursor: pointer;
+h1, h2, h3, h4 {
+    color: var(--color-heading); /* Áp dụng màu tiêu đề riêng biệt */
 }
 
-#cart-icon {
-    width: 40px;
-    height: 40px;
+/* Liên kết điều hướng */
+.main-nav a { 
+    margin: 0 10px; 
+    /* ĐÃ SỬA: Thay var(--text) thành var(--color-text) */
+    color: var(--color-text); 
+    font-weight: 500; 
+    text-decoration: none;
+    transition: color 0.2s;
 }
 
+.main-nav a:hover {
+    color: var(--color-primary); /* Khi hover đổi sang màu hồng chủ đạo */
+}
+
+/* Các Nút (Buttons) */
+.button {
+    background: var(--color-button);
+    color: var(--color-button-text) !important; /* Đảm bảo chữ trên nút nổi bật */
+    padding: 10px 20px;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background 0.3s, transform 0.3s;
+    box-shadow: 0 2px 5px var(--shadow-color);
+}
+
+.button:hover {
+    background: var(--color-button-hover);
+    transform: translateY(-2px);
+}
+
+/* Footer (sử dụng cùng màu header) */
+footer {
+    background: var(--color-header);
+    color: var(--color-text);
+    text-align: center;
+    padding: 20px 10%;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    margin-top: 40px;
+}
+
+/* Cart Dropdown */
 .cart-dropdown {
     position: absolute;
     top: 50px;
     right: 0;
     width: 250px;
-    background: var(--intro-bg);
+    /* Sử dụng biến nền intro mới */
+    background: var(--color-intro-bg); 
     border-radius: 15px;
     box-shadow: 0 4px 12px var(--shadow-color);
     padding: 15px;
-    display: none; /* ẩn mặc định */
+    display: none; 
     text-align: left;
+    border: 1px solid var(--color-header); /* Thêm đường viền nhẹ */
 }
 
 .cart-dropdown h3 { margin-bottom: 10px; font-size: 1.1rem; }
 .cart-dropdown ul { list-style: none; padding-left: 0; margin-bottom: 10px; }
-.cart-dropdown li { margin-bottom: 5px; }
-.cart-dropdown .button { display: block; width: 100%; text-align: center; }
+.cart-dropdown li { 
+    margin-bottom: 5px; 
+    border-bottom: 1px dashed var(--color-header);
+    padding-bottom: 5px;
+}
+.cart-dropdown .button { 
+    display: block; 
+    width: 100%; 
+    text-align: center; 
+    margin-top: 10px;
+}
