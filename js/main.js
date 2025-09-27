@@ -1,13 +1,21 @@
-const cartIcon = document.getElementById('cart-icon');
+// 1. Lấy ra các phần tử bằng ID MỚI
+const cartButton = document.getElementById('cart-button');
 const cartDropdown = document.getElementById('cart-dropdown');
 
-cartIcon.addEventListener('click', () => {
-    cartDropdown.style.display = cartDropdown.style.display === 'block' ? 'none' : 'block';
-});
+// 2. Thêm trình lắng nghe sự kiện click
+if (cartButton && cartDropdown) {
+    cartButton.addEventListener('click', function(e) {
+        // Ngăn chặn hành vi mặc định của thẻ <a> (ngăn nó chuyển trang)
+        e.preventDefault(); 
+        
+        // Chuyển đổi trạng thái hiển thị/ẩn của dropdown
+        cartDropdown.classList.toggle('show');
+    });
 
-// Đóng dropdown khi click ra ngoài
-document.addEventListener('click', (e) => {
-    if(!cartDropdown.contains(e.target) && e.target !== cartIcon){
-        cartDropdown.style.display = 'none';
-    }
-});
+    // Tùy chọn: Đóng dropdown khi click ra ngoài
+    document.addEventListener('click', function(e) {
+        if (!cartButton.contains(e.target) && !cartDropdown.contains(e.target)) {
+            cartDropdown.classList.remove('show');
+        }
+    });
+}
