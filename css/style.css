@@ -221,3 +221,9 @@ footer {
     /* Quan trọng: Giữ giỏ hàng cố định ở bên phải và không bị đẩy ra xa */
     flex-shrink: 0;
 }
+
+
+/* Trạng thái hiển thị/ẩn cho Dropdown */
+.cart-dropdown.show {
+    display: block !important; /* Quan trọng để override display: none; mặc định */
+}
