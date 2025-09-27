@@ -2,23 +2,23 @@
 /* VARIABLES CHUNG & LIGHT/DARK MODE */
 /* ============================== */
 :root {
-    /* LIGHT MODE */
-    --color-primary: #e91e63;         /* Hồng tím đậm */
-    --color-secondary: #ff9800;       /* Cam/Vàng ấm */
-    --color-bg: #fdf5f7;              /* Nền chính hồng nhạt */
-    --color-header: #fce4ec;          /* Header/Footer hồng nude nhạt */
-    --color-text: #4a3c3a;            /* Chữ chính nâu dịu */
-    --color-heading: #d81b60;         /* Tiêu đề hồng đậm */
-    --color-button: #ffb74d;          /* Nút cam nhạt */
-    --color-button-text: #3e2c30;     
-    --color-button-hover: #ff9800;    
-    --color-intro-bg: #ffffff;        
-    --color-product-bg: #fffbfd;      
+    /* LIGHT MODE - Hồng nhạt & Trắng sữa */
+    --color-primary: #e91e63;          /* Hồng tím đậm */
+    --color-secondary: #ff9800;        /* Cam/Vàng nhạt */
+    --color-bg: #fdf5f7;               /* Nền chính */
+    --color-header: #fce4ec;           /* Header/Footer */
+    --color-text: #4a3c3a;             /* Chữ chính */
+    --color-heading: #d81b60;          /* Tiêu đề */
+    --color-button: #ffb74d;           /* Nút */
+    --color-button-text: #3e2c30;      
+    --color-button-hover: #ff9800;     
+    --color-intro-bg: #ffffff;         
+    --color-product-bg: #fffbfd;       
     --shadow-color: rgba(0,0,0,0.15);
 }
 
 @media (prefers-color-scheme: dark){
-    /* DARK MODE */
+    /* DARK MODE - Nâu đậm & Hồng sáng */
     :root {
         --color-primary: #ec407a;
         --color-secondary: #ffb74d;
@@ -36,7 +36,7 @@
 }
 
 /* ============================== */
-/* BODY, FONT, RESET */
+/* BODY & CĂN CHỈNH CHUNG */
 /* ============================== */
 body {
     margin: 0;
@@ -45,7 +45,12 @@ body {
     color: var(--color-text);
 }
 
-a { text-decoration: none; }
+/* Header, section, footer */
+header, section, footer {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
 
 /* ============================== */
 /* HEADER & NAVIGATION */
@@ -54,19 +59,18 @@ header {
     background: var(--color-header);
     border-bottom-left-radius: 20px;
     border-bottom-right-radius: 20px;
-    position: relative;
-    z-index: 10;
-    box-shadow: 0 4px 10px var(--shadow-color);
     display: flex;
     justify-content: space-between;
     align-items: center;
+    position: relative;
+    z-index: 10;
+    box-shadow: 0 4px 10px var(--shadow-color);
     padding: 15px 10%;
 }
 
 header h1 {
     color: var(--color-heading);
     margin: 0;
-    font-size: 1.8rem;
 }
 
 .main-nav {
@@ -79,6 +83,7 @@ header h1 {
 .main-nav a {
     color: var(--color-text);
     font-weight: 500;
+    text-decoration: none;
     transition: color 0.2s;
 }
 
@@ -86,49 +91,36 @@ header h1 {
     color: var(--color-primary);
 }
 
-/* Cart Icon */
-.cart-container {
-    position: relative;
-    cursor: pointer;
+/* ============================== */
+/* BUTTONS */
+/* ============================== */
+.button {
+    background: var(--color-button);
+    color: var(--color-button-text);
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-weight: bold;
+    text-decoration: none;
+    display: inline-block;
+    box-shadow: 0 2px 5px var(--shadow-color);
+    transition: background 0.3s, transform 0.3s;
 }
 
-#cart-icon {
-    width: 40px;
-    height: 40px;
+.button:hover {
+    background: var(--color-button-hover);
+    transform: translateY(-2px);
 }
-
-.cart-dropdown {
-    position: absolute;
-    top: 50px;
-    right: 0;
-    width: 250px;
-    background: var(--color-intro-bg);
-    border-radius: 15px;
-    box-shadow: 0 4px 12px var(--shadow-color);
-    padding: 15px;
-    display: none;
-    text-align: center;
-    border: 1px solid var(--color-header);
-    z-index: 20;
-}
-
-.cart-dropdown h3 { margin-bottom: 10px; }
-.cart-dropdown ul { list-style: none; padding: 0; margin-bottom: 10px; }
-.cart-dropdown li { margin-bottom: 5px; }
 
 /* ============================== */
-/* INTRO / HERO */
-.hero {
-    padding: 60px 10%;
-    text-align: center;
-}
-
+/* INTRO / HERO SECTION */
+/* ============================== */
 .intro {
     background: var(--color-intro-bg);
     border-radius: 20px;
-    padding: 40px 30px;
+    padding: 30px;
     box-shadow: 0 8px 20px var(--shadow-color);
-    margin-top: -40px;
+    margin-top: -30px;
+    text-align: center;
     transition: transform 0.3s;
 }
 
@@ -137,37 +129,15 @@ header h1 {
 }
 
 /* ============================== */
-/* SECTION CARD (ĐỒNG BỘ MÀU CHỦ ĐẠO) */
-.section-card {
-    background: var(--color-intro-bg);
-    color: var(--color-text);
-    border-radius: 20px;
-    padding: 20px;
-    box-shadow: 0 4px 12px var(--shadow-color);
-    transition: background 0.3s, transform 0.3s;
-    cursor: pointer;
-}
-
-.section-card:hover {
-    background: var(--color-product-bg);
-    transform: translateY(-3px);
-}
-
-.section-card.active {
-    background: var(--color-intro-bg);
-    color: var(--color-text);
-    box-shadow: 0 6px 18px var(--shadow-color);
-}
-
-/* ============================== */
 /* SẢN PHẨM */
+/* ============================== */
 .product-grid {
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
     justify-content: center;
-    margin: 20px auto;
     padding: 0;
+    margin: 20px auto;
     list-style: none;
 }
 
@@ -186,30 +156,27 @@ header h1 {
     transform: translateY(-5px);
 }
 
-.product-item img {
-    max-width: 100%;
-    border-radius: 10px;
-}
-
 /* ============================== */
-/* BUTTON */
-.button {
-    background: var(--color-button);
-    color: var(--color-button-text);
-    padding: 10px 20px;
-    border-radius: 30px;
-    font-weight: bold;
-    display: inline-block;
-    transition: background 0.3s, transform 0.3s;
-}
-
-.button:hover {
-    background: var(--color-button-hover);
-    transform: translateY(-2px);
+/* CART DROPDOWN */
+/* ============================== */
+.cart-dropdown {
+    position: absolute;
+    top: 50px;
+    right: 0;
+    width: 250px;
+    background: var(--color-intro-bg);
+    border-radius: 15px;
+    box-shadow: 0 4px 12px var(--shadow-color);
+    padding: 15px;
+    display: none;
+    text-align: center;
+    border: 1px solid var(--color-header);
+    z-index: 20;
 }
 
 /* ============================== */
 /* FOOTER */
+/* ============================== */
 footer {
     background: var(--color-header);
     color: var(--color-text);
@@ -221,18 +188,33 @@ footer {
 }
 
 /* ============================== */
-/* FORM CONTACT */
-form input, form textarea {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border-radius: 10px;
-    border: 1px solid #ccc;
-    font-family: inherit;
+/* TIÊU ĐỀ & TEXT */
+/* ============================== */
+h1,h2,h3,h4 {
+    color: var(--color-heading);
 }
 
-form button {
-    width: 100%;
+/* ============================== */
+/* SECTION CARD CHUNG */
+/* ============================== */
+.section-card {
+    background: var(--color-intro-bg);
+    color: var(--color-text);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 4px 12px var(--shadow-color);
+    transition: background 0.3s, transform 0.3s;
+    cursor: pointer;
+}
+
+.section-card:hover {
+    background: var(--color-product-bg);
+    transform: translateY(-3px);
+}
+
+.section-card.active {
+    background: var(--color-intro-bg);
+    box-shadow: 0 6px 18px var(--shadow-color);
 }
 
 /* ============================== */
