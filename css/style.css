@@ -1,60 +1,84 @@
-/* Nền toàn trang */
+/* Nền toàn trang - Tông Hồng Ấm */
 body {
-  margin: 0;
-  font-family: "Segoe UI", Tahoma, sans-serif;
-  background: linear-gradient(135deg, #e0f7fa, #e1bee7); /* xanh -> tím nhạt */
-  color: #333;
+    margin: 0;
+    font-family: "Segoe UI", Tahoma, sans-serif;
+    /* Gradient ấm áp: Hồng san hô nhạt -> Vàng đào */
+    background: linear-gradient(135deg, #fce4ec, #fff3e0); /* Hồng nhạt (Pink-50) -> Vàng kem (Amber-50) */
+    color: #444; /* Màu chữ tối hơn một chút cho dễ đọc */
 }
 
 /* Container nội dung */
 section, header, footer {
-  max-width: 1200px;
-  margin: auto;
-  padding: 40px 20px;
+    max-width: 1200px;
+    margin: auto;
+    padding: 40px 20px;
 }
 
-/* Header */
+/* Header - Sử dụng Hồng Tím Đậm (Magenta) */
 header {
-  background: #6a1b9a; /* tím đậm */
-  color: white;
-  text-align: center;
-  padding: 60px 20px;
-  border-bottom-left-radius: 20px;
-  border-bottom-right-radius: 20px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    background: #e91e63; /* Hồng Tím Đậm (Pink-A400) */
+    color: white;
+    text-align: center;
+    padding: 60px 20px;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+    box-shadow: 0 6px 15px rgba(233, 30, 99, 0.4); /* Shadow cùng màu hồng đậm */
 }
 
+header h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+}
+
+/* Nút bấm nổi bật - Màu Vàng Cam Ấm */
 header .button {
-  background: #ffca28;
-  padding: 12px 24px;
-  border-radius: 30px;
-  color: #333;
-  font-weight: bold;
-  text-decoration: none;
-  transition: 0.3s;
+    background: #ffb300; /* Vàng Cam Ấm (Amber-600) */
+    padding: 12px 24px;
+    border-radius: 30px;
+    color: #444; /* Màu chữ tối */
+    font-weight: bold;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: inline-block; /* Quan trọng để áp dụng scale */
 }
 header .button:hover {
-  background: #ffc107;
-  transform: scale(1.05);
+    background: #ff8f00; /* Cam đậm hơn (Amber-800) */
+    transform: scale(1.1); /* Hiệu ứng phóng to nổi bật */
 }
 
-/* Section intro */
+/* Section intro - Nền Trắng/Hồng Nhạt */
 .intro {
-  background: white;
-  border-radius: 20px;
-  padding: 30px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  margin-top: -30px; /* overlap lên banner */
-  text-align: center;
+    background: #fff; /* Nền trắng sạch */
+    border-radius: 20px;
+    padding: 30px;
+    /* Box shadow nhẹ nhàng màu hồng */
+    box-shadow: 0 8px 20px rgba(233, 30, 99, 0.15); 
+    margin-top: -30px; /* overlap lên banner */
+    text-align: center;
 }
 
-/* Footer */
+.intro h2 {
+    color: #c2185b; /* Hồng Đậm */
+}
+
+/* Footer - Tông Hồng Tím Đậm */
 footer {
-  text-align: center;
-  background: #6a1b9a;
-  color: white;
-  padding: 20px;
-  margin-top: 40px;
-  border-top-left-radius: 20px;
-  border-top-right-radius: 20px;
+    text-align: center;
+    background: #e91e63; /* Giữ màu Header để đồng bộ */
+    color: white;
+    padding: 20px;
+    margin-top: 40px;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+}
+
+footer a {
+    color: #ffb300; /* Liên kết màu vàng ấm */
+    text-decoration: none;
+    font-weight: bold;
+}
+footer a:hover {
+    color: #fff;
+    text-decoration: underline;
 }
