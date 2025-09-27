@@ -189,3 +189,13 @@ footer {
     /* ... các thuộc tính khác ... */
     text-align: left; /* Đặt lại thành left hoặc bỏ đi để tránh căn giữa các item con */
 }
+/* Áp dụng tương tự cho mục khám phá sản phẩm */
+.explore-products .product-grid {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+    list-style: none;
+    padding: 0;
+    margin: 20px auto;
+}
