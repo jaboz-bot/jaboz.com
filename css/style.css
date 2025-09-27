@@ -1,20 +1,32 @@
-:root{
-    --bg:#fff4f8;
-    --header-bg:#ffd6e8;
-    --text:#5a3e36;
-    --button:#fff9c4;
-    --button-hover:#fff59d;
+:root {
+    --color-bg: #fff4f8;          /* nền chính hồng nhạt */
+    --color-header: #ffd6e8;      /* header/footer hồng nude */
+    --color-text: #5a3e36;        /* chữ chính, nâu dịu mắt */
+    --color-button: #fff9c4;      /* button vàng nhạt */
+    --color-button-hover: #fff59d;
+    --color-intro-bg: #ffffffcc;  /* nền intro nhẹ */
+    --color-product-bg: #fff6f6;  /* nền sản phẩm */
 }
-@media(prefers-color-scheme:dark){
-    :root{
-        --bg:#3e2c30;
-        --header-bg:#5a3e36;
-        --text:#f3e8e5;
-        --button:#bcae7b;
-        --button-hover:#d0c48f;
+
+@media (prefers-color-scheme: dark){
+    :root {
+        --color-bg: #3e2c30;         
+        --color-header: #5a3e36;     
+        --color-text: #f3e8e5;       /* chữ sáng dịu */
+        --color-button: #bcae7b;
+        --color-button-hover: #d0c48f;
+        --color-intro-bg: #4a3c3acc;
+        --color-product-bg: #4a3c3a;
     }
 }
-body{background:var(--bg);color:var(--text);font-family:"Segoe UI",Tahoma,sans-serif;margin:0;padding:0;}
+
+/* Áp dụng cho body và tất cả section */
+body {
+    margin: 0;
+    font-family: "Segoe UI", Tahoma, sans-serif;
+    background: var(--color-bg);
+    color: var(--color-text);
+}
 header {
     background: var(--header-footer-bg);
     padding: 20px 10%;
