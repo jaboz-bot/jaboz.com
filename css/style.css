@@ -2,82 +2,36 @@
     /* CHẾ ĐỘ SÁNG (LIGHT MODE) - Tông Hồng và Trắng Sữa */
     --color-primary: #e91e63;           /* Màu chủ đạo (Hồng Tím đậm) */
     --color-secondary: #ff9800;         /* Màu nhấn (Cam/Vàng ấm) */
-    
     --color-bg: #fdf5f7;                /* Nền chính (Trắng Sữa Hồng Nhạt) */
     --color-header: #fce4ec;            /* Header/Footer (Hồng Nude/Rất Nhạt) */
     --color-text: #4a3c3a;              /* Chữ chính (Nâu Dịu) */
     --color-heading: #d81b60;           /* Tiêu đề (Hồng đậm) */
-    
     --color-button: #ffb74d;            /* Nút (Cam/Vàng Sáng) */
     --color-button-text: #3e2c30;       /* Chữ trên nút (Nâu đậm) */
     --color-button-hover: #ff9800;      /* Nút Hover (Cam Đậm hơn) */
-    
     --color-intro-bg: #ffffff;          /* Nền intro (Trắng tinh) */
     --color-product-bg: #fffbfd;        /* Nền sản phẩm (Trắng sữa rất nhẹ) */
-    
     --shadow-color: rgba(0, 0, 0, 0.15); /* Màu bóng đổ nhẹ */
 }
 
 @media (prefers-color-scheme: dark){
-    /* CHẾ ĐỘ TỐI (DARK MODE) - Tông Nâu Đậm và Hồng Tím Sáng */
-    --color-primary: #ec407a;           /* Hồng sáng */
-    --color-secondary: #ffb74d;         /* Cam sáng */
-    
-    --color-bg: #2e1d23;                /* Nền chính (Nâu Tím Đậm) */
-    --color-header: #423035;            /* Header/Footer (Nâu Đậm) */
-    --color-text: #fbecec;              /* Chữ sáng (Trắng Sữa Ấm) */
-    --color-heading: #ff80ab;           /* Tiêu đề (Hồng Sáng) */
-    
-    --color-button: #e91e63;            /* Nút (Hồng Đậm) */
-    --color-button-text: #ffffff;       /* Chữ trên nút (Trắng) */
-    --color-button-hover: #d81b60;      /* Nút Hover (Hồng Tối hơn) */
-    
-    --color-intro-bg: #3e2c30;          /* Nền intro (Nền đậm hơn chút) */
-    --color-product-bg: #3a282b;        /* Nền sản phẩm */
-    
-    --shadow-color: rgba(255, 255, 255, 0.05); /* Màu bóng đổ rất nhẹ */
+    /* CHẾ ĐỘ TỐI (DARK MODE) */
+    --color-primary: #ec407a;
+    --color-secondary: #ffb74d;
+    --color-bg: #2e1d23;
+    --color-header: #423035;
+    --color-text: #fbecec;
+    --color-heading: #ff80ab;
+    --color-button: #e91e63;
+    --color-button-text: #ffffff;
+    --color-button-hover: #d81b60;
+    --color-intro-bg: #3e2c30;
+    --color-product-bg: #3a282b;
+    --shadow-color: rgba(255, 255, 255, 0.05);
 }
 
-
 /* ================================================================= */
-/* MEDIA QUERIES - TỐI ƯU CHO ĐIỆN THOẠI (DƯỚI 768px) */
-/* ================================================================= */
-@media (max-width: 768px) {
-    
-    /* 1. Thay đổi Header thành bố cục cột (sắp xếp dọc) */
-    header {
-        flex-direction: column; /* Xếp chồng Tiêu đề, Menu, và Giỏ hàng */
-        justify-content: center; /* Căn giữa các mục theo chiều dọc */
-        align-items: center; /* Căn giữa các mục theo chiều ngang */
-        padding: 20px 10px; /* Giảm padding ngang để có thêm không gian */
-    }
-
-    /* 2. Điều chỉnh thanh điều hướng chính */
-    .main-nav {
-        /* Bỏ margin: 0 auto; để nav không cố chiếm không gian dư thừa */
-        margin: 15px 0; /* Thêm khoảng cách trên dưới */
-        flex-wrap: wrap; /* Quan trọng: Cho phép các nút Trang chủ, SP... xuống hàng */
-        justify-content: center; /* Căn giữa các nút điều hướng */
-    }
-    
-    /* 3. Đảm bảo nút Giỏ hàng được căn giữa và có khoảng cách */
-    .cart-container {
-        margin-top: 15px;
-        margin-left: 0; /* Bỏ margin-left cũ */
-    }
-    
-    /* 4. Điều chỉnh vị trí dropdown giỏ hàng */
-    .cart-dropdown {
-        /* Chuyển giỏ hàng về căn giữa, không còn là góc phải màn hình */
-        right: 50%;
-        transform: translateX(50%); 
-    }
-}
-
-
-
-/* ================================================================= */
-/* CĂN CHỈNH TỔNG THỂ & CÁC KHỐI CHÍNH */
+/* CĂN CHỈNH TỔNG THỂ & CÁC KHỐI CHÍNH (Desktop) */
 /* ================================================================= */
 
 body {
@@ -87,63 +41,58 @@ body {
     color: var(--color-text);
 }
 
-/* ÁP DỤNG CĂN GIỮA KHỐI NỘI DUNG CHÍNH (QUAN TRỌNG NHẤT) */
-/* Tất cả header, section, footer sẽ được giới hạn 1200px và căn ra giữa màn hình */
+/* ÁP DỤNG CĂN GIỮA KHỐI NỘI DUNG CHÍNH (Desktop) */
 header, section, footer {
-    max-width: 1200px; 
-    margin-left: auto;
-    margin-right: auto;
-    padding: 20px 20px; /* Bỏ padding % để tránh xung đột với margin auto */
+    max-width: 1200px;
+    margin: auto; /* Viết tắt cho margin-left: auto; margin-right: auto; */
+    padding: 20px; /* Thống nhất padding */
 }
 
 /* ================================================================= */
-/* HEADER & NAVIGATION */
+/* HEADER & NAVIGATION (Desktop) */
 /* ================================================================= */
 
 header {
-    /* Đảm bảo header được dàn trải, các mục nằm trên cùng một hàng */
     display: flex;
-    /* Dàn đều các mục H1 (Logo), NAV, và Giỏ hàng */
-    justify-content: space-between; 
+    justify-content: space-between;
     align-items: center;
-    
-    /* ... giữ nguyên các thuộc tính màu nền, padding, border-radius khác ... */
     background: var(--color-header);
     border-bottom-left-radius: 20px;
     border-bottom-right-radius: 20px;
     position: relative;
     z-index: 10;
     box-shadow: 0 4px 10px var(--shadow-color);
+    padding: 20px 20px; /* Giữ nguyên padding cho desktop */
 }
 
 /* Thanh điều hướng chính */
 .main-nav {
-    /* Quan trọng: Cho phép NAV chiếm hết không gian giữa H1 và Giỏ hàng */
-    margin: 0 auto; 
-    
-    /* Căn giữa các liên kết bên trong NAV */
+    margin: 0 auto; /* Đẩy NAV ra giữa khoảng trống giữa H1 và Giỏ hàng */
     display: flex;
     justify-content: center;
     align-items: center;
-    
-    /* XÓA: margin-top: 10px; (Nếu bạn đã thêm trước đó) */
-    margin-top: 0; 
+    /* XÓA: margin-top: 0; */
 }
 
-.main-nav a { 
-    margin: 0 15px; /* Tăng khoảng cách giữa các link một chút */
-    color: var(--color-text); 
-    font-weight: 500; 
+.main-nav a {
+    margin: 0 15px;
+    color: var(--color-text);
+    font-weight: 500;
     text-decoration: none;
     transition: color 0.2s;
 }
 
 .main-nav a:hover {
-    color: var(--color-primary); 
+    color: var(--color-primary);
+}
+
+/* Nút Giỏ hàng (dùng chung cho cả giỏ hàng và button) */
+.cart-container {
+    flex-shrink: 0;
 }
 
 /* ================================================================= */
-/* TIÊU ĐỀ, NÚT & CÁC THÀNH PHẦN KHÁC */
+/* TIÊU ĐỀ, NÚT & SẢN PHẨM */
 /* ================================================================= */
 
 h1, h2, h3, h4 {
@@ -153,14 +102,14 @@ h1, h2, h3, h4 {
 /* Các Nút (Buttons) */
 .button {
     background: var(--color-button);
-    color: var(--color-button-text) !important; 
+    color: var(--color-button-text) !important;
     padding: 10px 20px;
     border-radius: 30px;
     text-decoration: none;
     font-weight: bold;
     transition: background 0.3s, transform 0.3s;
     box-shadow: 0 2px 5px var(--shadow-color);
-    display: inline-block; /* Quan trọng để nút được căn giữa với text-align: center */
+    display: inline-block;
 }
 
 .button:hover {
@@ -168,60 +117,31 @@ h1, h2, h3, h4 {
     transform: translateY(-2px);
 }
 
-/* Footer */
-footer {
-    background: var(--color-header);
-    color: var(--color-text);
-    text-align: center; /* Căn giữa nội dung footer */
-    border-top-left-radius: 20px;
-    border-top-right-radius: 20px;
-    margin-top: 40px;
-}
-
-/* Cart Dropdown */
-.cart-dropdown {
-    position: absolute;
-    top: 50px;
-    right: 0;
-    width: 250px;
-    background: var(--color-intro-bg); 
-    border-radius: 15px;
-    box-shadow: 0 4px 12px var(--shadow-color);
-    padding: 15px;
-    display: none; 
-    text-align: center; /* Căn giữa nội dung trong dropdown */
-    border: 1px solid var(--color-header); 
-}
-
-/* Phần giới thiệu/Banner (Ví dụ thẻ <section class="intro">) */
+/* Phần giới thiệu/Banner */
 .intro {
-    background: var(--color-intro-bg); 
+    background: var(--color-intro-bg);
     border-radius: 20px;
     padding: 30px;
     box-shadow: 0 8px 20px var(--shadow-color);
-    margin-top: -30px; 
-    text-align: center; /* Căn giữa văn bản và nút trong Intro */
+    margin-top: -30px;
+    text-align: center;
 }
-
 
 /* Container chứa danh sách sản phẩm */
 .product-grid {
-    display: flex; /* Bật chế độ Flexbox */
-    gap: 20px;     /* Khoảng cách giữa các sản phẩm (có thể dùng grid-gap hoặc column-gap) */
-    justify-content: center; /* Căn giữa các sản phẩm trong hàng ngang */
-    flex-wrap: wrap; /* Cho phép sản phẩm xuống hàng nếu không đủ chỗ */
-    list-style: none; /* Đảm bảo không có dấu chấm nếu dùng <ul> */
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+    list-style: none;
     padding: 0;
     margin: 20px auto;
 }
 
 /* Định dạng từng thẻ sản phẩm */
 .product-item {
-    /* Đảm bảo mỗi sản phẩm chiếm khoảng 1/3 (ví dụ: 3 sản phẩm/hàng) */
-    flex: 1 1 300px; /* grow: 1, shrink: 1, base width: 300px */
+    flex: 1 1 300px;
     max-width: 300px;
-    
-    /* Style riêng cho sản phẩm */
     background: var(--color-product-bg);
     border-radius: 15px;
     padding: 20px;
@@ -231,32 +151,75 @@ footer {
 }
 
 .product-item:hover {
-    transform: translateY(-5px); /* Hiệu ứng nổi lên khi di chuột */
+    transform: translateY(-5px);
 }
 
-/* Loại bỏ căn giữa cho toàn bộ section nếu nó gây xung đột */
-.featured-products {
-    /* ... các thuộc tính khác ... */
-    text-align: left; /* Đặt lại thành left hoặc bỏ đi để tránh căn giữa các item con */
-}
-
-
-
-/* Sửa lại thanh điều hướng chính */
-.main-nav {
-    /* BỎ margin: 0 auto; cũ (vì đã có trong header-main-content) */
-    margin-top: 10px; /* Thêm khoảng cách giữa H1 và Nav */
-    padding-bottom: 5px; /* Thêm một chút padding dưới Nav */
-}
-
-/* Tùy chỉnh Giỏ hàng */
-.cart-container {
-    /* Quan trọng: Giữ giỏ hàng cố định ở bên phải và không bị đẩy ra xa */
-    flex-shrink: 0;
+/* Khắc phục lỗi: Căn giữa Tiêu đề Section, không phải left! */
+.featured-products, .short-about {
+    text-align: center; 
 }
 
 
-/* Trạng thái hiển thị/ẩn cho Dropdown */
+/* ================================================================= */
+/* FOOTER & DROPDOWN */
+/* ================================================================= */
+
+footer {
+    background: var(--color-header);
+    color: var(--color-text);
+    text-align: center;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    margin-top: 40px;
+}
+
+.cart-dropdown {
+    position: absolute;
+    top: 50px;
+    right: 0;
+    width: 250px;
+    background: var(--color-intro-bg);
+    border-radius: 15px;
+    box-shadow: 0 4px 12px var(--shadow-color);
+    padding: 15px;
+    display: none;
+    text-align: center;
+    border: 1px solid var(--color-header);
+}
+
 .cart-dropdown.show {
-    display: block !important; /* Quan trọng để override display: none; mặc định */
+    display: block !important;
+}
+
+/* ================================================================= */
+/* MEDIA QUERIES - TỐI ƯU CHO ĐIỆN THOẠI (DƯỚI 768px) */
+/* ================================================================= */
+@media (max-width: 768px) {
+
+    /* 1. Thay đổi Header thành bố cục cột */
+    header {
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 20px 10px; /* Giảm padding ngang */
+    }
+
+    /* 2. Điều chỉnh thanh điều hướng chính */
+    .main-nav {
+        margin: 15px 0;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    /* 3. Đảm bảo nút Giỏ hàng được căn giữa và có khoảng cách */
+    .cart-container {
+        margin-top: 15px;
+        margin-left: 0;
+    }
+
+    /* 4. Điều chỉnh vị trí dropdown giỏ hàng */
+    .cart-dropdown {
+        right: 50%;
+        transform: translateX(50%);
+    }
 }
