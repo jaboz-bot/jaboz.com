@@ -63,15 +63,19 @@ header, section, footer {
 /* ================================================================= */
 
 header {
+    /* Đảm bảo header được dàn trải, các mục nằm trên cùng một hàng */
+    display: flex;
+    /* Dàn đều các mục H1 (Logo), NAV, và Giỏ hàng */
+    justify-content: space-between; 
+    align-items: center;
+    
+    /* ... giữ nguyên các thuộc tính màu nền, padding, border-radius khác ... */
     background: var(--color-header);
     border-bottom-left-radius: 20px;
     border-bottom-right-radius: 20px;
     position: relative;
     z-index: 10;
     box-shadow: 0 4px 10px var(--shadow-color);
-    display: flex;
-    justify-content: space-between; /* Giữ Logo, Nav và Cart dàn đều */
-    align-items: center;
 }
 
 /* Thanh điều hướng chính */
