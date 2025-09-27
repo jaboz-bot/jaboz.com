@@ -191,3 +191,33 @@ footer {
     /* ... các thuộc tính khác ... */
     text-align: left; /* Đặt lại thành left hoặc bỏ đi để tránh căn giữa các item con */
 }
+
+
+
+/* Thiết lập cho khối chứa Tiêu đề và Menu */
+.header-main-content {
+    /* Đảm bảo nội dung bên trong được căn giữa theo chiều ngang */
+    text-align: center;
+    
+    /* Thiết lập Flexbox theo chiều dọc để H1 nằm trên NAV */
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Căn giữa H1 và NAV theo chiều ngang */
+    
+    /* Cấu hình để khối này chiếm không gian chính giữa HEADER */
+    flex-grow: 1; /* Cho phép khối này mở rộng để chiếm không gian */
+    margin: 0 auto; /* Đảm bảo nó nằm giữa Giỏ hàng và cạnh trái */
+}
+
+/* Sửa lại thanh điều hướng chính */
+.main-nav {
+    /* BỎ margin: 0 auto; cũ (vì đã có trong header-main-content) */
+    margin-top: 10px; /* Thêm khoảng cách giữa H1 và Nav */
+    padding-bottom: 5px; /* Thêm một chút padding dưới Nav */
+}
+
+/* Tùy chỉnh Giỏ hàng */
+.cart-container {
+    /* Quan trọng: Giữ giỏ hàng cố định ở bên phải và không bị đẩy ra xa */
+    flex-shrink: 0;
+}
