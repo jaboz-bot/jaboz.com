@@ -89,6 +89,7 @@ header {
 /* Nút Giỏ hàng (dùng chung cho cả giỏ hàng và button) */
 .cart-container {
     flex-shrink: 0;
+    position: relative; /* QUAN TRỌNG: Để dropdown tuyệt đối (absolute) hoạt động đúng */
 }
 
 /* ================================================================= */
@@ -217,9 +218,17 @@ footer {
         margin-left: 0;
     }
 
-    /* 4. Điều chỉnh vị trí dropdown giỏ hàng */
+  /* 4. Điều chỉnh vị trí dropdown giỏ hàng */
     .cart-dropdown {
-        right: 50%;
-        transform: translateX(50%);
+        /* Đảm bảo dropdown có kích thước vừa phải so với màn hình */
+        max-width: 90vw; /* Giới hạn độ rộng tối đa là 90% màn hình */
+        width: 250px;    /* Giữ độ rộng mặc định để nó không quá lớn */
+        
+        /* CĂN GIỮA VÀO NÚT GIỎ HÀNG */
+        left: 50%;           /* Đặt mép trái của dropdown ở giữa nút */
+        transform: translateX(-50%); /* Dịch chuyển sang trái 50% độ rộng của chính nó */
+        
+        /* Đảm bảo không có xung đột từ right/left cũ */
+        right: auto;
     }
 }
