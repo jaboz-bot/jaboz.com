@@ -1,60 +1,23 @@
-/* --- Các biến màu chung --- */
-:root {
-  --color-bg: #fff4f8;       /* nền chính */
-  --color-bg-gradient: linear-gradient(135deg, #fff4f8, #fffde7); /* gradient nền */
-  --color-header-footer: #ffd6e8; /* header/footer */
-  --color-text: #5a3e36;      /* chữ */
-  --color-button: #fff9c4;    /* button */
-  --color-button-hover: #fff59d; /* button hover */
-  --color-intro: #ffffffcc;   /* nền section intro */
+:root{
+    --bg:#fff4f8;
+    --header-bg:#ffd6e8;
+    --text:#5a3e36;
+    --button:#fff9c4;
+    --button-hover:#fff59d;
 }
-
-/* --- Dark mode --- */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-bg: #3e2c30;       
-    --color-bg-gradient: linear-gradient(135deg, #3e2c30, #3f3a2f);
-    --color-header-footer: #5a3e36;
-    --color-text: #f3e8e5;
-    --color-button: #bcae7b;
-    --color-button-hover: #d0c48f;
-    --color-intro: #4a3c3acc;
-  }
+@media(prefers-color-scheme:dark){
+    :root{
+        --bg:#3e2c30;
+        --header-bg:#5a3e36;
+        --text:#f3e8e5;
+        --button:#bcae7b;
+        --button-hover:#d0c48f;
+    }
 }
-
-/* --- Áp dụng màu --- */
-body {
-  margin: 0;
-  font-family: "Segoe UI", Tahoma, sans-serif;
-  background: var(--color-bg-gradient);
-  color: var(--color-text);
-}
-
-header, footer {
-  background: var(--color-header-footer);
-  color: var(--color-text);
-  text-align: center;
-  padding: 60px 20px;
-  border-radius: 20px;
-}
-
-header .button {
-  background: var(--color-button);
-  color: var(--color-text);
-  padding: 12px 24px;
-  border-radius: 30px;
-  font-weight: bold;
-  text-decoration: none;
-  transition: 0.3s;
-}
-header .button:hover {
-  background: var(--color-button-hover);
-  transform: scale(1.05);
-}
-
-.intro {
-  background: var(--color-intro);
-  border-radius: 20px;
-  padding: 30px;
-  text-align: center;
-}
+body{background:var(--bg);color:var(--text);font-family:"Segoe UI",Tahoma,sans-serif;margin:0;padding:0;}
+header{background:var(--header-bg);padding:20px;text-align:center;border-radius:0 0 20px 20px;}
+.main-nav a{margin:0 10px;color:var(--text);}
+.button{background:var(--button);color:var(--text);padding:10px 20px;border-radius:30px;text-decoration:none;font-weight:bold;}
+.button:hover{background:var(--button-hover);}
+.product-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;}
+.product-item{background:#fff6f6;padding:20px;border-radius:15px;text-align:center;}
