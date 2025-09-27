@@ -80,10 +80,16 @@ header {
 
 /* Thanh điều hướng chính */
 .main-nav {
-    margin: 0 auto; /* Đẩy thanh Nav ra giữa khoảng trống còn lại */
+    /* Quan trọng: Cho phép NAV chiếm hết không gian giữa H1 và Giỏ hàng */
+    margin: 0 auto; 
+    
+    /* Căn giữa các liên kết bên trong NAV */
     display: flex;
     justify-content: center;
     align-items: center;
+    
+    /* XÓA: margin-top: 10px; (Nếu bạn đã thêm trước đó) */
+    margin-top: 0; 
 }
 
 .main-nav a { 
