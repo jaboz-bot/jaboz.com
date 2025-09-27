@@ -1,82 +1,60 @@
+/* --- Các biến màu chung --- */
 :root {
-  /* Light mode colors */
-  --bg-gradient: linear-gradient(135deg, #fff4f8, #fffde7); /* hồng nhạt -> vàng kem */
-  --header-footer-bg: #ffd6e8; /* hồng nude pastel */
-  --text-color: #5a3e36; /* nâu dịu mắt */
-  --button-bg: #fff9c4; /* vàng kem */
-  --button-hover: #fff59d;
-  --intro-bg: #ffffffcc; /* trắng sữa trong suốt */
+  --color-bg: #fff4f8;       /* nền chính */
+  --color-bg-gradient: linear-gradient(135deg, #fff4f8, #fffde7); /* gradient nền */
+  --color-header-footer: #ffd6e8; /* header/footer */
+  --color-text: #5a3e36;      /* chữ */
+  --color-button: #fff9c4;    /* button */
+  --color-button-hover: #fff59d; /* button hover */
+  --color-intro: #ffffffcc;   /* nền section intro */
 }
 
+/* --- Dark mode --- */
 @media (prefers-color-scheme: dark) {
   :root {
-    /* Dark mode colors */
-    --bg-gradient: linear-gradient(135deg, #3e2c30, #3f3a2f); /* nâu tím nhạt tối dịu */
-    --header-footer-bg: #5a3e36; /* nâu pastel tối */
-    --text-color: #f3e8e5; /* chữ pastel sáng dịu */
-    --button-bg: #bcae7b; /* vàng đất nhẹ */
-    --button-hover: #d0c48f;
-    --intro-bg: #4a3c3acc; /* nền intro tối mờ */
+    --color-bg: #3e2c30;       
+    --color-bg-gradient: linear-gradient(135deg, #3e2c30, #3f3a2f);
+    --color-header-footer: #5a3e36;
+    --color-text: #f3e8e5;
+    --color-button: #bcae7b;
+    --color-button-hover: #d0c48f;
+    --color-intro: #4a3c3acc;
   }
 }
 
-/* Nền toàn trang */
+/* --- Áp dụng màu --- */
 body {
   margin: 0;
   font-family: "Segoe UI", Tahoma, sans-serif;
-  background: var(--bg-gradient);
-  color: var(--text-color);
+  background: var(--color-bg-gradient);
+  color: var(--color-text);
 }
 
-/* Container nội dung */
-section, header, footer {
-  max-width: 1200px;
-  margin: auto;
-  padding: 40px 20px;
-}
-
-/* Header */
-header {
-  background: var(--header-footer-bg);
-  color: var(--text-color);
+header, footer {
+  background: var(--color-header-footer);
+  color: var(--color-text);
   text-align: center;
   padding: 60px 20px;
-  border-bottom-left-radius: 20px;
-  border-bottom-right-radius: 20px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  border-radius: 20px;
 }
 
 header .button {
-  background: var(--button-bg);
+  background: var(--color-button);
+  color: var(--color-text);
   padding: 12px 24px;
   border-radius: 30px;
-  color: var(--text-color);
   font-weight: bold;
   text-decoration: none;
   transition: 0.3s;
 }
 header .button:hover {
-  background: var(--button-hover);
+  background: var(--color-button-hover);
   transform: scale(1.05);
 }
 
-/* Section intro */
 .intro {
-  background: var(--intro-bg);
+  background: var(--color-intro);
   border-radius: 20px;
   padding: 30px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  margin-top: -30px; /* overlap lên header */
   text-align: center;
-}
-
-/* Footer */
-footer {
-  text-align: center;
-  background: var(--header-footer-bg);
-  color: var(--text-color);
-  padding: 20px;
-  margin-top: 40px;
-  border-top-left-radius: 20px;
-  border-top-right-radius: 20px;
 }
