@@ -38,6 +38,44 @@
     --shadow-color: rgba(255, 255, 255, 0.05); /* Màu bóng đổ rất nhẹ */
 }
 
+
+/* ================================================================= */
+/* MEDIA QUERIES - TỐI ƯU CHO ĐIỆN THOẠI (DƯỚI 768px) */
+/* ================================================================= */
+@media (max-width: 768px) {
+    
+    /* 1. Thay đổi Header thành bố cục cột (sắp xếp dọc) */
+    header {
+        flex-direction: column; /* Xếp chồng Tiêu đề, Menu, và Giỏ hàng */
+        justify-content: center; /* Căn giữa các mục theo chiều dọc */
+        align-items: center; /* Căn giữa các mục theo chiều ngang */
+        padding: 20px 10px; /* Giảm padding ngang để có thêm không gian */
+    }
+
+    /* 2. Điều chỉnh thanh điều hướng chính */
+    .main-nav {
+        /* Bỏ margin: 0 auto; để nav không cố chiếm không gian dư thừa */
+        margin: 15px 0; /* Thêm khoảng cách trên dưới */
+        flex-wrap: wrap; /* Quan trọng: Cho phép các nút Trang chủ, SP... xuống hàng */
+        justify-content: center; /* Căn giữa các nút điều hướng */
+    }
+    
+    /* 3. Đảm bảo nút Giỏ hàng được căn giữa và có khoảng cách */
+    .cart-container {
+        margin-top: 15px;
+        margin-left: 0; /* Bỏ margin-left cũ */
+    }
+    
+    /* 4. Điều chỉnh vị trí dropdown giỏ hàng */
+    .cart-dropdown {
+        /* Chuyển giỏ hàng về căn giữa, không còn là góc phải màn hình */
+        right: 50%;
+        transform: translateX(50%); 
+    }
+}
+
+
+
 /* ================================================================= */
 /* CĂN CHỈNH TỔNG THỂ & CÁC KHỐI CHÍNH */
 /* ================================================================= */
