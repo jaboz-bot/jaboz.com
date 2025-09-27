@@ -38,11 +38,10 @@
     --shadow-color: rgba(255, 255, 255, 0.05); /* Màu bóng đổ rất nhẹ */
 }
 
-/* ---------------------------------------------------------------- */
-/* ÁP DỤNG CƠ BẢN VÀ SỬA LỖI TÊN BIẾN */
-/* ---------------------------------------------------------------- */
+/* ================================================================= */
+/* CĂN CHỈNH TỔNG THỂ & CÁC KHỐI CHÍNH */
+/* ================================================================= */
 
-/* Áp dụng cho body và tất cả section */
 body {
     margin: 0;
     font-family: "Segoe UI", Tahoma, sans-serif;
@@ -50,30 +49,41 @@ body {
     color: var(--color-text);
 }
 
+/* ÁP DỤNG CĂN GIỮA KHỐI NỘI DUNG CHÍNH (QUAN TRỌNG NHẤT) */
+/* Tất cả header, section, footer sẽ được giới hạn 1200px và căn ra giữa màn hình */
+header, section, footer {
+    max-width: 1200px; 
+    margin-left: auto;
+    margin-right: auto;
+    padding: 20px 20px; /* Bỏ padding % để tránh xung đột với margin auto */
+}
+
+/* ================================================================= */
+/* HEADER & NAVIGATION */
+/* ================================================================= */
+
 header {
-    /* ĐÃ SỬA: Thay var(--header-footer-bg) thành var(--color-header) */
-    background: var(--color-header); 
-    padding: 20px 10%;
+    background: var(--color-header);
     border-bottom-left-radius: 20px;
     border-bottom-right-radius: 20px;
-    text-align: center;
     position: relative;
     z-index: 10;
-    /* Đã dùng biến mới: --shadow-color */
     box-shadow: 0 4px 10px var(--shadow-color);
     display: flex;
-    justify-content: space-between;
+    justify-content: space-between; /* Giữ Logo, Nav và Cart dàn đều */
     align-items: center;
 }
 
-h1, h2, h3, h4 {
-    color: var(--color-heading); /* Áp dụng màu tiêu đề riêng biệt */
+/* Thanh điều hướng chính */
+.main-nav {
+    margin: 0 auto; /* Đẩy thanh Nav ra giữa khoảng trống còn lại */
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-/* Liên kết điều hướng */
 .main-nav a { 
-    margin: 0 10px; 
-    /* ĐÃ SỬA: Thay var(--text) thành var(--color-text) */
+    margin: 0 15px; /* Tăng khoảng cách giữa các link một chút */
     color: var(--color-text); 
     font-weight: 500; 
     text-decoration: none;
@@ -81,19 +91,28 @@ h1, h2, h3, h4 {
 }
 
 .main-nav a:hover {
-    color: var(--color-primary); /* Khi hover đổi sang màu hồng chủ đạo */
+    color: var(--color-primary); 
+}
+
+/* ================================================================= */
+/* TIÊU ĐỀ, NÚT & CÁC THÀNH PHẦN KHÁC */
+/* ================================================================= */
+
+h1, h2, h3, h4 {
+    color: var(--color-heading);
 }
 
 /* Các Nút (Buttons) */
 .button {
     background: var(--color-button);
-    color: var(--color-button-text) !important; /* Đảm bảo chữ trên nút nổi bật */
+    color: var(--color-button-text) !important; 
     padding: 10px 20px;
     border-radius: 30px;
     text-decoration: none;
     font-weight: bold;
     transition: background 0.3s, transform 0.3s;
     box-shadow: 0 2px 5px var(--shadow-color);
+    display: inline-block; /* Quan trọng để nút được căn giữa với text-align: center */
 }
 
 .button:hover {
@@ -101,12 +120,11 @@ h1, h2, h3, h4 {
     transform: translateY(-2px);
 }
 
-/* Footer (sử dụng cùng màu header) */
+/* Footer */
 footer {
     background: var(--color-header);
     color: var(--color-text);
-    text-align: center;
-    padding: 20px 10%;
+    text-align: center; /* Căn giữa nội dung footer */
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
     margin-top: 40px;
@@ -118,26 +136,21 @@ footer {
     top: 50px;
     right: 0;
     width: 250px;
-    /* Sử dụng biến nền intro mới */
     background: var(--color-intro-bg); 
     border-radius: 15px;
     box-shadow: 0 4px 12px var(--shadow-color);
     padding: 15px;
     display: none; 
-    text-align: left;
-    border: 1px solid var(--color-header); /* Thêm đường viền nhẹ */
+    text-align: center; /* Căn giữa nội dung trong dropdown */
+    border: 1px solid var(--color-header); 
 }
 
-.cart-dropdown h3 { margin-bottom: 10px; font-size: 1.1rem; }
-.cart-dropdown ul { list-style: none; padding-left: 0; margin-bottom: 10px; }
-.cart-dropdown li { 
-    margin-bottom: 5px; 
-    border-bottom: 1px dashed var(--color-header);
-    padding-bottom: 5px;
-}
-.cart-dropdown .button { 
-    display: block; 
-    width: 100%; 
-    text-align: center; 
-    margin-top: 10px;
+/* Phần giới thiệu/Banner (Ví dụ thẻ <section class="intro">) */
+.intro {
+    background: var(--color-intro-bg); 
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 8px 20px var(--shadow-color);
+    margin-top: -30px; 
+    text-align: center; /* Căn giữa văn bản và nút trong Intro */
 }
