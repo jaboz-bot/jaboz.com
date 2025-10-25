@@ -6,6 +6,7 @@
 <title>Máy hỗ trợ giọng nói</title>
 <link rel="manifest" href="manifest.json">
 <style>
+/* ĐÃ SỬA: PHẦN CSS */
 body {
     font-family:'Segoe UI',sans-serif; background:#e3f2fd;
     margin:0; padding:0; text-align:center;
@@ -31,13 +32,21 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
 .play-control-btn{background:linear-gradient(45deg,#4CAF50,#43A047);}
 .current-btn-color{background:#ff9800;}
 #settingsArea{margin-top:30px;}
+/* NHÓM NÚT ĐỎ (NÚT KHÓA VÀ NÚT MỞ KHÓA) */
 #settingsArea .btn:first-child,#unlock-btn{
     background:linear-gradient(45deg,#f44336,#d32f2f);
     width:200px;margin:20px auto;display:block;
 }
 .control-container.locked{
     position:fixed;top:0;left:0;width:100%;height:100%;
+    /* Quan trọng: Dùng Flexbox để căn giữa và đẩy nút unlock xuống đáy */
     display:flex;flex-direction:column;justify-content:center;align-items:center;
+}
+/* SỬA 1: Đẩy nút Mở Khóa xuống đáy khi bị Khóa */
+.control-container.locked #unlock-btn {
+    width:160px; /* Giữ nguyên kích thước nhỏ hơn */
+    margin-top: auto; /* Dùng để đẩy nút xuống */
+    margin-bottom: 50px; /* Tạo khoảng cách với đáy trang */
 }
 #popup{
     position:absolute;bottom:100%;left:50%;
@@ -46,7 +55,9 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
     border-radius:12px;font-size:18px;display:none;z-index:101;
     max-width:90%;white-space:pre-wrap;text-align:center;transition:0.5s;
 }
-.control-container.locked #popup{position:fixed;top:20%;transform:translateX(-50%);z-index:1000;}
+/* SỬA 2: Hạ thấp Popup xuống (từ 20% xuống 40%) */
+.control-container.locked #popup{position:fixed;top:40%;transform:translateX(-50%);z-index:1000;}
+
 #tts-info{margin-top:40px;padding-top:20px;border-top:1px solid #ddd;color:#616161;}
 </style>
 </head>
@@ -73,7 +84,7 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
         Nếu không thấy âm thanh, vui lòng tải giọng nói tại
         <a href="market://details?id=com.google.android.tts"
            onclick="window.open('https://play.google.com/store/apps/details?id=com.google.android.tts','_blank'); return false;">
-           Google Play
+            Google Play
         </a>
     </div>
 </div>
@@ -100,6 +111,7 @@ function showPopup(text){
     const popup=document.getElementById('popup');
     popup.textContent=text;
     const isLocked=controlArea.classList.contains('locked');
+    // Đã thay đổi giá trị Y ban đầu để tạo hiệu ứng trượt mượt mà hơn
     popup.style.transform=isLocked?'translateX(-50%) translateY(30px)':'translateX(-50%) translateY(20px)';
     popup.style.display='block';popup.style.opacity='1';
     popup.style.transform='translateX(-50%) translateY(0)';
@@ -139,10 +151,11 @@ function resetDefaults(){
 function getCards(){return document.querySelectorAll('.card input');}
 function cleanupEmptyCards(){
     let cards=document.querySelectorAll('.card'),changed=false;
-    [...cards].forEach(c=>{
+    // Sử dụng for...of để lặp qua cards
+    for(let c of cards) {
         let i=c.querySelector('input');
         if(!i||!i.value.trim()){c.remove();changed=true;}
-    });
+    }
     if(changed){saveAll();adjustIndex();}
 }
 function adjustIndex(){
@@ -168,6 +181,11 @@ function toggleLock(lock){
     controlArea.classList.toggle('locked',lock);
     s.style.display=c.style.display=lock?'none':'';
     u.style.display=lock?'block':'none';
+    
+    // Đảm bảo cleanup khi khóa để chỉ mục không trỏ đến thẻ rỗng
+    if (lock) {
+        cleanupEmptyCards();
+    }
 }
 
 // --- PWA cài đặt ---
