@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Máy hỗ trợ giọng nói</title>
+<link rel="manifest" href="manifest.json">
 <style>
 /* --- CSS ĐÃ CHỈNH SỬA --- */
 body { font-family:'Segoe UI', sans-serif; background:#e3f2fd; margin:0; padding:20px; text-align:center;}
@@ -17,6 +18,18 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 .delete-btn {position:absolute; top:6px; right:8px; border:none; background:transparent; color:#e53935; font-size:18px; cursor:pointer;}
 .add-btn, .reset-btn {background:linear-gradient(45deg,#2196F3,#1976D2); width:200px; margin:8px auto; display:block;}
 .add-btn:hover, .reset-btn:hover {transform:scale(1.05);}
+
+/* THÊM: CSS cho nút Cài đặt App */
+.install-btn {
+    background:linear-gradient(45deg, #00BCD4, #0097A7);
+    width:200px;
+    margin:8px auto;
+    display:block;
+}
+.install-btn:hover {
+    transform:scale(1.05);
+}
+/* END THÊM */
 
 /* CONTAINER ĐIỀU KHIỂN - Tối ưu cho chế độ CHƯA KHÓA */
 .control-container {
@@ -36,7 +49,7 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     justify-content: center;
     align-items: center;
     gap: 15px; 
-    margin: 25px 0 0 0; /* ĐÃ CHỈNH SỬA: Từ 15px lên 25px */
+    margin: 25px 0 0 0;
 }
 
 /* NÚT ĐIỀU KHIỂN - VUÔNG BO GÓC */
@@ -144,6 +157,7 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 
 <div id="settingsArea">
     <button class="btn" onclick="toggleLock(true)">Khóa giao diện</button>
+    <button class="btn install-btn" id="installButton" style="display:none;">📲 Tạo Lối tắt (Cài đặt App)</button>
     <button class="btn add-btn" onclick="addButton()">➕ Thêm Nút</button>
     <button class="btn reset-btn" onclick="resetDefaults()">♻️ Reset mặc định</button>
 </div>
@@ -157,10 +171,11 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 </div>
 
 <script>
+let deferredPrompt; // Biến lưu trữ sự kiện cài đặt PWA
 const defaults=["Tôi muốn ăn cơm","Tôi muốn uống nước","Tôi muốn đi vệ sinh","Tôi muốn đi ngủ"];
 let currentIndex=0;
 const controlArea = document.getElementById('controlArea');
-
+const installButton = document.getElementById('installButton'); // Lấy nút cài đặt
 
 // --- Nút phát âm ---
 function speak(text){
@@ -205,7 +220,7 @@ function showPopup(text){
     },2000);
 }
 
-// --- Quản lý nút (Giữ nguyên) ---
+// --- Quản lý nút ---
 function addButton(value=''){
     const card=document.createElement('div'); card.className='card';
     const input=document.createElement('input'); input.value=value; input.placeholder="Nhập văn bản..."; input.onchange=saveAll;
@@ -247,7 +262,7 @@ function resetDefaults(){
 
 function getCards(){ return document.querySelectorAll('.card input'); }
 
-// --- 3 nút điều khiển (Giữ nguyên logic) ---
+// --- 3 nút điều khiển ---
 function prevSpeak(){
     const cards=getCards();
     if(cards.length===0) return;
@@ -266,7 +281,7 @@ function currentSpeak(){
     speak(cards[currentIndex].value.trim());
 }
 
-// --- Khóa / Mở khóa (Điều chỉnh vị trí Popup) ---
+// --- Khóa / Mở khóa ---
 function toggleLock(lock){
     const settings=document.getElementById('settingsArea');
     const container=document.getElementById('buttonContainer');
@@ -303,6 +318,47 @@ function toggleLock(lock){
         unlockBtn.style.display='none';
     }
 }
+
+// ==========================================================
+// ** PHẦN CODE BỔ SUNG CHO TÍNH NĂNG "TẠO LỐI TẮT APP" (PWA) **
+// ==========================================================
+
+// 1. Lưu lại sự kiện trước khi trình duyệt hiển thị lời nhắc cài đặt
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Ngăn trình duyệt hiển thị lời nhắc mặc định
+    e.preventDefault();
+    // Lưu sự kiện để có thể kích hoạt sau
+    deferredPrompt = e;
+    // Hiển thị nút cài đặt (vì trình duyệt đã sẵn sàng)
+    installButton.style.display = 'block';
+    // Gắn sự kiện click cho nút
+    installButton.addEventListener('click', installApp);
+});
+
+// 2. Hàm kích hoạt lời nhắc cài đặt
+function installApp() {
+    if (deferredPrompt) {
+        // Kích hoạt lời nhắc cài đặt đã lưu
+        deferredPrompt.prompt();
+        // Chờ phản hồi của người dùng
+        deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+                console.log('Người dùng đã chấp nhận cài đặt.');
+            } else {
+                console.log('Người dùng đã từ chối cài đặt.');
+            }
+            // Xóa sự kiện và ẩn nút
+            deferredPrompt = null;
+            installButton.style.display = 'none';
+        });
+    }
+}
+
+// 3. Xử lý sau khi người dùng đã cài đặt (thường ẩn nút)
+window.addEventListener('appinstalled', () => {
+    // Ẩn nút sau khi ứng dụng đã được cài đặt thành công
+    installButton.style.display = 'none';
+});
 
 // ==========================================================
 // ** PHẦN CODE BỔ SUNG ĐỂ GIẢM ĐỘ TRỄ KHỞI TẠO (WARM-UP) **
