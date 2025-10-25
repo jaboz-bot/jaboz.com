@@ -36,11 +36,12 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     justify-content: center;
     align-items: center;
     gap: 15px; 
-    margin: 25px 0 0 0; /* Khoảng cách trên là 25px */
+    margin: 25px 0 0 0; /* ĐÃ CHỈNH SỬA: Từ 15px lên 25px */
 }
 
-/* NÚT ĐIỀU KHIỂN CHUNG - VUÔNG BO GÓC */
+/* NÚT ĐIỀU KHIỂN - VUÔNG BO GÓC */
 .control-btn {
+    width: 150px; 
     height: 60px; 
     border-radius: 8px;
     background: #ff9800;
@@ -55,60 +56,6 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     align-items: center;
 }
 .control-btn:hover {transform:scale(1.1);}
-
-
-/* =========================================== */
-/* === TẠO HÌNH DẠNG MŨI TÊN BẰNG CSS === */
-/* =========================================== */
-
-/* Nút chỉ mũi tên: Giảm chiều rộng và tăng font */
-.control-btn.prev-btn-shape,
-.control-btn.next-btn-shape {
-    width: 80px; /* Giảm chiều rộng cho nút */
-    font-size: 30px; /* Tăng kích thước icon mũi tên */
-    position: relative;
-    overflow: visible; 
-}
-
-/* Hiệu ứng mũi tên sang trái (Phát trước) */
-.control-btn.prev-btn-shape::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    right: -10px; /* Đẩy ra ngoài nút */
-    transform: translateY(-50%) rotate(45deg);
-    width: 20px;
-    height: 20px;
-    background: #ff9800; /* Màu nền nút */
-    border-radius: 4px; /* Bo góc để khớp với nút */
-    z-index: 1; 
-}
-.control-btn.prev-btn-shape:hover::after {
-    transform: translateY(-50%) rotate(45deg) scale(1.1); /* Đồng bộ hiệu ứng hover */
-}
-
-/* Hiệu ứng mũi tên sang phải (Phát sau) */
-.control-btn.next-btn-shape::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: -10px; /* Đẩy ra ngoài nút */
-    transform: translateY(-50%) rotate(45deg);
-    width: 20px;
-    height: 20px;
-    background: #ff9800; /* Màu nền nút */
-    border-radius: 4px; /* Bo góc để khớp với nút */
-    z-index: 1;
-}
-.control-btn.next-btn-shape:hover::before {
-    transform: translateY(-50%) rotate(45deg) scale(1.1); /* Đồng bộ hiệu ứng hover */
-}
-
-/* Chỉnh lại nút Phát lại (vẫn hình chữ nhật) */
-.control-btn:not(.prev-btn-shape):not(.next-btn-shape) {
-    width: 150px; 
-}
-
 
 /* NÚT KHÓA GIAO DIỆN (TRONG SETTINGS) - ĐỒNG BỘ MÀU ĐỎ */
 #settingsArea .btn:first-child {
@@ -188,9 +135,9 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 <div class="control-container" id="controlArea">
     <div id="popup"></div>
     <div class="navigation-group">
-        <button class="control-btn prev-btn-shape" onclick="prevSpeak()">◀︎</button>
+        <button class="control-btn" onclick="prevSpeak()">Phát trước</button>
         <button class="control-btn" onclick="currentSpeak()">Phát lại</button>
-        <button class="control-btn next-btn-shape" onclick="nextSpeak()">▶︎</button>
+        <button class="control-btn" onclick="nextSpeak()">Phát sau</button>
     </div>
     <button class="btn" id="unlock-btn" onclick="toggleLock(false)" style="display:none;">Mở khóa giao diện</button>
 </div>
