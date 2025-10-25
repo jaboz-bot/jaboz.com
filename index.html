@@ -92,6 +92,30 @@
 <body>
   <h1>Trang hỗ trợ giọng nói</h1>
   <div class="container" id="buttonContainer">
+    <!-- Nút đầu tiên không có X -->
+    <div class="card">
+      <input type="text" id="input1" placeholder="Nhập văn bản cho Nút 1">
+      <button class="play-btn" onclick="playText(1)">🔊 Play Nút 1</button>
+    </div>
+
+    <!-- Nút 2,3,4 có X -->
+    <div class="card">
+      <input type="text" id="input2" placeholder="Nhập văn bản cho Nút 2">
+      <button class="play-btn" onclick="playText(2)">🔊 Play Nút 2</button>
+      <button class="delete-btn" onclick="deleteButton(this.parentElement)">❌</button>
+    </div>
+    <div class="card">
+      <input type="text" id="input3" placeholder="Nhập văn bản cho Nút 3">
+      <button class="play-btn" onclick="playText(3)">🔊 Play Nút 3</button>
+      <button class="delete-btn" onclick="deleteButton(this.parentElement)">❌</button>
+    </div>
+    <div class="card">
+      <input type="text" id="input4" placeholder="Nhập văn bản cho Nút 4">
+      <button class="play-btn" onclick="playText(4)">🔊 Play Nút 4</button>
+      <button class="delete-btn" onclick="deleteButton(this.parentElement)">❌</button>
+    </div>
+
+    <!-- Nút thêm mới -->
     <div class="card">
       <button class="add-btn" onclick="addButton()">➕ Thêm Nút</button>
     </div>
@@ -102,31 +126,24 @@
       alert("Trình duyệt của bạn không hỗ trợ Web Speech API.");
     }
 
-    let buttonCount = 0;
+    let buttonCount = 4;
 
-    const defaultButtons = [
-      "Tôi muốn ăn cơm",
-      "Tôi muốn uống nước",
-      "Tôi muốn đi vệ sinh",
-      "Tôi muốn đi ngủ"
-    ];
-
-    function playText(number) {
-      const input = document.getElementById('input' + number);
-      const text = input.value.trim();
+    function playText(buttonNumber) {
+      const inputElement = document.getElementById('input' + buttonNumber);
+      const text = inputElement.value.trim();
       if (text) {
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'vi-VN';
         speechSynthesis.speak(utterance);
-        localStorage.setItem('button' + number, text);
+        localStorage.setItem('button' + buttonNumber, text);
       } else {
         alert("Vui lòng nhập văn bản trước khi nhấn nút.");
       }
     }
 
-    function addButton(value='') {
+    function addButton() {
       buttonCount++;
-      createCard(buttonCount, value);
+      createCard(buttonCount, '');
     }
 
     function createCard(number, value) {
@@ -144,14 +161,14 @@
       const btn = document.createElement('button');
       btn.className = 'play-btn';
       btn.innerHTML = '🔊 Play Nút ' + number;
-      btn.onclick = () => playText(number);
+      btn.onclick = function() { playText(number); };
       card.appendChild(btn);
 
       if (number !== 1) {
         const del = document.createElement('button');
         del.className = 'delete-btn';
         del.innerHTML = '❌';
-        del.onclick = () => deleteButton(card);
+        del.onclick = function() { deleteButton(card); };
         card.appendChild(del);
       }
 
@@ -163,9 +180,6 @@
 
     function deleteButton(card) {
       if(confirm('Bạn có chắc muốn xóa nút này?')) {
-        const input = card.querySelector('input');
-        const id = input.id.replace('input','');
-        localStorage.removeItem('button' + id);
         card.remove();
         sortButtons();
       }
@@ -181,14 +195,10 @@
         input.id = 'input' + number;
         input.placeholder = 'Nhập văn bản cho Nút ' + number;
         btn.innerHTML = '🔊 Play Nút ' + number;
-        btn.onclick = () => playText(number);
+        btn.onclick = function() { playText(number); };
 
-        // Update localStorage
+        localStorage.removeItem('button' + (index + 2));
         localStorage.setItem('button' + number, input.value);
-        // Remove old keys
-        for(let i = number+1; localStorage.getItem('button'+i); i++){
-          localStorage.removeItem('button'+i);
-        }
 
         const delBtn = card.querySelector('.delete-btn');
         if(number === 1 && delBtn) delBtn.remove();
@@ -196,7 +206,7 @@
           const del = document.createElement('button');
           del.className = 'delete-btn';
           del.innerHTML = '❌';
-          del.onclick = () => deleteButton(card);
+          del.onclick = function() { deleteButton(card); };
           card.appendChild(del);
         }
       });
@@ -205,13 +215,12 @@
 
     window.onload = function() {
       const container = document.getElementById('buttonContainer');
-      if(localStorage.length === 0){
-        defaultButtons.forEach(text => addButton(text));
-      } else {
-        let i = 1;
-        while(localStorage.getItem('button'+i)){
-          addButton(localStorage.getItem('button'+i));
-          i++;
+      for(let i = 1; i <= localStorage.length; i++) {
+        const val = localStorage.getItem('button' + i);
+        if(val !== null && !document.getElementById('input' + i)) {
+          createCard(i, val);
+        } else if(val !== null) {
+          document.getElementById('input' + i).value = val;
         }
       }
       sortButtons();
