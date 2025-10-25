@@ -5,73 +5,100 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hỗ trợ giọng nói</title>
 <style>
-  body {
-    font-family: 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg, #e3f2fd, #ffffff);
-    margin: 0; padding: 30px;
-    text-align: center;
-  }
-  h1 { margin-bottom: 20px; }
-  .container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 20px;
-    margin-bottom: 20px;
-  }
-  .card {
-    background: #fff;
-    padding: 18px;
-    border-radius: 12px;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  input {
-    padding: 10px;
-    font-size: 16px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    width: 100%;
-  }
-  .btn {
-    padding: 12px;
-    border: none;
-    border-radius: 8px;
-    color: white;
-    font-size: 16px;
-    cursor: pointer;
-    transition: 0.3s;
-  }
-  .play-btn { background: linear-gradient(45deg, #4CAF50, #43A047); }
-  .play-btn:hover { transform: scale(1.05); }
-  .delete-btn {
-    position: absolute;
-    top: 6px; right: 8px;
-    border: none; background: transparent;
-    color: #e53935; font-size: 18px; cursor: pointer;
-  }
-  .add-btn, .reset-btn {
-    background: linear-gradient(45deg, #2196F3, #1976D2);
-    width: 200px;
-    margin: 8px auto;
-    display: block;
-  }
-  .add-btn:hover, .reset-btn:hover { transform: scale(1.05); }
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #e3f2fd, #ffffff);
+  margin: 0; padding: 30px;
+  text-align: center;
+}
+h1 { margin-bottom: 20px; }
+.container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+  margin-bottom: 20px;
+}
+.card {
+  background: #fff;
+  padding: 18px;
+  border-radius: 12px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+input {
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  width: 100%;
+}
+.btn {
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.play-btn { background: linear-gradient(45deg, #4CAF50, #43A047); }
+.play-btn:hover { transform: scale(1.05); }
+.delete-btn {
+  position: absolute;
+  top: 6px; right: 8px;
+  border: none; background: transparent;
+  color: #e53935; font-size: 18px; cursor: pointer;
+}
+.add-btn, .reset-btn {
+  background: linear-gradient(45deg, #2196F3, #1976D2);
+  width: 200px;
+  margin: 8px auto;
+  display: block;
+}
+.add-btn:hover, .reset-btn:hover { transform: scale(1.05); }
+
+/* nút điều khiển */
+.control-btn {
+  width: 60px; height: 60px;
+  border-radius: 50%;
+  background: #ff9800;
+  color: white;
+  font-size: 24px;
+  margin: 0 10px;
+  border: none;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.control-btn:hover { transform: scale(1.1); }
+.control-container {
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
 </style>
 </head>
 <body>
-  <h1>Máy hỗ trợ giọng nói</h1>
-  
-  <!-- Container các nút phát âm -->
-  <div class="container" id="buttonContainer"></div>
+<h1>Máy hỗ trợ giọng nói</h1>
 
-  <!-- Nút Thêm và Reset xếp dọc, cách container 30px -->
-  <div style="margin-top:30px;">
-    <button class="btn add-btn" onclick="addButton()">➕ Thêm Nút</button>
-    <button class="btn reset-btn" onclick="resetDefaults()">♻️ Reset mặc định</button>
-  </div>
+<div class="container" id="buttonContainer"></div>
+
+<!-- Nút Thêm và Reset xếp dọc -->
+<div style="margin-top:30px;">
+  <button class="btn add-btn" onclick="addButton()">➕ Thêm Nút</button>
+  <button class="btn reset-btn" onclick="resetDefaults()">♻️ Reset mặc định</button>
+</div>
+
+<!-- 3 nút điều khiển -->
+<div class="control-container">
+  <button class="control-btn" onclick="moveUp()">▲</button>
+  <button class="control-btn" onclick="playCurrent()">●</button>
+  <button class="control-btn" onclick="moveDown()">▼</button>
+</div>
 
 <script>
 const defaults = [
@@ -80,6 +107,8 @@ const defaults = [
   "Tôi muốn đi vệ sinh",
   "Tôi muốn đi ngủ"
 ];
+
+let currentIndex = 0;
 
 function speak(text) {
   const u = new SpeechSynthesisUtterance(text);
@@ -127,7 +156,28 @@ function resetDefaults() {
     localStorage.removeItem('voiceButtons');
     document.getElementById('buttonContainer').innerHTML = "";
     loadButtons();
+    currentIndex = 0;
   }
+}
+
+// --- 3 nút điều khiển ---
+function moveUp() {
+  const cards = document.querySelectorAll('.card');
+  if(cards.length === 0) return;
+  currentIndex = (currentIndex - 1 + cards.length) % cards.length;
+  cards[currentIndex].querySelector('input').focus();
+}
+function moveDown() {
+  const cards = document.querySelectorAll('.card');
+  if(cards.length === 0) return;
+  currentIndex = (currentIndex + 1) % cards.length;
+  cards[currentIndex].querySelector('input').focus();
+}
+function playCurrent() {
+  const cards = document.querySelectorAll('.card');
+  if(cards.length === 0) return;
+  const text = cards[currentIndex].querySelector('input').value.trim();
+  if(text) speak(text);
 }
 
 window.onload = loadButtons;
