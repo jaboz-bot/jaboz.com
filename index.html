@@ -153,12 +153,12 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     top: auto; 
     left: auto;
     transform: none; 
-    /* ĐÃ SỬA: Đẩy nhóm 3 nút xuống 250px so với đỉnh màn hình */
+    /* Đẩy nhóm 3 nút xuống 250px so với đỉnh màn hình */
     margin-top: 250px; 
     margin-bottom: 0; 
 }
 
-/* SỬA: Giữ nguyên khoảng cách 100px so với đáy nhóm 3 nút */
+/* Nút Mở khóa: Giữ nguyên khoảng cách 100px so với đáy nhóm 3 nút */
 .control-container.locked #unlock-btn {
     display: block;
     position: relative; 
@@ -194,8 +194,8 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 /* SỬA: VỊ TRÍ MỚI KHI Ở CHẾ ĐỘ KHÓA (Cố định ở trên nhóm nút) */
 .control-container.locked #popup {
     position: fixed; 
-    /* Giữ nguyên top 15% để gần với thông tin TTS/Google Play */
-    top: 15%; 
+    /* ĐÃ SỬA: Tăng từ 15% lên 20% để kéo xuống */
+    top: 20%; 
     bottom: auto; 
     left: 50%;
     transform: translateX(-50%);
