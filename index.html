@@ -3,239 +3,226 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Trang hỗ trợ giọng nói</title>
+  <title>Trợ lý giọng nói</title>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #ece9e6, #ffffff);
-      padding: 30px;
+      font-family: Arial, sans-serif;
+      background: #f2f5fa;
       margin: 0;
+      padding: 30px;
     }
-
-    h1 {
+    h2 {
       text-align: center;
+      color: #333;
     }
-
     .container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 20px;
-    }
-
-    .card {
-      background: #fff;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      max-width: 500px;
+      margin: 0 auto;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 15px;
+    }
+    .box {
       position: relative;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
-
-    .card input {
+    .controls {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    input[type="text"] {
+      width: 100%;
       padding: 10px;
-      border-radius: 8px;
+      font-size: 16px;
       border: 1px solid #ccc;
-      font-size: 16px;
+      border-radius: 6px;
     }
-
-    .card button.play-btn {
-      padding: 12px;
+    button {
+      flex: 1;
+      padding: 10px;
       border: none;
-      border-radius: 8px;
-      background: linear-gradient(45deg, #4CAF50, #45a049);
-      color: white;
-      font-size: 16px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-
-    .card button.play-btn:hover {
-      transform: scale(1.05);
-      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-    }
-
-    .delete-btn {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      background: transparent;
-      border: none;
-      color: red;
-      font-size: 18px;
+      border-radius: 6px;
+      font-size: 15px;
       cursor: pointer;
       transition: 0.2s;
     }
-
-    .delete-btn:hover {
-      transform: scale(1.2);
-    }
-
+    .play-btn { background: #4CAF50; color: white; }
+    .ai-btn { background: #007bff; color: white; }
+    .del-btn { background: #ff4d4d; color: white; flex: 0.3; }
     .add-btn, .reset-btn {
-      padding: 12px;
-      border: none;
-      border-radius: 8px;
-      background: linear-gradient(45deg, #2196F3, #1976D2);
+      background: #333;
       color: white;
-      font-size: 16px;
-      cursor: pointer;
-      transition: 0.3s;
+      width: 100%;
+      margin-top: 10px;
     }
+    button:hover { opacity: 0.85; }
 
-    .add-btn:hover, .reset-btn:hover {
-      transform: scale(1.05);
-      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    /* Popup sửa lỗi */
+    .popup {
+      position: absolute;
+      top: -45px;
+      left: 10px;
+      background: #fff;
+      border: 1px solid #aaa;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      padding: 10px;
+      font-size: 14px;
+      z-index: 10;
+      display: none;
+    }
+    .popup button {
+      padding: 5px 8px;
+      margin-left: 8px;
+      font-size: 13px;
     }
   </style>
 </head>
 <body>
-  <h1>Trang hỗ trợ giọng nói</h1>
-  <div class="container" id="buttonContainer">
-    <!-- Nút thêm mới -->
-    <div class="card">
-      <button class="add-btn" onclick="addButton()">➕ Thêm Nút</button>
-      <button class="reset-btn" onclick="resetDefaults()">♻️ Reset về mặc định</button>
-    </div>
-  </div>
+  <h2>Trợ lý giọng nói cho người tai biến</h2>
+  <div class="container" id="container"></div>
+  <button class="add-btn" onclick="addBox()">➕ Thêm nút</button>
+  <button class="reset-btn" onclick="resetDefault()">🔄 Reset về mặc định</button>
 
   <script>
-    if (!('speechSynthesis' in window)) {
-      alert("Trình duyệt của bạn không hỗ trợ Web Speech API.");
-    }
+    const container = document.getElementById("container");
 
-    let buttonCount = 0;
-
-    const defaultButtons = [
+    const defaultTexts = [
       "Tôi muốn ăn cơm",
       "Tôi muốn uống nước",
       "Tôi muốn đi vệ sinh",
       "Tôi muốn đi ngủ"
     ];
 
-    function playText(number) {
-      const input = document.getElementById('input' + number);
-      const text = input.value.trim();
-      if (text) {
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'vi-VN';
-        speechSynthesis.speak(utterance);
-        localStorage.setItem('button' + number, text);
+    // Khởi tạo ban đầu
+    window.onload = () => {
+      const saved = JSON.parse(localStorage.getItem("buttons"));
+      if (saved && saved.length) {
+        saved.forEach(text => createBox(text));
       } else {
-        alert("Vui lòng nhập văn bản trước khi nhấn nút.");
+        defaultTexts.forEach(text => createBox(text));
+        saveAll();
       }
-    }
-
-    function addButton(value='') {
-      buttonCount++;
-      createCard(buttonCount, value);
-    }
-
-    function createCard(number, value) {
-      const container = document.getElementById('buttonContainer');
-      const card = document.createElement('div');
-      card.className = 'card';
-
-      const input = document.createElement('input');
-      input.type = 'text';
-      input.id = 'input' + number;
-      input.placeholder = 'Nhập văn bản cho Nút ' + number;
-      input.value = value;
-      card.appendChild(input);
-
-      const btn = document.createElement('button');
-      btn.className = 'play-btn';
-      btn.innerHTML = '🔊 Play Nút ' + number;
-      btn.onclick = () => playText(number);
-      card.appendChild(btn);
-
-      if (number !== 1) {
-        const del = document.createElement('button');
-        del.className = 'delete-btn';
-        del.innerHTML = '❌';
-        del.onclick = () => deleteButton(card);
-        card.appendChild(del);
-      }
-
-      const addBtnCard = container.lastElementChild;
-      container.insertBefore(card, addBtnCard);
-
-      localStorage.setItem('button' + number, value);
-    }
-
-    function deleteButton(card) {
-      if(confirm('Bạn có chắc muốn xóa nút này?')) {
-        const input = card.querySelector('input');
-        const id = input.id.replace('input','');
-        localStorage.removeItem('button' + id);
-        card.remove();
-        sortButtons();
-      }
-    }
-
-    function sortButtons() {
-      const container = document.getElementById('buttonContainer');
-      const cards = Array.from(container.querySelectorAll('.card')).filter(c => !c.querySelector('.add-btn'));
-      cards.forEach((card, index) => {
-        const number = index + 1;
-        const input = card.querySelector('input');
-        const btn = card.querySelector('.play-btn');
-        input.id = 'input' + number;
-        input.placeholder = 'Nhập văn bản cho Nút ' + number;
-        btn.innerHTML = '🔊 Play Nút ' + number;
-        btn.onclick = () => playText(number);
-
-        localStorage.setItem('button' + number, input.value);
-
-        // Xóa key thừa
-        for(let i = number+1; localStorage.getItem('button'+i); i++){
-          localStorage.removeItem('button'+i);
-        }
-
-        const delBtn = card.querySelector('.delete-btn');
-        if(number === 1 && delBtn) delBtn.remove();
-        if(number !== 1 && !delBtn) {
-          const del = document.createElement('button');
-          del.className = 'delete-btn';
-          del.innerHTML = '❌';
-          del.onclick = () => deleteButton(card);
-          card.appendChild(del);
-        }
-      });
-      buttonCount = cards.length;
-    }
-
-    function resetDefaults() {
-      if(confirm("Bạn có muốn reset về 4 nút mặc định?")) {
-        // Xóa tất cả nút hiện có (trừ nút thêm/reset)
-        const container = document.getElementById('buttonContainer');
-        const cards = Array.from(container.querySelectorAll('.card')).filter(c => !c.querySelector('.add-btn'));
-        cards.forEach(c => c.remove());
-
-        // Xóa localStorage tất cả các button
-        Object.keys(localStorage).forEach(key => {
-          if(key.startsWith('button')) localStorage.removeItem(key);
-        });
-
-        // Thêm lại 4 nút mặc định
-        defaultButtons.forEach(text => addButton(text));
-        sortButtons();
-      }
-    }
-
-    window.onload = function() {
-      const container = document.getElementById('buttonContainer');
-      if(localStorage.length === 0){
-        defaultButtons.forEach(text => addButton(text));
-      } else {
-        let i = 1;
-        while(localStorage.getItem('button'+i)){
-          addButton(localStorage.getItem('button'+i));
-          i++;
-        }
-      }
-      sortButtons();
     };
+
+    // Tạo khung nút
+    function createBox(text = "") {
+      const box = document.createElement("div");
+      box.className = "box";
+
+      const input = document.createElement("input");
+      input.type = "text";
+      input.value = text;
+
+      const popup = document.createElement("div");
+      popup.className = "popup";
+      popup.innerHTML = `
+        <span id="popupText"></span>
+        <button onclick="confirmFix(this)">Đồng ý</button>
+        <button onclick="closePopup(this)">Hủy</button>
+      `;
+      box.appendChild(popup);
+
+      const controls = document.createElement("div");
+      controls.className = "controls";
+
+      const aiBtn = document.createElement("button");
+      aiBtn.textContent = "🪄 Sửa lỗi";
+      aiBtn.className = "ai-btn";
+      aiBtn.onclick = () => suggestFix(input, popup);
+
+      const playBtn = document.createElement("button");
+      playBtn.textContent = "▶️ Phát";
+      playBtn.className = "play-btn";
+      playBtn.onclick = () => playText(input.value);
+
+      const delBtn = document.createElement("button");
+      delBtn.textContent = "❌";
+      delBtn.className = "del-btn";
+      delBtn.onclick = () => { box.remove(); saveAll(); };
+
+      controls.append(aiBtn, playBtn, delBtn);
+      box.append(input, controls);
+      container.appendChild(box);
+    }
+
+    // Phát giọng nói
+    function playText(text) {
+      if (!text.trim()) return;
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = "vi-VN";
+      speechSynthesis.speak(utter);
+    }
+
+    // Gợi ý sửa lỗi (offline)
+    function suggestFix(input, popup) {
+      const text = input.value.trim();
+      if (!text) return;
+
+      const fixed = autoFixSentence(text);
+      if (fixed === text) return; // Đúng rồi -> im lặng
+
+      popup.style.display = "block";
+      popup.querySelector("#popupText").textContent = `Có phải bạn muốn viết: "${fixed}"?`;
+      popup.dataset.fixed = fixed;
+    }
+
+    function confirmFix(btn) {
+      const popup = btn.closest(".popup");
+      const fixed = popup.dataset.fixed;
+      const input = popup.parentElement.querySelector("input");
+      input.value = fixed;
+      popup.style.display = "none";
+      saveAll();
+    }
+
+    function closePopup(btn) {
+      btn.closest(".popup").style.display = "none";
+    }
+
+    // Lưu toàn bộ vào localStorage
+    function saveAll() {
+      const all = Array.from(document.querySelectorAll(".box input")).map(i => i.value);
+      localStorage.setItem("buttons", JSON.stringify(all));
+    }
+
+    // Thêm nút mới
+    function addBox() {
+      createBox("");
+      saveAll();
+    }
+
+    // Reset mặc định
+    function resetDefault() {
+      if (!confirm("Bạn có chắc muốn xóa tất cả và khôi phục mặc định?")) return;
+      localStorage.removeItem("buttons");
+      container.innerHTML = "";
+      defaultTexts.forEach(text => createBox(text));
+      saveAll();
+    }
+
+    // Hàm sửa lỗi cơ bản
+    function autoFixSentence(text) {
+      // Chuyển thành chữ thường
+      let t = text.toLowerCase();
+      // Sửa lỗi phổ biến
+      t = t.replace(/\bmuon\b/g, "muốn")
+           .replace(/\ban\b/g, "ăn")
+           .replace(/\buong\b/g, "uống")
+           .replace(/\bnuc\b/g, "nước")
+           .replace(/\bvesinh\b/g, "vệ sinh")
+           .replace(/\bngu\b/g, "ngủ");
+      // Thêm dấu câu
+      if (!/[.!?]$/.test(t)) t += ".";
+      // Viết hoa đầu câu
+      t = t.charAt(0).toUpperCase() + t.slice(1);
+      return t;
+    }
   </script>
 </body>
 </html>
