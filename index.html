@@ -18,7 +18,7 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 .add-btn, .reset-btn {background:linear-gradient(45deg,#2196F3,#1976D2); width:200px; margin:8px auto; display:block;}
 .add-btn:hover, .reset-btn:hover {transform:scale(1.05);}
 
-/* CONTAINER ĐIỀU KHIỂN - GIỮ NGUYÊN (VẪN CĂN GIỮA) */
+/* CONTAINER ĐIỀU KHIỂN - GIỮ NGUYÊN (Dùng để căn giữa 3 nút) */
 .control-container {
     display:flex;
     flex-direction:column;
@@ -27,9 +27,8 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     margin-top:20px;
     position:relative;
     transition:0.3s;
-    /* Đảm bảo controlArea luôn có đủ không gian khi Fixed */
     min-height: 100vh; 
-    justify-content: center;
+    justify-content: center; /* Căn giữa theo chiều dọc */
 }
 
 /* KHU VỰC 3 NÚT - XẾP DỌC */
@@ -40,6 +39,8 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     align-items: center;
     gap: 15px; 
     margin: 10px 0;
+    /* Đảm bảo navigation-group không bị đẩy xuống bởi unlock-btn khi khóa */
+    margin-bottom: 200px; 
 }
 
 /* NÚT ĐIỀU KHIỂN - VUÔNG BO GÓC */
@@ -63,22 +64,20 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 /* NÚT KHÓA GIAO DIỆN (TRONG SETTINGS) - ĐỒNG BỘ MÀU ĐỎ */
 #settingsArea .btn:first-child {
     background: linear-gradient(45deg, #f44336, #d32f2f); /* Màu đỏ */
-    margin-bottom: 10px;
+    /* Khoảng cách này hiện tại là vừa phải (margin-bottom 10px mặc định) */
 }
 
-/* NÚT MỞ KHÓA - CĂN XUỐNG DƯỚI ĐÁY KHI Ở CHẾ ĐỘ KHÓA */
+/* NÚT MỞ KHÓA - CĂN XUỐNG DƯỚI VÀ TẠO KHOẢNG CÁCH HỢP LÝ */
 #unlock-btn {
-    position: absolute; /* Chuyển sang Absolute để căn dưới cùng */
-    bottom: 20px; /* Cách đáy 20px */
+    position: absolute; 
+    bottom: 80px; /* Cách đáy TĂNG LÊN (ví dụ: 80px) */
     left: 50%;
     transform: translateX(-50%);
     
-    /* Thuộc tính khác giữ nguyên */
-    background:linear-gradient(45deg, #f44336, #d32f2f); /* Màu đỏ */
+    background:linear-gradient(45deg, #f44336, #d32f2f);
     width:160px; 
     height: 60px;
     font-size: 18px;
-    margin-top: 0; /* Bỏ margin-top cũ */
 }
 
 #popup {
@@ -235,19 +234,22 @@ function toggleLock(lock){
     const container=document.getElementById('buttonContainer');
     const controlArea=document.getElementById('controlArea');
     const unlockBtn=document.getElementById('unlock-btn');
+    const navGroup=document.querySelector('.navigation-group');
+
     if(lock){
         settings.style.display='none';
         container.style.display='none';
         
-        // Điều chỉnh vị trí ControlArea để căn giữa 3 nút điều hướng 
-        // trong khi nút Mở khóa đã được căn riêng bằng position: absolute
+        // Điều chỉnh vị trí ControlArea khi khóa
         controlArea.style.position='fixed';
         controlArea.style.top='0';
         controlArea.style.left='0';
         controlArea.style.transform='none';
         controlArea.style.width='100%';
         controlArea.style.height='100%';
-        
+        // Quan trọng: Tăng margin-bottom của navigation-group để tạo khoảng trống cho nút mở khóa
+        navGroup.style.marginBottom='200px'; 
+
         unlockBtn.style.display='block';
     } else {
         settings.style.display='block';
@@ -261,6 +263,9 @@ function toggleLock(lock){
         controlArea.style.width='auto';
         controlArea.style.height='auto';
         
+        // Trả về margin mặc định
+        navGroup.style.marginBottom='10px';
+
         unlockBtn.style.display='none';
     }
 }
