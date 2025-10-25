@@ -18,25 +18,26 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 .add-btn:hover, .reset-btn:hover {transform:scale(1.05);}
 .control-btn {width:60px;height:60px;border-radius:50%;background:#ff9800;color:white;font-size:24px;margin:0 10px;border:none;cursor:pointer; transition:0.3s;}
 .control-btn:hover {transform:scale(1.1);}
-.control-container {margin-top:30px; display:flex; justify-content:center; align-items:center; gap:10px;}
+.control-container {display:flex; justify-content:center; align-items:center; gap:10px;}
 </style>
 </head>
 <body>
 <h1>Máy hỗ trợ giọng nói</h1>
 
+<!-- Các nút phát âm -->
 <div class="container" id="buttonContainer"></div>
 
-<!-- Nút Thêm / Reset -->
-<div style="margin-top:30px;">
-  <button class="btn add-btn" onclick="addButton()">➕ Thêm Nút</button>
-  <button class="btn reset-btn" onclick="resetDefaults()">♻️ Reset mặc định</button>
-</div>
-
-<!-- 3 nút điều khiển -->
-<div class="control-container">
+<!-- 3 nút điều khiển ▲ ● ▼ -->
+<div class="control-container" style="margin-top:30px;">
   <button class="control-btn" onclick="prevSpeak()">▲</button>
   <button class="control-btn" onclick="currentSpeak()">●</button>
   <button class="control-btn" onclick="nextSpeak()">▼</button>
+</div>
+
+<!-- Nút Thêm / Reset -->
+<div style="margin-top:20px;">
+  <button class="btn add-btn" onclick="addButton()">➕ Thêm Nút</button>
+  <button class="btn reset-btn" onclick="resetDefaults()">♻️ Reset mặc định</button>
 </div>
 
 <script>
