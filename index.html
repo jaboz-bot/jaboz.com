@@ -12,6 +12,10 @@
       margin: 0;
     }
 
+    h1 {
+      text-align: center;
+    }
+
     .container {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -53,8 +57,9 @@
   </style>
 </head>
 <body>
-  <h1 style="text-align:center;">Trang hỗ trợ giọng nói</h1>
-  <div class="container">
+  <h1>Trang hỗ trợ giọng nói</h1>
+  <div class="container" id="buttonContainer">
+    <!-- Nút ban đầu -->
     <div class="card">
       <input type="text" id="input1" placeholder="Nhập văn bản cho Nút 1">
       <button onclick="playText(1)">🔊 Play Nút 1</button>
@@ -71,13 +76,19 @@
       <input type="text" id="input4" placeholder="Nhập văn bản cho Nút 4">
       <button onclick="playText(4)">🔊 Play Nút 4</button>
     </div>
+    <!-- Nút thêm mới -->
+    <div class="card">
+      <button onclick="addButton()">➕ Thêm Nút</button>
+    </div>
   </div>
 
   <script>
-    // Kiểm tra Web Speech API
     if (!('speechSynthesis' in window)) {
       alert("Trình duyệt của bạn không hỗ trợ Web Speech API.");
     }
+
+    // Biến lưu số lượng nút
+    let buttonCount = 4;
 
     // Hàm phát âm văn bản
     function playText(buttonNumber) {
@@ -85,7 +96,7 @@
       const text = inputElement.value.trim();
       if (text) {
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'vi-VN'; // đặt giọng Việt
+        utterance.lang = 'vi-VN';
         speechSynthesis.speak(utterance);
         localStorage.setItem('button' + buttonNumber, text);
       } else {
@@ -93,12 +104,63 @@
       }
     }
 
-    // Tải nội dung đã lưu
+    // Hàm thêm nút mới
+    function addButton() {
+      buttonCount++;
+      const container = document.getElementById('buttonContainer');
+
+      // Tạo thẻ card
+      const card = document.createElement('div');
+      card.className = 'card';
+
+      // Tạo input
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.id = 'input' + buttonCount;
+      input.placeholder = 'Nhập văn bản cho Nút ' + buttonCount;
+      card.appendChild(input);
+
+      // Tạo nút Play
+      const btn = document.createElement('button');
+      btn.innerHTML = '🔊 Play Nút ' + buttonCount;
+      btn.onclick = function() { playText(buttonCount); };
+      card.appendChild(btn);
+
+      // Chèn trước nút "Thêm Nút"
+      const addBtnCard = container.lastElementChild;
+      container.insertBefore(card, addBtnCard);
+
+      // Lưu input rỗng ban đầu vào localStorage
+      localStorage.setItem('button' + buttonCount, '');
+    }
+
+    // Tải dữ liệu từ localStorage khi mở trang
     window.onload = function() {
-      for (let i = 1; i <= 4; i++) {
+      // Tải các nút cũ
+      for (let i = 1; i <= localStorage.length; i++) {
         const savedText = localStorage.getItem('button' + i);
-        if (savedText) {
-          document.getElementById('input' + i).value = savedText;
+        if (savedText !== null) {
+          // Nếu nút vượt quá 4 nút ban đầu, tạo thêm
+          if (!document.getElementById('input' + i)) {
+            buttonCount = i;
+            const container = document.getElementById('buttonContainer');
+            const card = document.createElement('div');
+            card.className = 'card';
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.id = 'input' + i;
+            input.placeholder = 'Nhập văn bản cho Nút ' + i;
+            input.value = savedText;
+            card.appendChild(input);
+            const btn = document.createElement('button');
+            btn.innerHTML = '🔊 Play Nút ' + i;
+            btn.onclick = function() { playText(i); };
+            card.appendChild(btn);
+            const addBtnCard = container.lastElementChild;
+            container.insertBefore(card, addBtnCard);
+          } else {
+            document.getElementById('input' + i).value = savedText;
+          }
         }
       }
     };
