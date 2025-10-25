@@ -35,13 +35,22 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
   font-size:18px;
   display:none;
   z-index:101;
-  max-width:90%;       /* tối đa 90% màn hình */
-  min-width:100px;     /* ít nhất 100px */
-  white-space:pre-wrap; /* tự ngắt dòng */
-  word-wrap:break-word; /* ngắt từ khi quá dài */
+  max-width:90%;
+  min-width:100px;
+  white-space:pre-wrap;
+  word-wrap:break-word;
   text-align:center;
   transition:0.5s;
 }
+
+/* Dòng hướng dẫn tải giọng nói */
+#tts-info {
+  text-align:center;
+  margin-top:30px;
+  font-size:14px;
+  color:#333;
+}
+#tts-info a {color:#1E88E5; text-decoration:underline;}
 </style>
 </head>
 <body>
@@ -63,17 +72,39 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
   <button class="btn" style="background:#ff9800;margin-top:10px;" onclick="toggleLock(true)">Khóa giao diện</button>
 </div>
 
+<div id="tts-info">
+  Nếu không thấy âm thanh, vui lòng tải giọng nói tại 
+  <a href="https://play.google.com/store/apps/details?id=com.google.android.tts" target="_blank">Google Play</a>
+</div>
+
 <script>
 const defaults=["Tôi muốn ăn cơm","Tôi muốn uống nước","Tôi muốn đi vệ sinh","Tôi muốn đi ngủ"];
 let currentIndex=0;
 
-// --- Quản lý nút ---
+// --- Nút phát âm ---
 function speak(text){
   if(!text) return;
-  const u=new SpeechSynthesisUtterance(text); u.lang='vi-VN'; speechSynthesis.speak(u);
+  if(!('speechSynthesis' in window)) return;
+  const utter=new SpeechSynthesisUtterance(text); utter.lang='vi-VN';
+  speechSynthesis.speak(utter);
   showPopup(text);
 }
 
+// --- Popup trượt ---
+function showPopup(text){
+  const popup=document.getElementById('popup');
+  popup.textContent=text;
+  popup.style.display='block';
+  popup.style.opacity='1';
+  popup.style.transform='translateX(-50%) translateY(0)';
+  setTimeout(()=>{
+    popup.style.opacity='0';
+    popup.style.transform='translateX(-50%) translateY(-20px)';
+    setTimeout(()=>popup.style.display='none',500);
+  },2000);
+}
+
+// --- Quản lý nút ---
 function addButton(value=''){
   const card=document.createElement('div'); card.className='card';
   const input=document.createElement('input'); input.value=value; input.placeholder="Nhập văn bản..."; input.onchange=saveAll;
@@ -105,20 +136,6 @@ function resetDefaults(){
 }
 
 function getCards(){ return document.querySelectorAll('.card input'); }
-
-// --- Popup trượt ---
-function showPopup(text){
-  const popup=document.getElementById('popup');
-  popup.textContent=text;
-  popup.style.display='block';
-  popup.style.opacity='1';
-  popup.style.transform='translateX(-50%) translateY(0)';
-  setTimeout(()=>{ 
-    popup.style.opacity='0'; 
-    popup.style.transform='translateX(-50%) translateY(-20px)'; 
-    setTimeout(()=>popup.style.display='none',500); 
-  },2000);
-}
 
 // --- 3 nút điều khiển ---
 function prevSpeak(){ const cards=getCards(); if(cards.length===0) return; currentIndex=(currentIndex-1+cards.length)%cards.length; speak(cards[currentIndex].value.trim()); }
