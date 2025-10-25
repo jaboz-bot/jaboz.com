@@ -83,12 +83,18 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 <script>
 const defaults=["Tôi muốn ăn cơm","Tôi muốn uống nước","Tôi muốn đi vệ sinh","Tôi muốn đi ngủ"];
 let currentIndex=0;
+let lastSpeakTime = 0;
+const SPEAK_DELAY = 1500; // 1.5 giây chặn bấm liên tiếp
 
 // --- Nút phát âm ---
 function speak(text){
   if(!text) return;
   if(!('speechSynthesis' in window)) return;
-  const utter=new SpeechSynthesisUtterance(text); utter.lang='vi-VN';
+  const now = Date.now();
+  if(now - lastSpeakTime < SPEAK_DELAY) return; // nếu bấm quá nhanh, bỏ qua
+  lastSpeakTime = now;
+  const utter=new SpeechSynthesisUtterance(text);
+  utter.lang='vi-VN';
   speechSynthesis.speak(utter);
   showPopup(text);
 }
