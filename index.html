@@ -140,16 +140,12 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     left: 0;
     width: 100%;
     height: 100%;
-    
+    transform: none;
+    /* SỬA CHỮA LỚN: Dùng Flexbox chuẩn cho chế độ khóa */
     display: flex;
-    flex-direction: column; 
-    justify-content: center; /* Vẫn căn giữa theo trục dọc */
-    align-items: center; 
-    
-    /* BỔ SUNG: Dịch chuyển toàn bộ khối lên cao hơn để tạo khoảng trống bên dưới */
-    transform: translateY(-5%); 
-    background-color: rgba(227, 242, 253, 0.9); /* Làm mờ nền body */
-    z-index: 99;
+    flex-direction: column; /* Quan trọng: Xếp các phần tử con theo cột */
+    justify-content: center; /* Căn giữa theo trục chính (trục dọc) */
+    align-items: center; /* Căn giữa theo trục phụ (trục ngang) */
 }
 
 .control-container.locked .navigation-group {
@@ -164,7 +160,7 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 .control-container.locked #unlock-btn {
     display: block;
     position: relative; 
-    /* ĐÃ SỬA: GIỮ KHOẢNG CÁCH NÀY */
+    /* ĐÃ SỬA: TĂNG MARGIN ĐỂ TẠO KHOẢNG CÁCH */
     margin: 50px auto 0 auto; 
     width: 160px;
 }
@@ -192,12 +188,11 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     transition: 0.5s;
 }
 
-/* SỬA: VỊ TRÍ MỚI KHI Ở CHẾ ĐỘ KHÓA (Nằm ngay trên nhóm nút) */
+/* SỬA: VỊ TRÍ MỚI KHI Ở CHẾ ĐỘ KHÓA (Cố định ở trên nhóm nút) */
 .control-container.locked #popup {
-    position: absolute; /* SỬA: Đặt tuyệt đối so với controlArea */
-    top: auto; 
-    /* SỬA LỚN: Đặt Popup cách đáy controlArea (nhóm 3 nút) 15px */
-    bottom: calc(100% + 15px); 
+    position: fixed; 
+    top: 20%; /* ĐÃ SỬA: Đặt thấp hơn để tránh chồng lên tiêu đề */
+    bottom: auto; 
     left: 50%;
     transform: translateX(-50%);
     z-index: 1000;
@@ -401,6 +396,8 @@ function toggleLock(lock){
         
         controlArea.classList.add('locked');
         
+        // Popup đã được sửa bằng CSS cố định
+
         unlockBtn.style.display='block';
     } else {
         settings.style.display='block';
