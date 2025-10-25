@@ -92,7 +92,6 @@
 <body>
   <h1>Trang hỗ trợ giọng nói</h1>
   <div class="container" id="buttonContainer">
-    <!-- Nút thêm mới -->
     <div class="card">
       <button class="add-btn" onclick="addButton()">➕ Thêm Nút</button>
     </div>
@@ -105,7 +104,6 @@
 
     let buttonCount = 0;
 
-    // Các nút mặc định khi lần đầu truy cập
     const defaultButtons = [
       "Tôi muốn ăn cơm",
       "Tôi muốn uống nước",
@@ -149,7 +147,6 @@
       btn.onclick = () => playText(number);
       card.appendChild(btn);
 
-      // Nút đầu tiên không có X
       if (number !== 1) {
         const del = document.createElement('button');
         del.className = 'delete-btn';
@@ -166,6 +163,9 @@
 
     function deleteButton(card) {
       if(confirm('Bạn có chắc muốn xóa nút này?')) {
+        const input = card.querySelector('input');
+        const id = input.id.replace('input','');
+        localStorage.removeItem('button' + id);
         card.remove();
         sortButtons();
       }
@@ -183,8 +183,13 @@
         btn.innerHTML = '🔊 Play Nút ' + number;
         btn.onclick = () => playText(number);
 
-        // Cập nhật localStorage
+        // Update localStorage
         localStorage.setItem('button' + number, input.value);
+        // Remove old keys
+        for(let i = number+1; localStorage.getItem('button'+i); i++){
+          localStorage.removeItem('button'+i);
+        }
+
         const delBtn = card.querySelector('.delete-btn');
         if(number === 1 && delBtn) delBtn.remove();
         if(number !== 1 && !delBtn) {
@@ -200,13 +205,11 @@
 
     window.onload = function() {
       const container = document.getElementById('buttonContainer');
-      // Nếu localStorage rỗng → tạo các nút mặc định
-      if(localStorage.length === 0) {
+      if(localStorage.length === 0){
         defaultButtons.forEach(text => addButton(text));
       } else {
-        // Load các nút từ localStorage
         let i = 1;
-        while(localStorage.getItem('button'+i)) {
+        while(localStorage.getItem('button'+i)){
           addButton(localStorage.getItem('button'+i));
           i++;
         }
