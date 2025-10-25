@@ -16,6 +16,7 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 20px;
+    margin-bottom: 20px;
   }
   .card {
     background: #fff;
@@ -53,7 +54,9 @@
   }
   .add-btn, .reset-btn {
     background: linear-gradient(45deg, #2196F3, #1976D2);
-    margin-top: 10px;
+    width: 200px;
+    margin: 8px auto;
+    display: block;
   }
   .add-btn:hover, .reset-btn:hover { transform: scale(1.05); }
 </style>
@@ -61,6 +64,8 @@
 <body>
   <h1>Máy hỗ trợ giọng nói</h1>
   <div class="container" id="buttonContainer"></div>
+
+  <!-- Nút Thêm và Reset xếp dọc -->
   <button class="btn add-btn" onclick="addButton()">➕ Thêm Nút</button>
   <button class="btn reset-btn" onclick="resetDefaults()">♻️ Reset mặc định</button>
 
