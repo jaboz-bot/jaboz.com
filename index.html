@@ -7,7 +7,25 @@
 <link rel="manifest" href="manifest.json">
 <style>
 /* --- CSS ĐÃ CHỈNH SỬA --- */
-body { font-family:'Segoe UI', sans-serif; background:#e3f2fd; margin:0; padding:20px; text-align:center;}
+/* Sửa: Loại bỏ padding/margin chung của body để tránh ảnh hưởng */
+body { 
+    font-family:'Segoe UI', sans-serif; 
+    background:#e3f2fd; 
+    margin:0; 
+    padding:0; 
+    text-align:center;
+}
+/* CONTAINER CHUNG ĐÓNG GÓI TOÀN BỘ NỘI DUNG */
+.main-wrapper {
+    /* Đặt chiều rộng tối đa cố định (ví dụ: 700px) */
+    max-width: 700px; 
+    /* Căn giữa theo chiều ngang */
+    margin-left: auto;
+    margin-right: auto;
+    /* Đảm bảo khung không bị quá sát lề trên màn hình nhỏ */
+    padding: 20px 10px; /* Thêm padding trên dưới */
+}
+
 h1 {margin-bottom:20px;}
 .container { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px,1fr)); gap:20px; margin-bottom:20px; }
 .card { background:#fff; padding:18px; border-radius:12px; box-shadow:0 3px 8px rgba(0,0,0,0.15); display:flex; flex-direction:column; gap:10px; position:relative; }
@@ -20,14 +38,15 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     font-size:16px; 
     cursor:pointer; 
     transition:0.3s;
-    /* BỔ SUNG CÂN GIỮA NỘI DUNG CHỮ */
+    /* CĂN GIỮA NỘI DUNG CHỮ */
     display: flex;
-    justify-content: center; /* Căn giữa theo chiều ngang */
-    align-items: center;    /* Căn giữa theo chiều dọc */
+    justify-content: center; 
+    align-items: center;    
 }
 .play-btn {background:linear-gradient(45deg,#4CAF50,#43A047);} 
 .play-btn:hover {transform:scale(1.05);}
 .delete-btn {position:absolute; top:6px; right:8px; border:none; background:transparent; color:#e53935; font-size:18px; cursor:pointer;}
+/* Hai nút Thêm và Reset đã có width và margin auto */
 .add-btn, .reset-btn {background:linear-gradient(45deg,#2196F3,#1976D2); width:200px; margin:8px auto; display:block;}
 .add-btn:hover, .reset-btn:hover {transform:scale(1.05);}
 
@@ -94,26 +113,27 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 /* NÚT KHÓA GIAO DIỆN (TRONG SETTINGS) - ĐỒNG BỘ MÀU ĐỎ */
 #settingsArea .btn:first-child {
     background: linear-gradient(45deg, #f44336, #d32f2f);
-    margin-bottom: 20px; 
+    /* SỬA ĐỂ CÂN GIỮA */
+    width: 200px; /* Đồng bộ với các nút khác */
+    margin: 0 auto 20px auto; /* Căn giữa và tạo khoảng cách */
+    display: block; /* Quan trọng để căn giữa theo chiều ngang */
+    /* END SỬA */
 }
 #settingsArea {
     margin-top: 30px; 
 }
 
-/* NÚT MỞ KHÓA - CĂN XUỐNG DƯỚI VÀ TẠO KHOẢNG CÁCH HỢP LÝ */
+/* NÚT MỞ KHÓA - ĐÃ SỬA: BỎ CÁC THUỘC TÍNH ABSOLUTE */
 #unlock-btn {
-    position: absolute; 
-    bottom: 80px; 
-    left: 50%;
-    transform: translateX(-50%);
-    
+    /* Đã loại bỏ position: absolute, bottom, left và transform */
     background:linear-gradient(45deg, #f44336, #d32f2f);
     width:160px; 
     height: 60px;
     font-size: 18px;
+    margin-top: 50px; /* Khoảng cách từ nhóm nút */
 }
 
-/* ĐIỀU CHỈNH ĐỂ CĂN GIỮA NÚT KHI KHÓA */
+/* ĐIỀU CHỈNH ĐỂ CĂN GIỮA NỘI DUNG KHI KHÓA */
 .control-container.locked {
     position: fixed;
     top: 0;
@@ -121,16 +141,25 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     width: 100%;
     height: 100%;
     transform: none;
-    justify-content: flex-start; 
+    justify-content: center; /* Căn giữa theo trục dọc */
 }
 
 .control-container.locked .navigation-group {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%); 
+    position: relative; /* Đặt lại thành relative */
+    top: auto; /* Loại bỏ top 50% cũ */
+    left: auto; /* Loại bỏ left 50% cũ */
+    transform: none; /* Loại bỏ transform cũ */
     margin: 0; 
 }
+
+/* BỔ SUNG: Căn giữa nút Mở khóa khi bị khóa */
+.control-container.locked #unlock-btn {
+    display: block;
+    position: relative; 
+    margin: 50px auto 0 auto; /* Đặt margin auto để căn giữa theo chiều ngang */
+    width: 160px;
+}
+
 
 /* POPUP - CĂN CHỈNH KHI Ở CHẾ ĐỘ KHÓA */
 #popup {
@@ -154,9 +183,9 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     transition: 0.5s;
 }
 
-/* THAY ĐỔI LỚN: VỊ TRÍ MỚI KHI Ở CHẾ ĐỘ KHÓA */
+/* VỊ TRÍ MỚI KHI Ở CHẾ ĐỘ KHÓA */
 .control-container.locked #popup {
-    top: 25%; /* Dịch lên cao hơn nữa để tránh chồng lấn */
+    top: 25%; 
     bottom: auto; 
 }
 
@@ -170,35 +199,38 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 </style>
 </head>
 <body>
-<h1>Máy hỗ trợ giọng nói</h1>
+<div class="main-wrapper"> 
 
-<div class="container" id="buttonContainer"></div>
+    <h1>Máy hỗ trợ giọng nói</h1>
 
-<div class="control-container" id="controlArea">
-    <div id="popup"></div>
-    <div class="navigation-group">
-        <button class="control-btn play-control-btn" onclick="prevSpeak()">Câu trước</button>
-        <button class="control-btn current-btn-color" onclick="currentSpeak()">Phát lại</button>
-        <button class="control-btn play-control-btn" onclick="nextSpeak()">Câu sau</button>
+    <div class="container" id="buttonContainer"></div>
+
+    <div class="control-container" id="controlArea">
+        <div id="popup"></div>
+        <div class="navigation-group">
+            <button class="control-btn play-control-btn" onclick="prevSpeak()">Câu trước</button>
+            <button class="control-btn current-btn-color" onclick="currentSpeak()">Phát lại</button>
+            <button class="control-btn play-control-btn" onclick="nextSpeak()">Câu sau</button>
+        </div>
+        <button class="btn" id="unlock-btn" onclick="toggleLock(false)" style="display:none;">Mở khóa giao diện</button>
     </div>
-    <button class="btn" id="unlock-btn" onclick="toggleLock(false)" style="display:none;">Mở khóa giao diện</button>
-</div>
 
-<div id="settingsArea">
-    <button class="btn" onclick="toggleLock(true)">Khóa giao diện</button>
-    <button class="btn install-btn" id="installButton" style="display:none;">📲 Tạo Lối tắt (Cài đặt App)</button>
-    <button class="btn add-btn" onclick="addButton()">➕ Thêm câu mới</button>
-    <button class="btn reset-btn" onclick="resetDefaults()">♻️ Reset mặc định</button>
-</div>
+    <div id="settingsArea">
+        <button class="btn" onclick="toggleLock(true)">Khóa giao diện</button>
+        <button class="btn install-btn" id="installButton" style="display:none;">📲 Tạo Lối tắt (Cài đặt App)</button>
+        <button class="btn add-btn" onclick="addButton()">➕ Thêm câu mới</button>
+        <button class="btn reset-btn" onclick="resetDefaults()">♻️ Reset mặc định</button>
+    </div>
 
-<div id="tts-info">
-    Nếu không thấy âm thanh, vui lòng tải giọng nói tại
-    <a href="market://details?id=com.google.android.tts"
-        onclick="window.open('https://play.google.com/store/apps/details?id=com.google.android.tts','_blank'); return false;">
-        Google Play
-    </a>
-</div>
+    <div id="tts-info">
+        Nếu không thấy âm thanh, vui lòng tải giọng nói tại
+        <a href="market://details?id=com.google.android.tts"
+            onclick="window.open('https://play.google.com/store/apps/details?id=com.google.android.tts','_blank'); return false;">
+            Google Play
+        </a>
+    </div>
 
+</div>
 <script>
 let deferredPrompt; // Biến lưu trữ sự kiện cài đặt PWA
 const defaults=["Tôi muốn ăn cơm","Tôi muốn uống nước","Tôi muốn đi vệ sinh","Tôi muốn đi ngủ"];
