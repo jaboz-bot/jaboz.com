@@ -13,7 +13,7 @@ h1 {margin-bottom:20px;}
 .card { background:#fff; padding:18px; border-radius:12px; box-shadow:0 3px 8px rgba(0,0,0,0.15); display:flex; flex-direction:column; gap:10px; position:relative; }
 input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; width:100%; }
 .btn {padding:12px; border:none; border-radius:8px; color:white; font-size:16px; cursor:pointer; transition:0.3s;}
-.play-btn {background:linear-gradient(45deg,#4CAF50,#43A047);} /* MÀU XANH LÁ CHUNG */
+.play-btn {background:linear-gradient(45deg,#4CAF50,#43A047);} 
 .play-btn:hover {transform:scale(1.05);}
 .delete-btn {position:absolute; top:6px; right:8px; border:none; background:transparent; color:#e53935; font-size:18px; cursor:pointer;}
 .add-btn, .reset-btn {background:linear-gradient(45deg,#2196F3,#1976D2); width:200px; margin:8px auto; display:block;}
@@ -68,9 +68,14 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 }
 .control-btn:hover {transform:scale(1.1);}
 
-/* MỚI: Màu xanh lá cây thống nhất cho 3 nút điều khiển */
+/* Màu xanh lá cây thống nhất cho Phát trước và Phát sau */
 .play-control-btn {
-    background: linear-gradient(45deg,#4CAF50,#43A047); /* Dùng chung màu với .play-btn */
+    background: linear-gradient(45deg,#4CAF50,#43A047); /* Màu xanh lá */
+}
+
+/* Màu Vàng Cam cho Phát lại */
+.current-btn-color {
+    background: #ff9800; /* Màu Cam */
 }
 
 
@@ -161,7 +166,7 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     <div id="popup"></div>
     <div class="navigation-group">
         <button class="control-btn play-control-btn" onclick="prevSpeak()">Phát trước</button>
-        <button class="control-btn play-control-btn" onclick="currentSpeak()">Phát lại</button>
+        <button class="control-btn current-btn-color" onclick="currentSpeak()">Phát lại</button>
         <button class="control-btn play-control-btn" onclick="nextSpeak()">Phát sau</button>
     </div>
     <button class="btn" id="unlock-btn" onclick="toggleLock(false)" style="display:none;">Mở khóa giao diện</button>
