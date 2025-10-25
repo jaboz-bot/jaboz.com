@@ -56,7 +56,6 @@
       box-shadow: 0 6px 12px rgba(0,0,0,0.15);
     }
 
-    /* Nút xóa */
     .delete-btn {
       position: absolute;
       top: 8px;
@@ -73,7 +72,6 @@
       transform: scale(1.2);
     }
 
-    /* Nút Thêm */
     .add-btn {
       padding: 12px;
       border: none;
@@ -86,6 +84,23 @@
     }
 
     .add-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+
+    .sort-btn {
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(45deg, #FF9800, #F57C00);
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s;
+      margin-top: 10px;
+    }
+
+    .sort-btn:hover {
       transform: scale(1.05);
       box-shadow: 0 6px 12px rgba(0,0,0,0.15);
     }
@@ -104,22 +119,23 @@
     <div class="card">
       <input type="text" id="input2" placeholder="Nhập văn bản cho Nút 2">
       <button class="play-btn" onclick="playText(2)">🔊 Play Nút 2</button>
-      <button class="delete-btn" onclick="deleteButton(this.parentElement,2)">❌</button>
+      <button class="delete-btn" onclick="deleteButton(this.parentElement)">❌</button>
     </div>
     <div class="card">
       <input type="text" id="input3" placeholder="Nhập văn bản cho Nút 3">
       <button class="play-btn" onclick="playText(3)">🔊 Play Nút 3</button>
-      <button class="delete-btn" onclick="deleteButton(this.parentElement,3)">❌</button>
+      <button class="delete-btn" onclick="deleteButton(this.parentElement)">❌</button>
     </div>
     <div class="card">
       <input type="text" id="input4" placeholder="Nhập văn bản cho Nút 4">
       <button class="play-btn" onclick="playText(4)">🔊 Play Nút 4</button>
-      <button class="delete-btn" onclick="deleteButton(this.parentElement,4)">❌</button>
+      <button class="delete-btn" onclick="deleteButton(this.parentElement)">❌</button>
     </div>
 
     <!-- Nút thêm mới -->
     <div class="card">
       <button class="add-btn" onclick="addButton()">➕ Thêm Nút</button>
+      <button class="sort-btn" onclick="sortButtons()">↕ Sắp xếp lại</button>
     </div>
   </div>
 
@@ -145,81 +161,90 @@
 
     function addButton() {
       buttonCount++;
-      const container = document.getElementById('buttonContainer');
+      createCard(buttonCount, '');
+    }
 
+    function createCard(number, value) {
+      const container = document.getElementById('buttonContainer');
       const card = document.createElement('div');
       card.className = 'card';
 
       const input = document.createElement('input');
       input.type = 'text';
-      input.id = 'input' + buttonCount;
-      input.placeholder = 'Nhập văn bản cho Nút ' + buttonCount;
+      input.id = 'input' + number;
+      input.placeholder = 'Nhập văn bản cho Nút ' + number;
+      input.value = value;
       card.appendChild(input);
 
       const btn = document.createElement('button');
       btn.className = 'play-btn';
-      btn.innerHTML = '🔊 Play Nút ' + buttonCount;
-      btn.onclick = function() { playText(buttonCount); };
+      btn.innerHTML = '🔊 Play Nút ' + number;
+      btn.onclick = function() { playText(number); };
       card.appendChild(btn);
 
-      const del = document.createElement('button');
-      del.className = 'delete-btn';
-      del.innerHTML = '❌';
-      del.onclick = function() { deleteButton(card, buttonCount); };
-      card.appendChild(del);
+      // Chỉ nút đầu tiên không có X
+      if (number !== 1) {
+        const del = document.createElement('button');
+        del.className = 'delete-btn';
+        del.innerHTML = '❌';
+        del.onclick = function() { deleteButton(card); };
+        card.appendChild(del);
+      }
 
       const addBtnCard = container.lastElementChild;
       container.insertBefore(card, addBtnCard);
 
-      localStorage.setItem('button' + buttonCount, '');
+      localStorage.setItem('button' + number, value);
     }
 
-    function deleteButton(card, number) {
-      if(confirm('Bạn có chắc muốn xóa Nút ' + number + '?')) {
+    function deleteButton(card) {
+      if(confirm('Bạn có chắc muốn xóa nút này?')) {
         card.remove();
-        localStorage.removeItem('button' + number);
+        sortButtons();
       }
+    }
+
+    function sortButtons() {
+      const container = document.getElementById('buttonContainer');
+      const cards = Array.from(container.querySelectorAll('.card')).filter(c => !c.querySelector('.add-btn'));
+      cards.forEach((card, index) => {
+        const number = index + 1;
+        const input = card.querySelector('input');
+        const btn = card.querySelector('.play-btn');
+        input.id = 'input' + number;
+        input.placeholder = 'Nhập văn bản cho Nút ' + number;
+        btn.innerHTML = '🔊 Play Nút ' + number;
+        btn.onclick = function() { playText(number); };
+        // Xóa localStorage cũ và cập nhật lại
+        localStorage.removeItem('button' + (index + 2));
+        localStorage.setItem('button' + number, input.value);
+        // Xử lý nút xóa: chỉ nút đầu tiên không có X
+        const delBtn = card.querySelector('.delete-btn');
+        if(number === 1 && delBtn) delBtn.remove();
+        if(number !== 1 && !delBtn) {
+          const del = document.createElement('button');
+          del.className = 'delete-btn';
+          del.innerHTML = '❌';
+          del.onclick = function() { deleteButton(card); };
+          card.appendChild(del);
+        }
+      });
+      // Cập nhật buttonCount
+      buttonCount = cards.length;
     }
 
     window.onload = function() {
+      // Tải dữ liệu từ localStorage
       const container = document.getElementById('buttonContainer');
-      for (let i = 1; i <= localStorage.length; i++) {
-        const savedText = localStorage.getItem('button' + i);
-        if (savedText !== null) {
-          if (!document.getElementById('input' + i)) {
-            buttonCount = i;
-            const card = document.createElement('div');
-            card.className = 'card';
-
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.id = 'input' + i;
-            input.placeholder = 'Nhập văn bản cho Nút ' + i;
-            input.value = savedText;
-            card.appendChild(input);
-
-            const btn = document.createElement('button');
-            btn.className = 'play-btn';
-            btn.innerHTML = '🔊 Play Nút ' + i;
-            btn.onclick = function() { playText(i); };
-            card.appendChild(btn);
-
-            // Chỉ nút đầu tiên không có X
-            if (i !== 1) {
-              const del = document.createElement('button');
-              del.className = 'delete-btn';
-              del.innerHTML = '❌';
-              del.onclick = function() { deleteButton(card, i); };
-              card.appendChild(del);
-            }
-
-            const addBtnCard = container.lastElementChild;
-            container.insertBefore(card, addBtnCard);
-          } else {
-            document.getElementById('input' + i).value = savedText;
-          }
+      for(let i = 1; i <= localStorage.length; i++) {
+        const val = localStorage.getItem('button' + i);
+        if(val !== null && !document.getElementById('input' + i)) {
+          createCard(i, val);
+        } else if(val !== null) {
+          document.getElementById('input' + i).value = val;
         }
       }
+      sortButtons();
     };
   </script>
 </body>
