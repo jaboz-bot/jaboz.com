@@ -141,7 +141,7 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     width: 100%;
     height: 100%;
     transform: none;
-    /* ĐÃ SỬA: Bắt đầu căn chỉnh từ trên xuống */
+    /* Bắt đầu căn chỉnh từ trên xuống */
     display: flex;
     flex-direction: column; 
     justify-content: flex-start; 
@@ -153,17 +153,16 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     top: auto; 
     left: auto;
     transform: none; 
-    /* ĐÃ SỬA: Đẩy nhóm 3 nút xuống 180px so với đỉnh màn hình */
-    margin-top: 180px; 
+    /* ĐÃ SỬA: Đẩy nhóm 3 nút xuống 250px so với đỉnh màn hình */
+    margin-top: 250px; 
     margin-bottom: 0; 
 }
 
-/* SỬA: Điều chỉnh margin-top để giữ nút Mở khóa ở vị trí thấp */
+/* SỬA: Giữ nguyên khoảng cách 100px so với đáy nhóm 3 nút */
 .control-container.locked #unlock-btn {
     display: block;
     position: relative; 
-    /* ĐÃ SỬA: Chỉ cần 100px để tạo khoảng cách giữa hai nhóm nút, 
-       vì nhóm 3 nút đã được đẩy xuống bằng margin-top của chính nó. */
+    /* Giữ nguyên 100px để tạo khoảng trống lớn giữa hai nhóm nút */
     margin: 100px auto 0 auto; 
     width: 160px;
 }
@@ -195,7 +194,7 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 /* SỬA: VỊ TRÍ MỚI KHI Ở CHẾ ĐỘ KHÓA (Cố định ở trên nhóm nút) */
 .control-container.locked #popup {
     position: fixed; 
-    /* Đặt thấp hơn để tránh chồng lên tiêu đề và cho phép nhóm nút hạ xuống */
+    /* Giữ nguyên top 15% để gần với thông tin TTS/Google Play */
     top: 15%; 
     bottom: auto; 
     left: 50%;
@@ -217,6 +216,14 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 
     <h1>Máy hỗ trợ giọng nói</h1>
 
+    <div id="tts-info">
+        Nếu không thấy âm thanh, vui lòng tải giọng nói tại
+        <a href="market://details?id=com.google.android.tts"
+            onclick="window.open('https://play.google.com/store/apps/details?id=com.google.android.tts','_blank'); return false;">
+            Google Play
+        </a>
+    </div>
+
     <div class="container" id="buttonContainer"></div>
 
     <div class="control-container" id="controlArea">
@@ -234,14 +241,6 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
         <button class="btn install-btn" id="installButton" style="display:none;">📲 Tạo Lối tắt (Cài đặt App)</button>
         <button class="btn add-btn" onclick="addButton()">➕ Thêm câu mới</button>
         <button class="btn reset-btn" onclick="resetDefaults()">♻️ Reset mặc định</button>
-    </div>
-
-    <div id="tts-info">
-        Nếu không thấy âm thanh, vui lòng tải giọng nói tại
-        <a href="market://details?id=com.google.android.tts"
-            onclick="window.open('https://play.google.com/store/apps/details?id=com.google.android.tts','_blank'); return false;">
-            Google Play
-        </a>
     </div>
 
 </div>
