@@ -1,68 +1,99 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jaboz 3D Shop</title>
-<link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trang hỗ trợ giọng nói</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .box {
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 15px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    .box input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .box button {
+      width: 100%;
+      padding: 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .box button:hover {
+      background-color: #45a049;
+    }
+  </style>
 </head>
 <body>
-    
-<header>
-    <h1>Jaboz 3D Shop</h1>
-    
-    <button class="hamburger" id="hamburger-menu" aria-label="Menu">
-        ☰
-    </button> 
-    
-    <nav class="main-nav" id="main-nav"> <a href="index.html">Trang chủ</a>
-        <a href="shop.html">Sản phẩm</a>
-        <a href="about.html">Giới thiệu</a>
-        <a href="contact.html">Liên hệ</a>
-    </nav>
-
-    <a href="#" class="button cart-container" id="cart-button">
-        Giỏ hàng
-    </a>
-    
-    </header>
-
-
-<section class="hero">
-    <div class="intro">
-        <h2>Chào mừng bạn đến với Jaboz 3D Shop!</h2>
-        <p>Khám phá bộ sưu tập mô hình 3D và sản phẩm in 3D sáng tạo.</p>
-        <a href="shop.html" class="button">Khám phá sản phẩm</a>
+  <div class="container">
+    <div class="box">
+      <input type="text" id="input1" placeholder="Nhập văn bản cho nút 1">
+      <button onclick="playText(1)">Play Nút 1</button>
     </div>
-</section>
-
-<section class="featured-products">
-    <h2>Sản phẩm nổi bật</h2>
-    <div class="product-grid">
-        <div class="product-item">
-            <img src="images/product1.jpg" alt="Model 1">
-            <h3>Mô hình 1</h3>
-            <p>Thiết kế độc đáo</p>
-            <a href="cart.html" class="button">Thêm vào giỏ</a>
-        </div>
-        <div class="product-item">
-            <img src="images/product2.jpg" alt="Model 2">
-            <h3>Mô hình 2</h3>
-            <p>In 3D chất lượng</p>
-            <a href="cart.html" class="button">Thêm vào giỏ</a>
-        </div>
+    <div class="box">
+      <input type="text" id="input2" placeholder="Nhập văn bản cho nút 2">
+      <button onclick="playText(2)">Play Nút 2</button>
     </div>
-</section>
+    <div class="box">
+      <input type="text" id="input3" placeholder="Nhập văn bản cho nút 3">
+      <button onclick="playText(3)">Play Nút 3</button>
+    </div>
+    <div class="box">
+      <input type="text" id="input4" placeholder="Nhập văn bản cho nút 4">
+      <button onclick="playText(4)">Play Nút 4</button>
+    </div>
+  </div>
 
-<section class="short-about">
-    <h2>Về Jaboz</h2>
-    <p>Chúng tôi chuyên cung cấp các giải pháp in 3D từ đồ trang trí đến chi tiết kỹ thuật.</p>
-</section>
+  <script>
+    // Kiểm tra xem Web Speech API có được hỗ trợ không
+    if (!('speechSynthesis' in window)) {
+      alert("Trình duyệt của bạn không hỗ trợ Web Speech API.");
+    }
 
-<footer>
-    <p>&copy; 2025 Jaboz 3D Shop. Mọi quyền được bảo lưu.</p>
-</footer>
+    // Hàm phát âm văn bản
+    function playText(buttonNumber) {
+      const inputElement = document.getElementById('input' + buttonNumber);
+      const text = inputElement.value.trim();
+      if (text) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        speechSynthesis.speak(utterance);
+        // Lưu nội dung văn bản vào localStorage
+        localStorage.setItem('button' + buttonNumber, text);
+      } else {
+        alert("Vui lòng nhập văn bản trước khi nhấn nút.");
+      }
+    }
 
-<script src="js/main.js"></script>
+    // Tải nội dung đã lưu từ localStorage
+    window.onload = function() {
+      for (let i = 1; i <= 4; i++) {
+        const savedText = localStorage.getItem('button' + i);
+        if (savedText) {
+          document.getElementById('input' + i).value = savedText;
+        }
+      }
+    };
+  </script>
 </body>
 </html>
