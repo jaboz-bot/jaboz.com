@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hỗ trợ giọng nói</title>
 <style>
-body { font-family: 'Segoe UI', sans-serif; background: #e3f2fd; margin:0; padding:30px; text-align:center;}
+body { font-family: 'Segoe UI', sans-serif; background:#e3f2fd; margin:0; padding:30px; text-align:center;}
 h1 {margin-bottom:20px;}
 .container { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px,1fr)); gap:20px; margin-bottom:20px;}
 .card { background:#fff; padding:18px; border-radius:12px; box-shadow:0 3px 8px rgba(0,0,0,0.15); display:flex; flex-direction:column; gap:10px; position:relative;}
@@ -16,9 +16,10 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 .delete-btn {position:absolute; top:6px; right:8px; border:none; background:transparent; color:#e53935; font-size:18px; cursor:pointer;}
 .add-btn, .reset-btn {background:linear-gradient(45deg,#2196F3,#1976D2); width:200px; margin:8px auto; display:block;}
 .add-btn:hover, .reset-btn:hover {transform:scale(1.05);}
-.control-btn {width:60px;height:60px;border-radius:50%;background:#ff9800;color:white;font-size:24px;margin:0 10px;border:none;cursor:pointer; transition:0.3s;}
+.control-btn {width:80px; height:80px; border-radius:50%; background:#ff9800; color:white; font-size:28px; border:none; cursor:pointer; margin:10px 0; transition:0.3s;}
 .control-btn:hover {transform:scale(1.1);}
-.control-container {display:flex; justify-content:center; align-items:center; gap:10px;}
+.control-container {display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; height:300px; margin-top:30px; position:relative;}
+#unlock-btn {position:absolute; top:-50px; right:0; background:#f44336;}
 </style>
 </head>
 <body>
@@ -27,17 +28,19 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 <!-- Các nút phát âm -->
 <div class="container" id="buttonContainer"></div>
 
-<!-- 3 nút điều khiển ▲ ● ▼ -->
-<div class="control-container" style="margin-top:30px;">
+<!-- 3 nút điều khiển xếp dọc -->
+<div class="control-container" id="controlArea">
   <button class="control-btn" onclick="prevSpeak()">▲</button>
   <button class="control-btn" onclick="currentSpeak()">●</button>
   <button class="control-btn" onclick="nextSpeak()">▼</button>
+  <button class="btn" id="unlock-btn" onclick="toggleLock(false)" style="display:none;">Mở khóa</button>
 </div>
 
 <!-- Nút Thêm / Reset -->
-<div style="margin-top:20px;">
+<div id="settingsArea" style="margin-top:20px;">
   <button class="btn add-btn" onclick="addButton()">➕ Thêm Nút</button>
   <button class="btn reset-btn" onclick="resetDefaults()">♻️ Reset mặc định</button>
+  <button class="btn" style="background:#ff9800;margin-top:10px;" onclick="toggleLock(true)">Khóa giao diện</button>
 </div>
 
 <script>
@@ -50,50 +53,30 @@ const defaults = [
 
 let currentIndex = 0;
 
-function speak(text) {
-  if(!text) return;
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang='vi-VN';
-  speechSynthesis.speak(u);
-}
+function speak(text){ if(!text) return; const u=new SpeechSynthesisUtterance(text); u.lang='vi-VN'; speechSynthesis.speak(u); }
 
-function addButton(value='') {
-  const card = document.createElement('div');
-  card.className='card';
-
-  const input=document.createElement('input');
-  input.value=value;
-  input.placeholder="Nhập văn bản...";
-  input.onchange=saveAll;
-
-  const play=document.createElement('button');
-  play.className='btn play-btn';
-  play.textContent='🔊 Phát âm';
-  play.onclick=()=>speak(input.value.trim());
-
-  const del=document.createElement('button');
-  del.className='delete-btn';
-  del.textContent='❌';
-  del.onclick=()=>{card.remove(); saveAll();};
-
+function addButton(value=''){
+  const card=document.createElement('div'); card.className='card';
+  const input=document.createElement('input'); input.value=value; input.placeholder="Nhập văn bản..."; input.onchange=saveAll;
+  const play=document.createElement('button'); play.className='btn play-btn'; play.textContent='🔊 Phát âm'; play.onclick=()=>speak(input.value.trim());
+  const del=document.createElement('button'); del.className='delete-btn'; del.textContent='❌'; del.onclick=()=>{card.remove(); saveAll();};
   card.append(input,play,del);
-  document.getElementById('buttonContainer').appendChild(card);
-  saveAll();
+  document.getElementById('buttonContainer').appendChild(card); saveAll();
 }
 
-function saveAll() {
+function saveAll(){
   const texts=[...document.querySelectorAll('.card input')].map(i=>i.value.trim());
-  localStorage.setItem('voiceButtons', JSON.stringify(texts));
+  localStorage.setItem('voiceButtons',JSON.stringify(texts));
 }
 
-function loadButtons() {
-  const saved = JSON.parse(localStorage.getItem('voiceButtons')||"[]");
-  const list = saved.length? saved : defaults;
+function loadButtons(){
+  const saved=JSON.parse(localStorage.getItem('voiceButtons')||"[]");
+  const list=saved.length? saved:defaults;
   list.forEach(text=>addButton(text));
 }
 
-function resetDefaults() {
-  if(confirm("Bạn có muốn đặt lại về mặc định?")) {
+function resetDefaults(){
+  if(confirm("Bạn có muốn đặt lại về mặc định?")){
     localStorage.removeItem('voiceButtons');
     document.getElementById('buttonContainer').innerHTML='';
     loadButtons();
@@ -101,23 +84,32 @@ function resetDefaults() {
   }
 }
 
-// --- 3 nút điều khiển phát âm ---
-function prevSpeak() {
-  const cards=document.querySelectorAll('.card input');
-  if(cards.length===0) return;
-  currentIndex = (currentIndex-1+cards.length)%cards.length;
+// 3 nút điều khiển
+function prevSpeak(){
+  const cards=document.querySelectorAll('.card input'); if(cards.length===0) return;
+  currentIndex=(currentIndex-1+cards.length)%cards.length; speak(cards[currentIndex].value.trim());
+}
+function nextSpeak(){
+  const cards=document.querySelectorAll('.card input'); if(cards.length===0) return;
+  currentIndex=(currentIndex+1)%cards.length; speak(cards[currentIndex].value.trim());
+}
+function currentSpeak(){
+  const cards=document.querySelectorAll('.card input'); if(cards.length===0) return;
   speak(cards[currentIndex].value.trim());
 }
-function nextSpeak() {
-  const cards=document.querySelectorAll('.card input');
-  if(cards.length===0) return;
-  currentIndex = (currentIndex+1)%cards.length;
-  speak(cards[currentIndex].value.trim());
-}
-function currentSpeak() {
-  const cards=document.querySelectorAll('.card input');
-  if(cards.length===0) return;
-  speak(cards[currentIndex].value.trim());
+
+// --- Khóa / Mở khóa ---
+function toggleLock(lock){
+  const settings=document.getElementById('settingsArea');
+  const unlockBtn=document.getElementById('unlock-btn');
+  if(lock){
+    // ẩn các nút + input
+    settings.style.display='none';
+    unlockBtn.style.display='block';
+  } else {
+    settings.style.display='block';
+    unlockBtn.style.display='none';
+  }
 }
 
 window.onload=loadButtons;
