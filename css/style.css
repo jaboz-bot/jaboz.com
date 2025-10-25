@@ -22,7 +22,6 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 .control-btn:hover {transform:scale(1.1);}
 #unlock-btn {margin-top:40px; background:#f44336; width:120px;}
 
-/* Popup trượt, tự rộng theo nội dung */
 #popup {
   position:absolute;
   bottom:100%;
@@ -43,7 +42,6 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
   transition:0.5s;
 }
 
-/* Dòng hướng dẫn tải giọng nói */
 #tts-info {
   text-align:center;
   margin-top:30px;
@@ -88,7 +86,9 @@ let currentIndex=0;
 function speak(text){
   if(!text) return;
   if(!('speechSynthesis' in window)) return;
-  const utter=new SpeechSynthesisUtterance(text); utter.lang='vi-VN';
+  window.speechSynthesis.cancel(); // dừng câu đang đọc trước khi phát mới
+  const utter=new SpeechSynthesisUtterance(text); 
+  utter.lang='vi-VN';
   speechSynthesis.speak(utter);
   showPopup(text);
 }
@@ -112,7 +112,14 @@ function addButton(value=''){
   const card=document.createElement('div'); card.className='card';
   const input=document.createElement('input'); input.value=value; input.placeholder="Nhập văn bản..."; input.onchange=saveAll;
   const play=document.createElement('button'); play.className='btn play-btn'; play.textContent='🔊 Phát âm'; play.onclick=()=>speak(input.value.trim());
-  const del=document.createElement('button'); del.className='delete-btn'; del.textContent='❌'; del.onclick=()=>{card.remove(); saveAll(); if(currentIndex>=getCards().length) currentIndex=getCards().length-1;};
+  const del=document.createElement('button'); del.className='delete-btn'; del.textContent='❌';
+  del.onclick=()=>{
+    const idx=[...getCards()].indexOf(input);
+    card.remove();
+    saveAll();
+    if(currentIndex >= getCards().length) currentIndex = getCards().length - 1;
+    if(currentIndex < 0) currentIndex = 0;
+  };
   card.append(input,play,del);
   document.getElementById('buttonContainer').appendChild(card);
   saveAll();
@@ -126,7 +133,9 @@ function saveAll(){
 function loadButtons(){
   const saved=JSON.parse(localStorage.getItem('voiceButtons')||"[]");
   const list=saved.length? saved:defaults;
+  document.getElementById('buttonContainer').innerHTML=''; // reset trước khi load
   list.forEach(text=>addButton(text));
+  currentIndex=0;
 }
 
 function resetDefaults(){
@@ -141,9 +150,23 @@ function resetDefaults(){
 function getCards(){ return document.querySelectorAll('.card input'); }
 
 // --- 3 nút điều khiển ---
-function prevSpeak(){ const cards=getCards(); if(cards.length===0) return; currentIndex=(currentIndex-1+cards.length)%cards.length; speak(cards[currentIndex].value.trim()); }
-function nextSpeak(){ const cards=getCards(); if(cards.length===0) return; currentIndex=(currentIndex+1)%cards.length; speak(cards[currentIndex].value.trim()); }
-function currentSpeak(){ const cards=getCards(); if(cards.length===0) return; speak(cards[currentIndex].value.trim()); }
+function prevSpeak(){ 
+  const cards=getCards(); 
+  if(cards.length===0) return; 
+  currentIndex=(currentIndex-1+cards.length)%cards.length; 
+  speak(cards[currentIndex].value.trim()); 
+}
+function nextSpeak(){ 
+  const cards=getCards(); 
+  if(cards.length===0) return; 
+  currentIndex=(currentIndex+1)%cards.length; 
+  speak(cards[currentIndex].value.trim()); 
+}
+function currentSpeak(){ 
+  const cards=getCards(); 
+  if(cards.length===0) return; 
+  speak(cards[currentIndex].value.trim()); 
+}
 
 // --- Khóa / Mở khóa ---
 function toggleLock(lock){
