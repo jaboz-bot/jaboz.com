@@ -22,10 +22,26 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 .control-btn:hover {transform:scale(1.1);}
 #unlock-btn {margin-top:40px; background:#f44336; width:120px;}
 
-#popup {position:absolute; bottom:100%; left:50%; transform:translateX(-50%) translateY(20px);
-       background:rgba(0,0,0,0.8); color:white; padding:15px 20px; border-radius:12px;
-       font-size:18px; display:none; z-index:101; max-width:80%; text-align:center;
-       transition:0.5s;}
+/* Popup trượt, tự rộng theo nội dung */
+#popup {
+  position:absolute;
+  bottom:100%;
+  left:50%;
+  transform:translateX(-50%) translateY(20px);
+  background:rgba(0,0,0,0.8);
+  color:white;
+  padding:15px 20px;
+  border-radius:12px;
+  font-size:18px;
+  display:none;
+  z-index:101;
+  max-width:90%;       /* tối đa 90% màn hình */
+  min-width:100px;     /* ít nhất 100px */
+  white-space:pre-wrap; /* tự ngắt dòng */
+  word-wrap:break-word; /* ngắt từ khi quá dài */
+  text-align:center;
+  transition:0.5s;
+}
 </style>
 </head>
 <body>
@@ -97,7 +113,11 @@ function showPopup(text){
   popup.style.display='block';
   popup.style.opacity='1';
   popup.style.transform='translateX(-50%) translateY(0)';
-  setTimeout(()=>{ popup.style.opacity='0'; popup.style.transform='translateX(-50%) translateY(-20px)'; setTimeout(()=>popup.style.display='none',500); },2000);
+  setTimeout(()=>{ 
+    popup.style.opacity='0'; 
+    popup.style.transform='translateX(-50%) translateY(-20px)'; 
+    setTimeout(()=>popup.style.display='none',500); 
+  },2000);
 }
 
 // --- 3 nút điều khiển ---
