@@ -1,228 +1,175 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Trợ lý giọng nói</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f2f5fa;
-      margin: 0;
-      padding: 30px;
-    }
-    h2 {
-      text-align: center;
-      color: #333;
-    }
-    .container {
-      max-width: 500px;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-    .box {
-      position: relative;
-      background: #fff;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      padding: 15px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-    .controls {
-      display: flex;
-      gap: 10px;
-      margin-top: 8px;
-    }
-    input[type="text"] {
-      width: 100%;
-      padding: 10px;
-      font-size: 16px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-    }
-    button {
-      flex: 1;
-      padding: 10px;
-      border: none;
-      border-radius: 6px;
-      font-size: 15px;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    .play-btn { background: #4CAF50; color: white; }
-    .ai-btn { background: #007bff; color: white; }
-    .del-btn { background: #ff4d4d; color: white; flex: 0.3; }
-    .add-btn, .reset-btn {
-      background: #333;
-      color: white;
-      width: 100%;
-      margin-top: 10px;
-    }
-    button:hover { opacity: 0.85; }
+<meta charset="UTF-8">
+<title>Máy hỗ trợ giao tiếp</title>
+<style>
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: linear-gradient(135deg, #f0f9ff, #cbebff);
+    height: 100vh;
+    margin: 0;
+    padding: 20px;
+  }
+  .button-box {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 30px;
+  }
+  .btn {
+    background: white;
+    border: 2px solid #0078d4;
+    color: #0078d4;
+    border-radius: 10px;
+    padding: 15px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .btn:hover { background: #0078d4; color: white; }
 
-    /* Popup sửa lỗi */
-    .popup {
-      position: absolute;
-      top: -45px;
-      left: 10px;
-      background: #fff;
-      border: 1px solid #aaa;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-      padding: 10px;
-      font-size: 14px;
-      z-index: 10;
-      display: none;
-    }
-    .popup button {
-      padding: 5px 8px;
-      margin-left: 8px;
-      font-size: 13px;
-    }
-  </style>
+  input {
+    font-size: 16px;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    width: 220px;
+  }
+  .popup {
+    position: absolute;
+    background: #fff;
+    border: 1px solid #0078d4;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    padding: 10px;
+    font-size: 14px;
+    color: #333;
+    z-index: 1000;
+  }
+  .popup button {
+    background: #0078d4;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    margin-left: 6px;
+    cursor: pointer;
+    padding: 3px 8px;
+  }
+</style>
 </head>
 <body>
-  <h2>Trợ lý giọng nói cho người tai biến</h2>
-  <div class="container" id="container"></div>
-  <button class="add-btn" onclick="addBox()">➕ Thêm nút</button>
-  <button class="reset-btn" onclick="resetDefault()">🔄 Reset về mặc định</button>
+<h2>Máy hỗ trợ giao tiếp</h2>
+<div class="button-box" id="buttons"></div>
+<button id="addBtn" class="btn">➕ Thêm nút</button>
 
-  <script>
-    const container = document.getElementById("container");
+<script>
+const DEFAULT_BUTTONS = [
+  "Tôi muốn ăn cơm",
+  "Tôi muốn uống nước",
+  "Tôi muốn đi vệ sinh",
+  "Tôi muốn đi ngủ"
+];
 
-    const defaultTexts = [
-      "Tôi muốn ăn cơm",
-      "Tôi muốn uống nước",
-      "Tôi muốn đi vệ sinh",
-      "Tôi muốn đi ngủ"
-    ];
+const container = document.getElementById("buttons");
+const addBtn = document.getElementById("addBtn");
 
-    // Khởi tạo ban đầu
-    window.onload = () => {
-      const saved = JSON.parse(localStorage.getItem("buttons"));
-      if (saved && saved.length) {
-        saved.forEach(text => createBox(text));
-      } else {
-        defaultTexts.forEach(text => createBox(text));
-        saveAll();
+let buttons = JSON.parse(localStorage.getItem("buttons") || "[]");
+if (buttons.length === 0) buttons = DEFAULT_BUTTONS;
+renderButtons();
+
+addBtn.onclick = () => {
+  buttons.push("Câu mới");
+  saveAndRender();
+};
+
+function renderButtons() {
+  container.innerHTML = "";
+  buttons.forEach((text, i) => {
+    const div = document.createElement("div");
+    const input = document.createElement("input");
+    input.value = text;
+    const play = document.createElement("button");
+    play.textContent = "▶️";
+    play.className = "btn";
+    const del = document.createElement("button");
+    del.textContent = "❌";
+    del.className = "btn";
+    del.onclick = () => {
+      if (buttons.length > 1) {
+        buttons.splice(i, 1);
+        saveAndRender();
       }
     };
+    input.oninput = debounce(() => checkSentence(input, i), 800);
+    div.append(input, play, del);
+    container.appendChild(div);
+  });
+}
 
-    // Tạo khung nút
-    function createBox(text = "") {
-      const box = document.createElement("div");
-      box.className = "box";
+function saveAndRender() {
+  localStorage.setItem("buttons", JSON.stringify(buttons));
+  renderButtons();
+}
 
-      const input = document.createElement("input");
-      input.type = "text";
-      input.value = text;
+function debounce(fn, delay) {
+  let timeout;
+  return (...args) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => fn(...args), delay);
+  };
+}
 
-      const popup = document.createElement("div");
-      popup.className = "popup";
-      popup.innerHTML = `
-        <span id="popupText"></span>
-        <button onclick="confirmFix(this)">Đồng ý</button>
-        <button onclick="closePopup(this)">Hủy</button>
-      `;
-      box.appendChild(popup);
+// === Bộ sửa lỗi đơn giản ===
+function correctVietnamese(text) {
+  const corrections = {
+    "toi muon an com": "Tôi muốn ăn cơm",
+    "toi muon uong nuoc": "Tôi muốn uống nước",
+    "toi muon di ve sinh": "Tôi muốn đi vệ sinh",
+    "toi muon di ngu": "Tôi muốn đi ngủ"
+  };
+  const key = text.toLowerCase().trim();
+  return corrections[key] || null;
+}
 
-      const controls = document.createElement("div");
-      controls.className = "controls";
+function checkSentence(input, index) {
+  const val = input.value.trim();
+  const suggestion = correctVietnamese(val);
+  if (!suggestion || suggestion === val) return; // đúng rồi, bỏ qua
 
-      const aiBtn = document.createElement("button");
-      aiBtn.textContent = "🪄 Sửa lỗi";
-      aiBtn.className = "ai-btn";
-      aiBtn.onclick = () => suggestFix(input, popup);
+  showPopup(input, suggestion, () => {
+    input.value = suggestion;
+    buttons[index] = suggestion;
+    saveAndRender();
+  });
+}
 
-      const playBtn = document.createElement("button");
-      playBtn.textContent = "▶️ Phát";
-      playBtn.className = "play-btn";
-      playBtn.onclick = () => playText(input.value);
-
-      const delBtn = document.createElement("button");
-      delBtn.textContent = "❌";
-      delBtn.className = "del-btn";
-      delBtn.onclick = () => { box.remove(); saveAll(); };
-
-      controls.append(aiBtn, playBtn, delBtn);
-      box.append(input, controls);
-      container.appendChild(box);
-    }
-
-    // Phát giọng nói
-    function playText(text) {
-      if (!text.trim()) return;
-      const utter = new SpeechSynthesisUtterance(text);
-      utter.lang = "vi-VN";
-      speechSynthesis.speak(utter);
-    }
-
-    // Gợi ý sửa lỗi (offline)
-    function suggestFix(input, popup) {
-      const text = input.value.trim();
-      if (!text) return;
-
-      const fixed = autoFixSentence(text);
-      if (fixed === text) return; // Đúng rồi -> im lặng
-
-      popup.style.display = "block";
-      popup.querySelector("#popupText").textContent = `Có phải bạn muốn viết: "${fixed}"?`;
-      popup.dataset.fixed = fixed;
-    }
-
-    function confirmFix(btn) {
-      const popup = btn.closest(".popup");
-      const fixed = popup.dataset.fixed;
-      const input = popup.parentElement.querySelector("input");
-      input.value = fixed;
-      popup.style.display = "none";
-      saveAll();
-    }
-
-    function closePopup(btn) {
-      btn.closest(".popup").style.display = "none";
-    }
-
-    // Lưu toàn bộ vào localStorage
-    function saveAll() {
-      const all = Array.from(document.querySelectorAll(".box input")).map(i => i.value);
-      localStorage.setItem("buttons", JSON.stringify(all));
-    }
-
-    // Thêm nút mới
-    function addBox() {
-      createBox("");
-      saveAll();
-    }
-
-    // Reset mặc định
-    function resetDefault() {
-      if (!confirm("Bạn có chắc muốn xóa tất cả và khôi phục mặc định?")) return;
-      localStorage.removeItem("buttons");
-      container.innerHTML = "";
-      defaultTexts.forEach(text => createBox(text));
-      saveAll();
-    }
-
-    // Hàm sửa lỗi cơ bản
-    function autoFixSentence(text) {
-      // Chuyển thành chữ thường
-      let t = text.toLowerCase();
-      // Sửa lỗi phổ biến
-      t = t.replace(/\bmuon\b/g, "muốn")
-           .replace(/\ban\b/g, "ăn")
-           .replace(/\buong\b/g, "uống")
-           .replace(/\bnuc\b/g, "nước")
-           .replace(/\bvesinh\b/g, "vệ sinh")
-           .replace(/\bngu\b/g, "ngủ");
-      // Thêm dấu câu
-      if (!/[.!?]$/.test(t)) t += ".";
-      // Viết hoa đầu câu
-      t = t.charAt(0).toUpperCase() + t.slice(1);
-      return t;
-    }
-  </script>
+function showPopup(target, suggestion, onAccept) {
+  const rect = target.getBoundingClientRect();
+  const popup = document.createElement("div");
+  popup.className = "popup";
+  popup.style.top = rect.bottom + window.scrollY + "px";
+  popup.style.left = rect.left + "px";
+  popup.innerHTML = `
+    Gợi ý: <b>${suggestion}</b>
+    <button id="okBtn">Chấp nhận</button>
+    <button id="noBtn">Bỏ qua</button>
+  `;
+  document.body.appendChild(popup);
+  popup.querySelector("#okBtn").onclick = () => {
+    onAccept();
+    popup.remove();
+  };
+  popup.querySelector("#noBtn").onclick = () => popup.remove();
+}
+</script>
 </body>
 </html>
