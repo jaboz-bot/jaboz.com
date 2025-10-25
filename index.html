@@ -94,23 +94,24 @@
   <div class="container" id="buttonContainer">
     <!-- Nút đầu tiên không có X -->
     <div class="card">
-      <input type="text" id="input1" placeholder="Nhập văn bản cho Nút 1">
+      <input type="text" id="input1" placeholder="Nhập văn bản cho Nút 1" value="Tôi muốn ăn cơm">
       <button class="play-btn" onclick="playText(1)">🔊 Play Nút 1</button>
     </div>
 
-    <!-- Nút 2,3,4 có X -->
     <div class="card">
-      <input type="text" id="input2" placeholder="Nhập văn bản cho Nút 2">
+      <input type="text" id="input2" placeholder="Nhập văn bản cho Nút 2" value="Tôi muốn uống nước">
       <button class="play-btn" onclick="playText(2)">🔊 Play Nút 2</button>
       <button class="delete-btn" onclick="deleteButton(this.parentElement)">❌</button>
     </div>
+
     <div class="card">
-      <input type="text" id="input3" placeholder="Nhập văn bản cho Nút 3">
+      <input type="text" id="input3" placeholder="Nhập văn bản cho Nút 3" value="Tôi muốn đi vệ sinh">
       <button class="play-btn" onclick="playText(3)">🔊 Play Nút 3</button>
       <button class="delete-btn" onclick="deleteButton(this.parentElement)">❌</button>
     </div>
+
     <div class="card">
-      <input type="text" id="input4" placeholder="Nhập văn bản cho Nút 4">
+      <input type="text" id="input4" placeholder="Nhập văn bản cho Nút 4" value="Tôi muốn đi ngủ">
       <button class="play-btn" onclick="playText(4)">🔊 Play Nút 4</button>
       <button class="delete-btn" onclick="deleteButton(this.parentElement)">❌</button>
     </div>
@@ -215,15 +216,20 @@
 
     window.onload = function() {
       const container = document.getElementById('buttonContainer');
-      for(let i = 1; i <= localStorage.length; i++) {
-        const val = localStorage.getItem('button' + i);
-        if(val !== null && !document.getElementById('input' + i)) {
-          createCard(i, val);
-        } else if(val !== null) {
-          document.getElementById('input' + i).value = val;
+      // Nếu localStorage rỗng, giữ giá trị mặc định 4 nút
+      if(localStorage.length === 0) {
+        sortButtons();
+      } else {
+        for(let i = 1; i <= localStorage.length; i++) {
+          const val = localStorage.getItem('button' + i);
+          if(val !== null && !document.getElementById('input' + i)) {
+            createCard(i, val);
+          } else if(val !== null) {
+            document.getElementById('input' + i).value = val;
+          }
         }
+        sortButtons();
       }
-      sortButtons();
     };
   </script>
 </body>
