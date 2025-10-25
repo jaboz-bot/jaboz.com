@@ -332,20 +332,51 @@ function resetDefaults(){
 
 function getCards(){ return document.querySelectorAll('.card input'); }
 
-// --- 3 nút điều khiển ---
+
+// --- BỔ SUNG: HÀM XÓA CÁC THẺ RỖNG VÀ CẬP NHẬT TRẠNG THÁI ---
+function cleanupEmptyCards(){
+    let cards = document.querySelectorAll('.card');
+    let shouldSave = false;
+    
+    // Lặp ngược để việc xóa không làm ảnh hưởng đến chỉ mục tiếp theo
+    for(let i = cards.length - 1; i >= 0; i--) {
+        const input = cards[i].querySelector('input');
+        // Kiểm tra nếu input không tồn tại hoặc giá trị của nó (sau khi xóa khoảng trắng) là rỗng
+        if (!input || input.value.trim() === '') {
+            cards[i].remove();
+            shouldSave = true;
+        }
+    }
+    
+    // Chỉ lưu lại nếu có thẻ bị xóa
+    if(shouldSave) {
+        saveAll();
+        // Cập nhật lại currentIndex nếu nó trỏ đến vị trí không còn tồn tại
+        const newCards = getCards();
+        if(currentIndex >= newCards.length) {
+            currentIndex = newCards.length > 0 ? newCards.length - 1 : 0;
+        }
+    }
+}
+
+
+// --- 3 nút điều khiển (ĐÃ SỬA: Gọi cleanupEmptyCards() trước) ---
 function prevSpeak(){
+    cleanupEmptyCards(); // <== GỌI HÀM XÓA
     const cards=getCards();
     if(cards.length===0) return;
     currentIndex=(currentIndex-1+cards.length)%cards.length;
     speak(cards[currentIndex].value.trim());
 }
 function nextSpeak(){
+    cleanupEmptyCards(); // <== GỌI HÀM XÓA
     const cards=getCards();
     if(cards.length===0) return;
     currentIndex=(currentIndex+1)%cards.length;
     speak(cards[currentIndex].value.trim());
 }
 function currentSpeak(){
+    cleanupEmptyCards(); // <== GỌI HÀM XÓA
     const cards=getCards();
     if(cards.length===0) return;
     speak(cards[currentIndex].value.trim());
