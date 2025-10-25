@@ -30,6 +30,7 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
+      position: relative;
     }
 
     .card input {
@@ -39,7 +40,7 @@
       font-size: 16px;
     }
 
-    .card button {
+    .card button.play-btn {
       padding: 12px;
       border: none;
       border-radius: 8px;
@@ -50,7 +51,41 @@
       transition: 0.3s;
     }
 
-    .card button:hover {
+    .card button.play-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+
+    /* Nút xóa */
+    .delete-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: transparent;
+      border: none;
+      color: red;
+      font-size: 18px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .delete-btn:hover {
+      transform: scale(1.2);
+    }
+
+    /* Nút Thêm */
+    .add-btn {
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(45deg, #2196F3, #1976D2);
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .add-btn:hover {
       transform: scale(1.05);
       box-shadow: 0 6px 12px rgba(0,0,0,0.15);
     }
@@ -59,26 +94,26 @@
 <body>
   <h1>Trang hỗ trợ giọng nói</h1>
   <div class="container" id="buttonContainer">
-    <!-- Nút ban đầu -->
+    <!-- 4 nút ban đầu -->
     <div class="card">
       <input type="text" id="input1" placeholder="Nhập văn bản cho Nút 1">
-      <button onclick="playText(1)">🔊 Play Nút 1</button>
+      <button class="play-btn" onclick="playText(1)">🔊 Play Nút 1</button>
     </div>
     <div class="card">
       <input type="text" id="input2" placeholder="Nhập văn bản cho Nút 2">
-      <button onclick="playText(2)">🔊 Play Nút 2</button>
+      <button class="play-btn" onclick="playText(2)">🔊 Play Nút 2</button>
     </div>
     <div class="card">
       <input type="text" id="input3" placeholder="Nhập văn bản cho Nút 3">
-      <button onclick="playText(3)">🔊 Play Nút 3</button>
+      <button class="play-btn" onclick="playText(3)">🔊 Play Nút 3</button>
     </div>
     <div class="card">
       <input type="text" id="input4" placeholder="Nhập văn bản cho Nút 4">
-      <button onclick="playText(4)">🔊 Play Nút 4</button>
+      <button class="play-btn" onclick="playText(4)">🔊 Play Nút 4</button>
     </div>
     <!-- Nút thêm mới -->
     <div class="card">
-      <button onclick="addButton()">➕ Thêm Nút</button>
+      <button class="add-btn" onclick="addButton()">➕ Thêm Nút</button>
     </div>
   </div>
 
@@ -87,10 +122,8 @@
       alert("Trình duyệt của bạn không hỗ trợ Web Speech API.");
     }
 
-    // Biến lưu số lượng nút
-    let buttonCount = 4;
+    let buttonCount = 4; // số nút hiện có
 
-    // Hàm phát âm văn bản
     function playText(buttonNumber) {
       const inputElement = document.getElementById('input' + buttonNumber);
       const text = inputElement.value.trim();
@@ -104,58 +137,75 @@
       }
     }
 
-    // Hàm thêm nút mới
     function addButton() {
       buttonCount++;
       const container = document.getElementById('buttonContainer');
 
-      // Tạo thẻ card
       const card = document.createElement('div');
       card.className = 'card';
 
-      // Tạo input
       const input = document.createElement('input');
       input.type = 'text';
       input.id = 'input' + buttonCount;
       input.placeholder = 'Nhập văn bản cho Nút ' + buttonCount;
       card.appendChild(input);
 
-      // Tạo nút Play
       const btn = document.createElement('button');
+      btn.className = 'play-btn';
       btn.innerHTML = '🔊 Play Nút ' + buttonCount;
       btn.onclick = function() { playText(buttonCount); };
       card.appendChild(btn);
 
-      // Chèn trước nút "Thêm Nút"
+      // Nút xóa
+      const del = document.createElement('button');
+      del.className = 'delete-btn';
+      del.innerHTML = '❌';
+      del.onclick = function() { deleteButton(card, buttonCount); };
+      card.appendChild(del);
+
       const addBtnCard = container.lastElementChild;
       container.insertBefore(card, addBtnCard);
 
-      // Lưu input rỗng ban đầu vào localStorage
       localStorage.setItem('button' + buttonCount, '');
     }
 
-    // Tải dữ liệu từ localStorage khi mở trang
+    function deleteButton(card, number) {
+      if(confirm('Bạn có chắc muốn xóa Nút ' + number + '?')) {
+        card.remove();
+        localStorage.removeItem('button' + number);
+      }
+    }
+
+    // Tải dữ liệu từ localStorage
     window.onload = function() {
-      // Tải các nút cũ
+      const container = document.getElementById('buttonContainer');
       for (let i = 1; i <= localStorage.length; i++) {
         const savedText = localStorage.getItem('button' + i);
         if (savedText !== null) {
-          // Nếu nút vượt quá 4 nút ban đầu, tạo thêm
           if (!document.getElementById('input' + i)) {
             buttonCount = i;
-            const container = document.getElementById('buttonContainer');
             const card = document.createElement('div');
             card.className = 'card';
+
             const input = document.createElement('input');
             input.type = 'text';
             input.id = 'input' + i;
             input.placeholder = 'Nhập văn bản cho Nút ' + i;
             input.value = savedText;
             card.appendChild(input);
+
             const btn = document.createElement('button');
+            btn.className = 'play-btn';
             btn.innerHTML = '🔊 Play Nút ' + i;
             btn.onclick = function() { playText(i); };
             card.appendChild(btn);
+
+            const del = document.createElement('button');
+            del.className = 'delete-btn';
+            del.innerHTML = '❌';
+            del.onclick = function() { deleteButton(card, i); };
+            card.appendChild(del);
+
             const addBtnCard = container.lastElementChild;
             container.insertBefore(card, addBtnCard);
           } else {
