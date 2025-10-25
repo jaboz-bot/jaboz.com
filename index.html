@@ -67,14 +67,17 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 </div>
 
 <div id="settingsArea">
+  <button class="btn" style="background:#ff9800;margin-bottom:10px;" onclick="toggleLock(true)">Khóa giao diện</button>
   <button class="btn add-btn" onclick="addButton()">➕ Thêm Nút</button>
   <button class="btn reset-btn" onclick="resetDefaults()">♻️ Reset mặc định</button>
-  <button class="btn" style="background:#ff9800;margin-top:10px;" onclick="toggleLock(true)">Khóa giao diện</button>
 </div>
 
 <div id="tts-info">
   Nếu không thấy âm thanh, vui lòng tải giọng nói tại 
-  <a href="https://play.google.com/store/apps/details?id=com.google.android.tts" target="_blank">Google Play</a>
+  <a href="market://details?id=com.google.android.tts" 
+     onclick="window.open('https://play.google.com/store/apps/details?id=com.google.android.tts','_blank'); return false;">
+     Google Play
+  </a>
 </div>
 
 <script>
