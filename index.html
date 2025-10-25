@@ -160,16 +160,17 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 .control-container.locked #unlock-btn {
     display: block;
     position: relative; 
-    margin: 30px auto 0 auto; /* Đã giảm khoảng cách */
+    /* ĐÃ SỬA: TĂNG MARGIN ĐỂ TẠO KHOẢNG CÁCH */
+    margin: 50px auto 0 auto; 
     width: 160px;
 }
 
 
-/* POPUP - CĂN CHỈNH KHI Ở CHẾ ĐỘ KHÓA */
+/* POPUP - CĂN CHỈNH KHI Ở CHẾ ĐỘ CHƯA KHÓA */
 #popup {
     /* Các thuộc tính giữ nguyên */
     position: absolute;
-    bottom: 100%;
+    bottom: 100%; /* Đặt vị trí ban đầu là ngay trên controlArea */
     left: 50%;
     transform: translateX(-50%) translateY(20px);
     background: rgba(0,0,0,0.8);
@@ -187,10 +188,10 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     transition: 0.5s;
 }
 
-/* SỬA: VỊ TRÍ MỚI KHI Ở CHẾ ĐỘ KHÓA (Cố định ở trên) */
+/* SỬA: VỊ TRÍ MỚI KHI Ở CHẾ ĐỘ KHÓA (Cố định ở trên nhóm nút) */
 .control-container.locked #popup {
-    position: fixed; /* Quan trọng: Cố định vị trí so với viewport */
-    top: 50px; /* Đặt cách mép trên 50px */
+    position: fixed; 
+    top: 20%; /* ĐÃ SỬA: Đặt thấp hơn để tránh chồng lên tiêu đề */
     bottom: auto; 
     left: 50%;
     transform: translateX(-50%);
@@ -364,11 +365,7 @@ function toggleLock(lock){
         
         controlArea.classList.add('locked');
         
-        // Quan trọng: Đặt lại style vị trí của Popup khi Khóa (Vị trí cao hơn)
-        // Đã chuyển sang CSS cố định (fixed)
-        // popup.style.position='absolute'; 
-        // popup.style.top='25%'; 
-        // popup.style.bottom='auto';
+        // Popup đã được sửa bằng CSS cố định
 
         unlockBtn.style.display='block';
     } else {
