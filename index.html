@@ -36,7 +36,7 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     justify-content: center;
     align-items: center;
     gap: 15px; 
-    margin: 25px 0 0 0; /* ĐÃ CHỈNH SỬA: Từ 15px lên 25px */
+    margin: 25px 0 0 0; /* ĐÃ CHỈNH SỬA: Khoảng cách trên là 25px */
 }
 
 /* NÚT ĐIỀU KHIỂN - VUÔNG BO GÓC */
@@ -46,7 +46,7 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     border-radius: 8px;
     background: #ff9800;
     color: white;
-    font-size: 18px;
+    font-size: 18px; /* Giữ nguyên hoặc tăng nếu muốn biểu tượng to hơn */
     border: none;
     cursor: pointer;
     transition: 0.3s;
@@ -135,10 +135,8 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 <div class="control-container" id="controlArea">
     <div id="popup"></div>
     <div class="navigation-group">
-        <button class="control-btn" onclick="prevSpeak()">Phát trước</button>
-        <button class="control-btn" onclick="currentSpeak()">Phát lại</button>
-        <button class="control-btn" onclick="nextSpeak()">Phát sau</button>
-    </div>
+        <button class="control-btn" onclick="prevSpeak()">◀︎</button> <button class="control-btn" onclick="currentSpeak()">Phát lại</button>
+        <button class="control-btn" onclick="nextSpeak()">▶︎</button> </div>
     <button class="btn" id="unlock-btn" onclick="toggleLock(false)" style="display:none;">Mở khóa giao diện</button>
 </div>
 
