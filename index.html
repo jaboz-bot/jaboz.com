@@ -63,11 +63,15 @@
 </head>
 <body>
   <h1>Máy hỗ trợ giọng nói</h1>
+  
+  <!-- Container các nút phát âm -->
   <div class="container" id="buttonContainer"></div>
 
-  <!-- Nút Thêm và Reset xếp dọc -->
-  <button class="btn add-btn" onclick="addButton()">➕ Thêm Nút</button>
-  <button class="btn reset-btn" onclick="resetDefaults()">♻️ Reset mặc định</button>
+  <!-- Nút Thêm và Reset xếp dọc, cách container 30px -->
+  <div style="margin-top:30px;">
+    <button class="btn add-btn" onclick="addButton()">➕ Thêm Nút</button>
+    <button class="btn reset-btn" onclick="resetDefaults()">♻️ Reset mặc định</button>
+  </div>
 
 <script>
 const defaults = [
