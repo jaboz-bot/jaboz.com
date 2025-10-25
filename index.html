@@ -94,23 +94,29 @@
 <body>
   <h1>Trang hỗ trợ giọng nói</h1>
   <div class="container" id="buttonContainer">
-    <!-- 4 nút ban đầu -->
+    <!-- Nút đầu tiên không có X -->
     <div class="card">
       <input type="text" id="input1" placeholder="Nhập văn bản cho Nút 1">
       <button class="play-btn" onclick="playText(1)">🔊 Play Nút 1</button>
     </div>
+
+    <!-- Nút 2,3,4 có X -->
     <div class="card">
       <input type="text" id="input2" placeholder="Nhập văn bản cho Nút 2">
       <button class="play-btn" onclick="playText(2)">🔊 Play Nút 2</button>
+      <button class="delete-btn" onclick="deleteButton(this.parentElement,2)">❌</button>
     </div>
     <div class="card">
       <input type="text" id="input3" placeholder="Nhập văn bản cho Nút 3">
       <button class="play-btn" onclick="playText(3)">🔊 Play Nút 3</button>
+      <button class="delete-btn" onclick="deleteButton(this.parentElement,3)">❌</button>
     </div>
     <div class="card">
       <input type="text" id="input4" placeholder="Nhập văn bản cho Nút 4">
       <button class="play-btn" onclick="playText(4)">🔊 Play Nút 4</button>
+      <button class="delete-btn" onclick="deleteButton(this.parentElement,4)">❌</button>
     </div>
+
     <!-- Nút thêm mới -->
     <div class="card">
       <button class="add-btn" onclick="addButton()">➕ Thêm Nút</button>
@@ -122,7 +128,7 @@
       alert("Trình duyệt của bạn không hỗ trợ Web Speech API.");
     }
 
-    let buttonCount = 4; // số nút hiện có
+    let buttonCount = 4;
 
     function playText(buttonNumber) {
       const inputElement = document.getElementById('input' + buttonNumber);
@@ -156,7 +162,6 @@
       btn.onclick = function() { playText(buttonCount); };
       card.appendChild(btn);
 
-      // Nút xóa
       const del = document.createElement('button');
       del.className = 'delete-btn';
       del.innerHTML = '❌';
@@ -176,7 +181,6 @@
       }
     }
 
-    // Tải dữ liệu từ localStorage
     window.onload = function() {
       const container = document.getElementById('buttonContainer');
       for (let i = 1; i <= localStorage.length; i++) {
@@ -200,11 +204,14 @@
             btn.onclick = function() { playText(i); };
             card.appendChild(btn);
 
-            const del = document.createElement('button');
-            del.className = 'delete-btn';
-            del.innerHTML = '❌';
-            del.onclick = function() { deleteButton(card, i); };
-            card.appendChild(del);
+            // Chỉ nút đầu tiên không có X
+            if (i !== 1) {
+              const del = document.createElement('button');
+              del.className = 'delete-btn';
+              del.innerHTML = '❌';
+              del.onclick = function() { deleteButton(card, i); };
+              card.appendChild(del);
+            }
 
             const addBtnCard = container.lastElementChild;
             container.insertBefore(card, addBtnCard);
