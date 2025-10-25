@@ -87,19 +87,44 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     width: 100%;
     height: 100%;
     transform: none;
-    /* KHÔNG CĂN GIỮA BẰNG justify-content nữa */
     justify-content: flex-start; 
 }
 
 .control-container.locked .navigation-group {
-    /* Quan trọng: Sử dụng absolute/fixed để căn giữa */
     position: absolute;
     top: 50%;
     left: 50%;
-    /* Dịch chuyển ngược lại 50% kích thước của nó để căn giữa */
     transform: translate(-50%, -50%); 
-    margin: 0; /* Xóa margin khi khóa */
+    margin: 0; 
 }
+
+/* POPUP - CĂN CHỈNH KHI Ở CHẾ ĐỘ KHÓA */
+#popup {
+    /* Các thuộc tính giữ nguyên */
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: rgba(0,0,0,0.8);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 12px;
+    font-size: 18px;
+    display: none;
+    z-index: 101;
+    max-width: 90%;
+    min-width: 100px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    text-align: center;
+    transition: 0.5s;
+}
+/* THÊM VỊ TRÍ MỚI KHI Ở CHẾ ĐỘ KHÓA - ĐỊNH VỊ TRÊN TÂM MÀN HÌNH */
+.control-container.locked #popup {
+    top: 35%; /* Đặt cao hơn 50% (tâm màn hình) */
+    bottom: auto; /* Bỏ định vị bottom cũ */
+}
+
 
 </style>
 </head>
@@ -135,6 +160,8 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 <script>
 const defaults=["Tôi muốn ăn cơm","Tôi muốn uống nước","Tôi muốn đi vệ sinh","Tôi muốn đi ngủ"];
 let currentIndex=0;
+const controlArea = document.getElementById('controlArea');
+
 
 // --- Nút phát âm ---
 function speak(text){
@@ -151,12 +178,39 @@ function speak(text){
 function showPopup(text){
     const popup=document.getElementById('popup');
     popup.textContent=text;
+    
+    // **ĐIỀU CHỈNH CHUYỂN ĐỘNG POPUP**
+    const isLocked = controlArea.classList.contains('locked');
+    
+    // Đặt lại vị trí ban đầu cho popup (ẩn)
+    if (isLocked) {
+        // Chế độ khóa: Bắt đầu từ vị trí cao hơn tâm màn hình
+        popup.style.transform='translateX(-50%) translateY(30px)'; 
+    } else {
+        // Chế độ mở: Vị trí mặc định (phía trên nút)
+        popup.style.transform='translateX(-50%) translateY(20px)';
+    }
+
     popup.style.display='block';
     popup.style.opacity='1';
-    popup.style.transform='translateX(-50%) translateY(0)';
+    
+    // Vị trí kết thúc (hiện)
+    if (isLocked) {
+        popup.style.transform='translateX(-50%) translateY(0)'; // Kết thúc tại vị trí top: 35%
+    } else {
+        popup.style.transform='translateX(-50%) translateY(0)'; // Kết thúc tại vị trí bottom: 100%
+    }
+
+    // Tự động ẩn
     setTimeout(()=>{
         popup.style.opacity='0';
-        popup.style.transform='translateX(-50%) translateY(-20px)';
+        // Vị trí trượt đi
+        if (isLocked) {
+            popup.style.transform='translateX(-50%) translateY(-20px)'; // Trượt lên trên
+        } else {
+            popup.style.transform='translateX(-50%) translateY(-20px)'; // Trượt lên trên
+        }
+        
         setTimeout(()=>popup.style.display='none',500);
     },2000);
 }
@@ -222,36 +276,41 @@ function currentSpeak(){
     speak(cards[currentIndex].value.trim());
 }
 
-// --- Khóa / Mở khóa (Điều chỉnh để căn giữa 3 nút khi khóa) ---
+// --- Khóa / Mở khóa (Giữ nguyên logic class) ---
 function toggleLock(lock){
     const settings=document.getElementById('settingsArea');
     const container=document.getElementById('buttonContainer');
-    const controlArea=document.getElementById('controlArea');
     const unlockBtn=document.getElementById('unlock-btn');
     const navGroup=document.querySelector('.navigation-group');
+    const popup=document.getElementById('popup');
 
     if(lock){
         settings.style.display='none';
         container.style.display='none';
         
-        // Kích hoạt class CSS mới để căn giữa 3 nút một cách độc lập
         controlArea.classList.add('locked');
         
-        // Reset các style nội tuyến không cần thiết khi dùng class 'locked'
         controlArea.style.justifyContent = ''; 
 
-        // Ẩn/Hiện nút Mở khóa
+        // Quan trọng: Đặt lại style vị trí của Popup khi Khóa
+        popup.style.position='absolute';
+        popup.style.top='35%'; 
+        popup.style.bottom='auto';
+
         unlockBtn.style.display='block';
     } else {
         settings.style.display='block';
         container.style.display='grid';
         
-        // Loại bỏ class CSS của chế độ khóa
         controlArea.classList.remove('locked');
         
-        // Đặt lại margin cho chế độ chưa khóa
         navGroup.style.marginBottom='0px'; 
         navGroup.style.marginTop='15px';
+        
+        // Quan trọng: Đặt lại style vị trí mặc định của Popup khi Mở khóa
+        popup.style.position='absolute';
+        popup.style.top='auto';
+        popup.style.bottom='100%';
 
         unlockBtn.style.display='none';
     }
