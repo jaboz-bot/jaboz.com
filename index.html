@@ -119,13 +119,12 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     text-align: center;
     transition: 0.5s;
 }
-/* THÊM VỊ TRÍ MỚI KHI Ở CHẾ ĐỘ KHÓA - ĐỊNH VỊ TRÊN TÂM MÀN HÌNH */
+
+/* THAY ĐỔI LỚN: VỊ TRÍ MỚI KHI Ở CHẾ ĐỘ KHÓA */
 .control-container.locked #popup {
-    top: 35%; /* Đặt cao hơn 50% (tâm màn hình) */
-    bottom: auto; /* Bỏ định vị bottom cũ */
+    top: 25%; /* Dịch lên cao hơn nữa để tránh chồng lấn */
+    bottom: auto; 
 }
-
-
 </style>
 </head>
 <body>
@@ -179,15 +178,14 @@ function showPopup(text){
     const popup=document.getElementById('popup');
     popup.textContent=text;
     
-    // **ĐIỀU CHỈNH CHUYỂN ĐỘNG POPUP**
     const isLocked = controlArea.classList.contains('locked');
     
-    // Đặt lại vị trí ban đầu cho popup (ẩn)
+    // Đặt lại vị trí ban đầu (ẩn)
     if (isLocked) {
-        // Chế độ khóa: Bắt đầu từ vị trí cao hơn tâm màn hình
+        // Chế độ khóa: Bắt đầu từ vị trí cao hơn
         popup.style.transform='translateX(-50%) translateY(30px)'; 
     } else {
-        // Chế độ mở: Vị trí mặc định (phía trên nút)
+        // Chế độ mở: Vị trí mặc định
         popup.style.transform='translateX(-50%) translateY(20px)';
     }
 
@@ -195,21 +193,13 @@ function showPopup(text){
     popup.style.opacity='1';
     
     // Vị trí kết thúc (hiện)
-    if (isLocked) {
-        popup.style.transform='translateX(-50%) translateY(0)'; // Kết thúc tại vị trí top: 35%
-    } else {
-        popup.style.transform='translateX(-50%) translateY(0)'; // Kết thúc tại vị trí bottom: 100%
-    }
+    popup.style.transform='translateX(-50%) translateY(0)'; // Kết thúc tại vị trí CSS top/bottom đã đặt
 
     // Tự động ẩn
     setTimeout(()=>{
         popup.style.opacity='0';
         // Vị trí trượt đi
-        if (isLocked) {
-            popup.style.transform='translateX(-50%) translateY(-20px)'; // Trượt lên trên
-        } else {
-            popup.style.transform='translateX(-50%) translateY(-20px)'; // Trượt lên trên
-        }
+        popup.style.transform='translateX(-50%) translateY(-20px)'; 
         
         setTimeout(()=>popup.style.display='none',500);
     },2000);
@@ -276,7 +266,7 @@ function currentSpeak(){
     speak(cards[currentIndex].value.trim());
 }
 
-// --- Khóa / Mở khóa (Giữ nguyên logic class) ---
+// --- Khóa / Mở khóa (Điều chỉnh vị trí Popup) ---
 function toggleLock(lock){
     const settings=document.getElementById('settingsArea');
     const container=document.getElementById('buttonContainer');
@@ -290,11 +280,9 @@ function toggleLock(lock){
         
         controlArea.classList.add('locked');
         
-        controlArea.style.justifyContent = ''; 
-
-        // Quan trọng: Đặt lại style vị trí của Popup khi Khóa
+        // Quan trọng: Đặt lại style vị trí của Popup khi Khóa (Vị trí cao hơn)
         popup.style.position='absolute';
-        popup.style.top='35%'; 
+        popup.style.top='25%'; 
         popup.style.bottom='auto';
 
         unlockBtn.style.display='block';
