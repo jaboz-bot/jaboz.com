@@ -12,7 +12,19 @@ h1 {margin-bottom:20px;}
 .container { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px,1fr)); gap:20px; margin-bottom:20px; }
 .card { background:#fff; padding:18px; border-radius:12px; box-shadow:0 3px 8px rgba(0,0,0,0.15); display:flex; flex-direction:column; gap:10px; position:relative; }
 input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; width:100%; }
-.btn {padding:12px; border:none; border-radius:8px; color:white; font-size:16px; cursor:pointer; transition:0.3s;}
+.btn {
+    padding:12px; 
+    border:none; 
+    border-radius:8px; 
+    color:white; 
+    font-size:16px; 
+    cursor:pointer; 
+    transition:0.3s;
+    /* BỔ SUNG CÂN GIỮA NỘI DUNG CHỮ */
+    display: flex;
+    justify-content: center; /* Căn giữa theo chiều ngang */
+    align-items: center;    /* Căn giữa theo chiều dọc */
+}
 .play-btn {background:linear-gradient(45deg,#4CAF50,#43A047);} 
 .play-btn:hover {transform:scale(1.05);}
 .delete-btn {position:absolute; top:6px; right:8px; border:none; background:transparent; color:#e53935; font-size:18px; cursor:pointer;}
@@ -175,7 +187,7 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 <div id="settingsArea">
     <button class="btn" onclick="toggleLock(true)">Khóa giao diện</button>
     <button class="btn install-btn" id="installButton" style="display:none;">📲 Tạo Lối tắt (Cài đặt App)</button>
-    <button class="btn add-btn" onclick="addButton()">➕ Thêm Nút</button>
+    <button class="btn add-btn" onclick="addButton()">➕ Thêm câu mới</button>
     <button class="btn reset-btn" onclick="resetDefaults()">♻️ Reset mặc định</button>
 </div>
 
