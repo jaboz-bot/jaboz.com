@@ -18,7 +18,7 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 .add-btn, .reset-btn {background:linear-gradient(45deg,#2196F3,#1976D2); width:200px; margin:8px auto; display:block;}
 .add-btn:hover, .reset-btn:hover {transform:scale(1.05);}
 
-/* CONTAINER ĐIỀU KHIỂN - GIỮ NGUYÊN (Dùng để căn giữa 3 nút) */
+/* CONTAINER ĐIỀU KHIỂN - Tối ưu cho chế độ CHƯA KHÓA */
 .control-container {
     display:flex;
     flex-direction:column;
@@ -27,8 +27,7 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     margin-top:20px;
     position:relative;
     transition:0.3s;
-    min-height: 100vh; 
-    justify-content: center; /* Căn giữa theo chiều dọc */
+    /* KHÔNG DÙNG MIN-HEIGHT hay JUSTIFY-CONTENT khi chưa khóa */
 }
 
 /* KHU VỰC 3 NÚT - XẾP DỌC */
@@ -39,8 +38,9 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     align-items: center;
     gap: 15px; 
     margin: 10px 0;
-    /* Đảm bảo navigation-group không bị đẩy xuống bởi unlock-btn khi khóa */
-    margin-bottom: 200px; 
+    /* Giảm margin-bottom mặc định */
+    margin-bottom: 0px; 
+    margin-top: 15px; /* Tăng nhẹ khoảng cách với popup */
 }
 
 /* NÚT ĐIỀU KHIỂN - VUÔNG BO GÓC */
@@ -63,14 +63,17 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 
 /* NÚT KHÓA GIAO DIỆN (TRONG SETTINGS) - ĐỒNG BỘ MÀU ĐỎ */
 #settingsArea .btn:first-child {
-    background: linear-gradient(45deg, #f44336, #d32f2f); /* Màu đỏ */
-    /* Khoảng cách này hiện tại là vừa phải (margin-bottom 10px mặc định) */
+    background: linear-gradient(45deg, #f44336, #d32f2f);
+    margin-bottom: 20px; 
+}
+#settingsArea {
+    margin-top: 30px; /* Tăng khoảng cách giữa 3 nút điều hướng và khu vực cài đặt */
 }
 
 /* NÚT MỞ KHÓA - CĂN XUỐNG DƯỚI VÀ TẠO KHOẢNG CÁCH HỢP LÝ */
 #unlock-btn {
     position: absolute; 
-    bottom: 80px; /* Cách đáy TĂNG LÊN (ví dụ: 80px) */
+    bottom: 80px; 
     left: 50%;
     transform: translateX(-50%);
     
@@ -228,7 +231,7 @@ function currentSpeak(){
     speak(cards[currentIndex].value.trim());
 }
 
-// --- Khóa / Mở khóa (Điều chỉnh để căn chỉnh nút mở khóa) ---
+// --- Khóa / Mở khóa (Điều chỉnh để cân bằng khoảng cách khi chưa khóa) ---
 function toggleLock(lock){
     const settings=document.getElementById('settingsArea');
     const container=document.getElementById('buttonContainer');
@@ -240,31 +243,34 @@ function toggleLock(lock){
         settings.style.display='none';
         container.style.display='none';
         
-        // Điều chỉnh vị trí ControlArea khi khóa
+        // Chế độ KHÓA: Căn giữa 3 nút và đẩy nút mở khóa xuống đáy
         controlArea.style.position='fixed';
         controlArea.style.top='0';
         controlArea.style.left='0';
         controlArea.style.transform='none';
         controlArea.style.width='100%';
         controlArea.style.height='100%';
-        // Quan trọng: Tăng margin-bottom của navigation-group để tạo khoảng trống cho nút mở khóa
-        navGroup.style.marginBottom='200px'; 
+        controlArea.style.justifyContent = 'center'; /* Căn giữa nội dung ControlArea */
+
+        navGroup.style.marginBottom='200px'; // Khoảng cách lớn để tách nút mở khóa ra
+        navGroup.style.marginTop='0'; 
 
         unlockBtn.style.display='block';
     } else {
         settings.style.display='block';
         container.style.display='grid';
         
-        // Trả về vị trí mặc định
+        // Chế độ CHƯA KHÓA: Trả về trạng thái flow bình thường
         controlArea.style.position='relative';
         controlArea.style.top='0';
         controlArea.style.left='0';
         controlArea.style.transform='none';
         controlArea.style.width='auto';
         controlArea.style.height='auto';
-        
-        // Trả về margin mặc định
-        navGroup.style.marginBottom='10px';
+        controlArea.style.justifyContent = 'flex-start'; 
+
+        navGroup.style.marginBottom='0px'; /* Giảm khoảng cách tối đa */
+        navGroup.style.marginTop='15px'; /* Khoảng cách vừa phải */
 
         unlockBtn.style.display='none';
     }
