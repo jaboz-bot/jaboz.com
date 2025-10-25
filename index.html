@@ -98,13 +98,13 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     margin: 0; 
 }
 
-/* POPUP - CĂN CHỈNH TỔNG QUAN */
+/* POPUP - CĂN CHỈNH KHI Ở CHẾ ĐỘ KHÓA */
 #popup {
-    /* Đặt vị trí tĩnh để có thể định vị lại bằng JS */
+    /* Các thuộc tính giữ nguyên */
     position: absolute;
+    bottom: 100%;
     left: 50%;
-    transform: translateX(-50%);
-    
+    transform: translateX(-50%) translateY(20px);
     background: rgba(0,0,0,0.8);
     color: white;
     padding: 15px 20px;
@@ -120,12 +120,10 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     transition: 0.5s;
 }
 
-/* Vị trí mặc định khi KHÓA (Cao hơn trung tâm) */
+/* THAY ĐỔI LỚN: VỊ TRÍ MỚI KHI Ở CHẾ ĐỘ KHÓA */
 .control-container.locked #popup {
-    top: 25%; 
+    top: 25%; /* Dịch lên cao hơn nữa để tránh chồng lấn */
     bottom: auto; 
-    left: 50%;
-    transform: translateX(-50%);
 }
 </style>
 </head>
@@ -162,104 +160,56 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 const defaults=["Tôi muốn ăn cơm","Tôi muốn uống nước","Tôi muốn đi vệ sinh","Tôi muốn đi ngủ"];
 let currentIndex=0;
 const controlArea = document.getElementById('controlArea');
-const popup = document.getElementById('popup');
+
 
 // --- Nút phát âm ---
-// Thêm tham số 'source' để biết nguồn kích hoạt popup là từ đâu
-function speak(text, source = null){
+function speak(text){
     if(!text) return;
     if(!('speechSynthesis' in window)) return;
     window.speechSynthesis.cancel();
     const utter=new SpeechSynthesisUtterance(text);
     utter.lang='vi-VN';
     speechSynthesis.speak(utter);
-    showPopup(text, source);
+    showPopup(text);
 }
 
 // --- Popup trượt ---
-function showPopup(text, source = null){
+function showPopup(text){
+    const popup=document.getElementById('popup');
     popup.textContent=text;
+    
     const isLocked = controlArea.classList.contains('locked');
     
-    // ** 1. ĐẶT VỊ TRÍ POPUP **
+    // Đặt lại vị trí ban đầu (ẩn)
     if (isLocked) {
-        // Chế độ KHÓA: Giữ nguyên vị trí cao hơn tâm màn hình (top 25%)
-        popup.style.top='25%'; 
-        popup.style.bottom='auto';
-    } else if (source) {
-        // Chế độ MỞ KHÓA & Nguồn là nút phát âm trong danh sách: Căn chỉnh theo nút
-        const card = source.closest('.card');
-        const input = card.querySelector('input');
-        
-        // Tính toán vị trí Popup nằm ngay trên input (để không đè lên)
-        const rect = input.getBoundingClientRect();
-        
-        // Vị trí: top của input - chiều cao của popup - một khoảng đệm an toàn (ví dụ: 10px)
-        // Dùng position:fixed để dễ dàng định vị trên toàn màn hình (và body không cuộn)
-        popup.style.position = 'fixed';
-        
-        // 5px là khoảng cách an toàn so với mép trên của input
-        popup.style.top = (rect.top - popup.offsetHeight - 5) + 'px'; 
-        popup.style.bottom = 'auto';
-        popup.style.left = (rect.left + rect.width / 2) + 'px';
-        popup.style.transform = 'translateX(-50%)'; // Căn giữa theo vị trí mới
+        // Chế độ khóa: Bắt đầu từ vị trí cao hơn
+        popup.style.transform='translateX(-50%) translateY(30px)'; 
     } else {
-        // Chế độ MỞ KHÓA & Nguồn là 3 nút điều hướng: Vị trí mặc định (phía trên control-container)
-        popup.style.position = 'absolute';
-        popup.style.top = 'auto';
-        popup.style.bottom = '100%';
-        popup.style.left = '50%';
-        popup.style.transform = 'translateX(-50%)';
-    }
-
-    // ** 2. HIỆU ỨNG TRƯỢT **
-    // Vị trí bắt đầu (ẩn - dịch xuống 30px)
-    popup.style.opacity='0';
-    
-    // Nếu ở chế độ Fixed (khi ấn nút trong danh sách), cần tính lại top ban đầu
-    const topStart = popup.style.position === 'fixed' ? (parseFloat(popup.style.top) + 30) + 'px' : '';
-    
-    // Áp dụng vị trí bắt đầu
-    if (popup.style.position === 'fixed') {
-        popup.style.top = topStart;
-    } else {
-        popup.style.transform = 'translateX(-50%) translateY(30px)';
+        // Chế độ mở: Vị trí mặc định
+        popup.style.transform='translateX(-50%) translateY(20px)';
     }
 
     popup.style.display='block';
-
+    popup.style.opacity='1';
+    
     // Vị trí kết thúc (hiện)
-    setTimeout(() => {
-        popup.style.opacity='1';
-        if (popup.style.position === 'fixed') {
-            popup.style.top = (parseFloat(topStart) - 30) + 'px'; // Vị trí top cuối
-        } else {
-            popup.style.transform = 'translateX(-50%) translateY(0)';
-        }
-    }, 10); // Đặt timeout nhỏ để kích hoạt transition
+    popup.style.transform='translateX(-50%) translateY(0)'; // Kết thúc tại vị trí CSS top/bottom đã đặt
 
     // Tự động ẩn
     setTimeout(()=>{
         popup.style.opacity='0';
-        // Vị trí trượt đi (lên trên 20px)
-        if (popup.style.position === 'fixed') {
-            popup.style.top = (parseFloat(popup.style.top) - 20) + 'px'; 
-        } else {
-            popup.style.transform='translateX(-50%) translateY(-20px)';
-        }
+        // Vị trí trượt đi
+        popup.style.transform='translateX(-50%) translateY(-20px)'; 
         
         setTimeout(()=>popup.style.display='none',500);
     },2000);
 }
 
-
-// --- Quản lý nút (Thay đổi hàm onclick) ---
+// --- Quản lý nút (Giữ nguyên) ---
 function addButton(value=''){
     const card=document.createElement('div'); card.className='card';
     const input=document.createElement('input'); input.value=value; input.placeholder="Nhập văn bản..."; input.onchange=saveAll;
-    const play=document.createElement('button'); play.className='btn play-btn'; play.textContent='🔊 Phát âm'; 
-    // TRUYỀN 'this' (nút play) làm tham số nguồn
-    play.onclick=function(){ speak(input.value.trim(), this); }; 
+    const play=document.createElement('button'); play.className='btn play-btn'; play.textContent='🔊 Phát âm'; play.onclick=()=>speak(input.value.trim());
     const del=document.createElement('button'); del.className='delete-btn'; del.textContent='❌';
     del.onclick=()=>{
         const idx=[...getCards()].indexOf(input);
@@ -273,29 +223,50 @@ function addButton(value=''){
     saveAll();
 }
 
-// --- 3 nút điều khiển (Giữ nguyên logic nhưng gọi hàm speak mới) ---
+function saveAll(){
+    const texts=[...document.querySelectorAll('.card input')].map(i=>i.value.trim());
+    localStorage.setItem('voiceButtons',JSON.stringify(texts));
+}
+
+function loadButtons(){
+    const saved=JSON.parse(localStorage.getItem('voiceButtons')||"[]");
+    const list=saved.length? saved:defaults;
+    document.getElementById('buttonContainer').innerHTML='';
+    list.forEach(text=>addButton(text));
+    currentIndex=0;
+}
+
+function resetDefaults(){
+    if(confirm("Bạn có muốn đặt lại về mặc định?")){
+        localStorage.removeItem('voiceButtons');
+        document.getElementById('buttonContainer').innerHTML='';
+        loadButtons();
+        currentIndex=0;
+    }
+}
+
+function getCards(){ return document.querySelectorAll('.card input'); }
+
+// --- 3 nút điều khiển (Giữ nguyên logic) ---
 function prevSpeak(){
     const cards=getCards();
     if(cards.length===0) return;
     currentIndex=(currentIndex-1+cards.length)%cards.length;
-    // Không truyền source cho 3 nút điều hướng
-    speak(cards[currentIndex].value.trim()); 
+    speak(cards[currentIndex].value.trim());
 }
 function nextSpeak(){
     const cards=getCards();
     if(cards.length===0) return;
     currentIndex=(currentIndex+1)%cards.length;
-    // Không truyền source cho 3 nút điều hướng
     speak(cards[currentIndex].value.trim());
 }
 function currentSpeak(){
     const cards=getCards();
     if(cards.length===0) return;
-    // Không truyền source cho 3 nút điều hướng
     speak(cards[currentIndex].value.trim());
 }
 
-// --- Khóa / Mở khóa (Giữ nguyên) ---
+// --- Khóa / Mở khóa (Điều chỉnh vị trí Popup) ---
 function toggleLock(lock){
     const settings=document.getElementById('settingsArea');
     const container=document.getElementById('buttonContainer');
@@ -309,10 +280,10 @@ function toggleLock(lock){
         
         controlArea.classList.add('locked');
         
-        // Thiết lập vị trí Popup khi Khóa (được xử lý bởi CSS .locked #popup)
+        // Quan trọng: Đặt lại style vị trí của Popup khi Khóa (Vị trí cao hơn)
+        popup.style.position='absolute';
         popup.style.top='25%'; 
         popup.style.bottom='auto';
-        popup.style.position='absolute'; // Phải là absolute khi trong controlArea.locked (fixed)
 
         unlockBtn.style.display='block';
     } else {
@@ -324,8 +295,7 @@ function toggleLock(lock){
         navGroup.style.marginBottom='0px'; 
         navGroup.style.marginTop='15px';
         
-        // Thiết lập vị trí Popup khi Mở khóa (được xử lý bởi logic showPopup)
-        // Cần reset position về absolute để nút điều hướng hiển thị đúng
+        // Quan trọng: Đặt lại style vị trí mặc định của Popup khi Mở khóa
         popup.style.position='absolute';
         popup.style.top='auto';
         popup.style.bottom='100%';
