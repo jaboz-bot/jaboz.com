@@ -123,20 +123,17 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     margin-top: 30px; 
 }
 
-/* NÚT MỞ KHÓA - MẶC ĐỊNH CHƯA KHÓA */
+/* NÚT MỞ KHÓA - ĐÃ SỬA: BỎ CÁC THUỘC TÍNH ABSOLUTE */
 #unlock-btn {
+    /* Đã loại bỏ position: absolute, bottom, left và transform */
     background:linear-gradient(45deg, #f44336, #d32f2f);
     width:160px; 
     height: 60px;
     font-size: 18px;
     margin-top: 50px; /* Khoảng cách từ nhóm nút */
-    /* Mặc định không dùng fixed/absolute khi chưa khóa */
-    position: relative; 
 }
 
-/* ------------------------------------------------------------- */
-/* --- ĐIỀU CHỈNH CHÍNH CHO CHẾ ĐỘ KHÓA (KHÔNG DÙNG FLEXBOX) --- */
-/* ------------------------------------------------------------- */
+/* ĐIỀU CHỈNH ĐỂ CĂN GIỮA NỘI DUNG KHI KHÓA */
 .control-container.locked {
     position: fixed;
     top: 0;
@@ -144,28 +141,28 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     width: 100%;
     height: 100%;
     transform: none;
-    /* ĐÃ SỬA: Loại bỏ Flexbox để dùng Position Fixed */
+    /* SỬA CHỮA LỚN: Dùng Flexbox chuẩn cho chế độ khóa */
+    display: flex;
+    flex-direction: column; /* Quan trọng: Xếp các phần tử con theo cột */
+    justify-content: center; /* Căn giữa theo trục chính (trục dọc) */
+    align-items: center; /* Căn giữa theo trục phụ (trục ngang) */
 }
 
 .control-container.locked .navigation-group {
-    /* ĐÃ SỬA: Dùng Fixed để cố định vị trí, không bị co giãn */
-    position: fixed; 
-    top: 50%; /* Bắt đầu căn chỉnh từ giữa */
-    left: 50%; 
-    transform: translate(-50%, -10%); /* Dịch chuyển lên 10% để nó nằm thấp hơn một chút */
-    margin: 0; /* Loại bỏ margin-top cũ */
+    position: relative; 
+    top: auto; 
+    left: auto;
+    transform: none; 
+    margin: 0; 
 }
 
-/* Nút Mở khóa: Cố định vị trí sát đáy */
+/* BỔ SUNG: Căn giữa nút Mở khóa khi bị khóa */
 .control-container.locked #unlock-btn {
     display: block;
-    /* ĐÃ SỬA: Dùng Fixed để cố định vị trí sát đáy */
-    position: fixed; 
-    bottom: 30px; /* Cố định cách đáy màn hình 30px (đảm bảo khoảng trống) */
-    left: 50%;
-    transform: translateX(-50%); /* Căn giữa theo chiều ngang */
+    position: relative; 
+    /* ĐÃ SỬA: TĂNG MARGIN ĐỂ TẠO KHOẢNG CÁCH */
+    margin: 50px auto 0 auto; 
     width: 160px;
-    margin: 0; /* Loại bỏ margin-top cũ */
 }
 
 
@@ -191,10 +188,10 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     transition: 0.5s;
 }
 
-/* SỬA: VỊ TRÍ MỚI KHI Ở CHẾ ĐỘ KHÓA (Kéo xuống 20%) */
+/* SỬA: VỊ TRÍ MỚI KHI Ở CHẾ ĐỘ KHÓA (Cố định ở trên nhóm nút) */
 .control-container.locked #popup {
     position: fixed; 
-    top: 20%; 
+    top: 20%; /* ĐÃ SỬA: Đặt thấp hơn để tránh chồng lên tiêu đề */
     bottom: auto; 
     left: 50%;
     transform: translateX(-50%);
@@ -215,14 +212,6 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 
     <h1>Máy hỗ trợ giọng nói</h1>
 
-    <div id="tts-info">
-        Nếu không thấy âm thanh, vui lòng tải giọng nói tại
-        <a href="market://details?id=com.google.android.tts"
-            onclick="window.open('https://play.google.com/store/apps/details?id=com.google.android.tts','_blank'); return false;">
-            Google Play
-        </a>
-    </div>
-
     <div class="container" id="buttonContainer"></div>
 
     <div class="control-container" id="controlArea">
@@ -240,6 +229,14 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
         <button class="btn install-btn" id="installButton" style="display:none;">📲 Tạo Lối tắt (Cài đặt App)</button>
         <button class="btn add-btn" onclick="addButton()">➕ Thêm câu mới</button>
         <button class="btn reset-btn" onclick="resetDefaults()">♻️ Reset mặc định</button>
+    </div>
+
+    <div id="tts-info">
+        Nếu không thấy âm thanh, vui lòng tải giọng nói tại
+        <a href="market://details?id=com.google.android.tts"
+            onclick="window.open('https://play.google.com/store/apps/details?id=com.google.android.tts','_blank'); return false;">
+            Google Play
+        </a>
     </div>
 
 </div>
@@ -399,12 +396,7 @@ function toggleLock(lock){
         
         controlArea.classList.add('locked');
         
-        // Cài đặt vị trí cho chế độ khóa
-        navGroup.style.position = 'fixed'; 
-        navGroup.style.top = '50%'; 
-        navGroup.style.left = '50%';
-        navGroup.style.transform = 'translate(-50%, -10%)';
-        navGroup.style.margin = '0'; // Đảm bảo không có margin trong chế độ khóa
+        // Popup đã được sửa bằng CSS cố định
 
         unlockBtn.style.display='block';
     } else {
@@ -413,14 +405,9 @@ function toggleLock(lock){
         
         controlArea.classList.remove('locked');
         
-        // Khôi phục vị trí mặc định
-        navGroup.style.position = 'relative'; 
-        navGroup.style.top = 'auto'; 
-        navGroup.style.left = 'auto';
-        navGroup.style.transform = 'none';
         navGroup.style.marginBottom='0px'; 
-        navGroup.style.marginTop='25px'; // Đồng bộ với CSS
-
+        navGroup.style.marginTop='25px'; // Cập nhật lại margin trong JS khi mở khóa (Để đồng bộ với CSS)
+        
         // Quan trọng: Đặt lại style vị trí mặc định của Popup khi Mở khóa
         popup.style.position='absolute';
         popup.style.top='auto';
