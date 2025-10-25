@@ -141,14 +141,18 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     width: 100%;
     height: 100%;
     transform: none;
-    justify-content: center; /* Căn giữa theo trục dọc */
+    /* SỬA CHỮA LỚN: Dùng Flexbox chuẩn cho chế độ khóa */
+    display: flex;
+    flex-direction: column; /* Quan trọng: Xếp các phần tử con theo cột */
+    justify-content: center; /* Căn giữa theo trục chính (trục dọc) */
+    align-items: center; /* Căn giữa theo trục phụ (trục ngang) */
 }
 
 .control-container.locked .navigation-group {
-    position: relative; /* Đặt lại thành relative */
-    top: auto; /* Loại bỏ top 50% cũ */
-    left: auto; /* Loại bỏ left 50% cũ */
-    transform: none; /* Loại bỏ transform cũ */
+    position: relative; 
+    top: auto; 
+    left: auto;
+    transform: none; 
     margin: 0; 
 }
 
@@ -156,7 +160,7 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 .control-container.locked #unlock-btn {
     display: block;
     position: relative; 
-    margin: 50px auto 0 auto; /* Đặt margin auto để căn giữa theo chiều ngang */
+    margin: 30px auto 0 auto; /* Đã giảm khoảng cách */
     width: 160px;
 }
 
@@ -183,10 +187,14 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     transition: 0.5s;
 }
 
-/* VỊ TRÍ MỚI KHI Ở CHẾ ĐỘ KHÓA */
+/* SỬA: VỊ TRÍ MỚI KHI Ở CHẾ ĐỘ KHÓA (Cố định ở trên) */
 .control-container.locked #popup {
-    top: 25%; 
+    position: fixed; /* Quan trọng: Cố định vị trí so với viewport */
+    top: 50px; /* Đặt cách mép trên 50px */
     bottom: auto; 
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
 }
 
 /* TẠO KHOẢNG CÁCH CHO THÔNG BÁO TTS */
@@ -357,9 +365,10 @@ function toggleLock(lock){
         controlArea.classList.add('locked');
         
         // Quan trọng: Đặt lại style vị trí của Popup khi Khóa (Vị trí cao hơn)
-        popup.style.position='absolute';
-        popup.style.top='25%'; 
-        popup.style.bottom='auto';
+        // Đã chuyển sang CSS cố định (fixed)
+        // popup.style.position='absolute'; 
+        // popup.style.top='25%'; 
+        // popup.style.bottom='auto';
 
         unlockBtn.style.display='block';
     } else {
