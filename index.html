@@ -18,10 +18,10 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 .add-btn, .reset-btn {background:linear-gradient(45deg,#2196F3,#1976D2); width:200px; margin:8px auto; display:block;}
 .add-btn:hover, .reset-btn:hover {transform:scale(1.05);}
 
-/* CONTAINER ĐIỀU KHIỂN - SỬA ĐỂ CĂN GIỮA */
+/* CONTAINER ĐIỀU KHIỂN - GIỮ NGUYÊN (VẪN CĂN GIỮA) */
 .control-container {
     display:flex;
-    flex-direction:column;
+    flex-direction:column; /* Đã là column */
     align-items:center;
     gap:10px;
     margin-top:20px;
@@ -29,34 +29,42 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     transition:0.3s;
 }
 
-/* KHU VỰC 3 NÚT - MỚI */
+/* KHU VỰC 3 NÚT - SỬA ĐỂ XẾP DỌC */
 .navigation-group {
     display: flex;
-    justify-content: center; /* Căn giữa các nút theo chiều ngang */
+    flex-direction: column; /* Quan trọng: Xếp dọc */
+    justify-content: center;
     align-items: center;
     gap: 15px; /* Khoảng cách giữa 3 nút */
     margin: 10px 0;
 }
 
-/* NÚT ĐIỀU KHIỂN - THAY THẾ NÚT TRÒN BẰNG NÚT VUÔNG */
+/* NÚT ĐIỀU KHIỂN - VUÔNG BO GÓC */
 .control-btn {
-    width: 100px; /* Chiều rộng */
-    height: 50px; /* Chiều cao */
-    border-radius: 8px; /* Vuông bo góc */
+    width: 150px; /* Tăng chiều rộng để dễ ấn hơn */
+    height: 60px; /* Tăng chiều cao để dễ ấn hơn */
+    border-radius: 8px;
     background: #ff9800;
     color: white;
-    font-size: 16px; /* Giảm cỡ chữ để chứa chữ */
+    font-size: 18px;
     border: none;
     cursor: pointer;
     transition: 0.3s;
     font-weight: bold;
-    display: flex; /* Dùng flex để căn chữ */
+    display: flex;
     justify-content: center;
     align-items: center;
 }
 .control-btn:hover {transform:scale(1.1);}
 
-#unlock-btn {margin-top:40px; background:#f44336; width:120px;}
+/* NÚT MỞ KHÓA - TẠO KHOẢNG CÁCH LỚN HƠN */
+#unlock-btn {
+    margin-top: 50px; /* Tăng khoảng cách so với các nút điều hướng */
+    background:#f44336;
+    width:160px; /* Tăng kích thước */
+    height: 60px;
+    font-size: 18px;
+}
 
 #popup {
     position:absolute;
@@ -99,7 +107,7 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
         <button class="control-btn" onclick="currentSpeak()">Phát lại</button>
         <button class="control-btn" onclick="nextSpeak()">Phát sau</button>
     </div>
-    <button class="btn" id="unlock-btn" onclick="toggleLock(false)" style="display:none;">Mở khóa</button>
+    <button class="btn" id="unlock-btn" onclick="toggleLock(false)" style="display:none;">Mở khóa giao diện</button>
 </div>
 
 <div id="settingsArea">
