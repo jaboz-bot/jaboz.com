@@ -1,265 +1,191 @@
-:root {
-    /* CHẾ ĐỘ SÁNG (LIGHT MODE) - Tông Hồng và Trắng Sữa */
-    --color-primary: #e91e63;
-    --color-secondary: #ff9800;
-    --color-bg: #fdf5f7;
-    --color-header: #fce4ec;
-    --color-text: #4a3c3a;
-    --color-heading: #d81b60;
-    --color-button: #ffb74d;
-    --color-button-text: #3e2c30;
-    --color-button-hover: #ff9800;
-    --color-intro-bg: #ffffff;
-    --color-product-bg: #fffbfd;
-    --shadow-color: rgba(0, 0, 0, 0.15);
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Máy hỗ trợ giọng nói</title>
+<style>
+body { font-family:'Segoe UI', sans-serif; background:#e3f2fd; margin:0; padding:20px; text-align:center;}
+h1 {margin-bottom:20px;}
+.container { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px,1fr)); gap:20px; margin-bottom:20px; }
+.card { background:#fff; padding:18px; border-radius:12px; box-shadow:0 3px 8px rgba(0,0,0,0.15); display:flex; flex-direction:column; gap:10px; position:relative; }
+input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; width:100%; }
+.btn {padding:12px; border:none; border-radius:8px; color:white; font-size:16px; cursor:pointer; transition:0.3s;}
+.play-btn {background:linear-gradient(45deg,#4CAF50,#43A047);}
+.play-btn:hover {transform:scale(1.05);}
+.delete-btn {position:absolute; top:6px; right:8px; border:none; background:transparent; color:#e53935; font-size:18px; cursor:pointer;}
+.add-btn, .reset-btn {background:linear-gradient(45deg,#2196F3,#1976D2); width:200px; margin:8px auto; display:block;}
+.add-btn:hover, .reset-btn:hover {transform:scale(1.05);}
+
+.control-container {display:flex; flex-direction:column; align-items:center; gap:10px; margin-top:20px; position:relative; transition:0.3s;}
+.control-btn {width:80px; height:80px; border-radius:50%; background:#ff9800; color:white; font-size:28px; border:none; cursor:pointer; margin:10px 0; transition:0.3s;}
+.control-btn:hover {transform:scale(1.1);}
+#unlock-btn {margin-top:40px; background:#f44336; width:120px;}
+
+/* Popup trượt, tự rộng theo nội dung */
+#popup {
+  position:absolute;
+  bottom:100%;
+  left:50%;
+  transform:translateX(-50%) translateY(20px);
+  background:rgba(0,0,0,0.8);
+  color:white;
+  padding:15px 20px;
+  border-radius:12px;
+  font-size:18px;
+  display:none;
+  z-index:101;
+  max-width:90%;
+  min-width:100px;
+  white-space:pre-wrap;
+  word-wrap:break-word;
+  text-align:center;
+  transition:0.5s;
 }
 
-@media (prefers-color-scheme: dark){
-    /* CHẾ ĐỘ TỐI (DARK MODE) */
-    --color-primary: #ec407a;
-    --color-secondary: #ffb74d;
-    --color-bg: #2e1d23;
-    --color-header: #423035;
-    --color-text: #fbecec;
-    --color-heading: #ff80ab;
-    --color-button: #e91e63;
-    --color-button-text: #ffffff;
-    --color-button-hover: #d81b60;
-    --color-intro-bg: #3e2c30;
-    --color-product-bg: #3a282b;
-    --shadow-color: rgba(255, 255, 255, 0.05);
+/* Dòng hướng dẫn tải giọng nói */
+#tts-info {
+  text-align:center;
+  margin-top:30px;
+  font-size:14px;
+  color:#333;
+}
+#tts-info a {color:#1E88E5; text-decoration:underline;}
+</style>
+</head>
+<body>
+<h1>Máy hỗ trợ giọng nói</h1>
+
+<div class="container" id="buttonContainer"></div>
+
+<div class="control-container" id="controlArea">
+  <div id="popup"></div>
+  <button class="control-btn" onclick="prevSpeak()">▲</button>
+  <button class="control-btn" onclick="currentSpeak()">●</button>
+  <button class="control-btn" onclick="nextSpeak()">▼</button>
+  <button class="btn" id="unlock-btn" onclick="toggleLock(false)" style="display:none;">Mở khóa</button>
+</div>
+
+<div id="settingsArea">
+  <button class="btn" style="background:#ff9800;margin-bottom:10px;" onclick="toggleLock(true)">Khóa giao diện</button>
+  <button class="btn add-btn" onclick="addButton()">➕ Thêm Nút</button>
+  <button class="btn reset-btn" onclick="resetDefaults()">♻️ Reset mặc định</button>
+</div>
+
+<div id="tts-info">
+  Nếu không thấy âm thanh, vui lòng tải giọng nói tại 
+  <a href="market://details?id=com.google.android.tts" 
+     onclick="window.open('https://play.google.com/store/apps/details?id=com.google.android.tts','_blank'); return false;">
+     Google Play
+  </a>
+</div>
+
+<script>
+const defaults=["Tôi muốn ăn cơm","Tôi muốn uống nước","Tôi muốn đi vệ sinh","Tôi muốn đi ngủ"];
+let currentIndex=0;
+let speakTimer = null;
+
+// --- Nút phát âm kiểu interrupt ---
+function speak(text){
+  if(!text) return;
+  if(!('speechSynthesis' in window)) return;
+
+  // Hủy câu đang đọc ngay lập tức
+  speechSynthesis.cancel();
+
+  // Xóa timer cũ nếu bấm nhanh
+  if(speakTimer) clearTimeout(speakTimer);
+
+  // Hiển thị popup ngay
+  showPopup(text);
+
+  // Delay ngắn để bấm liên tục chỉ đọc câu cuối cùng
+  speakTimer = setTimeout(()=>{
+    const utter=new SpeechSynthesisUtterance(text);
+    utter.lang='vi-VN';
+    speechSynthesis.speak(utter);
+    speakTimer = null;
+  }, 300);
 }
 
-/* ================================================================= */
-/* CĂN CHỈNH TỔNG THỂ & CÁC KHỐI CHÍNH (Desktop) */
-/* ================================================================= */
-
-body {
-    margin: 0;
-    font-family: "Segoe UI", Tahoma, sans-serif;
-    background: var(--color-bg);
-    color: var(--color-text);
+// --- Popup trượt ---
+function showPopup(text){
+  const popup=document.getElementById('popup');
+  popup.textContent=text;
+  popup.style.display='block';
+  popup.style.opacity='1';
+  popup.style.transform='translateX(-50%) translateY(0)';
+  setTimeout(()=>{
+    popup.style.opacity='0';
+    popup.style.transform='translateX(-50%) translateY(-20px)';
+    setTimeout(()=>popup.style.display='none',500);
+  },2000);
 }
 
-/* ÁP DỤNG CĂN GIỮA KHỐI NỘI DUNG CHÍNH (Desktop) */
-header, section, footer {
-    max-width: 1200px;
-    margin: auto;
-    padding: 20px;
+// --- Quản lý nút ---
+function addButton(value=''){
+  const card=document.createElement('div'); card.className='card';
+  const input=document.createElement('input'); input.value=value; input.placeholder="Nhập văn bản..."; input.onchange=saveAll;
+  const play=document.createElement('button'); play.className='btn play-btn'; play.textContent='🔊 Phát âm'; play.onclick=()=>speak(input.value.trim());
+  const del=document.createElement('button'); del.className='delete-btn'; del.textContent='❌'; del.onclick=()=>{card.remove(); saveAll(); if(currentIndex>=getCards().length) currentIndex=getCards().length-1;};
+  card.append(input,play,del);
+  document.getElementById('buttonContainer').appendChild(card);
+  saveAll();
 }
 
-/* ================================================================= */
-/* HEADER & NAVIGATION (Desktop) */
-/* ================================================================= */
-
-/* Nút Hamburger (Mặc định ẩn trên Desktop) */
-.hamburger {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: var(--color-text);
-    padding: 0;
-    z-index: 20; 
-    display: none; /* Mặc định ẩn trên Desktop */
+function saveAll(){
+  const texts=[...document.querySelectorAll('.card input')].map(i=>i.value.trim());
+  localStorage.setItem('voiceButtons',JSON.stringify(texts));
 }
 
-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: var(--color-header);
-    border-bottom-left-radius: 20px;
-    border-bottom-right-radius: 20px;
-    position: relative;
-    z-index: 10;
-    box-shadow: 0 4px 10px var(--shadow-color);
-    padding: 20px 20px;
+function loadButtons(){
+  const saved=JSON.parse(localStorage.getItem('voiceButtons')||"[]");
+  const list=saved.length? saved:defaults;
+  list.forEach(text=>addButton(text));
 }
 
-/* Thanh điều hướng chính */
-.main-nav {
-    margin: 0 auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+function resetDefaults(){
+  if(confirm("Bạn có muốn đặt lại về mặc định?")){
+    localStorage.removeItem('voiceButtons');
+    document.getElementById('buttonContainer').innerHTML='';
+    loadButtons();
+    currentIndex=0;
+  }
 }
 
-.main-nav a {
-    margin: 0 15px;
-    color: var(--color-text);
-    font-weight: 500;
-    text-decoration: none;
-    transition: color 0.2s;
+function getCards(){ return document.querySelectorAll('.card input'); }
+
+// --- 3 nút điều khiển ---
+function prevSpeak(){ const cards=getCards(); if(cards.length===0) return; currentIndex=(currentIndex-1+cards.length)%cards.length; speak(cards[currentIndex].value.trim()); }
+function nextSpeak(){ const cards=getCards(); if(cards.length===0) return; currentIndex=(currentIndex+1)%cards.length; speak(cards[currentIndex].value.trim()); }
+function currentSpeak(){ const cards=getCards(); if(cards.length===0) return; speak(cards[currentIndex].value.trim()); }
+
+// --- Khóa / Mở khóa ---
+function toggleLock(lock){
+  const settings=document.getElementById('settingsArea');
+  const container=document.getElementById('buttonContainer');
+  const controlArea=document.getElementById('controlArea');
+  const unlockBtn=document.getElementById('unlock-btn');
+  if(lock){
+    settings.style.display='none';
+    container.style.display='none';
+    controlArea.style.position='fixed';
+    controlArea.style.top='50%';
+    controlArea.style.left='50%';
+    controlArea.style.transform='translate(-50%,-50%)';
+    unlockBtn.style.display='block';
+  } else {
+    settings.style.display='block';
+    container.style.display='grid';
+    controlArea.style.position='relative';
+    controlArea.style.top='0';
+    controlArea.style.left='0';
+    controlArea.style.transform='translate(0,0)';
+    unlockBtn.style.display='none';
+  }
 }
 
-.main-nav a:hover {
-    color: var(--color-primary);
-}
-
-/* Nút Giỏ hàng (dùng chung cho cả giỏ hàng và button) */
-.cart-container {
-    flex-shrink: 0;
-    position: relative; 
-}
-
-/* ================================================================= */
-/* TIÊU ĐỀ, NÚT & SẢN PHẨM */
-/* ================================================================= */
-
-h1, h2, h3, h4 {
-    color: var(--color-heading);
-}
-
-/* Các Nút (Buttons) */
-.button {
-    background: var(--color-button);
-    color: var(--color-button-text) !important;
-    padding: 10px 20px;
-    border-radius: 30px;
-    text-decoration: none;
-    font-weight: bold;
-    transition: background 0.3s, transform 0.3s;
-    box-shadow: 0 2px 5px var(--shadow-color);
-    display: inline-block;
-}
-
-.button:hover {
-    background: var(--color-button-hover);
-    transform: translateY(-2px);
-}
-
-/* Phần giới thiệu/Banner */
-.intro {
-    background: var(--color-intro-bg);
-    border-radius: 20px;
-    padding: 30px;
-    box-shadow: 0 8px 20px var(--shadow-color);
-    margin-top: -30px;
-    text-align: center;
-}
-
-/* Container chứa danh sách sản phẩm */
-.product-grid {
-    display: flex;
-    gap: 20px;
-    justify-content: center;
-    flex-wrap: wrap;
-    list-style: none;
-    padding: 0;
-    margin: 20px auto;
-}
-
-/* Định dạng từng thẻ sản phẩm */
-.product-item {
-    flex: 1 1 300px;
-    max-width: 300px;
-    background: var(--color-product-bg);
-    border-radius: 15px;
-    padding: 20px;
-    box-shadow: 0 4px 8px var(--shadow-color);
-    text-align: center;
-    transition: transform 0.3s;
-}
-
-.product-item:hover {
-    transform: translateY(-5px);
-}
-
-/* Khắc phục lỗi: Căn giữa Tiêu đề Section */
-.featured-products, .short-about {
-    text-align: center;
-}
-
-
-/* ================================================================= */
-/* FOOTER & DROPDOWN */
-/* ================================================================= */
-
-footer {
-    background: var(--color-header);
-    color: var(--color-text);
-    text-align: center;
-    border-top-left-radius: 20px;
-    border-top-right-radius: 20px;
-    margin-top: 40px;
-}
-
-.cart-dropdown {
-    position: absolute;
-    top: 50px;
-    right: 0;
-    width: 250px;
-    background: var(--color-intro-bg);
-    border-radius: 15px;
-    box-shadow: 0 4px 12px var(--shadow-color);
-    padding: 15px;
-    display: none;
-    text-align: center;
-    border: 1px solid var(--color-header);
-}
-
-.cart-dropdown.show {
-    display: block !important;
-}
-
-/* ================================================================= */
-/* MEDIA QUERIES - TỐI ƯU CHO ĐIỆN THOẠI (DƯỚI 768px) */
-/* ================================================================= */
-@media (max-width: 768px) {
-
-    /* 1. Thay đổi Header để Logo, Hamburger và Giỏ hàng nằm ngang hàng */
-    header {
-        flex-direction: row; /* Sắp xếp ngang */
-        justify-content: space-between;
-        align-items: center;
-        padding: 15px 10px; 
-    }
-    
-    /* 2. HIỂN THỊ Nút Hamburger */
-    .hamburger {
-        display: block; 
-        order: 2; /* Đặt Hamburger ở giữa Logo và Giỏ hàng */
-        margin: 0 auto;
-    }
-    
-    /* 3. ẨN thanh điều hướng chính (menu) */
-    .main-nav {
-        display: none; /* Ẩn menu mặc định */
-        position: absolute;
-        top: 60px; /* Hiển thị ngay dưới Header */
-        left: 0;
-        width: 100%;
-        background: var(--color-header); 
-        box-shadow: 0 4px 8px var(--shadow-color);
-        flex-direction: column; /* Xếp dọc các liên kết trong menu */
-        align-items: center;
-        padding: 10px 0;
-        z-index: 15;
-    }
-    
-    /* Hiển thị menu khi có class 'open' */
-    .main-nav.open {
-        display: flex; 
-    }
-    
-    .main-nav a {
-        margin: 10px 0; /* Tăng khoảng cách giữa các mục menu dọc */
-    }
-
-    /* 4. Điều chỉnh Giỏ hàng */
-    .cart-container {
-        order: 3; /* Giỏ hàng nằm ở cuối */
-        margin-top: 0;
-        margin-left: 0;
-    }
-    
-    /* 5. Căn giữa dropdown giỏ hàng theo nút */
-    .cart-dropdown {
-        max-width: 90vw;
-        width: 250px; 
-        left: 50%;
-        transform: translateX(-50%);
-        right: auto;
-    }
-}
+window.onload=loadButtons;
+</script>
+</body>
+</html>
