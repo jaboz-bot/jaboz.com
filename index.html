@@ -133,7 +133,7 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     margin-top: 50px; /* Khoảng cách từ nhóm nút */
 }
 
-/* ĐIỀU CHỈNH ĐỂ CĂN GIỮA NỘI DUNG KHI KHÓA */
+/* --- ĐIỀU CHỈNH CHÍNH CHO CHẾ ĐỘ KHÓA --- */
 .control-container.locked {
     position: fixed;
     top: 0;
@@ -141,11 +141,12 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     width: 100%;
     height: 100%;
     transform: none;
-    /* SỬA CHỮA LỚN: Dùng Flexbox chuẩn cho chế độ khóa */
+    /* Dùng Flexbox chuẩn cho chế độ khóa */
     display: flex;
-    flex-direction: column; /* Quan trọng: Xếp các phần tử con theo cột */
-    justify-content: center; /* Căn giữa theo trục chính (trục dọc) */
-    align-items: center; /* Căn giữa theo trục phụ (trục ngang) */
+    flex-direction: column; 
+    /* Đã sửa: Giữ center để căn nhóm nút ở giữa màn hình */
+    justify-content: center; 
+    align-items: center; 
 }
 
 .control-container.locked .navigation-group {
@@ -156,14 +157,15 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     margin: 0; 
 }
 
-/* BỔ SUNG: Căn giữa nút Mở khóa khi bị khóa */
+/* SỬA: Tăng margin-top để đẩy nút Mở khóa xuống gần đáy hơn */
 .control-container.locked #unlock-btn {
     display: block;
     position: relative; 
-    /* ĐÃ SỬA: TĂNG MARGIN ĐỂ TẠO KHOẢNG CÁCH */
-    margin: 50px auto 0 auto; 
+    /* Tăng margin để nút mở khóa hạ thấp hơn */
+    margin: 150px auto 0 auto; 
     width: 160px;
 }
+/* ------------------------------------------ */
 
 
 /* POPUP - CĂN CHỈNH KHI Ở CHẾ ĐỘ CHƯA KHÓA */
@@ -191,7 +193,8 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 /* SỬA: VỊ TRÍ MỚI KHI Ở CHẾ ĐỘ KHÓA (Cố định ở trên nhóm nút) */
 .control-container.locked #popup {
     position: fixed; 
-    top: 20%; /* ĐÃ SỬA: Đặt thấp hơn để tránh chồng lên tiêu đề */
+    /* ĐÃ SỬA: Đặt thấp hơn để tránh chồng lên tiêu đề và cho phép nhóm nút hạ xuống */
+    top: 15%; 
     bottom: auto; 
     left: 50%;
     transform: translateX(-50%);
