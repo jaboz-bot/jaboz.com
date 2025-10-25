@@ -87,23 +87,6 @@
       transform: scale(1.05);
       box-shadow: 0 6px 12px rgba(0,0,0,0.15);
     }
-
-    .sort-btn {
-      padding: 12px;
-      border: none;
-      border-radius: 8px;
-      background: linear-gradient(45deg, #FF9800, #F57C00);
-      color: white;
-      font-size: 16px;
-      cursor: pointer;
-      transition: 0.3s;
-      margin-top: 10px;
-    }
-
-    .sort-btn:hover {
-      transform: scale(1.05);
-      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-    }
   </style>
 </head>
 <body>
@@ -135,7 +118,6 @@
     <!-- Nút thêm mới -->
     <div class="card">
       <button class="add-btn" onclick="addButton()">➕ Thêm Nút</button>
-      <button class="sort-btn" onclick="sortButtons()">↕ Sắp xếp lại</button>
     </div>
   </div>
 
@@ -182,7 +164,6 @@
       btn.onclick = function() { playText(number); };
       card.appendChild(btn);
 
-      // Chỉ nút đầu tiên không có X
       if (number !== 1) {
         const del = document.createElement('button');
         del.className = 'delete-btn';
@@ -215,10 +196,10 @@
         input.placeholder = 'Nhập văn bản cho Nút ' + number;
         btn.innerHTML = '🔊 Play Nút ' + number;
         btn.onclick = function() { playText(number); };
-        // Xóa localStorage cũ và cập nhật lại
+
         localStorage.removeItem('button' + (index + 2));
         localStorage.setItem('button' + number, input.value);
-        // Xử lý nút xóa: chỉ nút đầu tiên không có X
+
         const delBtn = card.querySelector('.delete-btn');
         if(number === 1 && delBtn) delBtn.remove();
         if(number !== 1 && !delBtn) {
@@ -229,12 +210,10 @@
           card.appendChild(del);
         }
       });
-      // Cập nhật buttonCount
       buttonCount = cards.length;
     }
 
     window.onload = function() {
-      // Tải dữ liệu từ localStorage
       const container = document.getElementById('buttonContainer');
       for(let i = 1; i <= localStorage.length; i++) {
         const val = localStorage.getItem('button' + i);
