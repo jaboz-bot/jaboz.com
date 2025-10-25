@@ -144,7 +144,7 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     /* Dùng Flexbox chuẩn cho chế độ khóa */
     display: flex;
     flex-direction: column; 
-    /* Đã sửa: Giữ center để căn nhóm nút ở giữa màn hình */
+    /* Giữ center để căn nhóm nút ở giữa màn hình */
     justify-content: center; 
     align-items: center; 
 }
@@ -161,8 +161,8 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 .control-container.locked #unlock-btn {
     display: block;
     position: relative; 
-    /* Tăng margin để nút mở khóa hạ thấp hơn */
-    margin: 150px auto 0 auto; 
+    /* TĂNG KHOẢNG CÁCH DỌC để nút mở khóa sát đáy hơn */
+    margin: 300px auto 0 auto; 
     width: 160px;
 }
 /* ------------------------------------------ */
@@ -193,7 +193,7 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 /* SỬA: VỊ TRÍ MỚI KHI Ở CHẾ ĐỘ KHÓA (Cố định ở trên nhóm nút) */
 .control-container.locked #popup {
     position: fixed; 
-    /* ĐÃ SỬA: Đặt thấp hơn để tránh chồng lên tiêu đề và cho phép nhóm nút hạ xuống */
+    /* Đặt thấp hơn để tránh chồng lên tiêu đề và cho phép nhóm nút hạ xuống */
     top: 15%; 
     bottom: auto; 
     left: 50%;
