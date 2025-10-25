@@ -36,7 +36,7 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     justify-content: center;
     align-items: center;
     gap: 15px; 
-    margin: 15px 0 0 0; /* Margin cân đối khi chưa khóa */
+    margin: 25px 0 0 0; /* ĐÃ CHỈNH SỬA: Từ 15px lên 25px */
 }
 
 /* NÚT ĐIỀU KHIỂN - VUÔNG BO GÓC */
@@ -293,7 +293,7 @@ function toggleLock(lock){
         controlArea.classList.remove('locked');
         
         navGroup.style.marginBottom='0px'; 
-        navGroup.style.marginTop='15px';
+        navGroup.style.marginTop='25px'; // Cập nhật lại margin trong JS khi mở khóa (Để đồng bộ với CSS)
         
         // Quan trọng: Đặt lại style vị trí mặc định của Popup khi Mở khóa
         popup.style.position='absolute';
