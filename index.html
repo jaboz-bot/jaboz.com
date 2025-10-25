@@ -27,7 +27,6 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     margin-top:20px;
     position:relative;
     transition:0.3s;
-    /* KHÔNG DÙNG MIN-HEIGHT hay JUSTIFY-CONTENT khi chưa khóa */
 }
 
 /* KHU VỰC 3 NÚT - XẾP DỌC */
@@ -37,10 +36,7 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     justify-content: center;
     align-items: center;
     gap: 15px; 
-    margin: 10px 0;
-    /* Giảm margin-bottom mặc định */
-    margin-bottom: 0px; 
-    margin-top: 15px; /* Tăng nhẹ khoảng cách với popup */
+    margin: 15px 0 0 0; /* Margin cân đối khi chưa khóa */
 }
 
 /* NÚT ĐIỀU KHIỂN - VUÔNG BO GÓC */
@@ -67,7 +63,7 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     margin-bottom: 20px; 
 }
 #settingsArea {
-    margin-top: 30px; /* Tăng khoảng cách giữa 3 nút điều hướng và khu vực cài đặt */
+    margin-top: 30px; 
 }
 
 /* NÚT MỞ KHÓA - CĂN XUỐNG DƯỚI VÀ TẠO KHOẢNG CÁCH HỢP LÝ */
@@ -83,33 +79,28 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     font-size: 18px;
 }
 
-#popup {
-    position:absolute;
-    bottom:100%;
-    left:50%;
-    transform:translateX(-50%) translateY(20px);
-    background:rgba(0,0,0,0.8);
-    color:white;
-    padding:15px 20px;
-    border-radius:12px;
-    font-size:18px;
-    display:none;
-    z-index:101;
-    max-width:90%;
-    min-width:100px;
-    white-space:pre-wrap;
-    word-wrap:break-word;
-    text-align:center;
-    transition:0.5s;
+/* ĐIỀU CHỈNH ĐỂ CĂN GIỮA NÚT KHI KHÓA */
+.control-container.locked {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transform: none;
+    /* KHÔNG CĂN GIỮA BẰNG justify-content nữa */
+    justify-content: flex-start; 
 }
 
-#tts-info {
-    text-align:center;
-    margin-top:30px;
-    font-size:14px;
-    color:#333;
+.control-container.locked .navigation-group {
+    /* Quan trọng: Sử dụng absolute/fixed để căn giữa */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    /* Dịch chuyển ngược lại 50% kích thước của nó để căn giữa */
+    transform: translate(-50%, -50%); 
+    margin: 0; /* Xóa margin khi khóa */
 }
-#tts-info a {color:#1E88E5; text-decoration:underline;}
+
 </style>
 </head>
 <body>
@@ -231,7 +222,7 @@ function currentSpeak(){
     speak(cards[currentIndex].value.trim());
 }
 
-// --- Khóa / Mở khóa (Điều chỉnh để cân bằng khoảng cách khi chưa khóa) ---
+// --- Khóa / Mở khóa (Điều chỉnh để căn giữa 3 nút khi khóa) ---
 function toggleLock(lock){
     const settings=document.getElementById('settingsArea');
     const container=document.getElementById('buttonContainer');
@@ -243,34 +234,24 @@ function toggleLock(lock){
         settings.style.display='none';
         container.style.display='none';
         
-        // Chế độ KHÓA: Căn giữa 3 nút và đẩy nút mở khóa xuống đáy
-        controlArea.style.position='fixed';
-        controlArea.style.top='0';
-        controlArea.style.left='0';
-        controlArea.style.transform='none';
-        controlArea.style.width='100%';
-        controlArea.style.height='100%';
-        controlArea.style.justifyContent = 'center'; /* Căn giữa nội dung ControlArea */
+        // Kích hoạt class CSS mới để căn giữa 3 nút một cách độc lập
+        controlArea.classList.add('locked');
+        
+        // Reset các style nội tuyến không cần thiết khi dùng class 'locked'
+        controlArea.style.justifyContent = ''; 
 
-        navGroup.style.marginBottom='200px'; // Khoảng cách lớn để tách nút mở khóa ra
-        navGroup.style.marginTop='0'; 
-
+        // Ẩn/Hiện nút Mở khóa
         unlockBtn.style.display='block';
     } else {
         settings.style.display='block';
         container.style.display='grid';
         
-        // Chế độ CHƯA KHÓA: Trả về trạng thái flow bình thường
-        controlArea.style.position='relative';
-        controlArea.style.top='0';
-        controlArea.style.left='0';
-        controlArea.style.transform='none';
-        controlArea.style.width='auto';
-        controlArea.style.height='auto';
-        controlArea.style.justifyContent = 'flex-start'; 
-
-        navGroup.style.marginBottom='0px'; /* Giảm khoảng cách tối đa */
-        navGroup.style.marginTop='15px'; /* Khoảng cách vừa phải */
+        // Loại bỏ class CSS của chế độ khóa
+        controlArea.classList.remove('locked');
+        
+        // Đặt lại margin cho chế độ chưa khóa
+        navGroup.style.marginBottom='0px'; 
+        navGroup.style.marginTop='15px';
 
         unlockBtn.style.display='none';
     }
