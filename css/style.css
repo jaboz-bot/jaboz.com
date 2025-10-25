@@ -14,14 +14,15 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 .play-btn {background:linear-gradient(45deg,#4CAF50,#43A047);}
 .play-btn:hover {transform:scale(1.05);}
 .delete-btn {position:absolute; top:6px; right:8px; border:none; background:transparent; color:#e53935; font-size:18px; cursor:pointer;}
-.add-btn, .reset-btn, .lock-btn {background:linear-gradient(45deg,#2196F3,#1976D2); width:200px; margin:8px auto; display:block;}
-.add-btn:hover, .reset-btn:hover, .lock-btn:hover {transform:scale(1.05);}
+.add-btn, .reset-btn {background:linear-gradient(45deg,#2196F3,#1976D2); width:200px; margin:8px auto; display:block;}
+.add-btn:hover, .reset-btn:hover {transform:scale(1.05);}
 
 .control-container {display:flex; flex-direction:column; align-items:center; gap:10px; margin-top:20px; position:relative; transition:0.3s;}
 .control-btn {width:80px; height:80px; border-radius:50%; background:#ff9800; color:white; font-size:28px; border:none; cursor:pointer; margin:10px 0; transition:0.3s;}
 .control-btn:hover {transform:scale(1.1);}
 #unlock-btn {margin-top:40px; background:#f44336; width:120px;}
 
+/* Popup trượt, tự rộng theo nội dung */
 #popup {
   position:absolute;
   bottom:100%;
@@ -42,6 +43,7 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
   transition:0.5s;
 }
 
+/* Dòng hướng dẫn tải giọng nói */
 #tts-info {
   text-align:center;
   margin-top:30px;
@@ -65,7 +67,7 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 </div>
 
 <div id="settingsArea">
-  <button class="btn lock-btn" onclick="toggleLock(true)">Khóa giao diện</button>
+  <button class="btn" style="background:#ff9800;margin-bottom:10px;" onclick="toggleLock(true)">Khóa giao diện</button>
   <button class="btn add-btn" onclick="addButton()">➕ Thêm Nút</button>
   <button class="btn reset-btn" onclick="resetDefaults()">♻️ Reset mặc định</button>
 </div>
@@ -81,27 +83,14 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 <script>
 const defaults=["Tôi muốn ăn cơm","Tôi muốn uống nước","Tôi muốn đi vệ sinh","Tôi muốn đi ngủ"];
 let currentIndex=0;
-let currentUtterance = null;
 
-// --- Phát âm dạng chunk ---
-function speakChunks(text){
+// --- Nút phát âm ---
+function speak(text){
   if(!text) return;
   if(!('speechSynthesis' in window)) return;
-
-  if(currentUtterance) speechSynthesis.cancel();
-  const words = text.split(' ');
-  let i=0;
-
-  function nextChunk(){
-    if(i>=words.length) return;
-    currentUtterance = new SpeechSynthesisUtterance(words[i]);
-    currentUtterance.lang='vi-VN';
-    currentUtterance.onend = ()=>{ i++; nextChunk(); };
-    speechSynthesis.speak(currentUtterance);
-  }
-
+  const utter=new SpeechSynthesisUtterance(text); utter.lang='vi-VN';
+  speechSynthesis.speak(utter);
   showPopup(text);
-  nextChunk();
 }
 
 // --- Popup trượt ---
@@ -122,7 +111,7 @@ function showPopup(text){
 function addButton(value=''){
   const card=document.createElement('div'); card.className='card';
   const input=document.createElement('input'); input.value=value; input.placeholder="Nhập văn bản..."; input.onchange=saveAll;
-  const play=document.createElement('button'); play.className='btn play-btn'; play.textContent='🔊 Phát âm'; play.onclick=()=>speakChunks(input.value.trim());
+  const play=document.createElement('button'); play.className='btn play-btn'; play.textContent='🔊 Phát âm'; play.onclick=()=>speak(input.value.trim());
   const del=document.createElement('button'); del.className='delete-btn'; del.textContent='❌'; del.onclick=()=>{card.remove(); saveAll(); if(currentIndex>=getCards().length) currentIndex=getCards().length-1;};
   card.append(input,play,del);
   document.getElementById('buttonContainer').appendChild(card);
@@ -152,9 +141,9 @@ function resetDefaults(){
 function getCards(){ return document.querySelectorAll('.card input'); }
 
 // --- 3 nút điều khiển ---
-function prevSpeak(){ const cards=getCards(); if(cards.length===0) return; currentIndex=(currentIndex-1+cards.length)%cards.length; speakChunks(cards[currentIndex].value.trim()); }
-function nextSpeak(){ const cards=getCards(); if(cards.length===0) return; currentIndex=(currentIndex+1)%cards.length; speakChunks(cards[currentIndex].value.trim()); }
-function currentSpeak(){ const cards=getCards(); if(cards.length===0) return; speakChunks(cards[currentIndex].value.trim()); }
+function prevSpeak(){ const cards=getCards(); if(cards.length===0) return; currentIndex=(currentIndex-1+cards.length)%cards.length; speak(cards[currentIndex].value.trim()); }
+function nextSpeak(){ const cards=getCards(); if(cards.length===0) return; currentIndex=(currentIndex+1)%cards.length; speak(cards[currentIndex].value.trim()); }
+function currentSpeak(){ const cards=getCards(); if(cards.length===0) return; speak(cards[currentIndex].value.trim()); }
 
 // --- Khóa / Mở khóa ---
 function toggleLock(lock){
