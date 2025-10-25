@@ -14,8 +14,8 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 .play-btn {background:linear-gradient(45deg,#4CAF50,#43A047);}
 .play-btn:hover {transform:scale(1.05);}
 .delete-btn {position:absolute; top:6px; right:8px; border:none; background:transparent; color:#e53935; font-size:18px; cursor:pointer;}
-.add-btn, .reset-btn {background:linear-gradient(45deg,#2196F3,#1976D2); width:200px; margin:8px auto; display:block;}
-.add-btn:hover, .reset-btn:hover {transform:scale(1.05);}
+.add-btn, .reset-btn, .lock-btn {background:linear-gradient(45deg,#2196F3,#1976D2); width:200px; margin:8px auto; display:block;}
+.add-btn:hover, .reset-btn:hover, .lock-btn:hover {transform:scale(1.05);}
 
 .control-container {display:flex; flex-direction:column; align-items:center; gap:10px; margin-top:20px; position:relative; transition:0.3s;}
 .control-btn {width:80px; height:80px; border-radius:50%; background:#ff9800; color:white; font-size:28px; border:none; cursor:pointer; margin:10px 0; transition:0.3s;}
@@ -67,7 +67,7 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 </div>
 
 <div id="settingsArea">
-  <button class="btn" style="background:#ff9800;margin-bottom:10px;" onclick="toggleLock(true)">Khóa giao diện</button>
+  <button class="btn lock-btn" onclick="toggleLock(true)">Khóa giao diện</button>
   <button class="btn add-btn" onclick="addButton()">➕ Thêm Nút</button>
   <button class="btn reset-btn" onclick="resetDefaults()">♻️ Reset mặc định</button>
 </div>
@@ -83,29 +83,25 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 <script>
 const defaults=["Tôi muốn ăn cơm","Tôi muốn uống nước","Tôi muốn đi vệ sinh","Tôi muốn đi ngủ"];
 let currentIndex=0;
-let speakTimer = null;
+let currentUtterance = null;
 
-// --- Nút phát âm kiểu interrupt ---
+// --- Phát âm ngay lập tức ---
 function speak(text){
   if(!text) return;
   if(!('speechSynthesis' in window)) return;
 
-  // Hủy câu đang đọc ngay lập tức
-  speechSynthesis.cancel();
+  // Ngắt câu đang đọc
+  if(currentUtterance){
+    speechSynthesis.cancel();
+    currentUtterance = null;
+  }
 
-  // Xóa timer cũ nếu bấm nhanh
-  if(speakTimer) clearTimeout(speakTimer);
-
-  // Hiển thị popup ngay
   showPopup(text);
 
-  // Delay ngắn để bấm liên tục chỉ đọc câu cuối cùng
-  speakTimer = setTimeout(()=>{
-    const utter=new SpeechSynthesisUtterance(text);
-    utter.lang='vi-VN';
-    speechSynthesis.speak(utter);
-    speakTimer = null;
-  }, 300);
+  currentUtterance = new SpeechSynthesisUtterance(text);
+  currentUtterance.lang='vi-VN';
+  currentUtterance.onend=()=>{currentUtterance=null;}
+  speechSynthesis.speak(currentUtterance);
 }
 
 // --- Popup trượt ---
