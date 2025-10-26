@@ -27,6 +27,22 @@ body {
 }
 
 h1 {margin-bottom:20px;}
+/* BỔ SUNG: CSS Cố định tiêu đề khi khóa */
+.locked-h1 {
+    position: fixed;
+    top: 10px; /* Gần sát cạnh trên */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 700px;
+    margin: 0;
+    padding: 0 10px;
+    z-index: 1000; /* Đảm bảo nằm trên mọi thứ */
+    color: #333; /* Màu chữ rõ ràng */
+    background: #e3f2fd; /* Màu nền khớp với body */
+}
+
+
 .container { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px,1fr)); gap:20px; margin-bottom:20px; }
 .card { background:#fff; padding:18px; border-radius:12px; box-shadow:0 3px 8px rgba(0,0,0,0.15); display:flex; flex-direction:column; gap:10px; position:relative; }
 input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; width:100%; }
@@ -126,31 +142,26 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     margin-top: 30px;
 }
 
-/* NÚT MỞ KHÓA - ĐÃ SỬA: BỎ CÁC THUỘC TÍNH ABSOLUTE */
+/* NÚT MỞ KHÓA */
 #unlock-btn {
-    /* Đã loại bỏ position: absolute, bottom, left và transform */
     background:linear-gradient(45deg, #f44336, #d32f2f);
     width:160px;
     height: 60px;
     font-size: 18px;
-    /* BỎ margin-top vì nó sẽ được cố định trong chế độ khóa */
-    /* margin-top: 50px; */ 
     position: relative;
     display: none; /* Mặc định ẩn, sẽ được hiển thị khi khóa */
 }
 
-/* ĐÃ CHỈNH SỬA LỚN: LOẠI BỎ FLEXBOX, DÙNG FIXED/ABSOLUTE ĐỂ CĂN GIỮA TRUYỀN THỐNG */
+/* CHẾ ĐỘ KHÓA - THAY THẾ FLEXBOX */
 .control-container.locked {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    /* THÊM overflow: hidden; */
     overflow: hidden;
     z-index: 99;
     background: #e3f2fd; 
-    /* BỎ text-align: center; để tránh ảnh hưởng đến navigation-group */
 }
 
 /* ĐIỀU CHỈNH VỊ TRÍ CHO NHÓM NÚT VÀ NÚT MỞ KHÓA TRONG CHẾ ĐỘ KHÓA */
@@ -163,16 +174,15 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     margin: 0; /* Đảm bảo không có margin từ chế độ không khóa */
 }
 
-/* CĂN CHỈNH NÚT MỞ KHÓA KHI BỊ KHÓA */
+/* CĂN CHỈNH NÚT MỞ KHÓA KHI BỊ KHÓA (ĐÃ ĐẨY LÊN TRÊN TTS) */
 .control-container.locked #unlock-btn {
-    /* THAY ĐỔI: Đặt ở vị trí cố định dưới cùng */
-    position: fixed; /* Dùng fixed để đảm bảo nó nằm trên cùng */
-    bottom: 50px; /* Khoảng cách từ đáy */
+    position: fixed;
+    /* Điều chỉnh vị trí, giờ nó sẽ nằm ngay trên khu vực TTS info */
+    bottom: 90px; 
     left: 50%;
-    transform: translateX(-50%); /* Chỉ cần căn giữa ngang */
-    display: block !important; /* Hiển thị */
-    margin: 0; /* Đảm bảo không có margin không mong muốn */
-    /* Thêm z-index để nó nằm trên navigation-group và popup */
+    transform: translateX(-50%); 
+    display: block !important; 
+    margin: 0; 
     z-index: 100; 
 }
 
@@ -199,10 +209,10 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     transition: 0.5s;
 }
 
-/* SỬA: VỊ TRÍ MỚI KHI Ở CHẾ ĐỘ KHÓA (Cố định ở trên nhóm nút) */
+/* VỊ TRÍ MỚI KHI Ở CHẾ ĐỘ KHÓA (Cố định ở trên nhóm nút) */
 .control-container.locked #popup {
     position: fixed;
-    top: 20%; /* ĐẶT LẠI VỊ TRÍ CỐ ĐỊNH */
+    top: 20%; 
     bottom: auto;
     left: 50%;
     transform: translateX(-50%);
@@ -238,7 +248,7 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 <body>
 <div class="main-wrapper">
 
-    <h1>Máy hỗ trợ giọng nói</h1>
+    <h1 id="mainTitle">Máy hỗ trợ giọng nói</h1>
 
     <div class="container" id="buttonContainer"></div>
 
@@ -275,6 +285,7 @@ let currentIndex=0;
 const controlArea = document.getElementById('controlArea');
 const installButton = document.getElementById('installButton'); // Lấy nút cài đặt
 const addBtnMove = document.getElementById('add-btn-move'); // Lấy nút Thêm câu mới đã di chuyển
+const mainTitle = document.getElementById('mainTitle'); // Lấy tiêu đề chính
 
 // --- Nút phát âm ---
 function speak(text){
@@ -432,8 +443,10 @@ function toggleLock(lock){
 
         // BỔ SUNG: Thêm class cố định cho TTS Info
         ttsInfo.classList.add('tts-info-locked');
-
-        // unlockBtn.style.display='block'; // CSS đã xử lý phần này
+        
+        // BỔ SUNG: Thêm class cố định cho tiêu đề chính
+        mainTitle.classList.add('locked-h1');
+        
     } else {
         settings.style.display='block';
         container.style.display='grid';
@@ -444,6 +457,9 @@ function toggleLock(lock){
 
         // BỔ SUNG: Xóa class cố định cho TTS Info
         ttsInfo.classList.remove('tts-info-locked');
+
+        // BỔ SUNG: Xóa class cố định cho tiêu đề chính
+        mainTitle.classList.remove('locked-h1');
 
         // KHÔNG CẦN SET LẠI MARGIN CHO navGroup (CSS mặc định đã có)
 
