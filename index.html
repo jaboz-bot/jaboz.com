@@ -183,7 +183,8 @@ async function loadSuggestions() {
     }
 }
 
-// HÀM MỚI: Hiển thị gợi ý tùy chỉnh (giới hạn 4 từ)
+
+// HÀM SỬA ĐỔI: Hiển thị gợi ý tùy chỉnh (tìm kiếm linh hoạt hơn)
 function showSuggestions(inputElement, boxElement) {
     const inputText = inputElement.value.trim().toLowerCase();
     boxElement.innerHTML = '';
@@ -192,14 +193,18 @@ function showSuggestions(inputElement, boxElement) {
         boxElement.style.display = 'none';
         return;
     }
-
-    // Lọc danh sách gợi ý
+    
+    // BỔ SUNG: Chuyển sang tìm kiếm "chứa" (includes)
     const filteredSuggestions = wordSuggestions
-        .filter(phrase => phrase.toLowerCase().startsWith(inputText))
+        .filter(phrase => phrase.toLowerCase().includes(inputText))
         .slice(0, 4); // CHỈ GIỚI HẠN 4 GỢI Ý ĐẦU TIÊN
-
+        
+    // LƯU Ý: Nếu muốn ưu tiên từ bắt đầu bằng, bạn phải dùng thư viện ngoài
+    // hoặc sắp xếp lại danh sách này trước khi dùng .slice(0, 4)
+    
     if (filteredSuggestions.length > 0) {
         filteredSuggestions.forEach(phrase => {
+            // ... (Logic tạo suggestion-item giữ nguyên)
             const item = document.createElement('div');
             item.className = 'suggestion-item';
             item.textContent = phrase;
