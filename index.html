@@ -99,25 +99,23 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
 /* BỔ SUNG CSS CHO HỘP GỢI Ý TÙY CHỈNH */
 .suggestion-box {
     position: absolute;
-    bottom: calc(100% - 10px); /* THAY ĐỔI LỚN: Đặt ngay BÊN TRÊN input */
+    bottom: calc(100% - 10px); /* Đặt ngay BÊN TRÊN input */
     left: 0;
     right: 0;
-    z-index: 1001; /* Tăng z-index để chắc chắn hộp không bị che */
+    z-index: 1001; /* Đảm bảo hiển thị trên mọi thứ */
     background: #fff;
     border: 1px solid #ddd;
-    border-bottom: none; /* THAY ĐỔI: Xóa đường viền dưới */
-    border-radius: 8px 8px 0 0; /* THAY ĐỔI: Bo góc trên */
+    border-bottom: none; /* Xóa viền dưới */
+    border-radius: 8px 8px 0 0; /* Bo góc trên */
     box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1); /* Đổ bóng lên trên */
     max-height: 150px;
     overflow-y: auto;
     text-align: left;
-    display: none;
-    /* ... giữ nguyên các thuộc tính ở Bước 1 ... */
-    display: flex; /* Bổ sung: Biến suggestion-box thành flex container */
-    flex-direction: column-reverse; /* Bổ sung: Lật thứ tự (từ dưới lên) */
-    /* ... giữ nguyên các thuộc tính ở Bước 1 ... */
+    display: flex; /* Bắt đầu Flexbox */
+    flex-direction: column-reverse; /* THAY ĐỔI CUỐI CÙNG: Lật thứ tự để gợi ý mới hiện gần input */
 }
 .suggestion-item {
+/* ... (Giữ nguyên các thuộc tính suggestion-item) ... */
     padding: 10px;
     cursor: pointer;
     font-size: 16px;
@@ -131,7 +129,6 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
     background-color: #f0f0f0;
 }
 /* KẾT THÚC BỔ SUNG CSS */
-
 
 #tts-info{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:700px;text-align:center;padding:10px;border-top:1px solid #ccc;color:#616161;background:#e3f2fd;font-size:14px;z-index:1010}
 #tts-info a{color:#2196F3;text-decoration:none}
