@@ -124,8 +124,52 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
 </div>
 </div>
 
+<datalist id="vietnameseSuggestions">
+    </datalist>
+
+<div id="tts-info">Nếu không thấy âm thanh, tải <a href="https://play.google.com/store/apps/details?id=com.google.android.tts" target="_blank">Google Play</a></div>
+
 <div id="tts-info">Nếu không thấy âm thanh, tải <a href="https://play.google.com/store/apps/details?id=com.google.android.tts" target="_blank">Google Play</a></div>
 <script>
+
+// DÒNG BỔ SUNG: Khai báo URL cục bộ
+const SUGGESTION_URL = 'goi-y-tu.json'; 
+
+// HÀM BỔ SUNG: Tải và điền danh sách gợi ý từ file JSON cục bộ
+async function populateDatalistFromURL() {
+    const datalist = document.getElementById('vietnameseSuggestions');
+    if (!datalist) return;
+    datalist.innerHTML = '';
+    
+    try {
+        const response = await fetch(SUGGESTION_URL); 
+        
+        if (!response.ok) {
+            console.error('Lỗi tải dữ liệu gợi ý (kiểm tra file goi-y-tu.json):', response.statusText);
+            return;
+        }
+        
+        const wordList = await response.json(); 
+        
+        if (!Array.isArray(wordList)) {
+            console.error('Dữ liệu tải về không phải là mảng.');
+            return;
+        }
+
+        wordList.forEach(word => {
+            if (typeof word === 'string' && word.trim() !== '') {
+                let option = document.createElement('option');
+                option.value = word.trim();
+                datalist.appendChild(option);
+            }
+        });
+
+        console.log(`Đã tải và thêm ${wordList.length} từ gợi ý.`);
+        
+    } catch (error) {
+        console.error('Đã xảy ra lỗi khi tải hoặc xử lý file JSON:', error);
+    }
+}
 let deferredPrompt,currentIndex=0,defaults=["Tôi muốn ăn cơm","Tôi muốn uống nước","Tôi muốn đi vệ sinh","Tôi muốn đi ngủ"],installState = 'before_install';
 const controlArea=document.getElementById('controlArea'),
       installButton=document.getElementById('installButton'),
@@ -170,6 +214,7 @@ function addButton(v=''){
     i.value=v;
     i.placeholder="Nhập văn bản...";
     i.onchange=saveAll;
+    i.setAttribute('list', 'vietnameseSuggestions');
     let p=document.createElement('button');
     p.className='btn play-btn';
     p.textContent='🔊 Phát âm';
@@ -327,7 +372,7 @@ function warmUpTTS(){
     speechSynthesis.speak(u);
     setTimeout(()=>speechSynthesis.cancel(),500)
 }
-window.onload=()=>{loadButtons();warmUpTTS();}
+window.onload=()=>{loadButtons();warmUpTTS();populateDatalistFromURL();} // <--- ĐÃ SỬA
 </script>
 
 </body>
