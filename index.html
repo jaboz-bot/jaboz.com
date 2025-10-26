@@ -56,13 +56,23 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
 .control-container.locked .navigation-group{
     margin:0;
 }
+/* THAY ĐỔI QUAN TRỌNG: Hạ nút mở khóa xuống */
+.control-container.locked #unlock-btn{
+    position:fixed;
+    /* bottom:70px; <--- Giá trị cũ */
+    bottom: 80px; /* Giá trị mới: Nằm ngay trên khu vực tts-info */
+    left:50%;
+    transform:translateX(-50%);
+    display:flex;
+    z-index:100;
+}
 
 /* Cập nhật CSS cho Popup: Luôn fixed và căn giữa */
 #popup{
-    position: fixed; /* Luôn cố định */
-    top: 150px; /* Vị trí cố định (có thể điều chỉnh) */
+    position: fixed;
+    top: 150px;
     left: 50%;
-    transform: translateX(-50%); /* Căn giữa */
+    transform: translateX(-50%);
     
     background:rgba(0,0,0,.8);
     color:#fff;
@@ -74,10 +84,6 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
     max-width:90%;
     min-width:100px;
     text-align:center;
-}
-/* Loại bỏ class locked-mode không cần thiết */
-#popup.locked-mode {
-    /* Không cần thiết nữa */
 }
 
 #tts-info{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:700px;text-align:center;padding:10px;border-top:1px solid #ccc;color:#616161;background:#e3f2fd;font-size:14px;z-index:1010}
@@ -125,18 +131,13 @@ function speak(text, targetElement){
     let u=new SpeechSynthesisUtterance(text);
     u.lang='vi-VN';
     speechSynthesis.speak(u);
-    // Không cần targetElement nữa, nhưng vẫn giữ hàm showPopup
     showPopup(text); 
 }
 
-// Cập nhật hàm showPopup: Chỉ hiển thị và đặt thời gian biến mất
 function showPopup(text){
     popupElement.textContent=text;
     popupElement.style.display='block';
     popupElement.style.opacity='1';
-
-    // Xóa tất cả các lớp liên quan đến vị trí (vì đã fixed trong CSS)
-    popupElement.classList.remove('locked-mode');
 
     setTimeout(()=>{
         popupElement.style.opacity='0';
@@ -154,7 +155,6 @@ function addButton(v=''){
     let p=document.createElement('button');
     p.className='btn play-btn';
     p.textContent='🔊 Phát âm';
-    // Vẫn gọi hàm speak nhưng targetElement không còn được sử dụng cho định vị
     p.onclick=()=>speak(i.value.trim(), p); 
     let d=document.createElement('button');
     d.className='delete-btn';
@@ -175,7 +175,6 @@ function moveSpeak(dir){
     const c=getCards();
     if(c.length===0)return;
     
-    // Target button không quan trọng nữa, nhưng vẫn gọi speak(text)
     if(dir===0){
         speak(c[currentIndex].value.trim());
     } else {
