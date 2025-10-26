@@ -6,42 +6,40 @@
 <title>Máy hỗ trợ giọng nói</title>
 <link rel="manifest" href="manifest.json">
 <style>
-/* --- CSS ĐÃ CHỈNH SỬA --- */
-/* Sửa: Loại bỏ padding/margin chung của body để tránh ảnh hưởng */
+/* --- CSS ĐÃ CHỈNH SỬA VÀ TỐI ƯU --- */
+/* Chiều cao ước tính của #tts-info là khoảng 40px (10px padding trên dưới + nội dung) */
+/* Cỡ body padding-bottom = 40px (tts-info) + 15px đệm = 55px */
 body {
     font-family:'Segoe UI', sans-serif;
     background:#e3f2fd;
     margin:0;
     padding:0;
     text-align:center;
-    /* BỔ SUNG: Thêm padding dưới để tránh nội dung cuối cùng bị che bởi #tts-info */
-    padding-bottom: 70px; /* Độ cao của #tts-info + khoảng đệm */
+    /* TỐI ƯU: Đặt padding dưới cố định để không bị tts-info che khuất */
+    padding-bottom: 55px; 
 }
 /* CONTAINER CHUNG ĐÓNG GÓI TOÀN BỘ NỘI DUNG */
 .main-wrapper {
-    /* Đặt chiều rộng tối đa cố định (ví dụ: 700px) */
     max-width: 700px;
-    /* Căn giữa theo chiều ngang */
     margin-left: auto;
     margin-right: auto;
-    /* Đảm bảo khung không bị quá sát lề trên màn hình nhỏ */
-    padding: 20px 10px; /* Thêm padding trên dưới */
+    padding: 20px 10px;
 }
 
 h1 {margin-bottom:20px;}
-/* BỔ SUNG: CSS Cố định tiêu đề khi khóa */
+/* CSS Cố định tiêu đề khi khóa */
 .locked-h1 {
     position: fixed;
-    top: 100px; /* Vị trí tiêu đề khi khóa */
+    top: 100px; 
     left: 50%;
     transform: translateX(-50%);
     width: 100%;
     max-width: 700px;
     margin: 0;
     padding: 0 10px;
-    z-index: 1000; /* Đảm bảo nằm trên mọi thứ */
-    color: #333; /* Màu chữ rõ ràng */
-    background: #e3f2fd; /* Màu nền khớp với body */
+    z-index: 1000;
+    color: #333;
+    background: #e3f2fd; 
 }
 
 
@@ -56,7 +54,6 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     font-size:16px;
     cursor:pointer;
     transition:0.3s;
-    /* CĂN GIỮA NỘI DUNG CHỮ */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -96,7 +93,6 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 }
 /* CONTAINER ĐIỀU KHIỂN - Tối ưu cho chế độ CHƯA KHÓA */
 .control-container {
-    /* GIỮ LẠI FLEXBOX CHO CHẾ ĐỘ MỞ KHÓA */
     display:flex;
     flex-direction:column;
     align-items:center;
@@ -106,7 +102,7 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     transition:0.3s;
 }
 
-/* KHU VỰC 3 NÚT - XẾP DỌC (Dùng Flexbox cho nhóm 3 nút là tối ưu) */
+/* KHU VỰC 3 NÚT - XẾP DỌC */
 .navigation-group {
     display: flex;
     flex-direction: column;
@@ -121,7 +117,6 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     width: 150px;
     height: 60px;
     border-radius: 8px;
-    /* LOẠI BỎ MÀU CHUNG */
     color: white;
     font-size: 18px;
     border: none;
@@ -136,23 +131,22 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 
 /* Màu xanh lá cây thống nhất cho Phát trước và Phát sau */
 .play-control-btn {
-    background: linear-gradient(45deg,#4CAF50,#43A047); /* Màu xanh lá */
+    background: linear-gradient(45deg,#4CAF50,#43A047);
 }
 
 /* Màu Vàng Cam cho Phát lại */
 .current-btn-color {
-    background: #ff9800; /* Màu Cam */
+    background: #ff9800;
 }
 
 
 /* NÚT KHÓA GIAO DIỆN (TRONG SETTINGS) - Tăng kích thước */
 #settingsArea .btn:first-child {
     background: linear-gradient(45deg, #f44336, #d32f2f);
-    /* TĂNG KÍCH THƯỚC */
-    width: 220px; /* TĂNG KÍCH THƯỚC */
-    height: 50px; /* TĂNG KÍCH THƯỚC */
-    font-size: 18px; /* TĂNG CỠ CHỮ */
-    margin: 0 auto 20px auto; /* Căn giữa và tạo khoảng cách */
+    width: 220px; 
+    height: 50px; 
+    font-size: 18px;
+    margin: 0 auto 20px auto; 
     display: block;
 }
 #settingsArea {
@@ -166,10 +160,10 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     height: 60px;
     font-size: 18px;
     position: relative;
-    display: none; /* Mặc định ẩn, sẽ được hiển thị khi khóa */
+    display: none; 
 }
 
-/* CHẾ ĐỘ KHÓA - THAY THẾ FLEXBOX */
+/* CHẾ ĐỘ KHÓA */
 .control-container.locked {
     position: fixed;
     top: 0;
@@ -183,33 +177,29 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 
 /* ĐIỀU CHỈNH VỊ TRÍ CHO NHÓM NÚT VÀ NÚT MỞ KHÓA TRONG CHẾ ĐỘ KHÓA */
 .control-container.locked .navigation-group {
-    /* Căn giữa tuyệt đối cho nhóm nút */
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    margin: 0; /* Đảm bảo không có margin từ chế độ không khóa */
+    margin: 0;
 }
 
 /* CĂN CHỈNH NÚT MỞ KHÓA KHI BỊ KHÓA (PHÍA TRÊN TTS) */
 .control-container.locked #unlock-btn {
     position: fixed;
-    /* Vị trí đã điều chỉnh: Đặt phía trên #tts-info (cao 60px) + 10px đệm*/
+    /* bottom = height of #tts-info (approx 40px) + 30px margin/padding = 70px */
     bottom: 70px; 
     left: 50%;
-    /* Quan trọng: Sử dụng display:flex để căn giữa nội dung bên trong (vì đây là nút) */
     display: flex !important; 
     transform: translateX(-50%); 
     margin: 0; 
     z-index: 100; 
 }
 
-
-/* POPUP - CĂN CHỈNH KHI Ở CHẾ ĐỘ CHƯA KHÓA */
+/* POPUP (Không thay đổi) */
 #popup {
-    /* Các thuộc tính giữ nguyên */
     position: absolute;
-    bottom: 100%; /* Đặt vị trí ban đầu là ngay trên controlArea */
+    bottom: 100%; 
     left: 50%;
     transform: translateX(-50%) translateY(20px);
     background: rgba(0,0,0,0.8);
@@ -227,10 +217,8 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     transition: 0.5s;
 }
 
-/* VỊ TRÍ MỚI KHI Ở CHẾ ĐỘ KHÓA (Cố định ở trên nhóm nút) */
 .control-container.locked #popup {
     position: fixed;
-    /* Điều chỉnh để popup hiển thị dưới tiêu đề chính */
     top: 150px; 
     bottom: auto;
     left: 50%;
@@ -238,28 +226,26 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     z-index: 1000;
 }
 
-/* ĐÃ SỬA: CSS DÒNG THÔNG BÁO TTS CỐ ĐỊNH */
+/* TỐI ƯU: CSS DÒNG THÔNG BÁO TTS CỐ ĐỊNH */
 #tts-info {
-    /* Cố định vị trí ở dưới cùng */
     position: fixed; 
-    bottom: 0;
-    left: 50%; /* Căn giữa theo chiều ngang */
-    transform: translateX(-50%); /* Dùng transform để căn giữa */
+    bottom: 0; /* ĐÃ ĐẶT SÁT ĐÁY */
+    left: 50%; 
+    transform: translateX(-50%); 
     
     /* Thiết lập giới hạn chiều rộng như main-wrapper */
     width: 100%; 
     max-width: 700px;
     
-    /* Căn giữa nội dung */
     text-align: center; 
     
-    /* Style theo yêu cầu: Có dòng kẻ phía trên */
-    padding: 10px; /* Khoảng đệm bên trong */
+    /* STYLE để đảm bảo hiển thị rõ ràng */
+    padding: 10px; 
     border-top: 1px solid #ccc; 
     color: #616161;
-    background: #e3f2fd; /* Màu nền khớp với body */
+    background: #e3f2fd; 
     
-    z-index: 90; /* Đảm bảo nằm dưới controlArea (99) */
+    z-index: 90; 
     font-size: 14px;
 }
 
@@ -293,7 +279,7 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
         <button class="btn reset-btn" onclick="resetDefaults()">♻️ Reset mặc định</button>
     </div>
 
-    </div>
+</div>
 <div id="tts-info">
     Nếu không thấy âm thanh, vui lòng tải giọng nói tại
     <a href="market://details?id=com.google.android.tts"
@@ -302,13 +288,13 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     </a>
 </div>
 <script>
-let deferredPrompt; // Biến lưu trữ sự kiện cài đặt PWA
+let deferredPrompt; 
 const defaults=["Tôi muốn ăn cơm","Tôi muốn uống nước","Tôi muốn đi vệ sinh","Tôi muốn đi ngủ"];
 let currentIndex=0;
 const controlArea = document.getElementById('controlArea');
-const installButton = document.getElementById('installButton'); // Lấy nút cài đặt
-const addBtnMove = document.getElementById('add-btn-move'); // Lấy nút Thêm câu mới đã di chuyển
-const mainTitle = document.getElementById('mainTitle'); // Lấy tiêu đề chính
+const installButton = document.getElementById('installButton'); 
+const addBtnMove = document.getElementById('add-btn-move'); 
+const mainTitle = document.getElementById('mainTitle'); 
 
 // --- Nút phát âm ---
 function speak(text){
@@ -341,7 +327,7 @@ function showPopup(text){
     popup.style.opacity='1';
 
     // Vị trí kết thúc (hiện)
-    popup.style.transform='translateX(-50%) translateY(0)'; // Kết thúc tại vị trí CSS top/bottom đã đặt
+    popup.style.transform='translateX(-50%) translateY(0)';
 
     // Tự động ẩn
     setTimeout(()=>{
@@ -396,25 +382,19 @@ function resetDefaults(){
 function getCards(){ return document.querySelectorAll('.card input'); }
 
 
-// --- BỔ SUNG: HÀM XÓA CÁC THẺ RỖNG VÀ CẬP NHẬT TRẠNG THÁI ---
+// --- HÀM XÓA CÁC THẺ RỖNG VÀ CẬP NHẬT TRẠNG THÁI ---
 function cleanupEmptyCards(){
     let cards = document.querySelectorAll('.card');
     let shouldSave = false;
-
-    // Lặp ngược để việc xóa không làm ảnh hưởng đến chỉ mục tiếp theo
     for(let i = cards.length - 1; i >= 0; i--) {
         const input = cards[i].querySelector('input');
-        // Kiểm tra nếu input không tồn tại hoặc giá trị của nó (sau khi xóa khoảng trắng) là rỗng
         if (!input || input.value.trim() === '') {
             cards[i].remove();
             shouldSave = true;
         }
     }
-
-    // Chỉ lưu lại nếu có thẻ bị xóa
     if(shouldSave) {
         saveAll();
-        // Cập nhật lại currentIndex nếu nó trỏ đến vị trí không còn tồn tại
         const newCards = getCards();
         if(currentIndex >= newCards.length) {
             currentIndex = newCards.length > 0 ? newCards.length - 1 : 0;
@@ -423,37 +403,35 @@ function cleanupEmptyCards(){
 }
 
 
-// --- 3 nút điều khiển (ĐÃ SỬA: Gọi cleanupEmptyCards() trước) ---
+// --- 3 nút điều khiển ---
 function prevSpeak(){
-    cleanupEmptyCards(); // <== GỌI HÀM XÓA
+    cleanupEmptyCards(); 
     const cards=getCards();
     if(cards.length===0) return;
     currentIndex=(currentIndex-1+cards.length)%cards.length;
     speak(cards[currentIndex].value.trim());
 }
 function nextSpeak(){
-    cleanupEmptyCards(); // <== GỌC HÀM XÓA
+    cleanupEmptyCards();
     const cards=getCards();
     if(cards.length===0) return;
     currentIndex=(currentIndex+1)%cards.length;
     speak(cards[currentIndex].value.trim());
 }
 function currentSpeak(){
-    cleanupEmptyCards(); // <== GỌI HÀM XÓA
+    cleanupEmptyCards(); 
     const cards=getCards();
     if(cards.length===0) return;
     speak(cards[currentIndex].value.trim());
 }
 
-// --- Khóa / Mở khóa (ĐÃ CHỈNH SỬA) ---
+// --- Khóa / Mở khóa ---
 function toggleLock(lock){
     const settings=document.getElementById('settingsArea');
     const container=document.getElementById('buttonContainer');
     const unlockBtn=document.getElementById('unlock-btn');
-    const navGroup=document.querySelector('.navigation-group');
     const popup=document.getElementById('popup');
     const addBtn = document.getElementById('add-btn-move');
-    // Lưu ý: #tts-info không cần thay đổi class
 
     if(lock){
         settings.style.display='none';
@@ -461,22 +439,17 @@ function toggleLock(lock){
         addBtn.style.display='none';
 
         controlArea.classList.add('locked');
-        
-        // Thêm class cố định cho tiêu đề chính
         mainTitle.classList.add('locked-h1');
         
-        unlockBtn.style.display='flex'; // Hiển thị nút Mở khóa
+        unlockBtn.style.display='flex';
     } else {
         settings.style.display='block';
         container.style.display='grid';
         addBtn.style.display='block';
 
         controlArea.classList.remove('locked');
-
-        // Xóa class cố định cho tiêu đề chính
         mainTitle.classList.remove('locked-h1');
 
-        // Quan trọng: Đặt lại style vị trí mặc định của Popup khi Mở khóa
         popup.style.position='absolute';
         popup.style.top='auto';
         popup.style.bottom='100%';
@@ -486,49 +459,34 @@ function toggleLock(lock){
 }
 
 // ==========================================================
-// ** PHẦN CODE BỔ SUNG CHO TÍNH NĂNG "TẠO LỐI TẮT APP" (PWA) **
+// ** PHẦN CODE PWA/WARM-UP (Giữ nguyên) **
 // ==========================================================
-
-// 1. Lưu lại sự kiện trước khi trình duyệt hiển thị lời nhắc cài đặt
 window.addEventListener('beforeinstallprompt', (e) => {
-    // Ngăn trình duyệt hiển thị lời nhắc mặc định
     e.preventDefault();
-    // Lưu sự kiện để có thể kích hoạt sau
     deferredPrompt = e;
-    // Hiển thị nút cài đặt (vì trình duyệt đã sẵn sàng)
     installButton.style.display = 'block';
-    // Gắn sự kiện click cho nút
     installButton.addEventListener('click', installApp);
 });
 
-// 2. Hàm kích hoạt lời nhắc cài đặt
 function installApp() {
     if (deferredPrompt) {
-        // Kích hoạt lời nhắc cài đặt đã lưu
         deferredPrompt.prompt();
-        // Chờ phản hồi của người dùng
         deferredPrompt.userChoice.then((choiceResult) => {
             if (choiceResult.outcome === 'accepted') {
                 console.log('Người dùng đã chấp nhận cài đặt.');
             } else {
                 console.log('Người dùng đã từ chối cài đặt.');
             }
-            // Xóa sự kiện và ẩn nút
             deferredPrompt = null;
             installButton.style.display = 'none';
         });
     }
 }
 
-// 3. Xử lý sau khi người dùng đã cài đặt (thường ẩn nút)
 window.addEventListener('appinstalled', () => {
-    // Ẩn nút sau khi ứng dụng đã được cài đặt thành công
     installButton.style.display = 'none';
 });
 
-// ==========================================================
-// ** PHẦN CODE BỔ SUNG ĐỂ GIẢM ĐỘ TRỄ KHỞI TẠO (WARM-UP) **
-// ==========================================================
 function warmUpTTS() {
     if (!('speechSynthesis' in window)) return;
     const utter = new SpeechSynthesisUtterance(" ");
@@ -538,7 +496,6 @@ function warmUpTTS() {
 
     if (speechSynthesis.getVoices().length === 0 || speechSynthesis.speaking === false) {
         speechSynthesis.speak(utter);
-
         setTimeout(() => {
             speechSynthesis.cancel();
         }, 500);
