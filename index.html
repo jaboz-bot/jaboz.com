@@ -25,7 +25,7 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
 .play-control-btn{background:linear-gradient(45deg,#4CAF50,#43A047)}
 .current-btn-color{background:#ff9800}
 #settingsArea{margin-top:30px;text-align:center;max-width:700px;margin:0 auto}
-#popup{position:fixed;background:rgba(0,0,0,.8);color:#fff;padding:15px 20px;border-radius:12px;font-size:18px;display:none;z-index:1000;max-width:90%;min-width:100px;text-align:center;transition:.5s}
+#popup{position:fixed;background:rgba(0,0,0,.8);color:#fff;padding:15px 20px;border-radius:12px;font-size:18px;display:none;z-index:1000;max-width:90%;min-width:100px;text-align:center;transition:opacity .5s}
 #tts-info{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:700px;text-align:center;padding:10px;border-top:1px solid #ccc;color:#616161;background:#e3f2fd;font-size:14px;z-index:1010}
 #tts-info a{color:#2196F3;text-decoration:none}
 </style>
@@ -77,7 +77,7 @@ function speak(text){
     showPopup(text);
 }
 
-// HIỂN THỊ POPUP
+// HIỂN THỊ POPUP (CHỈ MỜ DẦN)
 function showPopup(text){
     const p=document.getElementById('popup');
     p.textContent=text;
@@ -104,7 +104,10 @@ function showPopup(text){
         }
     }
 
-    setTimeout(()=>{p.style.opacity='0'; setTimeout(()=>p.style.display='none',500);},2000);
+    setTimeout(()=>{
+        p.style.opacity='0';
+        setTimeout(()=>p.style.display='none',500);
+    },2000);
 }
 
 // THÊM BUTTON MỚI
