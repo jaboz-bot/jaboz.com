@@ -27,9 +27,9 @@ body {
 }
 
 h1 {margin-bottom:20px;}
-/* CSS Tiêu đề khi khóa (ĐÃ SỬA: Nằm trong luồng) */
+/* CSS Tiêu đề khi khóa (Nằm trong luồng) */
 .locked-h1 {
-    position: relative; /* Không cố định nữa */
+    position: relative; 
     top: auto;
     left: auto;
     transform: none;
@@ -71,14 +71,14 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     display:block;
 }
 
-/* Nút Reset mặc định - Tăng kích thước */
+/* Nút Reset mặc định - Tăng kích thước (ĐÃ SỬA: margin và display) */
 .reset-btn {
     background:linear-gradient(45deg,#2196F3,#1976D2);
     width:220px; 
     height: 50px; 
     font-size: 18px; 
-    margin:8px auto;
-    display:block;
+    margin: 8px auto; /* Đảm bảo căn giữa */
+    display: block; /* Quan trọng để margin: auto hoạt động */
 }
 .add-btn:hover, .reset-btn:hover {transform:scale(1.05);}
 
@@ -164,7 +164,7 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     display: none; 
 }
 
-/* CHẾ ĐỘ KHÓA (ĐÃ SỬA: Loại bỏ fixed full-screen) */
+/* CHẾ ĐỘ KHÓA (Không còn là lớp phủ full-screen) */
 .control-container.locked {
     position: relative; 
     width: 100%;
@@ -172,22 +172,22 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     overflow: visible;
     z-index: 99;
     background: transparent;
-    padding-top: 25vh; /* Đệm trên để căn giữa nội dung theo chiều dọc */
-    padding-bottom: 25vh; /* Đệm dưới */
+    padding-top: 25vh; 
+    padding-bottom: 25vh; 
 }
 
-/* ĐIỀU CHỈNH VỊ TRÍ CHO NHÓM NÚT VÀ NÚT MỞ KHÓA TRONG CHẾ ĐỘ KHÓA (ĐÃ SỬA) */
+/* ĐIỀU CHỈNH VỊ TRÍ CHO NHÓM NÚT VÀ NÚT MỞ KHÓA TRONG CHẾ ĐỘ KHÓA (Căn giữa trong luồng) */
 .control-container.locked .navigation-group {
-    position: relative; /* Không cần absolute nữa */
+    position: relative; 
     top: auto;
     left: auto;
     transform: none;
     margin: 0 auto;
 }
 
-/* CĂN CHỈNH NÚT MỞ KHÓA KHI BỊ KHÓA (ĐÃ SỬA: Nằm trong luồng) */
+/* CĂN CHỈNH NÚT MỞ KHÓA KHI BỊ KHÓA (Nằm trong luồng) */
 .control-container.locked #unlock-btn {
-    position: relative; /* Không cố định nữa */
+    position: relative; 
     top: auto;
     bottom: auto;
     left: auto;
@@ -229,10 +229,10 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     z-index: 1000;
 }
 
-/* TỐI ƯU: CSS DÒNG THÔNG BÁO TTS CỐ ĐỊNH */
+/* TỐI ƯU: CSS DÒNG THÔNG BÁO TTS CỐ ĐỊNH (Đã được kiểm tra và đảm bảo căn giữa) */
 #tts-info {
     position: fixed; 
-    bottom: 0; /* Giữ cố định ở đáy */
+    bottom: 0; 
     left: 50%; 
     transform: translateX(-50%); 
      
