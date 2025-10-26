@@ -62,10 +62,24 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 .play-btn {background:linear-gradient(45deg,#4CAF50,#43A047);}
 .play-btn:hover {transform:scale(1.05);}
 .delete-btn {position:absolute; top:6px; right:8px; border:none; background:transparent; color:#e53935; font-size:18px; cursor:pointer;}
-/* Hai nút Thêm và Reset đã có width và margin auto */
-/* ĐÃ SỬA: Loại bỏ margin-top cho add-btn vì nó đã nằm trong control-container */
-.add-btn {background:linear-gradient(45deg,#2196F3,#1976D2); width:200px; margin:8px auto; display:block;}
-.reset-btn {background:linear-gradient(45deg,#2196F3,#1976D2); width:200px; margin:8px auto; display:block;}
+
+/* ĐÃ CHỈNH SỬA: Nút Thêm câu mới */
+.add-btn {
+    background:linear-gradient(45deg,#2196F3,#1976D2);
+    width:200px; /* Giữ nguyên kích thước này cho nút Thêm */
+    margin:8px auto;
+    display:block;
+}
+
+/* ĐÃ CHỈNH SỬA: Nút Reset mặc định - Tăng kích thước */
+.reset-btn {
+    background:linear-gradient(45deg,#2196F3,#1976D2);
+    width:220px; /* TĂNG KÍCH THƯỚC */
+    height: 50px; /* TĂNG KÍCH THƯỚC */
+    font-size: 18px; /* TĂNG CỠ CHỮ */
+    margin:8px auto;
+    display:block;
+}
 .add-btn:hover, .reset-btn:hover {transform:scale(1.05);}
 
 /* CSS cho nút Cài đặt App */
@@ -129,14 +143,15 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 }
 
 
-/* NÚT KHÓA GIAO DIỆN (TRONG SETTINGS) - ĐỒNG BỘ MÀU ĐỎ */
+/* ĐÃ CHỈNH SỬA: NÚT KHÓA GIAO DIỆN (TRONG SETTINGS) - Tăng kích thước */
 #settingsArea .btn:first-child {
     background: linear-gradient(45deg, #f44336, #d32f2f);
-    /* SỬA ĐỂ CÂN GIỮA */
-    width: 200px; /* Đồng bộ với các nút khác */
+    /* TĂNG KÍCH THƯỚC */
+    width: 220px; /* TĂNG KÍCH THƯỚC */
+    height: 50px; /* TĂNG KÍCH THƯỚC */
+    font-size: 18px; /* TĂNG CỠ CHỮ */
     margin: 0 auto 20px auto; /* Căn giữa và tạo khoảng cách */
-    display: block; /* Quan trọng để căn giữa theo chiều ngang */
-    /* END SỬA */
+    display: block;
 }
 #settingsArea {
     margin-top: 30px;
@@ -177,7 +192,6 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 /* CĂN CHỈNH NÚT MỞ KHÓA KHI BỊ KHÓA (ĐÃ ĐẨY LÊN TRÊN TTS) */
 .control-container.locked #unlock-btn {
     position: fixed;
-    /* Vị trí đã được điều chỉnh */
     bottom: 90px; 
     left: 50%;
     transform: translateX(-50%); 
