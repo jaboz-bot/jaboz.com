@@ -99,19 +99,23 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
 /* BỔ SUNG CSS CHO HỘP GỢI Ý TÙY CHỈNH */
 .suggestion-box {
     position: absolute;
-    top: calc(100% - 10px); /* Đặt ngay dưới input */
+    bottom: calc(100% - 10px); /* THAY ĐỔI LỚN: Đặt ngay BÊN TRÊN input */
     left: 0;
     right: 0;
-    z-index: 10;
+    z-index: 1001; /* Tăng z-index để chắc chắn hộp không bị che */
     background: #fff;
     border: 1px solid #ddd;
-    border-top: none;
-    border-radius: 0 0 8px 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-bottom: none; /* THAY ĐỔI: Xóa đường viền dưới */
+    border-radius: 8px 8px 0 0; /* THAY ĐỔI: Bo góc trên */
+    box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1); /* Đổ bóng lên trên */
     max-height: 150px;
     overflow-y: auto;
     text-align: left;
-    display: none; 
+    display: none;
+    /* ... giữ nguyên các thuộc tính ở Bước 1 ... */
+    display: flex; /* Bổ sung: Biến suggestion-box thành flex container */
+    flex-direction: column-reverse; /* Bổ sung: Lật thứ tự (từ dưới lên) */
+    /* ... giữ nguyên các thuộc tính ở Bước 1 ... */
 }
 .suggestion-item {
     padding: 10px;
