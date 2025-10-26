@@ -57,9 +57,13 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
     margin:0;
 }
 
-/* Cập nhật CSS cho Popup: Đã loại bỏ transition: .5s */
+/* Cập nhật CSS cho Popup: Luôn fixed và căn giữa */
 #popup{
-    position: absolute;
+    position: fixed; /* Luôn cố định */
+    top: 150px; /* Vị trí cố định (có thể điều chỉnh) */
+    left: 50%;
+    transform: translateX(-50%); /* Căn giữa */
+    
     background:rgba(0,0,0,.8);
     color:#fff;
     padding:15px 20px;
@@ -70,16 +74,10 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
     max-width:90%;
     min-width:100px;
     text-align:center;
-    /* transition:.5s; <--- Đã loại bỏ dòng này */
-    transform: none; 
-    left: auto;
-    top: auto;
 }
+/* Loại bỏ class locked-mode không cần thiết */
 #popup.locked-mode {
-    position: fixed;
-    top: 150px;
-    left: 50%;
-    transform: translateX(-50%);
+    /* Không cần thiết nữa */
 }
 
 #tts-info{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:700px;text-align:center;padding:10px;border-top:1px solid #ccc;color:#616161;background:#e3f2fd;font-size:14px;z-index:1010}
@@ -127,52 +125,22 @@ function speak(text, targetElement){
     let u=new SpeechSynthesisUtterance(text);
     u.lang='vi-VN';
     speechSynthesis.speak(u);
-    showPopup(text, targetElement);
+    // Không cần targetElement nữa, nhưng vẫn giữ hàm showPopup
+    showPopup(text); 
 }
 
-function showPopup(text, targetElement){
+// Cập nhật hàm showPopup: Chỉ hiển thị và đặt thời gian biến mất
+function showPopup(text){
     popupElement.textContent=text;
     popupElement.style.display='block';
-    // Đặt opacity trực tiếp
-    popupElement.style.opacity='1'; 
+    popupElement.style.opacity='1';
 
-    if (!document.body.classList.contains('locked')) {
-        // Chế độ mở khóa: Định vị ngay trên nút
-        const rect = targetElement.getBoundingClientRect();
-
-        popupElement.style.position = 'absolute';
-        
-        // Đặt popup ngay phía trên nút + cuộn trang
-        popupElement.style.top = (rect.top + window.scrollY - popupElement.offsetHeight - 10) + 'px'; 
-        
-        // Căn giữa ngang với nút
-        popupElement.style.left = (rect.left + rect.width / 2 - popupElement.offsetWidth / 2) + 'px';
-
-        // Xử lý tràn lề (Đơn giản hóa)
-        const leftLimit = 10;
-        const rightLimit = window.innerWidth - popupElement.offsetWidth - 10;
-        
-        if (parseFloat(popupElement.style.left) < leftLimit) {
-             popupElement.style.left = leftLimit + 'px';
-        } else if (parseFloat(popupElement.style.left) > rightLimit) {
-            popupElement.style.left = rightLimit + 'px';
-        }
-        
-        popupElement.classList.remove('locked-mode');
-
-    } else {
-        // Chế độ khóa: Cố định vị trí
-        popupElement.style.position = 'fixed';
-        popupElement.style.top = '150px';
-        popupElement.style.left = '50%';
-        popupElement.style.transform = 'translateX(-50%)';
-        popupElement.classList.add('locked-mode');
-    }
+    // Xóa tất cả các lớp liên quan đến vị trí (vì đã fixed trong CSS)
+    popupElement.classList.remove('locked-mode');
 
     setTimeout(()=>{
-        // Đặt opacity về 0 ngay lập tức
-        popupElement.style.opacity='0'; 
-        setTimeout(()=>popupElement.style.display='none',0) // Đã đổi 500ms thành 0ms
+        popupElement.style.opacity='0';
+        setTimeout(()=>popupElement.style.display='none',0)
     },2000)
 }
 
@@ -186,6 +154,7 @@ function addButton(v=''){
     let p=document.createElement('button');
     p.className='btn play-btn';
     p.textContent='🔊 Phát âm';
+    // Vẫn gọi hàm speak nhưng targetElement không còn được sử dụng cho định vị
     p.onclick=()=>speak(i.value.trim(), p); 
     let d=document.createElement('button');
     d.className='delete-btn';
@@ -205,14 +174,13 @@ function moveSpeak(dir){
     cleanupEmptyCards();
     const c=getCards();
     if(c.length===0)return;
-
-    const targetButton = controlArea.querySelector('.current-btn-color'); 
     
+    // Target button không quan trọng nữa, nhưng vẫn gọi speak(text)
     if(dir===0){
-        speak(c[currentIndex].value.trim(), targetButton);
+        speak(c[currentIndex].value.trim());
     } else {
         currentIndex=(currentIndex+dir+c.length)%c.length;
-        speak(c[currentIndex].value.trim(), targetButton);
+        speak(c[currentIndex].value.trim());
     }
 }
 
