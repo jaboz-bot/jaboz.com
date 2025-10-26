@@ -8,17 +8,17 @@
 <style>
 /* --- CSS ĐÃ CHỈNH SỬA --- */
 /* Sửa: Loại bỏ padding/margin chung của body để tránh ảnh hưởng */
-body { 
-    font-family:'Segoe UI', sans-serif; 
-    background:#e3f2fd; 
-    margin:0; 
-    padding:0; 
+body {
+    font-family:'Segoe UI', sans-serif;
+    background:#e3f2fd;
+    margin:0;
+    padding:0;
     text-align:center;
 }
 /* CONTAINER CHUNG ĐÓNG GÓI TOÀN BỘ NỘI DUNG */
 .main-wrapper {
     /* Đặt chiều rộng tối đa cố định (ví dụ: 700px) */
-    max-width: 700px; 
+    max-width: 700px;
     /* Căn giữa theo chiều ngang */
     margin-left: auto;
     margin-right: auto;
@@ -31,19 +31,19 @@ h1 {margin-bottom:20px;}
 .card { background:#fff; padding:18px; border-radius:12px; box-shadow:0 3px 8px rgba(0,0,0,0.15); display:flex; flex-direction:column; gap:10px; position:relative; }
 input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; width:100%; }
 .btn {
-    padding:12px; 
-    border:none; 
-    border-radius:8px; 
-    color:white; 
-    font-size:16px; 
-    cursor:pointer; 
+    padding:12px;
+    border:none;
+    border-radius:8px;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
     transition:0.3s;
     /* CĂN GIỮA NỘI DUNG CHỮ */
     display: flex;
-    justify-content: center; 
-    align-items: center;    
+    justify-content: center;
+    align-items: center;
 }
-.play-btn {background:linear-gradient(45deg,#4CAF50,#43A047);} 
+.play-btn {background:linear-gradient(45deg,#4CAF50,#43A047);}
 .play-btn:hover {transform:scale(1.05);}
 .delete-btn {position:absolute; top:6px; right:8px; border:none; background:transparent; color:#e53935; font-size:18px; cursor:pointer;}
 /* Hai nút Thêm và Reset đã có width và margin auto */
@@ -74,17 +74,17 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 /* KHU VỰC 3 NÚT - XẾP DỌC */
 .navigation-group {
     display: flex;
-    flex-direction: column; 
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 15px; 
+    gap: 15px;
     margin: 25px 0 0 0;
 }
 
 /* NÚT ĐIỀU KHIỂN - VUÔNG BO GÓC */
 .control-btn {
-    width: 150px; 
-    height: 60px; 
+    width: 150px;
+    height: 60px;
     border-radius: 8px;
     /* LOẠI BỎ MÀU CHUNG */
     color: white;
@@ -120,14 +120,14 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     /* END SỬA */
 }
 #settingsArea {
-    margin-top: 30px; 
+    margin-top: 30px;
 }
 
 /* NÚT MỞ KHÓA - ĐÃ SỬA: BỎ CÁC THUỘC TÍNH ABSOLUTE */
 #unlock-btn {
     /* Đã loại bỏ position: absolute, bottom, left và transform */
     background:linear-gradient(45deg, #f44336, #d32f2f);
-    width:160px; 
+    width:160px;
     height: 60px;
     font-size: 18px;
     margin-top: 50px; /* Khoảng cách từ nhóm nút */
@@ -149,19 +149,19 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 }
 
 .control-container.locked .navigation-group {
-    position: relative; 
-    top: auto; 
+    position: relative;
+    top: auto;
     left: auto;
-    transform: none; 
-    margin: 0; 
+    transform: none;
+    margin: 0;
 }
 
 /* BỔ SUNG: Căn giữa nút Mở khóa khi bị khóa */
 .control-container.locked #unlock-btn {
     display: block;
-    position: relative; 
+    position: relative;
     /* ĐÃ SỬA: TĂNG MARGIN ĐỂ TẠO KHOẢNG CÁCH */
-    margin: 50px auto 0 auto; 
+    margin: 50px auto 0 auto;
     width: 160px;
 }
 
@@ -190,9 +190,9 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 
 /* SỬA: VỊ TRÍ MỚI KHI Ở CHẾ ĐỘ KHÓA (Cố định ở trên nhóm nút) */
 .control-container.locked #popup {
-    position: fixed; 
+    position: fixed;
     top: 20%; /* ĐÃ SỬA: Đặt thấp hơn để tránh chồng lên tiêu đề */
-    bottom: auto; 
+    bottom: auto;
     left: 50%;
     transform: translateX(-50%);
     z-index: 1000;
@@ -200,15 +200,33 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 
 /* TẠO KHOẢNG CÁCH CHO THÔNG BÁO TTS */
 #tts-info {
-    margin-top: 40px; 
-    padding-top: 20px; 
-    border-top: 1px solid #ddd; 
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid #ddd;
     color: #616161;
 }
+
+/* BỔ SUNG MỚI: CSS cho phần TTS khi ở trạng thái KHÓA */
+.tts-info-locked {
+    position: fixed; /* Cố định vị trí */
+    bottom: 10px; /* Cách đáy 10px */
+    left: 50%;
+    transform: translateX(-50%); /* Căn giữa theo chiều ngang */
+    z-index: 1000; /* Đảm bảo nó nằm trên các nội dung khác */
+    background: #e3f2fd; /* Giống màu nền body để đồng bộ */
+    padding: 5px 10px; /* Thêm khoảng đệm */
+    border-radius: 8px; /* Bo góc */
+    box-shadow: 0 0 5px rgba(0,0,0,0.1); /* Thêm bóng nhẹ */
+    /* Ghi đè lại style mặc định của #tts-info khi nó bị khóa */
+    margin-top: 0 !important;
+    padding-top: 5px !important;
+    border-top: none !important;
+}
+
 </style>
 </head>
 <body>
-<div class="main-wrapper"> 
+<div class="main-wrapper">
 
     <h1>Máy hỗ trợ giọng nói</h1>
 
@@ -262,13 +280,13 @@ function speak(text){
 function showPopup(text){
     const popup=document.getElementById('popup');
     popup.textContent=text;
-    
+
     const isLocked = controlArea.classList.contains('locked');
-    
+
     // Đặt lại vị trí ban đầu (ẩn)
     if (isLocked) {
         // Chế độ khóa: Bắt đầu từ vị trí cao hơn
-        popup.style.transform='translateX(-50%) translateY(30px)'; 
+        popup.style.transform='translateX(-50%) translateY(30px)';
     } else {
         // Chế độ mở: Vị trí mặc định
         popup.style.transform='translateX(-50%) translateY(20px)';
@@ -276,7 +294,7 @@ function showPopup(text){
 
     popup.style.display='block';
     popup.style.opacity='1';
-    
+
     // Vị trí kết thúc (hiện)
     popup.style.transform='translateX(-50%) translateY(0)'; // Kết thúc tại vị trí CSS top/bottom đã đặt
 
@@ -284,8 +302,8 @@ function showPopup(text){
     setTimeout(()=>{
         popup.style.opacity='0';
         // Vị trí trượt đi
-        popup.style.transform='translateX(-50%) translateY(-20px)'; 
-        
+        popup.style.transform='translateX(-50%) translateY(-20px)';
+
         setTimeout(()=>popup.style.display='none',500);
     },2000);
 }
@@ -337,7 +355,7 @@ function getCards(){ return document.querySelectorAll('.card input'); }
 function cleanupEmptyCards(){
     let cards = document.querySelectorAll('.card');
     let shouldSave = false;
-    
+
     // Lặp ngược để việc xóa không làm ảnh hưởng đến chỉ mục tiếp theo
     for(let i = cards.length - 1; i >= 0; i--) {
         const input = cards[i].querySelector('input');
@@ -347,7 +365,7 @@ function cleanupEmptyCards(){
             shouldSave = true;
         }
     }
-    
+
     // Chỉ lưu lại nếu có thẻ bị xóa
     if(shouldSave) {
         saveAll();
@@ -382,32 +400,38 @@ function currentSpeak(){
     speak(cards[currentIndex].value.trim());
 }
 
-// --- Khóa / Mở khóa ---
+// --- Khóa / Mở khóa (ĐÃ CHỈNH SỬA) ---
 function toggleLock(lock){
     const settings=document.getElementById('settingsArea');
     const container=document.getElementById('buttonContainer');
     const unlockBtn=document.getElementById('unlock-btn');
     const navGroup=document.querySelector('.navigation-group');
     const popup=document.getElementById('popup');
+    // BỔ SUNG: Lấy phần tử TTS Info
+    const ttsInfo=document.getElementById('tts-info');
 
     if(lock){
         settings.style.display='none';
         container.style.display='none';
-        
+
         controlArea.classList.add('locked');
-        
-        // Popup đã được sửa bằng CSS cố định
+
+        // BỔ SUNG: Thêm class cố định cho TTS Info
+        ttsInfo.classList.add('tts-info-locked');
 
         unlockBtn.style.display='block';
     } else {
         settings.style.display='block';
         container.style.display='grid';
-        
+
         controlArea.classList.remove('locked');
-        
-        navGroup.style.marginBottom='0px'; 
-        navGroup.style.marginTop='25px'; // Cập nhật lại margin trong JS khi mở khóa (Để đồng bộ với CSS)
-        
+
+        // BỔ SUNG: Xóa class cố định cho TTS Info
+        ttsInfo.classList.remove('tts-info-locked');
+
+        navGroup.style.marginBottom='0px';
+        navGroup.style.marginTop='25px';
+
         // Quan trọng: Đặt lại style vị trí mặc định của Popup khi Mở khóa
         popup.style.position='absolute';
         popup.style.top='auto';
@@ -467,10 +491,10 @@ function warmUpTTS() {
     utter.lang = 'vi-VN';
     utter.volume = 0;
     utter.rate = 10;
-    
+
     if (speechSynthesis.getVoices().length === 0 || speechSynthesis.speaking === false) {
         speechSynthesis.speak(utter);
-        
+
         setTimeout(() => {
             speechSynthesis.cancel();
         }, 500);
