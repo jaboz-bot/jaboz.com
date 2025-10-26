@@ -39,17 +39,14 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
 #unlock-btn{width:160px;height:60px;display:none;background:linear-gradient(45deg,#f44336,#d32f2f)}
 .control-container{display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:20px;transition:.3s;position:relative}
 
-/* SỬA LỖI GIAO DIỆN CHÍNH: Thay đổi navigation-group thành flex-row */
+/* ĐIỀU CHỈNH CHÍNH: Đặt các nút dọc lại */
 .navigation-group{
-    display: flex; /* Đảm bảo các nút nằm ngang */
-    flex-direction: row; 
-    justify-content: center; /* Căn giữa các nút */
-    align-items: center; 
-    gap: 15px; /* Khoảng cách giữa các nút */
+    display: flex; 
+    flex-direction: column; /* Đặt các nút dọc */
+    align-items: center; /* Căn giữa các nút theo chiều ngang (rất quan trọng) */
+    gap: 15px; 
     margin: 25px 0 0;
-    width: 100%; /* Chiếm hết chiều rộng */
-    max-width: 550px; /* Giới hạn chiều rộng cho đẹp */
-    padding: 0 10px;
+    width: 100%;
 }
 
 /* Cập nhật CSS cho Popup: Luôn fixed và căn giữa */
@@ -80,7 +77,7 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
 .current-btn-color{background:#ff9800}
 #settingsArea{margin-top:30px;text-align:center}
 
-/* CSS cho chế độ khóa (Đã sửa để hiển thị 3 nút điều hướng ngang hàng ở giữa màn hình) */
+/* CSS cho chế độ khóa (Đã sửa để hiển thị 3 nút điều hướng dọc hàng ở giữa màn hình) */
 .control-container.locked{
     position:fixed;
     top:0;
