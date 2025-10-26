@@ -143,4 +143,11 @@ function getCards(){return document.querySelectorAll('.card input')}
 function cleanupEmptyCards(){let c=document.querySelectorAll('.card'),b=false;for(let i=c.length-1;i>=0;i--){let t=c[i].querySelector('input');if(!t||t.value.trim()===''){c[i].remove();b=true}}if(b){saveAll();const n=getCards();currentIndex=Math.min(currentIndex,n.length-1)}}
 function moveSpeak(d){cleanupEmptyCards();const c=getCards();if(!c.length)return;if(d===0)speak(c[currentIndex].value.trim());else{currentIndex=(currentIndex+d+c.length)%c.length;speak(c[currentIndex].value.trim())}}
 function toggleLock(l){const s=document.getElementById('settingsArea'),c=document.getElementById('buttonContainer'),u=document.getElementById('unlock-btn'),p=document.getElementById('popup');if(l){s.style.display='none';c.style.display='none';addBtnMove.style.display='none';controlArea.classList.add('locked');mainTitle.classList.add('locked-h1');u.style.display='flex'}else{s.style.display='block';c.style.display='grid';addBtnMove.style.display='block';controlArea.classList.remove('locked');mainTitle.classList.remove('locked-h1');p.style.position='absolute';p.style.top='auto';p.style.bottom='10px';u.style.display='none'}}
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;installButton.style.display='block';installButton.addEventListener('click',
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;installButton.style.display='block';installButton.addEventListener('click',installApp)})
+function installApp(){if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.userChoice.then(r=>{console.log(r.outcome==='accepted'?'Người dùng đã chấp nhận cài đặt.':'Người dùng đã từ chối cài đặt.');deferredPrompt=null;installButton.style.display='none'})}}
+window.addEventListener('appinstalled',()=>{installButton.style.display='none'})
+function warmUpTTS(){if(!('speechSynthesis'in window))return;const u=new SpeechSynthesisUtterance(" ");u.lang='vi-VN';u.volume=0;u.rate=10;if(speechSynthesis.getVoices().length===0||speechSynthesis.speaking===false){speechSynthesis.speak(u);setTimeout(()=>speechSynthesis.cancel(),500)}}
+window.onload=()=>{loadButtons();warmUpTTS();}
+</script>
+</body>
+</html>
