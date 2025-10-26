@@ -46,33 +46,32 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
 
 <div class="control-container" id="controlArea">
 <div class="navigation-group">
-<!-- Cách 2: ontouchend + click -->
-<button class="control-btn play-control-btn" ontouchend="moveSpeak(-1)">Câu trước</button>
-<button class="control-btn current-btn-color" ontouchend="moveSpeak(0)">Phát lại</button>
-<button class="control-btn play-control-btn" ontouchend="moveSpeak(1)">Câu sau</button>
+<button class="control-btn play-control-btn" data-dir="-1">Câu trước</button>
+<button class="control-btn current-btn-color" data-dir="0">Phát lại</button>
+<button class="control-btn play-control-btn" data-dir="1">Câu sau</button>
 </div>
-<button class="btn" id="unlock-btn" onclick="toggleLock(false)">Mở khóa giao diện</button>
-<button class="btn add-btn" id="add-btn-move" onclick="addButton()">➕ Thêm câu mới</button>
+<button class="btn" id="unlock-btn">Mở khóa giao diện</button>
+<button class="btn add-btn" id="add-btn-move">➕ Thêm câu mới</button>
 </div>
 
 <div id="settingsArea">
-<button class="btn settings-btn" onclick="toggleLock(true)">Khóa giao diện</button>
+<button class="btn settings-btn">Khóa giao diện</button>
 <button class="btn install-btn large-control-btn" id="installButton">📲 Cài đặt app</button>
-<button class="btn reset-btn" onclick="resetDefaults()">♻️ Reset mặc định</button>
+<button class="btn reset-btn">♻️ Reset mặc định</button>
 </div>
 </div>
 
 <div id="tts-info">Nếu không thấy âm thanh, tải <a href="https://play.google.com/store/apps/details?id=com.google.android.tts" target="_blank">Google Play</a></div>
 
 <script>
-// Các hàm giống Cách 1
 let deferredPrompt,currentIndex=0,defaults=["Tôi muốn ăn cơm","Tôi muốn uống nước","Tôi muốn đi vệ sinh","Tôi muốn đi ngủ"],installState='before_install';
 const controlArea=document.getElementById('controlArea'),
       installButton=document.getElementById('installButton'),
       addBtnMove=document.getElementById('add-btn-move'),
-      popupElement=document.getElementById('popup'),
+      unlockBtn=document.getElementById('unlock-btn'),
+      settingsArea=document.getElementById('settingsArea'),
       buttonContainer=document.getElementById('buttonContainer'),
-      settingsArea=document.getElementById('settingsArea');
+      popupElement=document.getElementById('popup');
 
 function speak(text){
     if(!text||!('speechSynthesis' in window)) return;
@@ -123,16 +122,18 @@ function moveSpeak(dir){
     else{currentIndex=(currentIndex+dir+c.length)%c.length;speak(c[currentIndex].value.trim());}
 }
 
-// Thêm sự kiện click cho các nút touch để PC dùng được
 document.querySelectorAll('.navigation-group button').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-        let func = btn.getAttribute('ontouchend');
-        if(func) eval(func);
-    });
+    const dir=parseInt(btn.dataset.dir);
+    btn.addEventListener('click',()=>moveSpeak(dir));
+    btn.addEventListener('touchend',()=>moveSpeak(dir));
 });
 
+unlockBtn.addEventListener('click',()=>toggleLock(false));
+addBtnMove.addEventListener('click',addButton);
+settingsArea.querySelector('.settings-btn').addEventListener('click',()=>toggleLock(true));
+settingsArea.querySelector('.reset-btn').addEventListener('click',resetDefaults);
+
 function toggleLock(lock){
-    const u=document.getElementById('unlock-btn');
     if(lock){
         buttonContainer.style.display='none';
         addBtnMove.style.display='none';
@@ -140,7 +141,7 @@ function toggleLock(lock){
         controlArea.classList.add('locked');
         document.body.classList.add('locked');
         document.getElementById('mainTitle').classList.add('locked-h1');
-        u.style.display='flex';
+        unlockBtn.style.display='flex';
     } else {
         buttonContainer.style.display='grid';
         addBtnMove.style.display='block';
@@ -148,11 +149,11 @@ function toggleLock(lock){
         controlArea.classList.remove('locked');
         document.body.classList.remove('locked');
         document.getElementById('mainTitle').classList.remove('locked-h1');
-        u.style.display='none';
+        unlockBtn.style.display='none';
     }
 }
 
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e; if(installState==='before_install'){installButton.style.display='flex'; installButton.onclick=installApp;}});
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e; if(installState==='before_install'){installButton.style.display='flex'; installButton.addEventListener('click',installApp);}});
 
 function installApp(){
     if(deferredPrompt){
