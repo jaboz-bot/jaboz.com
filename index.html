@@ -169,10 +169,14 @@ function addButton(v=''){
     let d=document.createElement('button');
     d.className='delete-btn';
     d.textContent='❌';
-    d.onclick=()=>{c.remove();saveAll();currentIndex=Math.min(currentIndex,getCards().length-1)};
+    d.onclick=()=>{c.remove();saveAll();currentIndex=Math.min(currentIndex,getCards().length-1)}; 
     c.append(i,p,d);
+    
+    // Gán số thứ tự cho câu mới, theo vị trí hiện tại của danh sách
+    const allCards = getCards();
+    c.dataset.index = allCards.length; // Gán index cho câu mới
     document.getElementById('buttonContainer').appendChild(c);
-    saveAll()
+    saveAll();
 }
 
 function saveAll(){localStorage.setItem('voiceButtons',JSON.stringify([...document.querySelectorAll('.card input')].map(i=>i.value.trim())))}
@@ -180,16 +184,31 @@ function loadButtons(){let s=JSON.parse(localStorage.getItem('voiceButtons')||"[
 function resetDefaults(){if(confirm("Đặt lại mặc định?")){localStorage.removeItem('voiceButtons');document.getElementById('buttonContainer').innerHTML='';loadButtons();currentIndex=0}}
 function getCards(){return document.querySelectorAll('.card input')}
 function cleanupEmptyCards(){let c=document.querySelectorAll('.card'),save=false;for(let i=c.length-1;i>=0;i--){let inp=c[i].querySelector('input');if(!inp||inp.value.trim()===''){c[i].remove();save=true}}if(save){saveAll();currentIndex=Math.min(currentIndex,getCards().length-1)}}
-function moveSpeak(dir){
+
+// Hàm lấy chỉ mục ngẫu nhiên
+function getRandomCardIndex() {
+    const cards = getCards();
+    return Math.floor(Math.random() * cards.length);
+}
+
+function moveSpeak(dir) {
     cleanupEmptyCards();
-    const c=getCards();
-    if(c.length===0)return;
-    
-    if(dir===0){
-        speak(c[currentIndex].value.trim());
-    } else {
-        currentIndex=(currentIndex+dir+c.length)%c.length;
-        speak(c[currentIndex].value.trim());
+    const cards = getCards();
+    if (cards.length === 0) return;
+
+    // Nếu nhấn "Câu trước", chọn một câu ngẫu nhiên và đọc ngược lên câu trước nó
+    if (dir === -1) {
+        currentIndex = getRandomCardIndex();
+        speak(cards[currentIndex].value.trim());
+    }
+    // Nếu nhấn "Câu sau", tiếp tục từ câu hiện tại và đọc câu tiếp theo
+    else if (dir === 1) {
+        currentIndex = (currentIndex + 1) % cards.length;
+        speak(cards[currentIndex].value.trim());
+    }
+    // Nếu nhấn "Phát lại", phát lại câu hiện tại
+    else if (dir === 0) {
+        speak(cards[currentIndex].value.trim());
     }
 }
 
@@ -240,16 +259,16 @@ window.addEventListener('beforeinstallprompt',e=>{
 function installApp(){
     if(deferredPrompt){
         deferredPrompt.prompt();
-        deferredPrompt.userChoice.then((choiceResult)=>{
-            if (choiceResult.outcome === 'accepted') {
-                installState = 'installed';
-            } else {
-                installState = 'rejected';
-            }
-            deferredPrompt=null;
-            installButton.style.display='none';
-        });
-    }
+        deferredPrompt.userChoice.then((choiceResult)=>{ 
+            if (choiceResult.outcome === 'accepted') { 
+                installState = 'installed'; 
+            } else { 
+                installState = 'rejected'; 
+            } 
+            deferredPrompt=null; 
+            installButton.style.display='none'; 
+        }); 
+    } 
 }
 
 window.addEventListener('appinstalled',()=>{ 
