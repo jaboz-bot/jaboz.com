@@ -184,7 +184,7 @@ async function loadSuggestions() {
 }
 
 
-// HÀM SỬA ĐỔI: Hiển thị gợi ý tùy chỉnh (tìm kiếm linh hoạt hơn)
+// HÀM SỬA ĐỔI: Sử dụng startsWith() để ưu tiên các từ/cụm từ bắt đầu bằng đầu vào
 function showSuggestions(inputElement, boxElement) {
     const inputText = inputElement.value.trim().toLowerCase();
     boxElement.innerHTML = '';
@@ -193,18 +193,14 @@ function showSuggestions(inputElement, boxElement) {
         boxElement.style.display = 'none';
         return;
     }
-    
-    // BỔ SUNG: Chuyển sang tìm kiếm "chứa" (includes)
+
+    // THAY ĐỔI: Dùng startsWith() để tìm các từ bắt đầu chính xác bằng input
     const filteredSuggestions = wordSuggestions
-        .filter(phrase => phrase.toLowerCase().includes(inputText))
+        .filter(phrase => phrase.toLowerCase().startsWith(inputText))
         .slice(0, 4); // CHỈ GIỚI HẠN 4 GỢI Ý ĐẦU TIÊN
         
-    // LƯU Ý: Nếu muốn ưu tiên từ bắt đầu bằng, bạn phải dùng thư viện ngoài
-    // hoặc sắp xếp lại danh sách này trước khi dùng .slice(0, 4)
-    
     if (filteredSuggestions.length > 0) {
         filteredSuggestions.forEach(phrase => {
-            // ... (Logic tạo suggestion-item giữ nguyên)
             const item = document.createElement('div');
             item.className = 'suggestion-item';
             item.textContent = phrase;
@@ -212,7 +208,20 @@ function showSuggestions(inputElement, boxElement) {
             // Xử lý khi click vào mục gợi ý (dùng mousedown để ngăn input blur ngay lập tức)
             item.addEventListener('mousedown', (e) => {
                 e.preventDefault(); 
-                inputElement.value = phrase;
+                
+                // BỔ SUNG LOGIC THAY THẾ CHỈ PHẦN CUỐI CÙNG
+                // Nếu người dùng đang gõ một câu, chỉ thay thế từ cuối cùng
+                let fullText = inputElement.value;
+                const lastSpaceIndex = fullText.lastIndexOf(' ');
+                
+                if (lastSpaceIndex !== -1) {
+                    // Thay thế từ đang gõ bằng từ gợi ý
+                    inputElement.value = fullText.substring(0, lastSpaceIndex + 1) + phrase;
+                } else {
+                    // Nếu là từ đầu tiên, thay thế toàn bộ
+                    inputElement.value = phrase;
+                }
+                
                 boxElement.style.display = 'none';
                 saveAll(); 
                 inputElement.focus();
