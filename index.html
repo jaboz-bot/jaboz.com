@@ -56,21 +56,19 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
 .control-container.locked .navigation-group{
     margin:0;
 }
-/* THAY ĐỔI QUAN TRỌNG: Hạ nút mở khóa xuống */
 .control-container.locked #unlock-btn{
     position:fixed;
-    /* bottom:70px; <--- Giá trị cũ */
-    bottom: 80px; /* Giá trị mới: Nằm ngay trên khu vực tts-info */
+    bottom: 80px; 
     left:50%;
     transform:translateX(-50%);
     display:flex;
     z-index:100;
 }
 
-/* Cập nhật CSS cho Popup: Luôn fixed và căn giữa */
+/* Cập nhật CSS cho Popup: Đã hạ top xuống 200px */
 #popup{
     position: fixed;
-    top: 150px;
+    top: 200px; /* Vị trí mới */
     left: 50%;
     transform: translateX(-50%);
     
