@@ -16,7 +16,7 @@ body {
     padding:0;
     text-align:center;
     /* TỐI ƯU: Đặt padding dưới cố định để không bị tts-info che khuất */
-    padding-bottom: 55px; 
+    padding-bottom: 55px; 
 }
 /* CONTAINER CHUNG ĐÓNG GÓI TOÀN BỘ NỘI DUNG */
 .main-wrapper {
@@ -27,20 +27,19 @@ body {
 }
 
 h1 {margin-bottom:20px;}
-/* CSS Tiêu đề khi khóa (Nằm trong luồng) */
+/* CSS Cố định tiêu đề khi khóa */
 .locked-h1 {
-    position: relative; 
-    top: auto;
-    left: auto;
-    transform: none;
-    
+    position: fixed;
+    top: 100px; 
+    left: 50%;
+    transform: translateX(-50%);
     width: 100%;
     max-width: 700px;
-    margin-bottom: 20px;
-    padding: 0;
+    margin: 0;
+    padding: 0 10px;
     z-index: 1000;
     color: #333;
-    background: transparent;
+    background: #e3f2fd; 
 }
 
 
@@ -71,14 +70,14 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     display:block;
 }
 
-/* Nút Reset mặc định - Tăng kích thước (ĐÃ SỬA: margin và display) */
+/* Nút Reset mặc định - Tăng kích thước */
 .reset-btn {
     background:linear-gradient(45deg,#2196F3,#1976D2);
-    width:220px; 
-    height: 50px; 
-    font-size: 18px; 
-    margin: 8px auto; /* Đảm bảo căn giữa */
-    display: block; /* Quan trọng để margin: auto hoạt động */
+    width:220px; 
+    height: 50px; 
+    font-size: 18px; 
+    margin:8px auto;
+    display:block;
 }
 .add-btn:hover, .reset-btn:hover {transform:scale(1.05);}
 
@@ -144,10 +143,10 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 /* NÚT KHÓA GIAO DIỆN (TRONG SETTINGS) - Tăng kích thước */
 #settingsArea .btn:first-child {
     background: linear-gradient(45deg, #f44336, #d32f2f);
-    width: 220px; 
-    height: 50px; 
+    width: 220px; 
+    height: 50px; 
     font-size: 18px;
-    margin: 0 auto 20px auto; 
+    margin: 0 auto 20px auto; 
     display: block;
 }
 #settingsArea {
@@ -161,48 +160,46 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     height: 60px;
     font-size: 18px;
     position: relative;
-    display: none; 
+    display: none; 
 }
 
-/* CHẾ ĐỘ KHÓA (Không còn là lớp phủ full-screen) */
+/* CHẾ ĐỘ KHÓA */
 .control-container.locked {
-    position: relative; 
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 100%;
-    height: auto;
-    overflow: visible;
+    height: 100%;
+    overflow: hidden;
     z-index: 99;
-    background: transparent;
-    padding-top: 25vh; 
-    padding-bottom: 25vh; 
+    background: #e3f2fd; 
 }
 
-/* ĐIỀU CHỈNH VỊ TRÍ CHO NHÓM NÚT VÀ NÚT MỞ KHÓA TRONG CHẾ ĐỘ KHÓA (Căn giữa trong luồng) */
+/* ĐIỀU CHỈNH VỊ TRÍ CHO NHÓM NÚT VÀ NÚT MỞ KHÓA TRONG CHẾ ĐỘ KHÓA */
 .control-container.locked .navigation-group {
-    position: relative; 
-    top: auto;
-    left: auto;
-    transform: none;
-    margin: 0 auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
 }
 
-/* CĂN CHỈNH NÚT MỞ KHÓA KHI BỊ KHÓA (Nằm trong luồng) */
+/* CĂN CHỈNH NÚT MỞ KHÓA KHI BỊ KHÓA (PHÍA TRÊN TTS) */
 .control-container.locked #unlock-btn {
-    position: relative; 
-    top: auto;
-    bottom: auto;
-    left: auto;
-    transform: none;
-    margin-top: 30px;
-    margin-left: auto;
-    margin-right: auto;
-    display: flex !important; 
-    z-index: 100; 
+    position: fixed;
+    /* bottom = height of #tts-info (approx 40px) + 30px margin/padding = 70px */
+    bottom: 70px; 
+    left: 50%;
+    display: flex !important; 
+    transform: translateX(-50%); 
+    margin: 0; 
+    z-index: 100; 
 }
 
 /* POPUP (Không thay đổi) */
 #popup {
     position: absolute;
-    bottom: 100%; 
+    bottom: 100%; 
     left: 50%;
     transform: translateX(-50%) translateY(20px);
     background: rgba(0,0,0,0.8);
@@ -222,33 +219,33 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 
 .control-container.locked #popup {
     position: fixed;
-    top: 150px; 
+    top: 150px; 
     bottom: auto;
     left: 50%;
     transform: translateX(-50%);
     z-index: 1000;
 }
 
-/* TỐI ƯU: CSS DÒNG THÔNG BÁO TTS CỐ ĐỊNH (Đã được kiểm tra và đảm bảo căn giữa) */
+/* TỐI ƯU: CSS DÒNG THÔNG BÁO TTS CỐ ĐỊNH */
 #tts-info {
-    position: fixed; 
-    bottom: 0; 
-    left: 50%; 
-    transform: translateX(-50%); 
-     
+    position: fixed; 
+    bottom: 0; /* ĐÃ ĐẶT SÁT ĐÁY */
+    left: 50%; 
+    transform: translateX(-50%); 
+    
     /* Thiết lập giới hạn chiều rộng như main-wrapper */
-    width: 100%; 
+    width: 100%; 
     max-width: 700px;
-     
-    text-align: center; 
-     
+    
+    text-align: center; 
+    
     /* STYLE để đảm bảo hiển thị rõ ràng */
-    padding: 10px; 
-    border-top: 1px solid #ccc; 
+    padding: 10px; 
+    border-top: 1px solid #ccc; 
     color: #616161;
-    background: #e3f2fd; 
-     
-    z-index: 90; 
+    background: #e3f2fd; 
+    
+    z-index: 90; 
     font-size: 14px;
 }
 
@@ -291,13 +288,13 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     </a>
 </div>
 <script>
-let deferredPrompt; 
+let deferredPrompt; 
 const defaults=["Tôi muốn ăn cơm","Tôi muốn uống nước","Tôi muốn đi vệ sinh","Tôi muốn đi ngủ"];
 let currentIndex=0;
 const controlArea = document.getElementById('controlArea');
-const installButton = document.getElementById('installButton'); 
-const addBtnMove = document.getElementById('add-btn-move'); 
-const mainTitle = document.getElementById('mainTitle'); 
+const installButton = document.getElementById('installButton'); 
+const addBtnMove = document.getElementById('add-btn-move'); 
+const mainTitle = document.getElementById('mainTitle'); 
 
 // --- Nút phát âm ---
 function speak(text){
@@ -408,7 +405,7 @@ function cleanupEmptyCards(){
 
 // --- 3 nút điều khiển ---
 function prevSpeak(){
-    cleanupEmptyCards(); 
+    cleanupEmptyCards(); 
     const cards=getCards();
     if(cards.length===0) return;
     currentIndex=(currentIndex-1+cards.length)%cards.length;
@@ -422,7 +419,7 @@ function nextSpeak(){
     speak(cards[currentIndex].value.trim());
 }
 function currentSpeak(){
-    cleanupEmptyCards(); 
+    cleanupEmptyCards(); 
     const cards=getCards();
     if(cards.length===0) return;
     speak(cards[currentIndex].value.trim());
@@ -443,7 +440,7 @@ function toggleLock(lock){
 
         controlArea.classList.add('locked');
         mainTitle.classList.add('locked-h1');
-         
+        
         unlockBtn.style.display='flex';
     } else {
         settings.style.display='block';
