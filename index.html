@@ -52,13 +52,13 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
 </div>
 <button class="btn" id="unlock-btn">Mở khóa giao diện</button>
 <button class="btn add-btn" id="add-btn-move">➕ Thêm câu mới</button>
+<!-- Nút cài đặt app lôi ra ngoài settingsArea -->
+<button class="btn install-btn large-control-btn" id="installButton">📲 Cài đặt app</button>
 </div>
 
 <div id="settingsArea">
 <button class="btn settings-btn">Khóa giao diện</button>
-<button class="btn install-btn large-control-btn" id="installButton">📲 Cài đặt app</button>
 <button class="btn reset-btn">♻️ Reset mặc định</button>
-</div>
 </div>
 
 <div id="tts-info">Nếu không thấy âm thanh, tải <a href="https://play.google.com/store/apps/details?id=com.google.android.tts" target="_blank">Google Play</a></div>
@@ -153,7 +153,14 @@ function toggleLock(lock){
     }
 }
 
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e; if(installState==='before_install'){installButton.style.display='flex'; installButton.addEventListener('click',installApp);}});
+window.addEventListener('beforeinstallprompt',e=>{
+    e.preventDefault();
+    deferredPrompt = e;
+    if(installState === 'before_install'){
+        installButton.style.display='flex'; 
+        installButton.addEventListener('click', installApp);
+    }
+});
 
 function installApp(){
     if(deferredPrompt){
@@ -168,7 +175,7 @@ function installApp(){
 }
 
 window.addEventListener('appinstalled',()=>{installState='installed'; installButton.style.display='none';});
-if(installState==='before_install') installButton.style.display='none';
+if(installState==='before_install') installButton.style.display='flex'; // luôn hiển thị
 
 function warmUpTTS(){if(!('speechSynthesis' in window)) return; let u=new SpeechSynthesisUtterance(" "); u.lang='vi-VN'; u.volume=0; u.rate=10; speechSynthesis.speak(u); setTimeout(()=>speechSynthesis.cancel(),500);}
 window.onload=()=>{loadButtons();warmUpTTS();}
