@@ -45,11 +45,11 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
 <div id="popup"></div>
 
 <div class="control-container" id="controlArea">
-<!-- Chỉ dùng onclick -->
 <div class="navigation-group">
-<button class="control-btn play-control-btn" onclick="moveSpeak(-1)">Câu trước</button>
-<button class="control-btn current-btn-color" onclick="moveSpeak(0)">Phát lại</button>
-<button class="control-btn play-control-btn" onclick="moveSpeak(1)">Câu sau</button>
+<!-- Cách 2: ontouchend + click -->
+<button class="control-btn play-control-btn" ontouchend="moveSpeak(-1)">Câu trước</button>
+<button class="control-btn current-btn-color" ontouchend="moveSpeak(0)">Phát lại</button>
+<button class="control-btn play-control-btn" ontouchend="moveSpeak(1)">Câu sau</button>
 </div>
 <button class="btn" id="unlock-btn" onclick="toggleLock(false)">Mở khóa giao diện</button>
 <button class="btn add-btn" id="add-btn-move" onclick="addButton()">➕ Thêm câu mới</button>
@@ -65,6 +65,7 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
 <div id="tts-info">Nếu không thấy âm thanh, tải <a href="https://play.google.com/store/apps/details?id=com.google.android.tts" target="_blank">Google Play</a></div>
 
 <script>
+// Các hàm giống Cách 1
 let deferredPrompt,currentIndex=0,defaults=["Tôi muốn ăn cơm","Tôi muốn uống nước","Tôi muốn đi vệ sinh","Tôi muốn đi ngủ"],installState='before_install';
 const controlArea=document.getElementById('controlArea'),
       installButton=document.getElementById('installButton'),
@@ -121,6 +122,14 @@ function moveSpeak(dir){
     if(dir===0) speak(c[currentIndex].value.trim());
     else{currentIndex=(currentIndex+dir+c.length)%c.length;speak(c[currentIndex].value.trim());}
 }
+
+// Thêm sự kiện click cho các nút touch để PC dùng được
+document.querySelectorAll('.navigation-group button').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+        let func = btn.getAttribute('ontouchend');
+        if(func) eval(func);
+    });
+});
 
 function toggleLock(lock){
     const u=document.getElementById('unlock-btn');
