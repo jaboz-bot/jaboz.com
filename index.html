@@ -14,6 +14,8 @@ body {
     margin:0;
     padding:0;
     text-align:center;
+    /* BỔ SUNG: Thêm padding dưới để tránh nội dung cuối cùng bị che bởi #tts-info */
+    padding-bottom: 70px; /* Độ cao của #tts-info + khoảng đệm */
 }
 /* CONTAINER CHUNG ĐÓNG GÓI TOÀN BỘ NỘI DUNG */
 .main-wrapper {
@@ -30,7 +32,7 @@ h1 {margin-bottom:20px;}
 /* BỔ SUNG: CSS Cố định tiêu đề khi khóa */
 .locked-h1 {
     position: fixed;
-    top: 100px; /* ĐÃ SỬA: Kéo xuống thêm ~2cm (từ 40px lên 100px) */
+    top: 100px; /* Vị trí tiêu đề khi khóa */
     left: 50%;
     transform: translateX(-50%);
     width: 100%;
@@ -63,20 +65,20 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 .play-btn:hover {transform:scale(1.05);}
 .delete-btn {position:absolute; top:6px; right:8px; border:none; background:transparent; color:#e53935; font-size:18px; cursor:pointer;}
 
-/* ĐÃ CHỈNH SỬA: Nút Thêm câu mới */
+/* Nút Thêm câu mới */
 .add-btn {
     background:linear-gradient(45deg,#2196F3,#1976D2);
-    width:200px; /* Giữ nguyên kích thước này cho nút Thêm */
+    width:200px;
     margin:8px auto;
     display:block;
 }
 
-/* ĐÃ CHỈNH SỬA: Nút Reset mặc định - Tăng kích thước */
+/* Nút Reset mặc định - Tăng kích thước */
 .reset-btn {
     background:linear-gradient(45deg,#2196F3,#1976D2);
-    width:220px; /* TĂNG KÍCH THƯỚC */
-    height: 50px; /* TĂNG KÍCH THƯỚC */
-    font-size: 18px; /* TĂNG CỠ CHỮ */
+    width:220px; 
+    height: 50px; 
+    font-size: 18px; 
     margin:8px auto;
     display:block;
 }
@@ -143,7 +145,7 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 }
 
 
-/* ĐÃ CHỈNH SỬA: NÚT KHÓA GIAO DIỆN (TRONG SETTINGS) - Tăng kích thước */
+/* NÚT KHÓA GIAO DIỆN (TRONG SETTINGS) - Tăng kích thước */
 #settingsArea .btn:first-child {
     background: linear-gradient(45deg, #f44336, #d32f2f);
     /* TĂNG KÍCH THƯỚC */
@@ -189,10 +191,11 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     margin: 0; /* Đảm bảo không có margin từ chế độ không khóa */
 }
 
-/* CĂN CHỈNH NÚT MỞ KHÓA KHI BỊ KHÓA (ĐÃ ĐẨY LÊN TRÊN TTS) */
+/* CĂN CHỈNH NÚT MỞ KHÓA KHI BỊ KHÓA (PHÍA TRÊN TTS) */
 .control-container.locked #unlock-btn {
     position: fixed;
-    bottom: 90px; 
+    /* Vị trí đã điều chỉnh: Đặt phía trên #tts-info (cao 60px) + 10px đệm*/
+    bottom: 70px; 
     left: 50%;
     transform: translateX(-50%); 
     display: block !important; 
@@ -227,39 +230,38 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 .control-container.locked #popup {
     position: fixed;
     /* Điều chỉnh để popup hiển thị dưới tiêu đề chính */
-    top: 150px; /* Thấp hơn tiêu đề 100px */
+    top: 150px; 
     bottom: auto;
     left: 50%;
     transform: translateX(-50%);
     z-index: 1000;
 }
 
-/* TẠO KHOẢNG CÁCH CHO THÔNG BÁO TTS */
+/* THAY THẾ: CSS DÒNG THÔNG BÁO TTS CỐ ĐỊNH */
 #tts-info {
-    margin-top: 40px;
-    padding-top: 20px;
-    border-top: 1px solid #ddd;
+    /* Cố định vị trí ở dưới cùng */
+    position: fixed; 
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    /* Căn giữa nội dung */
+    text-align: center; 
+    
+    /* Style theo yêu cầu: Có dòng kẻ phía trên */
+    padding: 10px; /* Khoảng đệm bên trong */
+    border-top: 1px solid #ccc; 
     color: #616161;
+    background: #e3f2fd; /* Màu nền khớp với body */
+    
+    z-index: 90; /* Đảm bảo nằm dưới controlArea (99) */
+
+    /* Đảm bảo nội dung không bị quá hẹp */
+    font-size: 14px;
 }
 
-/* BỔ SUNG MỚI: CSS cho phần TTS khi ở trạng thái KHÓA (ĐÃ LOẠI BỎ KHUNG) */
-.tts-info-locked {
-    position: fixed; /* Cố định vị trí */
-    bottom: 10px; /* Cách đáy 10px */
-    left: 50%;
-    transform: translateX(-50%); /* Căn giữa theo chiều ngang */
-    z-index: 1000; /* Đảm bảo nó nằm trên các nội dung khác */
-    
-    /* ĐÃ LOẠI BỎ CÁC THUỘC TÍNH TẠO KHUNG */
-    background: #e3f2fd; /* Giữ lại màu nền khớp với body */
-    padding: 0; /* LOẠI BỎ PADDING */
-    border-radius: 0; /* LOẠI BỎ BO GÓC */
-    box-shadow: none; /* LOẠI BỎ BÓNG */
-    
-    /* Ghi đè lại style mặc định của #tts-info khi nó bị khóa */
-    margin-top: 0 !important;
-    padding-top: 0 !important;
-    border-top: none !important;
+#tts-info a {
+    color: #2196F3;
+    text-decoration: none;
 }
 </style>
 </head>
@@ -287,14 +289,13 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
         <button class="btn reset-btn" onclick="resetDefaults()">♻️ Reset mặc định</button>
     </div>
 
-    <div id="tts-info">
-        Nếu không thấy âm thanh, vui lòng tải giọng nói tại
-        <a href="market://details?id=com.google.android.tts"
-            onclick="window.open('https://play.google.com/store/apps/details?id=com.google.android.tts','_blank'); return false;">
-            Google Play
-        </a>
     </div>
-
+<div id="tts-info">
+    Nếu không thấy âm thanh, vui lòng tải giọng nói tại
+    <a href="market://details?id=com.google.android.tts"
+        onclick="window.open('https://play.google.com/store/apps/details?id=com.google.android.tts','_blank'); return false;">
+        Google Play
+    </a>
 </div>
 <script>
 let deferredPrompt; // Biến lưu trữ sự kiện cài đặt PWA
@@ -447,39 +448,29 @@ function toggleLock(lock){
     const unlockBtn=document.getElementById('unlock-btn');
     const navGroup=document.querySelector('.navigation-group');
     const popup=document.getElementById('popup');
-    const ttsInfo=document.getElementById('tts-info');
-    // BỔ SUNG: Lấy nút Thêm câu mới
     const addBtn = document.getElementById('add-btn-move');
+    // Lưu ý: #tts-info không cần thay đổi class
 
     if(lock){
         settings.style.display='none';
         container.style.display='none';
-        // BỔ SUNG: Ẩn nút Thêm câu mới
         addBtn.style.display='none';
 
         controlArea.classList.add('locked');
-
-        // BỔ SUNG: Thêm class cố định cho TTS Info
-        ttsInfo.classList.add('tts-info-locked');
         
-        // BỔ SUNG: Thêm class cố định cho tiêu đề chính
+        // Thêm class cố định cho tiêu đề chính
         mainTitle.classList.add('locked-h1');
         
+        unlockBtn.style.display='flex'; // Hiển thị nút Mở khóa
     } else {
         settings.style.display='block';
         container.style.display='grid';
-        // BỔ SUNG: Hiển thị nút Thêm câu mới
         addBtn.style.display='block';
 
         controlArea.classList.remove('locked');
 
-        // BỔ SUNG: Xóa class cố định cho TTS Info
-        ttsInfo.classList.remove('tts-info-locked');
-
-        // BỔ SUNG: Xóa class cố định cho tiêu đề chính
+        // Xóa class cố định cho tiêu đề chính
         mainTitle.classList.remove('locked-h1');
-
-        // KHÔNG CẦN SET LẠI MARGIN CHO navGroup (CSS mặc định đã có)
 
         // Quan trọng: Đặt lại style vị trí mặc định của Popup khi Mở khóa
         popup.style.position='absolute';
