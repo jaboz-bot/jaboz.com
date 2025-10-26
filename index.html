@@ -127,169 +127,183 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
 <div id="tts-info">Nếu không thấy âm thanh, tải <a href="https://play.google.com/store/apps/details?id=com.google.android.tts" target="_blank">Google Play</a></div>
 
 <script>
-let deferredPrompt,currentIndex=0,defaults=["Tôi muốn ăn cơm","Tôi muốn uống nước","Tôi muốn đi vệ sinh","Tôi muốn đi ngủ"],installState = 'before_install';
-const controlArea=document.getElementById('controlArea'),
-      installButton=document.getElementById('installButton'),
-      addBtnMove=document.getElementById('add-btn-move'),
-      popupElement=document.getElementById('popup'),
-      buttonContainer=document.getElementById('buttonContainer'),
-      settingsArea=document.getElementById('settingsArea');
+let deferredPrompt, currentIndex = 0, defaults = ["Tôi muốn ăn cơm", "Tôi muốn uống nước", "Tôi muốn đi vệ sinh", "Tôi muốn đi ngủ"], installState = 'before_install';
+const controlArea = document.getElementById('controlArea'),
+      installButton = document.getElementById('installButton'),
+      addBtnMove = document.getElementById('add-btn-move'),
+      popupElement = document.getElementById('popup'),
+      buttonContainer = document.getElementById('buttonContainer'),
+      settingsArea = document.getElementById('settingsArea');
 
-function speak(text, targetElement){
-    if(!text||!('speechSynthesis'in window))return;
+let isSpeaking = false; // Biến flag để kiểm tra xem đang phát hay không
+
+function speak(text, targetElement) {
+    if (!text || !('speechSynthesis' in window) || isSpeaking) return; // Nếu đang phát thì không làm gì cả
+
+    isSpeaking = true; // Đánh dấu là đang phát
+
     speechSynthesis.cancel();
-    let u=new SpeechSynthesisUtterance(text);
-    u.lang='vi-VN';
+    let u = new SpeechSynthesisUtterance(text);
+    u.lang = 'vi-VN';
+    u.onend = () => {
+        isSpeaking = false; // Sau khi phát xong, cho phép nhấn lại
+    };
     speechSynthesis.speak(u);
-    showPopup(text); 
+    showPopup(text);
 }
 
-function showPopup(text){
-    popupElement.textContent=text;
-    popupElement.style.display='block';
-    popupElement.style.opacity='1';
+function showPopup(text) {
+    popupElement.textContent = text;
+    popupElement.style.display = 'block';
+    popupElement.style.opacity = '1';
 
-    setTimeout(()=>{ 
-        popupElement.style.opacity='0'; 
-        setTimeout(()=>popupElement.style.display='none', 500) 
-    },3500) 
+    setTimeout(() => { 
+        popupElement.style.opacity = '0'; 
+        setTimeout(() => popupElement.style.display = 'none', 500); 
+    }, 3500);
 }
 
-function addButton(v=''){
-    let c=document.createElement('div');
-    c.className='card';
-    let i=document.createElement('input');
-    i.value=v;
-    i.placeholder="Nhập văn bản...";
-    i.onchange=saveAll;
-    let p=document.createElement('button');
-    p.className='btn play-btn';
-    p.textContent='🔊 Phát âm';
-    p.onclick=()=>speak(i.value.trim(), p); 
-    let d=document.createElement('button');
-    d.className='delete-btn';
-    d.textContent='❌';
-    d.onclick=()=>{c.remove();saveAll();currentIndex=Math.min(currentIndex,getCards().length-1)}; 
-    c.append(i,p,d);
-    
-    // Gán số thứ tự cho câu mới, theo vị trí hiện tại của danh sách
-    const allCards = getCards();
-    c.dataset.index = allCards.length; // Gán index cho câu mới
+function addButton(v = '') {
+    let c = document.createElement('div');
+    c.className = 'card';
+    let i = document.createElement('input');
+    i.value = v;
+    i.placeholder = "Nhập văn bản...";
+    i.onchange = saveAll;
+    let p = document.createElement('button');
+    p.className = 'btn play-btn';
+    p.textContent = '🔊 Phát âm';
+    p.onclick = () => speak(i.value.trim(), p);
+    let d = document.createElement('button');
+    d.className = 'delete-btn';
+    d.textContent = '❌';
+    d.onclick = () => { c.remove(); saveAll(); currentIndex = Math.min(currentIndex, getCards().length - 1); };
+    c.append(i, p, d);
     document.getElementById('buttonContainer').appendChild(c);
     saveAll();
 }
 
-function saveAll(){localStorage.setItem('voiceButtons',JSON.stringify([...document.querySelectorAll('.card input')].map(i=>i.value.trim())))}
-function loadButtons(){let s=JSON.parse(localStorage.getItem('voiceButtons')||"[]");(s.length?s:defaults).forEach(t=>addButton(t));currentIndex=0}
-function resetDefaults(){if(confirm("Đặt lại mặc định?")){localStorage.removeItem('voiceButtons');document.getElementById('buttonContainer').innerHTML='';loadButtons();currentIndex=0}}
-function getCards(){return document.querySelectorAll('.card input')}
-function cleanupEmptyCards(){let c=document.querySelectorAll('.card'),save=false;for(let i=c.length-1;i>=0;i--){let inp=c[i].querySelector('input');if(!inp||inp.value.trim()===''){c[i].remove();save=true}}if(save){saveAll();currentIndex=Math.min(currentIndex,getCards().length-1)}}
+function saveAll() {
+    localStorage.setItem('voiceButtons', JSON.stringify([...document.querySelectorAll('.card input')].map(i => i.value.trim())));
+}
 
-// Hàm lấy chỉ mục ngẫu nhiên
-function getRandomCardIndex() {
-    const cards = getCards();
-    return Math.floor(Math.random() * cards.length);
+function loadButtons() {
+    let s = JSON.parse(localStorage.getItem('voiceButtons') || "[]");
+    (s.length ? s : defaults).forEach(t => addButton(t));
+    currentIndex = 0;
+}
+
+function resetDefaults() {
+    if (confirm("Đặt lại mặc định?")) {
+        localStorage.removeItem('voiceButtons');
+        document.getElementById('buttonContainer').innerHTML = '';
+        loadButtons();
+        currentIndex = 0;
+    }
+}
+
+function getCards() {
+    return document.querySelectorAll('.card input');
+}
+
+function cleanupEmptyCards() {
+    let c = document.querySelectorAll('.card'), save = false;
+    for (let i = c.length - 1; i >= 0; i--) {
+        let inp = c[i].querySelector('input');
+        if (!inp || inp.value.trim() === '') {
+            c[i].remove();
+            save = true;
+        }
+    }
+    if (save) {
+        saveAll();
+        currentIndex = Math.min(currentIndex, getCards().length - 1);
+    }
 }
 
 function moveSpeak(dir) {
     cleanupEmptyCards();
-    const cards = getCards();
-    if (cards.length === 0) return;
+    const c = getCards();
+    if (c.length === 0) return;
 
-    // Nếu nhấn "Câu trước", chọn một câu ngẫu nhiên và đọc ngược lên câu trước nó
-    if (dir === -1) {
-        currentIndex = getRandomCardIndex();
-        speak(cards[currentIndex].value.trim());
-    }
-    // Nếu nhấn "Câu sau", tiếp tục từ câu hiện tại và đọc câu tiếp theo
-    else if (dir === 1) {
-        currentIndex = (currentIndex + 1) % cards.length;
-        speak(cards[currentIndex].value.trim());
-    }
-    // Nếu nhấn "Phát lại", phát lại câu hiện tại
-    else if (dir === 0) {
-        speak(cards[currentIndex].value.trim());
+    if (dir === 0) {
+        speak(c[currentIndex].value.trim());
+    } else {
+        currentIndex = (currentIndex + dir + c.length) % c.length;
+        speak(c[currentIndex].value.trim());
     }
 }
 
-function toggleLock(lock){
-    const u=document.getElementById('unlock-btn');
-    if(lock){
-        buttonContainer.style.display='none';
-        addBtnMove.style.display='none';
-        settingsArea.style.display='none';
-        
+function toggleLock(lock) {
+    const u = document.getElementById('unlock-btn');
+    if (lock) {
+        buttonContainer.style.display = 'none';
+        addBtnMove.style.display = 'none';
+        settingsArea.style.display = 'none';
+
         controlArea.classList.add('locked');
         document.body.classList.add('locked');
         document.getElementById('mainTitle').classList.add('locked-h1');
-        u.style.display='flex';
+        u.style.display = 'flex';
     } else {
-        buttonContainer.style.display='grid';
-        addBtnMove.style.display='block';
-        settingsArea.style.display='block';
-        
+        buttonContainer.style.display = 'grid';
+        addBtnMove.style.display = 'block';
+        settingsArea.style.display = 'block';
+
         controlArea.classList.remove('locked');
         document.body.classList.remove('locked');
         document.getElementById('mainTitle').classList.remove('locked-h1');
-        u.style.display='none';
+        u.style.display = 'none';
     }
 }
 
-// Gắn sự kiện cho các nút điều hướng
-document.querySelectorAll('.control-btn').forEach(button => {
-    button.addEventListener('click', function(event) {
-        moveSpeak(parseInt(event.target.dataset.direction)); // Hoặc điều chỉnh để phù hợp với logic của bạn
-    });
-    
-    // Thêm sự kiện touchend để hỗ trợ trên thiết bị di động
-    button.addEventListener('touchend', function(event) {
-        moveSpeak(parseInt(event.target.dataset.direction));
-    });
-});
-
-window.addEventListener('beforeinstallprompt',e=>{ 
-    e.preventDefault(); 
-    deferredPrompt=e; 
+window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
     if (installState === 'before_install') {
-        installButton.style.display='flex';
-        installButton.onclick=installApp;
+        installButton.style.display = 'flex';
+        installButton.onclick = installApp;
     }
 });
 
-function installApp(){
-    if(deferredPrompt){
+function installApp() {
+    if (deferredPrompt) {
         deferredPrompt.prompt();
-        deferredPrompt.userChoice.then((choiceResult)=>{ 
-            if (choiceResult.outcome === 'accepted') { 
-                installState = 'installed'; 
-            } else { 
-                installState = 'rejected'; 
-            } 
-            deferredPrompt=null; 
-            installButton.style.display='none'; 
-        }); 
-    } 
+        deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+                installState = 'installed';
+            } else {
+                installState = 'rejected';
+            }
+            deferredPrompt = null;
+            installButton.style.display = 'none';
+        });
+    }
 }
 
-window.addEventListener('appinstalled',()=>{ 
-    installState = 'installed'; 
-    installButton.style.display='none'; 
+window.addEventListener('appinstalled', () => {
+    installState = 'installed';
+    installButton.style.display = 'none';
 });
 
-if (installState === 'before_install') { 
-    installButton.style.display='none'; 
+if (installState === 'before_install') {
+    installButton.style.display = 'none';
 }
 
-function warmUpTTS(){
-    if(!('speechSynthesis'in window))return;
-    let u=new SpeechSynthesisUtterance(" ");
-    u.lang='vi-VN';
-    u.volume=0;
-    u.rate=10;
+function warmUpTTS() {
+    if (!('speechSynthesis' in window)) return;
+    let u = new SpeechSynthesisUtterance(" ");
+    u.lang = 'vi-VN';
+    u.volume = 0;
+    u.rate = 10;
     speechSynthesis.speak(u);
-    setTimeout(()=>speechSynthesis.cancel(),500)
+    setTimeout(() => speechSynthesis.cancel(), 500);
 }
-window.onload=()=>{loadButtons();warmUpTTS();}
+
+window.onload = () => {
+    loadButtons();
+    warmUpTTS();
+};
 </script>
 </body>
 </html>
