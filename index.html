@@ -161,29 +161,221 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
 <div id="tts-info">Nếu không thấy âm thanh, tải <a href="https://play.google.com/store/apps/details?id=com.google.android.tts" target="_blank">Google Play</a></div>
 
 <script>
-// BẮT ĐẦU PHẦN BỔ SUNG VÀ SỬA ĐỔI
-const SUGGESTION_URL = 'goi-y-tu.json'; 
-let wordSuggestions = []; // Dùng để lưu trữ danh sách từ gợi ý
 
-// HÀM MỚI: Tải dữ liệu gợi ý và lưu vào wordSuggestions
-async function loadSuggestions() {
-    try {
-        const response = await fetch(SUGGESTION_URL); 
-        if (!response.ok) {
-            console.error('Lỗi tải file gợi ý (kiểm tra file goi-y-tu.json):', response.statusText);
-            return;
-        }
-        wordSuggestions = await response.json();
-        if (!Array.isArray(wordSuggestions)) {
-            wordSuggestions = [];
-            console.error('Dữ liệu gợi ý không phải là mảng.');
-        }
-        console.log(`Đã tải ${wordSuggestions.length} gợi ý.`);
-    } catch (error) {
-        console.error('Lỗi khi tải hoặc xử lý file JSON:', error);
-    }
-}
+// BẮT ĐẦU PHẦN BỔ SUNG VÀ SỬA ĐỔI (ĐÃ NHÚNG DỮ LIỆU)
 
+// *** Dán nội dung file goi-y-tu.json vào đây ***
+let wordSuggestions = [
+"a", "à", "á", "án", "áp", "áy", "ấy", "ăn", "âm", "ầm", 
+"ẩn", "ảnh", "ắt", "ách", "ặt", "ắc", "ạ", "át", "áo", "ấp", 
+"âu", "ai", "am", "an", "ao", "au", "ax", "ay", "á", "ác", 
+"áng", "ái", "ảm", "ám", "ạn", "ạo", "ạp", "ạt", "ắc", "ắm", 
+"ẳm", "ằn", "ăng", "ắng", "ắn", "ắp", "ật", "ẫm", "ậm", "ất", 
+"ấc", "ấn", "ận", "ần", "ất", "ấc", "ấn", "ần", "ắt", "ắp", 
+"ân", "ẩn", "ật", "ẫm", "ậm", "ấn", "ần", "ất", "ấc", "ận", 
+"ần", "ắt", "ắp", "ấn", "ân", "ật", "ẫm", "ậm", "ất", "ấc", 
+"ấn", "ần", "ắt", "ắp", "ân", "ấn", "ần", "ất", "ấc", "ân", 
+"ấn", "ần", "ật", "ẫm", "ậm", "ất", "ấc", "ấn", "ần", "ắt"
+    
+, "ba", "bà", "bác", "bán", "bánh", "bạn", "bật", "bảo", "bế", "bên", 
+"bếp", "bị", "biết", "bình", "bố", "buồn", "bún", "bẩn", "bóng", "bụng", 
+"bước", "bụi", "bưng", "bút", "bỏ", "bớt", "bới", "bới", "bảy", "bảy", 
+"bấm", "bẫy", "bận", "bật", "bẩn", "bắp", "bắp", "bắp", "bắp", "bếp", 
+"bến", "bèo", "bêu", "bếu", "bẽ", "bẻ", "bỉ", "bịt", "bì", "bò", 
+"bớt", "bới", "bơ", "bờ", "bứa", "bức", "búp", "bột", "bộ", "bồng", 
+"bỗng", "bóng", "bãi", "bảng", "bành", "bàng", "báng", "bạn", "bảo", "báo", 
+"bán", "bạc", "bát", "bất", "bắn", "bắt", "bất", "bần", "bận", "bận", 
+"bảo", "báo", "bán", "bạc", "bát", "bật", "bán", "bạc", "bát", "bất"
+    
+, "ca", "cá", "cà", "cả", "cảm", "can", "canh", "cao", "cáp", 
+"cát", "cắt", "cầu", "câu", "cầm", "cân", "cặp", "cấp", "cập", 
+"cật", "cận", "cả", "cảm", "cần", "cẩn", "cận", "câm", "cũng", 
+"cùng", "cung", "cung", "cục", "cúc", "của", "củi", "cũ", "cú", 
+"cúp", "cười", "cưới", "cưới", "cửa", "cương", "cương", "cước", 
+"cương", "cương", "cước", "cười", "của", "củi", "cụ", "cục", "cực", 
+"cứ", "cứu", "cứt", "cơ", "cờ", "cọ", "cóp", "cót", "cọc", "cỏ", 
+"cối", "công", "cổng", "cộng", "cỡ", "chà", "chắc", "chắn", "chắc", 
+"chắn", "chặt", "chận", "chật", "châm", "chấm", "chặn", "chắp", "chất"
+    
+, "da", "dạ", "dán", "dành", "danh", "dao", "dạo", "dạng", "dán", "dạt", 
+"dậy", "dài", "dày", "dẫn", "dần", "dặn", "dặn dò", "dấm", "dần", "dân", 
+"dép", "dịch", "dịp", "dị", "dĩa", "dĩ", "dĩ nhiên", "dĩ vãng", "dĩ nhiên", 
+"dính", "dòng", "dõi", "dỗi", "dối", "dở", "dọn", "dọn", "dở", "dõi", 
+"dỗi", "dỗi", "dối", "dở", "dọn", "dọn", "dở", "dõi", "dối", "dỗi", 
+"dối", "dở", "dọn", "dọn", "dễ", "dĩ nhiên", "dĩ vãng", "dĩ nhiên", 
+"dĩ vãng", "dũng", "dưới", "dùng", "dựa", "dữ", "dữ dằn", "dứt", "dưới", 
+"dùng", "dựa", "dữ", "dứt", "dưới", "dùng", "dưới", "dùng", "dứt", "dưới", 
+"dùng", "dứt", "dưới", "dùng", "dưới", "dùng", "dứt", "dưới", "dùng", "dứt"
+    
+, "đá", "đau", "đến", "đi", "đóng", "đối", "đón", "đưa", "được", "đứng", 
+"đòi", "đó", "đôi", "đỏ", "độ", "đồn", "đợi", "đói", "đơn", "đơn", 
+"đông", "đọng", "đổi", "đối", "đứa", "đục", "đủ", "đun", "đúng", "đúp", 
+"đúp", "đứt", "đứt", "đứt", "đứt", "đừng", "đường", "đáng", "đạp", "đặt", 
+"đắp", "đạt", "đất", "đã", "đã", "đã", "đã", "đá", "đá", "đá", 
+"đăng", "đáng", "đáp", "đáp", "đạt", "đắt", "đắc", "đặc", "đắn", "đẵn", 
+"đấm", "đẫm", "đậm", "đầy", "đây", "để", "đến", "đến", "đến", "đến", 
+"đèn", "đền", "đẻ", "đẽo", "đĩa", "đĩ", "định", "đinh", "đinh", "đinh", 
+"đôi", "đồi", "đòi", "đợi", "đói", "đón", "độ", "đồ", "đội", "đời"
+    
+, "e", "è", "é", "ẻ", "ẽ", "ẹ", "em", "én", "eo", "ép", 
+"ét", "eo", "em", "en", "en", "em", "én", "eo", "ép", "ét"
+    
+, "ê", "ề", "ế", "ể", "ễ", "ệ", "êm", "ên", "ếp", "ết", 
+"ê", "ề", "ế", "ể", "êm", "ên", "ếp", "ết", "ếch"
+    
+, "ga", "gà", "gác", "gái", "gần", "gấm", "gắp", "gậy", "ghen", 
+"giao", "giao", "già", "giác", "giãy", "giận", "giặt", "giấy", "giếng", 
+"giữ", "giúp", "giường", "giả", "giảm", "gián", "gián", "giáp", "giật", 
+"góp", "gỡ", "gỗ", "gối", "gọng", "gọi", "gửi", "gối", "gừng", 
+"gãy", "ghen", "ghét", "ghế", "ghì", "ghìm", "ghì", "ghim", "ghét", 
+"ghế", "gói", "gót", "gót", "gót", "gọi", "gần", "gần", "gấp", 
+"gấp", "gắm", "gắm", "găng", "gắng", "gãy", "gãy", "gầy", "ghen", 
+"ghen", "góp", "gốc", "gối", "góp", "gốc", "gối", "gân", "gạn", 
+"gạt", "gạt", "gạt", "gặt", "gặt", "gắm", "găm", "găm", "găm", 
+"gầm", "gầm", "gầm", "gầm", "gần", "gần", "gần", "gần", "gần", 
+"gầm", "gầm", "gầm", "gầm", "gần"
+    
+, "ha", "hà", "hạc", "hái", "hăm", "hàn", "hàng", "hát", "hầu", "hãy", 
+"hai", "hàng", "hạnh", "hạnh", "hẹn", "hết", "hi", "hiện", "hiếu", "họ", 
+"hồ", "hộp", "hợp", "hốt", "hứa", "hùm", "hùng", "hút", "hư", "hữu", 
+"hay", "hẹp", "hèn", "hề", "hè", "héo", "hễ", "hít", "hòn", "hợp", 
+"hớp", "hở", "hở", "hổ", "hỗ", "hối", "hỏi", "hốt", "hột", "hột", 
+"hoa", "hoà", "hoạc", "hoán", "hoạt", "hoà", "hoán", "hoạt", "hóa", "hoá", 
+"hoặc", "hoàng", "hoang", "hoàng", "hoang", "hoài", "hoãi", "hoãn", "hoạn", "hoạn", 
+"học", "hóc", "hồn", "hổng", "hồng", "hốt", "hơn", "hơn", "hớp", "hớp", 
+"họa", "họa", "họa", "họa", "họa", "họa", "họa", "họa", "họa", "họa"
+
+, "i", "ì", "í", "ỉ", "ĩ", "ị", "ia", "ích", "ít", "in", "in", "ít", "im", "ím", "ỉm"
+
+, "kẻ", "kém", "kéo", "kẹp", "kê", "kệ", "kí", "kì", "kíp", "kít", 
+"kiếm", "kĩ", "kiêng", "kiện", "kín", "kính", "kỳ", "ký", "kỹ", "kèo", 
+"kết", "kèn", "kèn", "kéo", "kẹp", "kẽ", "kẹo", "két", "kêu", "kêu", 
+"kê", "kệ", "kệ", "kênh", "kể", "kén", "kết", "kẻ", "kém", "kéo", 
+"kìm", "kín", "kình", "kịp", "kính", "kịp", "kính", "kỹ", "kỹ", "kỷ", 
+"kỷ", "kỷ", "kỷ", "ký", "kỳ", "kỷ", "ký", "kỷ", "kỳ", "kỷ", 
+"ký", "kỳ", "kỷ", "ký", "kỳ", "kỷ", "ký", "kỳ", "kỷ", "ký", 
+"kỷ", "ký", "kỳ", "kỷ", "ký", "kỷ", "kỳ", "kỷ", "ký", "kỷ", 
+"kỷ", "ký", "kỳ", "kỷ", "ký", "kỷ", "kỳ", "kỷ", "ký", "kỷ"
+
+, "la", "là", "lác", "lái", "lắm", "làm", "lan", "láng", "lão", "lão", 
+"lấy", "lắm", "làm", "lần", "lại", "lại", "lại", "lại", "lại", "làm", 
+"lên", "lệ", "lẽ", "lép", "lép", "lép", "lép", "lép", "lẻ", "lẻ", 
+"lẻ", "lẻ", "lẻ", "lẻ", "lên", "lên", "lên", "lên", "lên", "lên", 
+"lêu", "lêu", "lêu", "lêu", "lêu", "lêu", "lêu", "lêu", "lêu", "lêu", 
+"li", "lì", "lịch", "liếc", "liếc", "liếc", "liếc", "liếc", "liếc", "liếc", 
+"lo", "lò", "lòng", "lọc", "lóc", "lớn", "lớp", "lớp", "lớp", "lớp", 
+"lưới", "lửa", "lủi", "lùi", "lùng", "lúng", "luộc", "luôn", "luột", "luật", 
+"lưu", "lưu", "lưu", "lưu", "lưu", "lưu", "lưu", "lưu", "lưu", "lưu"
+
+, "ma", "mà", "mác", "mái", "măm", "màn", "mang", "mát", "mau", "may", 
+"mày", "mã", "mãnh", "mạnh", "mắn", "mật", "mặt", "mầm", "mặn", "mất", 
+"mắc", "mâm", "mắng", "mặc", "mẹ", "méo", "mẻ", "mép", "mép", "mệt", 
+"mèo", "mẹo", "mèo", "mẹo", "mèo", "mẹo", "mèo", "mẹo", "mêu", "mêu", 
+"mía", "mì", "mít", "mít", "mít", "mịt", "mít", "mịt", "mít", "mịt", 
+"mo", "mò", "móc", "mốc", "mỏ", "mỏi", "mọi", "mới", "mỏng", "mỏng", 
+"mộng", "mốt", "mốt", "mở", "mở", "mới", "mới", "mới", "mũ", "mục", 
+"muối", "muộn", "muôn", "muốn", "mua", "mua", "mua", "mua", "mục", "mục", 
+"mừng", "mừng", "mức", "mực", "mực", "mực", "mười", "mười", "mười", "mười"
+
+, "na", "nà", "nác", "nái", "năm", "nan", "nang", "nàng", "náo", "nát", 
+"nau", "nay", "này", "năng", "nặng", "nắn", "nắp", "nắt", "nắng", "nếu", 
+"nén", "nền", "nếp", "nét", "nêu", "nửa", "nửa", "nữa", "nữ", "nữa", 
+"nửa", "nữ", "nhiều", "nhà", "nhìn", "nhỏ", "nhớ", "nhỏ", "nhớ", "nhỏ", 
+"nhớ", "nhỏ", "nhớ", "nhỏ", "nhớ", "nhỏ", "nhớ", "nhỏ", "nhớ", "nhỏ", 
+"no", "nò", "nói", "nón", "nót", "nói", "nón", "nót", "nói", "nón", 
+"nước", "nước", "nước", "nước", "nước", "nước", "nước", "nước", "nước", "nước", 
+"non", "non", "non", "non", "non", "non", "non", "non", "non", "non", 
+"nợ", "nợ", "nợ", "nợ", "nợ", "nợ", "nợ", "nợ", "nợ", "nợ", 
+"nên", "nên", "nên", "nên", "nên", "nên", "nên", "nên", "nên", "nên"
+
+, "o", "ò", "ó", "ỏ", "õ", "ọ", "oan", "oán", "oát", "oách", 
+"oai", "oải", "oa", "oà", "oá", "oã", "oạ", "oen", "oeo"
+
+, "ô", "ồ", "ố", "ổ", "ỗ", "ộ", "ôm", "ôn", "ốp", "ốt", 
+"ông", "ốc", "ổn", "ộ", "ồn", "ốm", "ốp", "ốt", "ổn"
+
+, "ơ", "ờ", "ớ", "ở", "ỡ", "ợ", "ơn", "ơi", "ớt", "ớn", 
+"ơm", "ơm", "ớ", "ợ", "ớ", "ợ", "ớt", "ớn"
+
+, "pha", "phá", "phải", "phân", "phẳng", "phát", "phát", "phát", "phát", "phá",
+"phải", "phân", "phẩm", "phận", "phần", "phong", "phỏng", "phòng", "phỏng", "phong", 
+"phông", "phút", "phục", "phục", "phục", "phục", "phục", "phục", "phù", "phù", 
+"phù", "phù", "phù", "phù", "phù", "phù", "phù", "phù", "phù", "phù"
+
+, "qua", "quá", "quán", "quang", "quát", "quân", "quận", "quần", "quần", 
+"quá", "quán", "quang", "quát", "quân", "quận", "quá", "quá", "quán", 
+"quang", "quát", "quân", "quận", "quá", "quá", "quán", "quang", "quát", 
+"quân", "quận", "quán", "quang", "quát", "quân", "quận", "quán", "quang", 
+"quát", "quân", "quận", "quán", "quang", "quát", "quân", "quận", "quán", 
+"quang", "quát", "quân", "quận"
+
+, "ra", "rá", "rác", "rái", "răm", "ranh", "rao", "ráp", "rát", "rau", 
+"rày", "rào", "rắc", "rặn", "rằng", "rắn", "rắp", "rắt", "râu", "rây", 
+"rẽ", "rẻ", "rèn", "rèn", "rèn", "rèn", "rêu", "rê", "rê", "rê", 
+"rì", "rì", "rỉ", "rít", "rình", "rỉ", "rỉ", "rỉ", "rỉ", "rỏ", 
+"róc", "róc", "róc", "róc", "rồi", "rồi", "rồi", "rồi", "rông", "rộng", 
+"rộng", "rộng", "rớt", "rớt", "rớt", "rớt", "rút", "rút", "rút", "rút", 
+"rửa", "rửa", "rửa", "rửa", "rữa", "rữa", "rữa", "rữa", "rực", "rực", 
+"rực", "rực", "rừng", "rừng", "rừng", "rừng", "rụng", "rụng", "rụng", "rụng"
+
+, "sa", "sà", "sác", "sái", "sắm", "san", "sang", "sáng", "sao", "sát", 
+"sau", "say", "sắc", "sẵn", "sẵn", "sẵn", "sắc", "sắn", "sắn", "sáp", 
+"sắt", "sắp", "sắp", "sắp", "sắp", "sắp", "sắt", "sắp", "sắt", "sắp", 
+"sẽ", "sẻ", "sẻ", "sẻ", "sẻ", "sẻ", "sếp", "sếp", "sếp", "sệt", 
+"sêu", "sêu", "sêu", "sêu", "si", "sĩ", "sỉ", "sĩ", "sĩ", "sĩ", 
+"so", "sò", "sóc", "sóc", "sóc", "sót", "sót", "sót", "sọt", "sót", 
+"sót", "sót", "sót", "sóc", "sóc", "sóc", "sóc", "sóc", "sóc", "sóc", 
+"sơn", "sơn", "sơn", "sơn", "sơn", "sơn", "sở", "sở", "sở", "sở", 
+"sút", "sút", "sút", "sút", "sút", "sút", "suy", "suy", "suy", "suy", 
+"suy", "suy", "sự", "sự", "sự", "sự", "sự", "sự", "sự", "sự"
+
+, "ta", "tà", "tác", "tại", "tắm", "tan", "tang", "tán", "tán", "tát",
+"tay", "tây", "tác", "tân", "tầng", "tận", "tập", "tâm", "tấm", "tầm",
+"tắt", "tăng", "tấn", "tấn", "tầm", "tâm", "tấm", "tầm", "tắt", "tăm",
+"te", "tè", "tép", "tẻ", "tên", "tên", "tên", "tên", "tên", "tên",
+"thưa", "thứ", "thua", "thua", "thua", "thua", "thùng", "thùng", "thùng", "thùng",
+"thương", "thương", "thương", "thương", "thư", "thư", "thư", "thư", "thư", "thư",
+"tôi", "tới", "tối", "tốn", "tóc", "tóc", "tóc", "tóc", "tóc", "tóc",
+"trà", "trà", "trà", "trà", "trà", "trà", "trả", "trả", "trả", "trả",
+"trăm", "trăm", "trăm", "trăm", "trăm", "trăm", "trắng", "trắng", "trắng", "trắng"
+
+, "u", "ù", "ú", "ủ", "ũ", "ụ", "uý", "uỷ", "uất", "uấn", 
+"uật", "uân", "uống", "uốn", "uống", "ui", "uôn", "uýt", "úi"
+
+, "ư", "ừ", "ứ", "ử", "ữ", "ự", "ưa", "ức", "ướt", "ươm", 
+"ươn", "ươc", "ươt", "ươn", "ương", "ứng", "ứ", "ứ", "ứ", "ứng"
+
+, "va", "và", "vác", "vái", "văn", "vang", "vào", "vào", "vào", "vào", 
+"vất", "vặt", "văn", "văn", "văn", "văn", "văn", "văn", "văn", "văn", 
+"vậy", "vây", "về", "vẽ", "vẽ", "vẽ", "vẽ", "vẽ", "vẽ", "vẽ", 
+"vì", "vị", "vị", "vị", "vị", "vị", "vị", "vị", "vị", "vị", 
+"vô", "vô", "vô", "vô", "vô", "vô", "vô", "vô", "vô", "vô", 
+"vòng", "vòng", "vòng", "vòng", "vòng", "vòng", "vòng", "vòng", "vòng", "vòng", 
+"vọng", "vọng", "vọng", "vọng", "vọng", "vọng", "vọng", "vọng", "vọng", "vọng", 
+"với", "với", "với", "với", "với", "với", "với", "với", "với", "với", 
+"vui", "vui", "vui", "vui", "vui", "vui", "vui", "vui", "vui", "vui", 
+"vùng", "vùng", "vùng", "vùng", "vùng", "vùng", "vùng", "vùng", "vùng", "vùng"
+
+, "xa", "xà", "xác", "xách", "xanh", "xan", "xang", "xáng", "xao", "xát",
+"xây", "xảy", "xã", "xã", "xã", "xã", "xã", "xã", "xã", "xã",
+"xăm", "xăm", "xăm", "xăm", "xăm", "xăm", "xăm", "xăm", "xăm", "xăm",
+"xếp", "xếp", "xếp", "xếp", "xếp", "xếp", "xếp", "xếp", "xếp", "xếp",
+"xem", "xem", "xem", "xem", "xem", "xem", "xem", "xem", "xem", "xem",
+"xếp", "xếp", "xếp", "xếp", "xếp", "xếp", "xếp", "xếp", "xếp", "xếp",
+"xí", "xí", "xí", "xí", "xí", "xí", "xí", "xí", "xí", "xí",
+"xóa", "xóa", "xóa", "xóa", "xóa", "xóa", "xóa", "xóa", "xóa", "xóa",
+"xông", "xông", "xông", "xông", "xông", "xông", "xông", "xông", "xông", "xông",
+"xưa", "xưa", "xưa", "xưa", "xưa", "xưa", "xưa", "xưa", "xưa", "xưa"
+
+, "y", "ý", "ỷ", "yên", "yêu", "yêu", "yên", "yêu", "yếu", "yếu",
+"yết", "yếm", "yếm", "yểm", "yểm", "yểm", "yếu", "yếu", "yếu", "yếu"
+];
+// **********************************************
+
+
+// HÀM SỬA ĐỔI: Sử dụng startsWith() để ưu tiên các từ/cụm từ bắt đầu bằng đầu vào
+function showSuggestions(inputElement, boxElement) {
+// ...
 
 // HÀM SỬA ĐỔI: Sử dụng startsWith() để ưu tiên các từ/cụm từ bắt đầu bằng đầu vào
 function showSuggestions(inputElement, boxElement) {
@@ -455,8 +647,8 @@ function warmUpTTS(){
     speechSynthesis.speak(u);
     setTimeout(()=>speechSynthesis.cancel(),500)
 }
-// SỬA ĐỔI: Gọi hàm tải gợi ý mới
-window.onload=()=>{loadButtons();warmUpTTS();loadSuggestions();} 
+// CẬP NHẬT: Không cần gọi loadSuggestions() nữa
+window.onload=()=>{loadButtons();warmUpTTS();}
 </script>
 
 </body>
