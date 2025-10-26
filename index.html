@@ -7,18 +7,22 @@
 <link rel="manifest" href="manifest.json">
 <style>
 /* --- CSS ĐÃ CHỈNH SỬA VÀ TỐI ƯU --- */
-/* Chiều cao ước tính của #tts-info là khoảng 40px (10px padding trên dưới + nội dung) */
-/* Cỡ body padding-bottom = 40px (tts-info) + 15px đệm = 55px */
+
+/* CHÚ Ý: Tôi giữ màu nền hiện tại (#e3f2fd) trong mã, 
+   NHƯNG BẠN CẦN ĐẢM BẢO MÀU NỀN CỦA BODY LÀ MÀU TỐI 
+   (ví dụ: background: #20232A;) để phù hợp với ảnh bạn gửi. 
+   Tôi đã thay đổi màu chữ và nền của #tts-info để phù hợp với nền tối. */
 body {
     font-family:'Segoe UI', sans-serif;
-    background:#e3f2fd;
+    /* Dùng màu nền tối theo ảnh bạn gửi (giả định) */
+    background: #20232A; 
     margin:0;
     padding:0;
     text-align:center;
     /* TỐI ƯU: Đặt padding dưới cố định để không bị tts-info che khuất */
-    padding-bottom: 55px; 
+    padding-bottom: 75px; /* Tăng khoảng đệm để chừa chỗ cho #tts-info (cao ~50px) + 20px bottom */
+    color: white; /* Đặt màu chữ mặc định là trắng cho nền tối */
 }
-/* CONTAINER CHUNG ĐÓNG GÓI TOÀN BỘ NỘI DUNG */
 .main-wrapper {
     max-width: 700px;
     margin-left: auto;
@@ -26,11 +30,11 @@ body {
     padding: 20px 10px;
 }
 
-h1 {margin-bottom:20px;}
+h1 {margin-bottom:20px; color: white;} /* Đảm bảo tiêu đề màu trắng */
 /* CSS Cố định tiêu đề khi khóa */
 .locked-h1 {
     position: fixed;
-    top: 100px; 
+    top: 100px;
     left: 50%;
     transform: translateX(-50%);
     width: 100%;
@@ -38,14 +42,14 @@ h1 {margin-bottom:20px;}
     margin: 0;
     padding: 0 10px;
     z-index: 1000;
-    color: #333;
-    background: #e3f2fd; 
+    color: white; /* Tiêu đề màu trắng */
+    background: #20232A; /* Nền tối */
 }
 
 
 .container { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px,1fr)); gap:20px; margin-bottom:20px; }
-.card { background:#fff; padding:18px; border-radius:12px; box-shadow:0 3px 8px rgba(0,0,0,0.15); display:flex; flex-direction:column; gap:10px; position:relative; }
-input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; width:100%; }
+.card { background:#30363d; padding:18px; border-radius:12px; box-shadow:0 3px 8px rgba(0,0,0,0.3); display:flex; flex-direction:column; gap:10px; position:relative; }
+input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #555; width:100%; background: #40464d; color: white;} /* Input tối màu */
 .btn {
     padding:12px;
     border:none;
@@ -60,7 +64,7 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 }
 .play-btn {background:linear-gradient(45deg,#4CAF50,#43A047);}
 .play-btn:hover {transform:scale(1.05);}
-.delete-btn {position:absolute; top:6px; right:8px; border:none; background:transparent; color:#e53935; font-size:18px; cursor:pointer;}
+.delete-btn {position:absolute; top:6px; right:8px; border:none; background:transparent; color:#ff5252; font-size:18px; cursor:pointer;}
 
 /* Nút Thêm câu mới */
 .add-btn {
@@ -172,7 +176,7 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     height: 100%;
     overflow: hidden;
     z-index: 99;
-    background: #e3f2fd; 
+    background: #20232A; /* Nền tối */
 }
 
 /* ĐIỀU CHỈNH VỊ TRÍ CHO NHÓM NÚT VÀ NÚT MỞ KHÓA TRONG CHẾ ĐỘ KHÓA */
@@ -187,8 +191,8 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 /* CĂN CHỈNH NÚT MỞ KHÓA KHI BỊ KHÓA (PHÍA TRÊN TTS) */
 .control-container.locked #unlock-btn {
     position: fixed;
-    /* bottom = height of #tts-info (approx 40px) + 30px margin/padding = 70px */
-    bottom: 70px; 
+    /* bottom = vị trí cố định của tts-info (20px) + height của tts-info (40px) = 60px */
+    bottom: 80px; /* Đẩy lên cao hơn để không bị che bởi #tts-info */
     left: 50%;
     display: flex !important; 
     transform: translateX(-50%); 
@@ -226,31 +230,32 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     z-index: 1000;
 }
 
-/* TỐI ƯU: CSS DÒNG THÔNG BÁO TTS CỐ ĐỊNH */
+/* SỬA QUAN TRỌNG: CSS DÒNG THÔNG BÁO TTS CỐ ĐỊNH */
 #tts-info {
     position: fixed; 
-    bottom: 0; /* ĐÃ ĐẶT SÁT ĐÁY */
+    bottom: 20px; /* Đẩy lên 20px để tránh thanh điều hướng điện thoại */
     left: 50%; 
     transform: translateX(-50%); 
     
-    /* Thiết lập giới hạn chiều rộng như main-wrapper */
     width: 100%; 
     max-width: 700px;
     
     text-align: center; 
     
-    /* STYLE để đảm bảo hiển thị rõ ràng */
     padding: 10px; 
-    border-top: 1px solid #ccc; 
-    color: #616161;
-    background: #e3f2fd; 
+    /* Dòng kẻ màu xám nhạt */
+    border-top: 1px solid #555; 
+    /* Màu chữ xám nhạt */
+    color: #bdbdbd;
+    /* Nền trong suốt hoặc khớp với nền body */
+    background: #20232A; 
     
     z-index: 90; 
     font-size: 14px;
 }
 
 #tts-info a {
-    color: #2196F3;
+    color: #64b5f6; /* Màu xanh sáng hơn cho link */
     text-decoration: none;
 }
 </style>
