@@ -10,7 +10,7 @@ body {
     font-family: 'Segoe UI', sans-serif;
     background: #e3f2fd;
     margin: 0;
-    padding: 0 0 55px 0;
+    padding: 0 0 60px 0;
     text-align: center;
 }
 
@@ -19,7 +19,7 @@ h1 {
     color: #333;
 }
 
-/* --- KHỐI THẺ CÂU NÓI --- */
+/* --- Thẻ câu nói --- */
 .card {
     display: inline-block;
     background: #fff;
@@ -28,6 +28,7 @@ h1 {
     box-shadow: 0 3px 8px rgba(0,0,0,0.15);
     margin: 10px;
     vertical-align: top;
+    position: relative;
 }
 
 .card input {
@@ -54,8 +55,8 @@ h1 {
 
 .delete-btn {
     position: absolute;
-    margin-left: 200px;
-    margin-top: -5px;
+    right: 5px;
+    top: 5px;
     border: none;
     background: transparent;
     color: #e53935;
@@ -63,7 +64,7 @@ h1 {
     cursor: pointer;
 }
 
-/* --- NÚT CHÍNH --- */
+/* --- Nút chung --- */
 .btn {
     padding: 12px;
     border: none;
@@ -72,31 +73,26 @@ h1 {
     font-size: 16px;
     cursor: pointer;
     transition: 0.3s;
+    margin: 5px;
 }
+.btn:hover { transform: scale(1.05); }
 
 .add-btn {
     background: linear-gradient(45deg,#2196F3,#1976D2);
     width: 200px;
-    margin: 10px auto;
-    display: inline-block;
 }
 .reset-btn {
-    background: linear-gradient(45deg,#2196F3,#1976D2);
+    background: linear-gradient(45deg,#f44336,#d32f2f);
     width: 220px;
     height: 50px;
     font-size: 18px;
-    margin: 10px auto;
-    display: inline-block;
 }
 .install-btn {
     background: linear-gradient(45deg,#00BCD4,#0097A7);
     width: 200px;
-    margin: 10px auto;
-    display: inline-block;
 }
-.add-btn:hover, .reset-btn:hover, .install-btn:hover { transform: scale(1.05); }
 
-/* --- CÁC NÚT ĐIỀU KHIỂN --- */
+/* --- Các nút điều khiển --- */
 .control-btn {
     width: 150px;
     height: 60px;
@@ -107,24 +103,13 @@ h1 {
     cursor: pointer;
     transition: 0.3s;
     font-weight: bold;
-    margin: 10px;
+    margin: 10px 5px;
 }
 .control-btn:hover { transform: scale(1.05); }
 .play-control-btn { background: linear-gradient(45deg,#4CAF50,#43A047); }
 .current-btn-color { background: #ff9800; }
 
-/* --- KHU VỰC SETTINGS --- */
-#settingsArea {
-    margin-top: 30px;
-}
-#settingsArea .btn:first-child {
-    background: linear-gradient(45deg,#f44336,#d32f2f);
-    width: 220px;
-    height: 50px;
-    font-size: 18px;
-}
-
-/* --- POPUP --- */
+/* --- Popup --- */
 #popup {
     position: absolute;
     bottom: 100%;
@@ -144,7 +129,7 @@ h1 {
     transition: 0.5s;
 }
 
-/* --- DÒNG THÔNG BÁO TTS --- */
+/* --- Dòng thông báo --- */
 #tts-info {
     position: fixed;
     bottom: 0;
@@ -162,6 +147,28 @@ h1 {
 #tts-info a {
     color: #2196F3;
     text-decoration: none;
+}
+
+/* --- Overlay khóa --- */
+#lockOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(240,240,240,0.7);
+    z-index: 200;
+    display: none;
+    pointer-events: all;
+}
+#lockOverlayText {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    font-size: 26px;
+    color: #000;
+    font-weight: bold;
 }
 </style>
 </head>
@@ -181,8 +188,9 @@ h1 {
 </div>
 
 <div id="settingsArea">
-    <button class="btn" onclick="resetDefaults()">♻️ Reset mặc định</button>
+    <button class="btn reset-btn" onclick="resetDefaults()">♻️ Reset mặc định</button>
     <button class="btn install-btn" id="installButton" style="display:none;">📲 Cài đặt App</button>
+    <button class="btn" id="lockBtn" style="background:linear-gradient(45deg,#9C27B0,#7B1FA2);" onclick="toggleLock()">🔒 Khóa giao diện</button>
 </div>
 
 <div id="tts-info">
@@ -193,10 +201,15 @@ h1 {
     </a>
 </div>
 
+<div id="lockOverlay">
+    <div id="lockOverlayText">🔒 Giao diện đã khóa</div>
+</div>
+
 <script>
 let deferredPrompt;
 const defaults=["Tôi muốn ăn cơm","Tôi muốn uống nước","Tôi muốn đi vệ sinh","Tôi muốn đi ngủ"];
 let currentIndex=0;
+let locked=false;
 
 function speak(text){
     if(!text) return;
@@ -309,7 +322,29 @@ function currentSpeak(){
     speak(cards[currentIndex].value.trim());
 }
 
-/* PWA cài đặt */
+/* === KHÓA GIAO DIỆN === */
+function toggleLock(){
+    locked=!locked;
+    const overlay=document.getElementById('lockOverlay');
+    const lockBtn=document.getElementById('lockBtn');
+    if(locked){
+        overlay.style.display='block';
+        lockBtn.textContent='🔓 Mở khóa';
+        lockBtn.style.background='linear-gradient(45deg,#FF9800,#F57C00)';
+        document.querySelectorAll('button,input').forEach(el=>{
+            if(el.id!=='lockBtn') el.disabled=true;
+        });
+    } else {
+        overlay.style.display='none';
+        lockBtn.textContent='🔒 Khóa giao diện';
+        lockBtn.style.background='linear-gradient(45deg,#9C27B0,#7B1FA2)';
+        document.querySelectorAll('button,input').forEach(el=>{
+            el.disabled=false;
+        });
+    }
+}
+
+/* === PWA === */
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
