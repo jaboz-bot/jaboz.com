@@ -110,11 +110,11 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
 <div class="control-container" id="controlArea">
 <button class="btn add-btn" id="add-btn-move" onclick="addButton()">➕ Thêm câu mới</button>
 <div class="navigation-group">
-<button class="control-btn play-control-btn" ontouchend="moveSpeak(-1)">Câu trước</button>
-<button class="control-btn current-btn-color" ontouchend="moveSpeak(0)">Phát lại</button>
-<button class="control-btn play-control-btn" ontouchend="moveSpeak(1)">Câu sau</button>
+<button class="control-btn play-control-btn" data-direction="-1">Câu trước</button>
+<button class="control-btn current-btn-color" data-direction="0">Phát lại</button>
+<button class="control-btn play-control-btn" data-direction="1">Câu sau</button>
 </div>
-<button class="btn" id="unlock-btn" ontouchend="toggleLock(false)">Mở khóa giao diện</button>
+<button class="btn" id="unlock-btn" onclick="toggleLock(false)">Mở khóa giao diện</button>
 </div>
 
 <div id="settingsArea">
@@ -149,7 +149,7 @@ function showPopup(text){
     popupElement.style.display='block';
     popupElement.style.opacity='1';
 
-    setTimeout(()=>{
+    setTimeout(()=>{ 
         popupElement.style.opacity='0'; 
         setTimeout(()=>popupElement.style.display='none', 500) 
     },3500) 
@@ -216,9 +216,21 @@ function toggleLock(lock){
     }
 }
 
-window.addEventListener('beforeinstallprompt',e=>{
-    e.preventDefault();
-    deferredPrompt=e;
+// Gắn sự kiện cho các nút điều hướng
+document.querySelectorAll('.control-btn').forEach(button => {
+    button.addEventListener('click', function(event) {
+        moveSpeak(parseInt(event.target.dataset.direction)); // Hoặc điều chỉnh để phù hợp với logic của bạn
+    });
+    
+    // Thêm sự kiện touchend để hỗ trợ trên thiết bị di động
+    button.addEventListener('touchend', function(event) {
+        moveSpeak(parseInt(event.target.dataset.direction));
+    });
+});
+
+window.addEventListener('beforeinstallprompt',e=>{ 
+    e.preventDefault(); 
+    deferredPrompt=e; 
     if (installState === 'before_install') {
         installButton.style.display='flex';
         installButton.onclick=installApp;
@@ -240,16 +252,24 @@ function installApp(){
     }
 }
 
-window.addEventListener('appinstalled',()=>{
-    installState = 'installed';
-    installButton.style.display='none';
+window.addEventListener('appinstalled',()=>{ 
+    installState = 'installed'; 
+    installButton.style.display='none'; 
 });
 
-if (installState === 'before_install') {
+if (installState === 'before_install') { 
     installButton.style.display='none'; 
 }
 
-function warmUpTTS(){if(!('speechSynthesis'in window))return;let u=new SpeechSynthesisUtterance(" ");u.lang='vi-VN';u.volume=0;u.rate=10;speechSynthesis.speak(u);setTimeout(()=>speechSynthesis.cancel(),500)}
+function warmUpTTS(){
+    if(!('speechSynthesis'in window))return;
+    let u=new SpeechSynthesisUtterance(" ");
+    u.lang='vi-VN';
+    u.volume=0;
+    u.rate=10;
+    speechSynthesis.speak(u);
+    setTimeout(()=>speechSynthesis.cancel(),500)
+}
 window.onload=()=>{loadButtons();warmUpTTS();}
 </script>
 </body>
