@@ -6,7 +6,8 @@
 <title>Máy hỗ trợ giọng nói</title>
 <link rel="manifest" href="manifest.json">
 <style>
-body{font-family:'Segoe UI',sans-serif;background:#e3f2fd;margin:0;padding:0 0 55px;text-align:center}
+/* Cập nhật màu nền body và màu chữ tổng thể */
+body{font-family:'Segoe UI',sans-serif;background:#222;color:#fff;margin:0;padding:0 0 55px;text-align:center}
 /* Chống người dùng vuốt màn hình khi khóa */
 body.locked {
     overflow: hidden; 
@@ -15,13 +16,19 @@ body.locked {
 }
 
 .main-wrapper{max-width:700px;margin:0 auto;padding:20px 10px}
-h1{margin-bottom:20px}
-.locked-h1{position:fixed;top:20px;left:50%;transform:translateX(-50%);width:100%;max-width:700px;margin:0;padding:0 10px;z-index:1000;color:#333;background:#e3f2fd}
+h1{margin-bottom:20px;color:#fff} /* Chỉnh màu chữ H1 */
+/* Màu nền h1 khi khóa */
+.locked-h1{position:fixed;top:20px;left:50%;transform:translateX(-50%);width:100%;max-width:700px;margin:0;padding:0 10px;z-index:1000;color:#fff;background:#222} /* Cập nhật màu nền và chữ */
 .container{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;margin-bottom:20px}
-.card{background:#fff;padding:18px;border-radius:12px;box-shadow:0 3px 8px rgba(0,0,0,.15);display:flex;flex-direction:column;gap:10px;position:relative}
-input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:100%}
+/* Chỉnh màu nền và chữ cho card */
+.card{background:#333;padding:18px;border-radius:12px;box-shadow:0 3px 8px rgba(0,0,0,.3);display:flex;flex-direction:column;gap:10px;position:relative}
+/* Chỉnh màu input */
+input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #555;width:100%;background:#444;color:#eee}
+input::placeholder {color: #bbb;}
+
 .btn{padding:12px;border:none;border-radius:8px;color:white;font-size:16px;cursor:pointer;transition:.3s;display:flex;justify-content:center;align-items:center}
-.play-btn{background:linear-gradient(45deg,#4CAF50,#43A047)}
+/* Các màu nút như trong ảnh */
+.play-btn{background:linear-gradient(45deg,#4CAF50,#43A047)} /* Xanh lá */
 .add-btn,.install-btn{width:200px}
 .reset-btn,.settings-btn,.install-btn.large-control-btn{
     width:220px;
@@ -32,18 +39,18 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
     justify-content:center;
     align-items:center;
 }
-.install-btn{background:linear-gradient(45deg,#00BCD4,#0097A7)} 
-.add-btn,.reset-btn{background:linear-gradient(45deg,#2196F3,#1976D2)}
-.settings-btn{background:linear-gradient(45deg,#f44336,#d32f2f)}
+.install-btn{background:linear-gradient(45deg,#00BCD4,#0097A7)} /* Xanh da trời */
+.add-btn,.reset-btn{background:linear-gradient(45deg,#2196F3,#1976D2)} /* Xanh dương */
+.settings-btn{background:linear-gradient(45deg,#f44336,#d32f2f)} /* Đỏ */
 .delete-btn{position:absolute;top:6px;right:8px;background:transparent;border:none;color:#e53935;font-size:18px;cursor:pointer;padding:0}
-#unlock-btn{width:160px;height:60px;display:none;background:linear-gradient(45deg,#f44336,#d32f2f)}
+#unlock-btn{width:160px;height:60px;display:none;background:linear-gradient(45deg,#f44336,#d32f2f)} /* Đỏ */
 .control-container{display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:20px;transition:.3s;position:relative}
 
-/* ĐIỀU CHỈNH CHÍNH: Đặt các nút dọc lại */
+/* Đặt các nút dọc lại và căn giữa */
 .navigation-group{
     display: flex; 
     flex-direction: column; /* Đặt các nút dọc */
-    align-items: center; /* Căn giữa các nút theo chiều ngang (rất quan trọng) */
+    align-items: center; /* Căn giữa các nút theo chiều ngang */
     gap: 15px; 
     margin: 25px 0 0;
     width: 100%;
@@ -56,7 +63,7 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
     left: 50%;
     transform: translateX(-50%);
     
-    background:rgba(0,0,0,.8);
+    background:rgba(0,0,0,.8); /* Nền tối hơn */
     color:#fff;
     padding:15px 20px;
     border-radius:12px;
@@ -73,8 +80,8 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
     width:150px;height:60px;border-radius:8px;color:white;font-size:18px;border:none;cursor:pointer;transition:.3s;font-weight:bold;display:flex;justify-content:center;align-items:center;
     touch-action: manipulation; 
 }
-.play-control-btn{background:linear-gradient(45deg,#4CAF50,#43A047)}
-.current-btn-color{background:#ff9800}
+.play-control-btn{background:linear-gradient(45deg,#4CAF50,#43A047)} /* Xanh lá */
+.current-btn-color{background:#ff9800} /* Cam như trong ảnh */
 #settingsArea{margin-top:30px;text-align:center}
 
 /* CSS cho chế độ khóa (Đã sửa để hiển thị 3 nút điều hướng dọc hàng ở giữa màn hình) */
@@ -86,7 +93,7 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
     height:100%;
     overflow:hidden;
     z-index:99;
-    background:#e3f2fd;
+    background:#222; /* Cập nhật màu nền tối */
     justify-content: center; 
 }
 .control-container.locked #add-btn-move,
@@ -111,8 +118,9 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
     z-index:100;
 }
 
-#tts-info{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:700px;text-align:center;padding:10px;border-top:1px solid #ccc;color:#616161;background:#e3f2fd;font-size:14px;z-index:1010}
-#tts-info a{color:#2196F3;text-decoration:none}
+/* Chỉnh màu nền và chữ cho thanh tts-info */
+#tts-info{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:700px;text-align:center;padding:10px;border-top:1px solid #444;color:#bbb;background:#222;font-size:14px;z-index:1010}
+#tts-info a{color:#00BCD4;text-decoration:none} /* Màu liên kết phù hợp với nền tối */
 </style>
 </head>
 <body>
