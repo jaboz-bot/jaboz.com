@@ -242,20 +242,23 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     color: #616161;
 }
 
-/* BỔ SUNG MỚI: CSS cho phần TTS khi ở trạng thái KHÓA */
+/* BỔ SUNG MỚI: CSS cho phần TTS khi ở trạng thái KHÓA (ĐÃ LOẠI BỎ KHUNG) */
 .tts-info-locked {
     position: fixed; /* Cố định vị trí */
     bottom: 10px; /* Cách đáy 10px */
     left: 50%;
     transform: translateX(-50%); /* Căn giữa theo chiều ngang */
     z-index: 1000; /* Đảm bảo nó nằm trên các nội dung khác */
-    background: #e3f2fd; /* Giống màu nền body để đồng bộ */
-    padding: 5px 10px; /* Thêm khoảng đệm */
-    border-radius: 8px; /* Bo góc */
-    box-shadow: 0 0 5px rgba(0,0,0,0.1); /* Thêm bóng nhẹ */
+    
+    /* ĐÃ LOẠI BỎ CÁC THUỘC TÍNH TẠO KHUNG */
+    background: #e3f2fd; /* Giữ lại màu nền khớp với body */
+    padding: 0; /* LOẠI BỎ PADDING */
+    border-radius: 0; /* LOẠI BỎ BO GÓC */
+    box-shadow: none; /* LOẠI BỎ BÓNG */
+    
     /* Ghi đè lại style mặc định của #tts-info khi nó bị khóa */
     margin-top: 0 !important;
-    padding-top: 5px !important;
+    padding-top: 0 !important;
     border-top: none !important;
 }
 </style>
