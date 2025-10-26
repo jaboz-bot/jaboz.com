@@ -39,10 +39,10 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
 #unlock-btn{width:160px;height:60px;display:none;background:linear-gradient(45deg,#f44336,#d32f2f)}
 .control-container{display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:20px;transition:.3s;position:relative}
 .navigation-group{display:flex;flex-direction:column;align-items:center;gap:15px;margin:25px 0 0}
-/* THAY ĐỔI QUAN TRỌNG: Thêm touch-action: auto; cho các nút điều khiển */
+/* THAY ĐỔI: Sử dụng touch-action: manipulation; để ưu tiên các sự kiện nhấn/chạm */
 .control-btn{
     width:150px;height:60px;border-radius:8px;color:white;font-size:18px;border:none;cursor:pointer;transition:.3s;font-weight:bold;display:flex;justify-content:center;align-items:center;
-    touch-action: auto; 
+    touch-action: manipulation; 
 }
 .play-control-btn{background:linear-gradient(45deg,#4CAF50,#43A047)}
 .current-btn-color{background:#ff9800}
@@ -110,11 +110,11 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
 <div class="control-container" id="controlArea">
 <button class="btn add-btn" id="add-btn-move" onclick="addButton()">➕ Thêm câu mới</button>
 <div class="navigation-group">
-<button class="control-btn play-control-btn" onclick="moveSpeak(-1)">Câu trước</button>
-<button class="control-btn current-btn-color" onclick="moveSpeak(0)">Phát lại</button>
-<button class="control-btn play-control-btn" onclick="moveSpeak(1)">Câu sau</button>
+<button class="control-btn play-control-btn" ontouchend="moveSpeak(-1)">Câu trước</button>
+<button class="control-btn current-btn-color" ontouchend="moveSpeak(0)">Phát lại</button>
+<button class="control-btn play-control-btn" ontouchend="moveSpeak(1)">Câu sau</button>
 </div>
-<button class="btn" id="unlock-btn" onclick="toggleLock(false)">Mở khóa giao diện</button>
+<button class="btn" id="unlock-btn" ontouchend="toggleLock(false)">Mở khóa giao diện</button>
 </div>
 
 <div id="settingsArea">
