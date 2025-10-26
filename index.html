@@ -23,30 +23,64 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
 .btn{padding:12px;border:none;border-radius:8px;color:white;font-size:16px;cursor:pointer;transition:.3s;display:flex;justify-content:center;align-items:center}
 .play-btn{background:linear-gradient(45deg,#4CAF50,#43A047)}
 .add-btn,.install-btn{width:200px}
+
+/* Căn chỉnh lại nhóm nút cài đặt */
 .reset-btn,.settings-btn,.install-btn.large-control-btn{
     width:220px;
     height:50px;
     font-size:18px;
-    margin:8px auto;
+    margin:8px auto; /* Đã có căn giữa, không cần thay đổi */
     display:flex;
     justify-content:center;
     align-items:center;
 }
 .install-btn{background:linear-gradient(45deg,#00BCD4,#0097A7)} 
-.add-btn,.reset-btn{background:linear-gradient(45deg,#2196F3,#1976D2)}
+/* THAY ĐỔI MÀU: Nút Thêm câu mới thành màu xanh dương */
+.add-btn{background:linear-gradient(45deg,#2196F3,#1976D2)} 
+.reset-btn{background:linear-gradient(45deg,#2196F3,#1976D2)}
 .settings-btn{background:linear-gradient(45deg,#f44336,#d32f2f)}
+
 .delete-btn{position:absolute;top:6px;right:8px;background:transparent;border:none;color:#e53935;font-size:18px;cursor:pointer;padding:0}
 #unlock-btn{width:160px;height:60px;display:none;background:linear-gradient(45deg,#f44336,#d32f2f)}
 .control-container{display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:20px;transition:.3s;position:relative}
-.navigation-group{display:flex;flex-direction:column;align-items:center;gap:15px;margin:25px 0 0}
+
+/* THAY ĐỔI: Sử dụng flexbox để giãn rộng các nút và tạo khoảng cách giữa chúng */
+.navigation-group{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    /* Tăng khoảng cách giữa các nút từ 15px lên 25px */
+    gap:25px; 
+    margin:25px 0 0
+}
 /* THAY ĐỔI: Sử dụng touch-action: manipulation; để ưu tiên các sự kiện nhấn/chạm */
 .control-btn{
-    width:150px;height:60px;border-radius:8px;color:white;font-size:18px;border:none;cursor:pointer;transition:.3s;font-weight:bold;display:flex;justify-content:center;align-items:center;
+    /* Tăng chiều rộng nút từ 150px lên 220px để giãn rộng */
+    width:220px;
+    height:60px;
+    border-radius:8px;
+    color:white;
+    font-size:18px;
+    border:none;
+    cursor:pointer;
+    transition:.3s;
+    font-weight:bold;
+    display:flex;
+    justify-content:center;
+    align-items:center;
     touch-action: manipulation; 
 }
 .play-control-btn{background:linear-gradient(45deg,#4CAF50,#43A047)}
 .current-btn-color{background:#ff9800}
-#settingsArea{margin-top:30px;text-align:center}
+
+/* THAY ĐỔI: Căn giữa nhóm nút cài đặt */
+#settingsArea{
+    margin-top:30px;
+    text-align:center;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Đảm bảo các nút được căn giữa */
+}
 
 /* CSS cho chế độ khóa */
 .control-container.locked{
@@ -207,7 +241,7 @@ function toggleLock(lock){
     } else {
         buttonContainer.style.display='grid';
         addBtnMove.style.display='block';
-        settingsArea.style.display='block';
+        settingsArea.style.display='flex'; /* Đã đổi từ 'block' thành 'flex' để hỗ trợ căn giữa tốt hơn */
         
         controlArea.classList.remove('locked');
         document.body.classList.remove('locked');
@@ -219,9 +253,8 @@ function toggleLock(lock){
 // Gắn sự kiện cho các nút điều hướng
 document.querySelectorAll('.control-btn').forEach(button => {
     button.addEventListener('click', function(event) {
-        moveSpeak(parseInt(event.target.dataset.direction)); // Chỉ giữ lại sự kiện click
+        moveSpeak(parseInt(event.target.dataset.direction)); 
     });
-    // ĐÃ XÓA: button.addEventListener('touchend', function(event) { ... });
 });
 
 window.addEventListener('beforeinstallprompt',e=>{ 
