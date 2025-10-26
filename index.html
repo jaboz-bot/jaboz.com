@@ -64,6 +64,7 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 }
 /* CONTAINER ĐIỀU KHIỂN - Tối ưu cho chế độ CHƯA KHÓA */
 .control-container {
+    /* GIỮ LẠI FLEXBOX CHO CHẾ ĐỘ MỞ KHÓA */
     display:flex;
     flex-direction:column;
     align-items:center;
@@ -132,8 +133,8 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     width:160px;
     height: 60px;
     font-size: 18px;
-    margin-top: 50px; /* Khoảng cách từ nhóm nút */
-    /* THÊM position: relative ĐỂ KHÓA DÙNG ABSOLUTE/FIXED */
+    /* BỎ margin-top vì nó sẽ được cố định trong chế độ khóa */
+    /* margin-top: 50px; */ 
     position: relative;
     display: none; /* Mặc định ẩn, sẽ được hiển thị khi khóa */
 }
@@ -145,36 +146,36 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     left: 0;
     width: 100%;
     height: 100%;
-    /* Không cần transform: none; */
-    /* BỎ display: flex; flex-direction: column; justify-content: center; align-items: center; */
-    /* THAY BẰNG: */
-    text-align: center; /* Cần thiết cho các phần tử block/inline-block */
-    /* Tối ưu hiển thị, tránh trượt */
+    /* THÊM overflow: hidden; */
     overflow: hidden;
-    z-index: 99; /* Đảm bảo nằm trên nội dung khác */
-    background: #e3f2fd; /* Đảm bảo nền khớp */
+    z-index: 99;
+    background: #e3f2fd; 
+    /* BỎ text-align: center; để tránh ảnh hưởng đến navigation-group */
 }
 
 /* ĐIỀU CHỈNH VỊ TRÍ CHO NHÓM NÚT VÀ NÚT MỞ KHÓA TRONG CHẾ ĐỘ KHÓA */
 .control-container.locked .navigation-group {
     /* Căn giữa tuyệt đối cho nhóm nút */
-    position: absolute; /* Thay thế cho relative/static */
+    position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    /* BỎ margin: 0; */
+    margin: 0; /* Đảm bảo không có margin từ chế độ không khóa */
 }
 
 /* CĂN CHỈNH NÚT MỞ KHÓA KHI BỊ KHÓA */
 .control-container.locked #unlock-btn {
     /* THAY ĐỔI: Đặt ở vị trí cố định dưới cùng */
-    position: absolute;
+    position: fixed; /* Dùng fixed để đảm bảo nó nằm trên cùng */
     bottom: 50px; /* Khoảng cách từ đáy */
     left: 50%;
     transform: translateX(-50%); /* Chỉ cần căn giữa ngang */
-    display: block; /* Hiển thị */
+    display: block !important; /* Hiển thị */
     margin: 0; /* Đảm bảo không có margin không mong muốn */
+    /* Thêm z-index để nó nằm trên navigation-group và popup */
+    z-index: 100; 
 }
+
 
 /* POPUP - CĂN CHỈNH KHI Ở CHẾ ĐỘ CHƯA KHÓA */
 #popup {
@@ -201,7 +202,7 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
 /* SỬA: VỊ TRÍ MỚI KHI Ở CHẾ ĐỘ KHÓA (Cố định ở trên nhóm nút) */
 .control-container.locked #popup {
     position: fixed;
-    top: 20%; /* ĐÃ SỬA: Đặt thấp hơn để tránh chồng lên tiêu đề */
+    top: 20%; /* ĐẶT LẠI VỊ TRÍ CỐ ĐỊNH */
     bottom: auto;
     left: 50%;
     transform: translateX(-50%);
@@ -432,7 +433,7 @@ function toggleLock(lock){
         // BỔ SUNG: Thêm class cố định cho TTS Info
         ttsInfo.classList.add('tts-info-locked');
 
-        unlockBtn.style.display='block';
+        // unlockBtn.style.display='block'; // CSS đã xử lý phần này
     } else {
         settings.style.display='block';
         container.style.display='grid';
@@ -444,8 +445,7 @@ function toggleLock(lock){
         // BỔ SUNG: Xóa class cố định cho TTS Info
         ttsInfo.classList.remove('tts-info-locked');
 
-        navGroup.style.marginBottom='0px';
-        navGroup.style.marginTop='25px';
+        // KHÔNG CẦN SET LẠI MARGIN CHO navGroup (CSS mặc định đã có)
 
         // Quan trọng: Đặt lại style vị trí mặc định của Popup khi Mở khóa
         popup.style.position='absolute';
