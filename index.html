@@ -7,7 +7,6 @@
 <link rel="manifest" href="manifest.json">
 <style>
 body{font-family:'Segoe UI',sans-serif;background:#e3f2fd;margin:0;padding:0 0 55px;text-align:center}
-/* Chống người dùng vuốt màn hình khi khóa */
 body.locked {
     overflow: hidden; 
     overscroll-behavior-y: contain; 
@@ -39,7 +38,6 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
 #unlock-btn{width:160px;height:60px;display:none;background:linear-gradient(45deg,#f44336,#d32f2f)}
 .control-container{display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:20px;transition:.3s;position:relative}
 .navigation-group{display:flex;flex-direction:column;align-items:center;gap:15px;margin:25px 0 0}
-/* THAY ĐỔI: Sử dụng touch-action: manipulation; để ưu tiên các sự kiện nhấn/chạm */
 .control-btn{
     width:150px;height:60px;border-radius:8px;color:white;font-size:18px;border:none;cursor:pointer;transition:.3s;font-weight:bold;display:flex;justify-content:center;align-items:center;
     touch-action: manipulation; 
@@ -48,7 +46,6 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
 .current-btn-color{background:#ff9800}
 #settingsArea{margin-top:30px;text-align:center}
 
-/* CSS cho chế độ khóa */
 .control-container.locked{
     position:fixed;
     top:0;
@@ -76,13 +73,11 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
     z-index:100;
 }
 
-/* Cập nhật CSS cho Popup: Luôn fixed và căn giữa */
 #popup{
     position: fixed;
     top: 200px;
     left: 50%;
     transform: translateX(-50%);
-    
     background:rgba(0,0,0,.8);
     color:#fff;
     padding:15px 20px;
@@ -135,19 +130,16 @@ const controlArea = document.getElementById('controlArea'),
       buttonContainer = document.getElementById('buttonContainer'),
       settingsArea = document.getElementById('settingsArea');
 
-let isSpeaking = false; // Biến flag để kiểm tra xem đang phát hay không
+let isSpeaking = false; 
 
-function speak(text, targetElement) {
-    if (!text || !('speechSynthesis' in window) || isSpeaking) return; // Nếu đang phát thì không làm gì cả
+function speak(text) {
+    if (!text || !('speechSynthesis' in window) || isSpeaking) return; 
 
-    isSpeaking = true; // Đánh dấu là đang phát
-
+    isSpeaking = true; 
     speechSynthesis.cancel();
     let u = new SpeechSynthesisUtterance(text);
     u.lang = 'vi-VN';
-    u.onend = () => {
-        isSpeaking = false; // Sau khi phát xong, cho phép nhấn lại
-    };
+    u.onend = () => { isSpeaking = false; };
     speechSynthesis.speak(u);
     showPopup(text);
 }
@@ -173,7 +165,7 @@ function addButton(v = '') {
     let p = document.createElement('button');
     p.className = 'btn play-btn';
     p.textContent = '🔊 Phát âm';
-    p.onclick = () => speak(i.value.trim(), p);
+    p.onclick = () => speak(i.value.trim());
     let d = document.createElement('button');
     d.className = 'delete-btn';
     d.textContent = '❌';
