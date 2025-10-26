@@ -197,8 +197,9 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     /* Vị trí đã điều chỉnh: Đặt phía trên #tts-info (cao 60px) + 10px đệm*/
     bottom: 70px; 
     left: 50%;
+    /* Quan trọng: Sử dụng display:flex để căn giữa nội dung bên trong (vì đây là nút) */
+    display: flex !important; 
     transform: translateX(-50%); 
-    display: block !important; 
     margin: 0; 
     z-index: 100; 
 }
@@ -237,13 +238,18 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     z-index: 1000;
 }
 
-/* THAY THẾ: CSS DÒNG THÔNG BÁO TTS CỐ ĐỊNH */
+/* ĐÃ SỬA: CSS DÒNG THÔNG BÁO TTS CỐ ĐỊNH */
 #tts-info {
     /* Cố định vị trí ở dưới cùng */
     position: fixed; 
     bottom: 0;
-    left: 0;
-    width: 100%;
+    left: 50%; /* Căn giữa theo chiều ngang */
+    transform: translateX(-50%); /* Dùng transform để căn giữa */
+    
+    /* Thiết lập giới hạn chiều rộng như main-wrapper */
+    width: 100%; 
+    max-width: 700px;
+    
     /* Căn giữa nội dung */
     text-align: center; 
     
@@ -254,8 +260,6 @@ input {padding:10px; font-size:16px; border-radius:8px; border:1px solid #ccc; w
     background: #e3f2fd; /* Màu nền khớp với body */
     
     z-index: 90; /* Đảm bảo nằm dưới controlArea (99) */
-
-    /* Đảm bảo nội dung không bị quá hẹp */
     font-size: 14px;
 }
 
