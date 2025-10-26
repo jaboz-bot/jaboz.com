@@ -7,6 +7,13 @@
 <link rel="manifest" href="manifest.json">
 <style>
 body{font-family:'Segoe UI',sans-serif;background:#e3f2fd;margin:0;padding:0 0 55px;text-align:center}
+/* THAY ĐỔI: Chống người dùng vuốt màn hình khi khóa */
+body.locked {
+    overflow: hidden; 
+    overscroll-behavior-y: contain; 
+    touch-action: none;
+}
+
 .main-wrapper{max-width:700px;margin:0 auto;padding:20px 10px}
 h1{margin-bottom:20px}
 .locked-h1{position:fixed;top:100px;left:50%;transform:translateX(-50%);width:100%;max-width:700px;margin:0;padding:0 10px;z-index:1000;color:#333;background:#e3f2fd}
@@ -65,10 +72,10 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
     z-index:100;
 }
 
-/* Cập nhật CSS cho Popup: Đã hạ top xuống 200px */
+/* Cập nhật CSS cho Popup: Luôn fixed và căn giữa */
 #popup{
     position: fixed;
-    top: 200px; /* Vị trí mới */
+    top: 200px;
     left: 50%;
     transform: translateX(-50%);
     
