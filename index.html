@@ -5,131 +5,83 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Máy hỗ trợ giọng nói</title>
 <style>
-body{font-family:'Segoe UI',sans-serif;background:#e3f2fd;margin:0;padding:0;text-align:center}
-h1{margin:10px 0}
-.locked-h1{position:fixed;top:30px;left:50%;transform:translateX(-50%)}
-#buttonContainer{display:grid;gap:8px;padding:10px}
-button{border:none;border-radius:8px;padding:10px 15px;font-size:16px;cursor:pointer;box-shadow:0 2px 5px rgba(0,0,0,0.2)}
-.btn{background:linear-gradient(45deg,#f44336,#e57373);color:#fff}
-.play-btn{background:#fff}
-.control-container{margin:15px 0}
-.navigation-group{display:flex;justify-content:center;gap:10px;margin-top:10px}
-.add-btn{margin-bottom:10px;background:#2196f3;color:#fff}
-#unlock-btn{display:none;margin-top:15px}
-#popup{position:absolute;background:#333;color:#fff;padding:6px 12px;border-radius:8px;opacity:0;transition:opacity .5s;font-size:15px;pointer-events:none}
-#settingsArea{margin:10px 0}
-#tts-info{position:fixed;bottom:10px;left:50%;transform:translateX(-50%);font-size:14px;color:#555}
-#textInput{padding:8px;border-radius:6px;border:1px solid #ccc;width:70%;box-shadow:0 2px 4px rgba(0,0,0,0.1)}
-#clearText{margin-left:-30px;background:none;border:none;color:red;font-weight:bold;font-size:18px;cursor:pointer;box-shadow:0 0 0 rgba(0,0,0,0)}
+body{font-family:'Segoe UI',sans-serif;background:#e3f2fd;margin:0;padding:0 0 55px;text-align:center}
+.main-wrapper{max-width:700px;margin:0 auto;padding:20px 10px}
+h1{margin-bottom:20px}
+.locked-h1{position:fixed;top:100px;left:50%;transform:translateX(-50%);width:100%;max-width:700px;margin:0;padding:0 10px;z-index:1000;color:#333;background:#e3f2fd}
+.container{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;margin-bottom:20px}
+.card{background:#fff;padding:18px;border-radius:12px;box-shadow:0 3px 8px rgba(0,0,0,.15);display:flex;flex-direction:column;gap:10px;position:relative}
+input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:100%}
+.btn{padding:12px;border:none;border-radius:8px;color:white;font-size:16px;cursor:pointer;transition:.3s;display:flex;justify-content:center;align-items:center}
+.play-btn{background:linear-gradient(45deg,#4CAF50,#43A047)}
+.add-btn,.reset-btn,.settings-btn,.install-btn{margin:8px auto;display:block}
+.add-btn,.install-btn{width:200px}
+.reset-btn,.settings-btn{width:220px;height:50px;font-size:18px}
+.install-btn{background:linear-gradient(45deg,#00BCD4,#0097A7)}
+.add-btn,.reset-btn{background:linear-gradient(45deg,#2196F3,#1976D2)}
+.settings-btn{background:linear-gradient(45deg,#f44336,#d32f2f)}
+.delete-btn{position:absolute;top:6px;right:8px;background:transparent;border:none;color:#e53935;font-size:18px;cursor:pointer;padding:0}
+#unlock-btn{width:160px;height:60px;display:none;background:linear-gradient(45deg,#f44336,#d32f2f)}
+.control-container{display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:20px;transition:.3s;position:relative}
+.navigation-group{display:flex;flex-direction:column;align-items:center;gap:15px;margin:25px 0 0}
+.control-btn{width:150px;height:60px;border-radius:8px;color:white;font-size:18px;border:none;cursor:pointer;transition:.3s;font-weight:bold;display:flex;justify-content:center;align-items:center}
+.play-control-btn{background:linear-gradient(45deg,#4CAF50,#43A047)}
+.current-btn-color{background:#ff9800}
+#settingsArea{margin-top:30px;text-align:center}
+.control-container.locked{position:fixed;top:0;left:0;width:100%;height:100%;overflow:hidden;z-index:99;background:#e3f2fd}
+.control-container.locked .navigation-group{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);margin:0}
+.control-container.locked #unlock-btn{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);display:flex;z-index:100}
+#popup{position:fixed;top:150px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.8);color:#fff;padding:15px 20px;border-radius:12px;font-size:18px;display:none;z-index:1000;max-width:90%;min-width:100px;text-align:center;transition:.5s}
+#tts-info{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:700px;text-align:center;padding:10px;border-top:1px solid #ccc;color:#616161;background:#e3f2fd;font-size:14px;z-index:1010}
+#tts-info a{color:#2196F3;text-decoration:none}
 </style>
 </head>
 <body>
-
+<div class="main-wrapper">
 <h1 id="mainTitle">Máy hỗ trợ giọng nói</h1>
+<div class="container" id="buttonContainer"></div>
 
-<div id="buttonContainer"></div>
-
-<!-- Khu điều khiển -->
 <div class="control-container" id="controlArea">
-  <button class="btn add-btn" id="add-btn" onclick="addButton()">➕ Thêm câu mới</button>
-  
-  <div class="navigation-group">
-    <button class="control-btn" onclick="moveSpeak(-1)">Câu trước</button>
-    <button class="control-btn" onclick="moveSpeak(0)">Phát lại</button>
-    <button class="control-btn" onclick="moveSpeak(1)">Câu sau</button>
-  </div>
-
-  <button class="btn" id="unlock-btn" onclick="toggleLock(false)">Mở khóa giao diện</button>
-</div>
-
-<!-- Khu nhập văn bản -->
-<div id="settingsArea">
-  <input type="text" id="textInput" placeholder="Nhập văn bản...">
-  <button id="clearText" onclick="document.getElementById('textInput').value=''">×</button>
-  <button class="btn" onclick="toggleLock(true)">🔒 Khóa giao diện</button>
-</div>
-
 <div id="popup"></div>
-<p id="tts-info">Nếu không thấy âm thanh, hãy bật âm lượng và cho phép trình duyệt phát tiếng.</p>
+<button class="btn add-btn" id="add-btn-move" onclick="addButton()">➕ Thêm câu mới</button>
+<div class="navigation-group">
+<button class="control-btn play-control-btn" onclick="moveSpeak(-1)">Câu trước</button>
+<button class="control-btn current-btn-color" onclick="moveSpeak(0)">Phát lại</button>
+<button class="control-btn play-control-btn" onclick="moveSpeak(1)">Câu sau</button>
+</div>
+<button class="btn" id="unlock-btn" onclick="toggleLock(false)">Mở khóa giao diện</button>
+</div>
+
+<div id="settingsArea">
+<button class="btn settings-btn" onclick="toggleLock(true)">Khóa giao diện</button>
+<button class="btn install-btn" id="installButton" style="display:none;">📲 Tạo Lối tắt</button>
+<button class="btn reset-btn" onclick="resetDefaults()">♻️ Reset mặc định</button>
+</div>
+</div>
+
+<div id="tts-info">Nếu không thấy âm thanh, tải <a href="https://play.google.com/store/apps/details?id=com.google.android.tts" target="_blank">Google Play</a></div>
 
 <script>
-let currentIndex=-1,lock=false;
+let deferredPrompt,currentIndex=0,defaults=["Tôi muốn ăn cơm","Tôi muốn uống nước","Tôi muốn đi vệ sinh","Tôi muốn đi ngủ"];
+const controlArea=document.getElementById('controlArea'),
+      installButton=document.getElementById('installButton'),
+      addBtnMove=document.getElementById('add-btn-move');
 
-// Hiển thị popup
-function showPopup(msg,btn){
-  const p=document.getElementById('popup');
-  p.innerText=msg;p.style.opacity=1;p.style.display='block';
-  if(!lock){
-    const r=btn.getBoundingClientRect();
-    p.style.top=(r.top-40+window.scrollY)+'px';
-    p.style.left=(r.left+r.width/2-p.offsetWidth/2)+'px';
-  } else {p.style.top='200px';p.style.left='50%';p.style.transform='translateX(-50%)';}
-  setTimeout(()=>{p.style.opacity=0;setTimeout(()=>p.style.display='none',500)},2000);
-}
-
-// Tạo nút mẫu
-function loadButtons(){
-  const b=document.getElementById('buttonContainer');
-  const arr=['Xin chào','Bạn khỏe không?','Chúc một ngày tốt lành'];
-  b.innerHTML='';
-  arr.forEach((t,i)=>{
-    const btn=document.createElement('button');
-    btn.className='play-btn';btn.innerText=t;
-    btn.onclick=()=>{currentIndex=i;showPopup(t,btn);}
-    b.appendChild(btn);
-  });
-}
-
-function addButton(){
-  const txt=document.getElementById('textInput').value.trim();
-  if(!txt)return alert("Nhập nội dung trước!");
-  const btn=document.createElement('button');
-  btn.className='play-btn';btn.innerText=txt;
-  btn.onclick=()=>showPopup(txt,btn);
-  document.getElementById('buttonContainer').appendChild(btn);
-  document.getElementById('textInput').value='';
-}
-
-function moveSpeak(d){
-  const b=document.querySelectorAll('#buttonContainer button');
-  if(!b.length)return;
-  currentIndex+=d;if(currentIndex<0)currentIndex=b.length-1;
-  if(currentIndex>=b.length)currentIndex=0;
-  b[currentIndex].click();
-}
-
-// Khóa / mở khóa
-function toggleLock(v){
-  lock=v;
-  const cards=document.getElementById('buttonContainer'),
-        addBtn=document.getElementById('add-btn'),
-        settings=document.getElementById('settingsArea'),
-        unlockBtn=document.getElementById('unlock-btn'),
-        mainTitle=document.getElementById('mainTitle'),
-        navGroup=document.querySelector('.navigation-group');
-  if(v){
-    cards.style.display='none';
-    addBtn.style.display='none';
-    settings.style.display='none';
-    mainTitle.classList.add('locked-h1');
-    navGroup.style.position='fixed';
-    navGroup.style.top='50%';
-    navGroup.style.left='50%';
-    navGroup.style.transform='translate(-50%,-50%)';
-    unlockBtn.style.display='flex';
-  } else {
-    cards.style.display='grid';
-    addBtn.style.display='block';
-    settings.style.display='block';
-    mainTitle.classList.remove('locked-h1');
-    navGroup.style.position='static';
-    navGroup.style.transform='none';
-    unlockBtn.style.display='none';
-  }
-}
-
-window.onload=()=>loadButtons();
+function speak(text){if(!text||!('speechSynthesis'in window))return;speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(text);u.lang='vi-VN';speechSynthesis.speak(u);showPopup(text)}
+function showPopup(text){const p=document.getElementById('popup');p.textContent=text;p.style.display='block';p.style.opacity='1';setTimeout(()=>{p.style.opacity='0';setTimeout(()=>p.style.display='none',500)},2000)}
+function addButton(v=''){let c=document.createElement('div');c.className='card';let i=document.createElement('input');i.value=v;i.placeholder="Nhập văn bản...";i.onchange=saveAll;let p=document.createElement('button');p.className='btn play-btn';p.textContent='🔊 Phát âm';p.onclick=()=>speak(i.value.trim());let d=document.createElement('button');d.className='delete-btn';d.textContent='❌';d.onclick=()=>{c.remove();saveAll();currentIndex=Math.min(currentIndex,getCards().length-1)};c.append(i,p,d);document.getElementById('buttonContainer').appendChild(c);saveAll()}
+function saveAll(){localStorage.setItem('voiceButtons',JSON.stringify([...document.querySelectorAll('.card input')].map(i=>i.value.trim())))}
+function loadButtons(){let s=JSON.parse(localStorage.getItem('voiceButtons')||"[]");(s.length?s:defaults).forEach(t=>addButton(t));currentIndex=0}
+function resetDefaults(){if(confirm("Đặt lại mặc định?")){localStorage.removeItem('voiceButtons');document.getElementById('buttonContainer').innerHTML='';loadButtons();currentIndex=0}}
+function getCards(){return document.querySelectorAll('.card input')}
+function cleanupEmptyCards(){let c=document.querySelectorAll('.card'),save=false;for(let i=c.length-1;i>=0;i--){let inp=c[i].querySelector('input');if(!inp||inp.value.trim()===''){c[i].remove();save=true}}if(save){saveAll();currentIndex=Math.min(currentIndex,getCards().length-1)}}
+function moveSpeak(dir){cleanupEmptyCards();const c=getCards();if(c.length===0)return;if(dir===0)speak(c[currentIndex].value.trim());else{currentIndex=(currentIndex+dir+c.length)%c.length;speak(c[currentIndex].value.trim())}}
+function toggleLock(lock){const s=document.getElementById('settingsArea'),c=document.getElementById('buttonContainer'),u=document.getElementById('unlock-btn');if(lock){s.style.display='none';c.style.display='none';addBtnMove.style.display='none';controlArea.classList.add('locked');document.getElementById('mainTitle').classList.add('locked-h1');u.style.display='flex'}else{s.style.display='block';c.style.display='grid';addBtnMove.style.display='block';controlArea.classList.remove('locked');document.getElementById('mainTitle').classList.remove('locked-h1');u.style.display='none'}}
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;installButton.style.display='block';installButton.onclick=installApp})
+function installApp(){if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.userChoice.then(()=>{deferredPrompt=null;installButton.style.display='none'})}}
+window.addEventListener('appinstalled',()=>installButton.style.display='none')
+function warmUpTTS(){if(!('speechSynthesis'in window))return;let u=new SpeechSynthesisUtterance(" ");u.lang='vi-VN';u.volume=0;u.rate=10;speechSynthesis.speak(u);setTimeout(()=>speechSynthesis.cancel(),500)}
+window.onload=()=>{loadButtons();warmUpTTS();}
 </script>
-
 </body>
 </html>
