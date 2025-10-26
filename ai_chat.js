@@ -1,179 +1,346 @@
-// File: ai_chat.js
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Máy hỗ trợ giọng nói</title>
+<link rel="manifest" href="manifest.json">
+<style>
+body{font-family:'Segoe UI',sans-serif;background:#e3f2fd;margin:0;padding:0 0 55px;text-align:center}
+/* Chống người dùng vuốt màn hình khi khóa */
+body.locked {
+    overflow: hidden; 
+    overscroll-behavior-y: contain; 
+    touch-action: none;
+}
 
-// Khai báo các biến và hằng số
-const aiChatWindow = document.getElementById('aiChatWindow');
-const aiChatOverlay = document.getElementById('aiChatOverlay');
-const aiStatus = document.getElementById('aiStatus');
-const geminiApiKeyInput = document.getElementById('geminiApiKeyInput');
-const apiKeyInputWrapper = document.getElementById('apiKeyInputWrapper');
-let geminiApiKey = localStorage.getItem('geminiApiKey') || '';
-let isListening = false;
+.main-wrapper{max-width:700px;margin:0 auto;padding:20px 10px}
+h1{margin-bottom:20px}
+.locked-h1{position:fixed;top:100px;left:50%;transform:translateX(-50%);width:100%;max-width:700px;margin:0;padding:0 10px;z-index:1000;color:#333;background:#e3f2fd}
+.container{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;margin-bottom:20px}
+.card{background:#fff;padding:18px;border-radius:12px;box-shadow:0 3px 8px rgba(0,0,0,.15);display:flex;flex-direction:column;gap:10px;position:relative}
+input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:100%}
+.btn{padding:12px;border:none;border-radius:8px;color:white;font-size:16px;cursor:pointer;transition:.3s;display:flex;justify-content:center;align-items:center}
+.play-btn{background:linear-gradient(45deg,#4CAF50,#43A047)}
+.add-btn,.install-btn{width:200px}
+.reset-btn,.settings-btn,.install-btn.large-control-btn, .ai-chat-btn{
+    width:220px;
+    height:50px;
+    font-size:18px;
+    margin:8px auto;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+.install-btn{background:linear-gradient(45deg,#00BCD4,#0097A7)} 
+.add-btn,.reset-btn{background:linear-gradient(45deg,#2196F3,#1976D2)}
+.settings-btn{background:linear-gradient(45deg,#f44336,#d32f2f)}
+/* Style riêng cho nút AI */
+.ai-chat-btn {
+    background: linear-gradient(45deg, #673AB7, #512DA8); /* Màu tím */
+}
+.delete-btn{position:absolute;top:6px;right:8px;background:transparent;border:none;color:#e53935;font-size:18px;cursor:pointer;padding:0}
+#unlock-btn{width:160px;height:60px;display:none;background:linear-gradient(45deg,#f44336,#d32f2f)}
+.control-container{display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:20px;transition:.3s;position:relative}
+.navigation-group{display:flex;flex-direction:column;align-items:center;gap:15px;margin:25px 0 0}
+/* THAY ĐỔI: Sử dụng touch-action: manipulation; để ưu tiên các sự kiện nhấn/chạm */
+.control-btn{
+    width:150px;height:60px;border-radius:8px;color:white;font-size:18px;border:none;cursor:pointer;transition:.3s;font-weight:bold;display:flex;justify-content:center;align-items:center;
+    touch-action: manipulation; 
+}
+.play-control-btn{background:linear-gradient(45deg,#4CAF50,#43A047)}
+.current-btn-color{background:#ff9800}
+#settingsArea{margin-top:30px;text-align:center}
 
+/* CSS cho chế độ khóa */
+.control-container.locked{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    z-index:99;
+    background:#e3f2fd;
+    justify-content: center; 
+}
+.control-container.locked #add-btn-move,
+.control-container.locked #settingsArea {
+    display: none !important;
+}
+.control-container.locked .navigation-group{
+    margin:0;
+}
+.control-container.locked #unlock-btn{
+    position:fixed;
+    bottom: 80px; 
+    left:50%;
+    transform:translateX(-50%);
+    display:flex;
+    z-index:100;
+}
 
-// --- Hàm quản lý cửa sổ Chat AI ---
-function openAIChatWindow() {
-    aiChatWindow.style.display = 'block';
-    aiChatOverlay.style.display = 'block';
+/* Cập nhật CSS cho Popup: Luôn fixed và căn giữa */
+#popup{
+    position: fixed;
+    top: 200px;
+    left: 50%;
+    transform: translateX(-50%);
     
-    // Kiểm tra và hiển thị ô nhập API Key nếu chưa có
-    if (!geminiApiKey) {
-        apiKeyInputWrapper.style.display = 'block';
-        aiStatus.textContent = "Vui lòng nhập API Key để bắt đầu.";
+    background:rgba(0,0,0,.8);
+    color:#fff;
+    padding:15px 20px;
+    border-radius:12px;
+    font-size:18px;
+    display:none;
+    z-index:1000;
+    max-width:90%;
+    min-width:100px;
+    text-align:center;
+    transition: opacity 0.5s ease-out; 
+}
+
+/* --- CSS CỬA SỔ CHAT AI --- */
+#aiChatWindow {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 400px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
+    z-index: 1011;
+    display: none; /* Mặc định ẩn */
+    padding: 20px;
+    text-align: center;
+}
+#aiChatWindow h2 {
+    margin-top: 0;
+    color: #673AB7;
+}
+#aiChatWindow button {
+    margin: 10px 5px;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+#startAiBtn {
+    background: linear-gradient(45deg, #4CAF50, #43A047);
+    color: white;
+    border: none;
+}
+#closeAiBtn {
+    background: #ccc;
+    color: #333;
+    border: none;
+}
+#aiStatus {
+    min-height: 40px;
+    color: #333;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+#apiKeyInputWrapper {
+    margin-top: 15px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background: #f9f9f9;
+}
+#apiKeyInputWrapper input {
+    margin-bottom: 5px;
+}
+
+/* Overlay đen mờ khi chat AI mở */
+#aiChatOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1010;
+    display: none;
+}
+/* --- END CSS CỬA SỔ CHAT AI --- */
+
+#tts-info{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:700px;text-align:center;padding:10px;border-top:1px solid #ccc;color:#616161;background:#e3f2fd;font-size:14px;z-index:1010}
+#tts-info a{color:#2196F3;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="main-wrapper">
+<h1 id="mainTitle">Máy hỗ trợ giọng nói</h1>
+<div class="container" id="buttonContainer"></div>
+
+<div id="popup"></div>
+
+<div class="control-container" id="controlArea">
+<button class="btn add-btn" id="add-btn-move" onclick="addButton()">➕ Thêm câu mới</button>
+<div class="navigation-group">
+<button class="control-btn play-control-btn" ontouchend="moveSpeak(-1)">Câu trước</button>
+<button class="control-btn current-btn-color" ontouchend="moveSpeak(0)">Phát lại</button>
+<button class="control-btn play-control-btn" ontouchend="moveSpeak(1)">Câu sau</button>
+</div>
+<button class="btn" id="unlock-btn" ontouchend="toggleLock(false)">Mở khóa giao diện</button>
+</div>
+
+<div id="settingsArea">
+    <button class="btn settings-btn" onclick="toggleLock(true)">Khóa giao diện</button>
+    <button class="btn install-btn large-control-btn" id="installButton">📲 Cài đặt app</button>
+    <button class="btn reset-btn" onclick="resetDefaults()">♻️ Reset mặc định</button>
+    <button class="btn ai-chat-btn large-control-btn" onclick="openAIChatWindow()">🤖 Nói chuyện với AI</button> 
+</div>
+</div>
+
+<div id="tts-info">Nếu không thấy âm thanh, tải <a href="https://play.google.com/store/apps/details?id=com.google.android.tts" target="_blank">Google Play</a></div>
+
+<div id="aiChatOverlay" onclick="closeAIChatWindow()"></div>
+<div id="aiChatWindow">
+    <h2>Trợ lý AI Gemini</h2>
+    <div id="aiStatus">Sẵn sàng nghe lệnh.</div>
+    <div id="apiKeyInputWrapper" style="display:none;">
+        <p style="font-size:14px; color:#f44336; font-weight:normal;">Lần đầu sử dụng, vui lòng dán Gemini API Key:</p>
+        <input type="text" id="geminiApiKeyInput" placeholder="Dán API Key...">
+        <button onclick="saveApiKey()">Lưu Key</button>
+    </div>
+    <button id="startAiBtn" ontouchend="startListeningAndAsk(event)">🎤 Bắt đầu nói</button>
+    <button id="closeAiBtn" onclick="closeAIChatWindow()">Đóng</button>
+</div>
+
+<script>
+let deferredPrompt,currentIndex=0,defaults=["Tôi muốn ăn cơm","Tôi muốn uống nước","Tôi muốn đi vệ sinh","Tôi muốn đi ngủ"],installState = 'before_install';
+const controlArea=document.getElementById('controlArea'),
+      installButton=document.getElementById('installButton'),
+      addBtnMove=document.getElementById('add-btn-move'),
+      popupElement=document.getElementById('popup'),
+      buttonContainer=document.getElementById('buttonContainer'),
+      settingsArea=document.getElementById('settingsArea');
+
+function speak(text, targetElement){
+    if(!text||!('speechSynthesis'in window))return;
+    speechSynthesis.cancel();
+    let u=new SpeechSynthesisUtterance(text);
+    u.lang='vi-VN';
+    speechSynthesis.speak(u);
+    showPopup(text); 
+}
+
+function showPopup(text){
+    popupElement.textContent=text;
+    popupElement.style.display='block';
+    popupElement.style.opacity='1';
+
+    setTimeout(()=>{
+        popupElement.style.opacity='0'; 
+        setTimeout(()=>popupElement.style.display='none', 500) 
+    },3500) 
+}
+
+function addButton(v=''){
+    let c=document.createElement('div');
+    c.className='card';
+    let i=document.createElement('input');
+    i.value=v;
+    i.placeholder="Nhập văn bản...";
+    i.onchange=saveAll;
+    let p=document.createElement('button');
+    p.className='btn play-btn';
+    p.textContent='🔊 Phát âm';
+    p.onclick=()=>speak(i.value.trim(), p); 
+    let d=document.createElement('button');
+    d.className='delete-btn';
+    d.textContent='❌';
+    d.onclick=()=>{c.remove();saveAll();currentIndex=Math.min(currentIndex,getCards().length-1)};
+    c.append(i,p,d);
+    document.getElementById('buttonContainer').appendChild(c);
+    saveAll()
+}
+
+function saveAll(){localStorage.setItem('voiceButtons',JSON.stringify([...document.querySelectorAll('.card input')].map(i=>i.value.trim())))}
+function loadButtons(){let s=JSON.parse(localStorage.getItem('voiceButtons')||"[]");(s.length?s:defaults).forEach(t=>addButton(t));currentIndex=0}
+function resetDefaults(){if(confirm("Đặt lại mặc định?")){localStorage.removeItem('voiceButtons');document.getElementById('buttonContainer').innerHTML='';loadButtons();currentIndex=0}}
+function getCards(){return document.querySelectorAll('.card input')}
+function cleanupEmptyCards(){let c=document.querySelectorAll('.card'),save=false;for(let i=c.length-1;i>=0;i--){let inp=c[i].querySelector('input');if(!inp||inp.value.trim()===''){c[i].remove();save=true}}if(save){saveAll();currentIndex=Math.min(currentIndex,getCards().length-1)}}
+function moveSpeak(dir){
+    cleanupEmptyCards();
+    const c=getCards();
+    if(c.length===0)return;
+    
+    if(dir===0){
+        speak(c[currentIndex].value.trim());
     } else {
-        apiKeyInputWrapper.style.display = 'none';
-        aiStatus.textContent = "Sẵn sàng nghe lệnh.";
+        currentIndex=(currentIndex+dir+c.length)%c.length;
+        speak(c[currentIndex].value.trim());
     }
 }
 
-function closeAIChatWindow() {
-    aiChatWindow.style.display = 'none';
-    aiChatOverlay.style.display = 'none';
-    
-    // Tắt lắng nghe nếu đang hoạt động
-    if (window.recognition) {
-        window.recognition.stop();
-        isListening = false;
-        aiStatus.textContent = "Sẵn sàng nghe lệnh.";
-    }
-}
-
-function saveApiKey() {
-    geminiApiKey = geminiApiKeyInput.value.trim();
-    if (geminiApiKey) {
-        localStorage.setItem('geminiApiKey', geminiApiKey);
-        apiKeyInputWrapper.style.display = 'none';
-        aiStatus.textContent = "Đã lưu API Key. Bấm Bắt đầu nói.";
-        // Tự động đóng cửa sổ sau khi lưu thành công (tùy chọn)
-        // setTimeout(closeAIChatWindow, 1500); 
+function toggleLock(lock){
+    const u=document.getElementById('unlock-btn');
+    if(lock){
+        buttonContainer.style.display='none';
+        addBtnMove.style.display='none';
+        settingsArea.style.display='none';
+        
+        controlArea.classList.add('locked');
+        document.body.classList.add('locked');
+        document.getElementById('mainTitle').classList.add('locked-h1');
+        u.style.display='flex';
     } else {
-        alert("Vui lòng nhập API Key.");
+        buttonContainer.style.display='grid';
+        addBtnMove.style.display='block';
+        settingsArea.style.display='block';
+        
+        controlArea.classList.remove('locked');
+        document.body.classList.remove('locked');
+        document.getElementById('mainTitle').classList.remove('locked-h1');
+        u.style.display='none';
     }
 }
 
-
-// --- Hàm Gọi API và Nhận dạng Giọng nói ---
-
-// Hàm gửi câu hỏi đến Gemini API
-async function askGemini(question) {
-    if (!geminiApiKey) {
-        aiStatus.textContent = "Lỗi: Chưa có Gemini API Key!";
-        apiKeyInputWrapper.style.display = 'block';
-        return "Xin lỗi, tôi chưa được kết nối với AI. Vui lòng nhập API Key.";
+window.addEventListener('beforeinstallprompt',e=>{
+    e.preventDefault();
+    deferredPrompt=e;
+    if (installState === 'before_install') {
+        installButton.style.display='flex';
+        installButton.onclick=installApp;
     }
+});
 
-    const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + geminiApiKey;
-    
-    // Tạo prompt đơn giản cho chatbot tiếng Việt
-    const prompt = `Bạn là một trợ lý giọng nói thân thiện. Hãy trả lời câu hỏi sau bằng Tiếng Việt một cách ngắn gọn, súc tích (dưới 50 từ): "${question}"`;
-
-    const requestBody = {
-        contents: [{
-            role: "user",
-            parts: [{
-                text: prompt
-            }]
-        }]
-    };
-
-    try {
-        aiStatus.textContent = "Đang suy nghĩ và tạo câu trả lời...";
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(requestBody)
+function installApp(){
+    if(deferredPrompt){
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult)=>{
+            if (choiceResult.outcome === 'accepted') {
+                installState = 'installed';
+            } else {
+                installState = 'rejected';
+            }
+            deferredPrompt=null;
+            installButton.style.display='none';
         });
-
-        const data = await response.json();
-
-        if (data.candidates && data.candidates.length > 0) {
-            return data.candidates[0].content.parts[0].text.trim();
-        } else if (data.error) {
-            console.error("Gemini API Error:", data.error.message);
-            aiStatus.textContent = "Lỗi API: Vui lòng kiểm tra lại Key.";
-            apiKeyInputWrapper.style.display = 'block';
-            return "Đã xảy ra lỗi kết nối với AI. Vui lòng kiểm tra lại API Key.";
-        }
-        
-        return "Xin lỗi, tôi không hiểu rõ câu hỏi của bạn.";
-
-    } catch (error) {
-        console.error("Fetch Error:", error);
-        aiStatus.textContent = "Lỗi mạng hoặc kết nối!";
-        return "Đã xảy ra lỗi mạng.";
     }
 }
 
-// Hàm lắng nghe giọng nói và gọi AI
-function startListeningAndAsk(event) {
-    if (event) event.preventDefault();
-    
-    if (isListening) {
-        // Nếu đang nghe, chạm lần nữa sẽ dừng (optional)
-        if (window.recognition) window.recognition.stop();
-        return;
-    }
+window.addEventListener('appinstalled',()=>{
+    installState = 'installed';
+    installButton.style.display='none';
+});
 
-    if (!('webkitSpeechRecognition' in window)) {
-        aiStatus.textContent = "Trình duyệt không hỗ trợ nhận dạng giọng nói!";
-        return;
-    }
-    
-    if (!geminiApiKey) {
-        aiStatus.textContent = "Vui lòng nhập API Key trước!";
-        apiKeyInputWrapper.style.display = 'block';
-        return;
-    }
-
-    // Tắt mọi phát âm TTS đang diễn ra (sử dụng hàm từ script chính)
-    if (speechSynthesis.speaking) {
-        speechSynthesis.cancel();
-    }
-    
-    isListening = true;
-    aiStatus.textContent = "🎤 Đang lắng nghe... Hãy nói!";
-
-    window.recognition = new webkitSpeechRecognition();
-    recognition.lang = 'vi-VN'; 
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-
-    recognition.onresult = async function(event) {
-        const last = event.results.length - 1;
-        const question = event.results[last][0].transcript;
-        
-        isListening = false;
-        aiStatus.textContent = "Bạn nói: " + question;
-
-        // Bước 2: Gửi câu hỏi đến Gemini
-        const answer = await askGemini(question);
-
-        // Bước 3: Phát âm câu trả lời (sử dụng hàm từ script chính)
-        if (typeof speak === 'function') {
-             speak(answer);
-        } else {
-             aiStatus.textContent = "AI trả lời: " + answer;
-        }
-        
-        // Sau khi hoàn tất, chuyển về trạng thái chờ
-        setTimeout(() => { aiStatus.textContent = "Sẵn sàng nghe lệnh."; }, 4000);
-    };
-
-    recognition.onerror = function(event) {
-        isListening = false;
-        aiStatus.textContent = "Lỗi nghe: " + event.error + ". Thử lại.";
-        console.error("Speech Recognition Error:", event.error);
-    };
-    
-    recognition.onend = function() {
-        // Đảm bảo trạng thái lắng nghe được reset nếu không có kết quả
-        if (isListening) {
-             isListening = false;
-             aiStatus.textContent = "Không nghe được gì. Thử lại.";
-             setTimeout(() => { aiStatus.textContent = "Sẵn sàng nghe lệnh."; }, 2000);
-        }
-    }
-
-    recognition.start();
+if (installState === 'before_install') {
+    installButton.style.display='none'; 
 }
+
+function warmUpTTS(){if(!('speechSynthesis'in window))return;let u=new SpeechSynthesisUtterance(" ");u.lang='vi-VN';u.volume=0;u.rate=10;speechSynthesis.speak(u);setTimeout(()=>speechSynthesis.cancel(),500)}
+window.onload=()=>{
+    loadButtons();
+    warmUpTTS();
+}
+</script>
+
+<script src="ai_chat.js"></script>
+</body>
+</html>
