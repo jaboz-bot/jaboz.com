@@ -6,99 +6,96 @@
 <title>Máy hỗ trợ giọng nói</title>
 <style>
 body{font-family:'Segoe UI',sans-serif;background:#e3f2fd;margin:0;padding:0 0 55px;text-align:center}
-.main-wrapper{max-width:700px;margin:0 auto;padding:20px 10px}
 h1{margin-bottom:20px}
 .locked-h1{position:fixed;top:100px;left:50%;transform:translateX(-50%);width:100%;max-width:700px;margin:0;padding:0 10px;z-index:1000;color:#333;background:#e3f2fd}
-.container{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;margin-bottom:20px}
+.container{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;margin-bottom:20px;max-width:700px;margin:0 auto}
 .card{background:#fff;padding:18px;border-radius:12px;box-shadow:0 3px 8px rgba(0,0,0,.15);display:flex;flex-direction:column;gap:10px;position:relative}
 input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:100%}
 .btn{padding:12px;border:none;border-radius:8px;color:white;font-size:16px;cursor:pointer;transition:.3s;display:flex;justify-content:center;align-items:center}
 .play-btn{background:linear-gradient(45deg,#4CAF50,#43A047)}
-.add-btn,.reset-btn,.settings-btn,.install-btn{margin:8px auto;display:block}
-.add-btn,.install-btn{width:200px}
-.reset-btn,.settings-btn{width:220px;height:50px;font-size:18px}
-.install-btn{background:linear-gradient(45deg,#00BCD4,#0097A7)}
-.add-btn,.reset-btn{background:linear-gradient(45deg,#2196F3,#1976D2)}
-.settings-btn{background:linear-gradient(45deg,#f44336,#d32f2f)}
+.add-btn{background:linear-gradient(45deg,#2196F3,#1976D2);width:200px;margin:8px auto;display:block}
+.reset-btn{background:linear-gradient(45deg,#2196F3,#1976D2);width:220px;height:50px;font-size:18px;margin:8px auto;display:block}
+.install-btn{background:linear-gradient(45deg,#00BCD4,#0097A7);width:200px;margin:8px auto;display:block}
+.settings-btn{background:linear-gradient(45deg,#f44336,#d32f2f);width:220px;height:50px;font-size:18px;margin:8px auto;display:block}
 .delete-btn{position:absolute;top:6px;right:8px;background:transparent;border:none;color:#e53935;font-size:18px;cursor:pointer;padding:0}
 #unlock-btn{width:160px;height:60px;display:none;background:linear-gradient(45deg,#f44336,#d32f2f)}
-.control-container{display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:20px;transition:.3s;position:relative}
+.control-container{display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:20px;transition:.3s;position:relative;max-width:700px;margin:0 auto}
 .navigation-group{display:flex;flex-direction:column;align-items:center;gap:15px;margin:25px 0 0}
 .control-btn{width:150px;height:60px;border-radius:8px;color:white;font-size:18px;border:none;cursor:pointer;transition:.3s;font-weight:bold;display:flex;justify-content:center;align-items:center}
 .play-control-btn{background:linear-gradient(45deg,#4CAF50,#43A047)}
 .current-btn-color{background:#ff9800}
-#settingsArea{margin-top:30px;text-align:center}
-.control-container.locked{position:fixed;top:0;left:0;width:100%;height:100%;overflow:hidden;z-index:99;background:#e3f2fd}
-.control-container.locked .navigation-group{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);margin:0}
-.control-container.locked #unlock-btn{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);display:flex;z-index:100}
+#settingsArea{margin-top:30px;text-align:center;max-width:700px;margin:0 auto}
 #popup{position:fixed;background:rgba(0,0,0,.8);color:#fff;padding:15px 20px;border-radius:12px;font-size:18px;display:none;z-index:1000;max-width:90%;min-width:100px;text-align:center;transition:.5s}
 #tts-info{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:700px;text-align:center;padding:10px;border-top:1px solid #ccc;color:#616161;background:#e3f2fd;font-size:14px;z-index:1010}
 #tts-info a{color:#2196F3;text-decoration:none}
 </style>
 </head>
 <body>
-<div class="main-wrapper">
+
 <h1 id="mainTitle">Máy hỗ trợ giọng nói</h1>
+
+<!-- Nơi chứa các nút câu -->
 <div class="container" id="buttonContainer"></div>
 
+<!-- Nơi chứa các nút điều hướng -->
 <div class="control-container" id="controlArea">
-<div id="popup"></div>
-<button class="btn add-btn" id="add-btn-move" onclick="addButton()">➕ Thêm câu mới</button>
 <div class="navigation-group">
 <button class="control-btn play-control-btn" onclick="moveSpeak(-1)">Câu trước</button>
 <button class="control-btn current-btn-color" onclick="moveSpeak(0)">Phát lại</button>
 <button class="control-btn play-control-btn" onclick="moveSpeak(1)">Câu sau</button>
 </div>
+<button class="btn add-btn" id="add-btn-move" onclick="addButton()">➕ Thêm câu mới</button>
 <button class="btn" id="unlock-btn" onclick="toggleLock(false)">Mở khóa giao diện</button>
 </div>
 
+<!-- Nơi chứa các nút dưới -->
 <div id="settingsArea">
 <button class="btn settings-btn" onclick="toggleLock(true)">Khóa giao diện</button>
 <button class="btn install-btn" id="installButton" style="display:none;">📲 Tạo Lối tắt</button>
 <button class="btn reset-btn" onclick="resetDefaults()">♻️ Reset mặc định</button>
 </div>
-</div>
+
+<!-- Popup tách khỏi container -->
+<div id="popup"></div>
 
 <div id="tts-info">Nếu không thấy âm thanh, tải <a href="https://play.google.com/store/apps/details?id=com.google.android.tts" target="_blank">Google Play</a></div>
 
 <script>
-let deferredPrompt, currentIndex = 0;
-const defaults = ["Tôi muốn ăn cơm","Tôi muốn uống nước","Tôi muốn đi vệ sinh","Tôi muốn đi ngủ"];
+let deferredPrompt,currentIndex=0;
+const defaults=["Tôi muốn ăn cơm","Tôi muốn uống nước","Tôi muốn đi vệ sinh","Tôi muốn đi ngủ"];
 const controlArea=document.getElementById('controlArea');
 const installButton=document.getElementById('installButton');
 const addBtnMove=document.getElementById('add-btn-move');
 
 // PHÁT ÂM
 function speak(text){
-    if(!text || !('speechSynthesis' in window)) return;
+    if(!text||!('speechSynthesis'in window)) return;
     speechSynthesis.cancel();
-    let u = new SpeechSynthesisUtterance(text);
+    let u=new SpeechSynthesisUtterance(text);
     u.lang='vi-VN';
     speechSynthesis.speak(u);
     showPopup(text);
 }
 
-// POPUP LINH HOẠT
+// HIỂN THỊ POPUP
 function showPopup(text){
-    const p = document.getElementById('popup');
-    p.textContent = text;
-    p.style.display = 'block';
-    p.style.opacity = '1';
-    const isLocked = controlArea.classList.contains('locked');
+    const p=document.getElementById('popup');
+    p.textContent=text;
+    p.style.display='block';
+    p.style.opacity='1';
+    const isLocked=controlArea.classList.contains('locked');
 
     if(isLocked){
-        // Khi khóa: cố định
         p.style.position='fixed';
         p.style.top='200px';
         p.style.left='50%';
         p.style.transform='translateX(-50%)';
-    } else {
-        // Khi chưa khóa: trên nút play của câu hiện tại
-        const cards = document.querySelectorAll('.card');
+    }else{
+        const cards=document.querySelectorAll('.card');
         if(cards.length && currentIndex>=0 && currentIndex<cards.length){
-            const playBtn = cards[currentIndex].querySelector('.play-btn');
+            const playBtn=cards[currentIndex].querySelector('.play-btn');
             if(playBtn){
-                const rect = playBtn.getBoundingClientRect();
+                const rect=playBtn.getBoundingClientRect();
                 p.style.position='absolute';
                 p.style.left=`${rect.left + rect.width/2 + window.scrollX}px`;
                 p.style.top=`${rect.top + window.scrollY - 10}px`;
@@ -107,10 +104,7 @@ function showPopup(text){
         }
     }
 
-    setTimeout(()=>{
-        p.style.opacity='0';
-        setTimeout(()=>p.style.display='none',500);
-    },2000);
+    setTimeout(()=>{p.style.opacity='0'; setTimeout(()=>p.style.display='none',500);},2000);
 }
 
 // THÊM BUTTON MỚI
@@ -123,8 +117,8 @@ function addButton(v=''){
 }
 
 // LƯU & TẢI DỮ LIỆU
-function saveAll(){localStorage.setItem('voiceButtons', JSON.stringify([...document.querySelectorAll('.card input')].map(i=>i.value.trim())));}
-function loadButtons(){let saved=JSON.parse(localStorage.getItem('voiceButtons')||"[]");(saved.length?saved:defaults).forEach(t=>addButton(t));currentIndex=0;}
+function saveAll(){localStorage.setItem('voiceButtons',JSON.stringify([...document.querySelectorAll('.card input')].map(i=>i.value.trim())));}
+function loadButtons(){let saved=JSON.parse(localStorage.getItem('voiceButtons')||"[]");(saved.length?saved:defaults).forEach(t=>addButton(t)); currentIndex=0;}
 function resetDefaults(){if(confirm("Đặt lại mặc định?")){localStorage.removeItem('voiceButtons'); document.getElementById('buttonContainer').innerHTML=''; loadButtons(); currentIndex=0;}}
 
 // HỖ TRỢ
@@ -132,21 +126,14 @@ function getCards(){return document.querySelectorAll('.card input');}
 function cleanupEmptyCards(){let c=document.querySelectorAll('.card'),save=false; for(let i=c.length-1;i>=0;i--){let inp=c[i].querySelector('input'); if(!inp||inp.value.trim()===''){c[i].remove(); save=true;}} if(save){saveAll(); currentIndex=Math.min(currentIndex,getCards().length-1);}}
 
 // DI CHUYỂN PHÁT
-function moveSpeak(dir){
-    cleanupEmptyCards();
-    const c = getCards();
-    if(c.length===0) return;
-    if(dir===0) speak(c[currentIndex].value.trim());
-    else{currentIndex=(currentIndex+dir+c.length)%c.length; speak(c[currentIndex].value.trim());}
-}
+function moveSpeak(dir){cleanupEmptyCards(); const c=getCards(); if(c.length===0) return; if(dir===0) speak(c[currentIndex].value.trim()); else{currentIndex=(currentIndex+dir+c.length)%c.length; speak(c[currentIndex].value.trim());}}
 
 // KHÓA / MỞ
 function toggleLock(lock){
     const s=document.getElementById('settingsArea');
-    const c=document.getElementById('buttonContainer');
     const u=document.getElementById('unlock-btn');
-    if(lock){s.style.display='none'; c.style.display='none'; addBtnMove.style.display='none'; controlArea.classList.add('locked'); document.getElementById('mainTitle').classList.add('locked-h1'); u.style.display='flex';}
-    else{s.style.display='block'; c.style.display='grid'; addBtnMove.style.display='block'; controlArea.classList.remove('locked'); document.getElementById('mainTitle').classList.remove('locked-h1'); u.style.display='none';}
+    if(lock){s.style.display='none'; addBtnMove.style.display='none'; controlArea.classList.add('locked'); document.getElementById('mainTitle').classList.add('locked-h1'); u.style.display='flex';}
+    else{s.style.display='block'; addBtnMove.style.display='block'; controlArea.classList.remove('locked'); document.getElementById('mainTitle').classList.remove('locked-h1'); u.style.display='none';}
 }
 
 // INSTALL PWA
@@ -155,8 +142,9 @@ function installApp(){if(deferredPrompt){deferredPrompt.prompt(); deferredPrompt
 window.addEventListener('appinstalled',()=>installButton.style.display='none');
 
 // WARM UP TTS
-function warmUpTTS(){if(!('speechSynthesis'in window)) return; let u=new SpeechSynthesisUtterance(" "); u.lang='vi-VN'; u.volume=0; u.rate=10; speechSynthesis.speak(u); setTimeout(()=>speechSynthesis.cancel(),500);}
+function warmUpTTS(){if(!('speechSynthesis' in window)) return; let u=new SpeechSynthesisUtterance(" "); u.lang='vi-VN'; u.volume=0; u.rate=10; speechSynthesis.speak(u); setTimeout(()=>speechSynthesis.cancel(),500);}
 window.onload=()=>{loadButtons(); warmUpTTS();}
 </script>
+
 </body>
 </html>
