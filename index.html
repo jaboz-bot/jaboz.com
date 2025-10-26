@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Máy hỗ trợ giọng nói</title>
-<style>
+<link rel="manifest" href="manifest.json"> <style>
+/* ... (Giữ nguyên các style CSS khác) ... */
 body{font-family:'Segoe UI',sans-serif;background:#e3f2fd;margin:0;padding:0 0 55px;text-align:center}
 .main-wrapper{max-width:700px;margin:0 auto;padding:20px 10px}
 h1{margin-bottom:20px}
@@ -62,10 +63,10 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
 <div id="tts-info">Nếu không thấy âm thanh, tải <a href="https://play.google.com/store/apps/details?id=com.google.android.tts" target="_blank">Google Play</a></div>
 
 <script>
-let deferredPrompt,currentIndex=0,defaults=["Tôi muốn ăn cơm","Tôi muốn uống nước","Tôi muốn đi vệ sinh","Tôi muốn đi ngủ"];
+let deferredPrompt,currentIndex=0,defaults=["Tôi muốn ăn cơm","Tôi muốn uống nước","Tôi muốn đi vệ sinh","Tôi muốn đi ngủ"],installState = 'before_install';
 const controlArea=document.getElementById('controlArea'),
-      installButton=document.getElementById('installButton'),
-      addBtnMove=document.getElementById('add-btn-move');
+      installButton=document.getElementById('installButton'),
+      addBtnMove=document.getElementById('add-btn-move');
 
 function speak(text){if(!text||!('speechSynthesis'in window))return;speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(text);u.lang='vi-VN';speechSynthesis.speak(u);showPopup(text)}
 function showPopup(text){const p=document.getElementById('popup');p.textContent=text;p.style.display='block';p.style.opacity='1';setTimeout(()=>{p.style.opacity='0';setTimeout(()=>p.style.display='none',500)},2000)}
@@ -77,9 +78,40 @@ function getCards(){return document.querySelectorAll('.card input')}
 function cleanupEmptyCards(){let c=document.querySelectorAll('.card'),save=false;for(let i=c.length-1;i>=0;i--){let inp=c[i].querySelector('input');if(!inp||inp.value.trim()===''){c[i].remove();save=true}}if(save){saveAll();currentIndex=Math.min(currentIndex,getCards().length-1)}}
 function moveSpeak(dir){cleanupEmptyCards();const c=getCards();if(c.length===0)return;if(dir===0)speak(c[currentIndex].value.trim());else{currentIndex=(currentIndex+dir+c.length)%c.length;speak(c[currentIndex].value.trim())}}
 function toggleLock(lock){const s=document.getElementById('settingsArea'),c=document.getElementById('buttonContainer'),u=document.getElementById('unlock-btn');if(lock){s.style.display='none';c.style.display='none';addBtnMove.style.display='none';controlArea.classList.add('locked');document.getElementById('mainTitle').classList.add('locked-h1');u.style.display='flex'}else{s.style.display='block';c.style.display='grid';addBtnMove.style.display='block';controlArea.classList.remove('locked');document.getElementById('mainTitle').classList.remove('locked-h1');u.style.display='none'}}
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;installButton.style.display='block';installButton.onclick=installApp})
-function installApp(){if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.userChoice.then(()=>{deferredPrompt=null;installButton.style.display='none'})}}
-window.addEventListener('appinstalled',()=>installButton.style.display='none')
+
+// --- Logic PWA đã sửa đổi ---
+
+window.addEventListener('beforeinstallprompt',e=>{
+    e.preventDefault();
+    deferredPrompt=e;
+    if (installState === 'before_install') {
+        installButton.style.display='block';
+        installButton.onclick=installApp;
+    }
+});
+
+function installApp(){
+    if(deferredPrompt){
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult)=>{
+            if (choiceResult.outcome === 'accepted') {
+                installState = 'installed';
+            } else {
+                installState = 'rejected';
+            }
+            deferredPrompt=null;
+            installButton.style.display='none'; // Ẩn nút sau khi người dùng tương tác
+        });
+    }
+}
+
+window.addEventListener('appinstalled',()=>{
+    installState = 'installed';
+    installButton.style.display='none';
+});
+
+// --- Kết thúc Logic PWA đã sửa đổi ---
+
 function warmUpTTS(){if(!('speechSynthesis'in window))return;let u=new SpeechSynthesisUtterance(" ");u.lang='vi-VN';u.volume=0;u.rate=10;speechSynthesis.speak(u);setTimeout(()=>speechSynthesis.cancel(),500)}
 window.onload=()=>{loadButtons();warmUpTTS();}
 </script>
