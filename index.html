@@ -37,7 +37,7 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
 .current-btn-color{background:#ff9800}
 #settingsArea{margin-top:30px;text-align:center}
 
-/* CSS cho chế độ khóa (Đã sửa lỗi) */
+/* CSS cho chế độ khóa */
 .control-container.locked{
     position:fixed;
     top:0;
@@ -47,20 +47,19 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
     overflow:hidden;
     z-index:99;
     background:#e3f2fd;
-    /* Căn giữa toàn bộ control-container để các nút nav hiện ở giữa */
     justify-content: center; 
 }
 .control-container.locked #add-btn-move,
 .control-container.locked #settingsArea {
-    display: none !important; /* Đảm bảo các nút thêm và cài đặt bị ẩn */
+    display: none !important;
 }
 .control-container.locked .navigation-group{
-    margin:0; /* Loại bỏ margin để căn giữa tuyệt đối */
+    margin:0;
 }
 
-/* Cập nhật CSS cho Popup */
+/* Cập nhật CSS cho Popup: Đã loại bỏ transition: .5s */
 #popup{
-    position: absolute; /* Mặc định là absolute để nằm gần nút */
+    position: absolute;
     background:rgba(0,0,0,.8);
     color:#fff;
     padding:15px 20px;
@@ -71,13 +70,12 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
     max-width:90%;
     min-width:100px;
     text-align:center;
-    transition:.5s;
-    /* Xóa các thuộc tính cố định cũ */
+    /* transition:.5s; <--- Đã loại bỏ dòng này */
     transform: none; 
     left: auto;
     top: auto;
 }
-#popup.locked-mode { /* Thêm class khi khóa giao diện */
+#popup.locked-mode {
     position: fixed;
     top: 150px;
     left: 50%;
@@ -121,7 +119,7 @@ const controlArea=document.getElementById('controlArea'),
       addBtnMove=document.getElementById('add-btn-move'),
       popupElement=document.getElementById('popup'),
       buttonContainer=document.getElementById('buttonContainer'),
-      settingsArea=document.getElementById('settingsArea'); // Lấy thêm settingsArea
+      settingsArea=document.getElementById('settingsArea');
 
 function speak(text, targetElement){
     if(!text||!('speechSynthesis'in window))return;
@@ -135,7 +133,8 @@ function speak(text, targetElement){
 function showPopup(text, targetElement){
     popupElement.textContent=text;
     popupElement.style.display='block';
-    popupElement.style.opacity='1';
+    // Đặt opacity trực tiếp
+    popupElement.style.opacity='1'; 
 
     if (!document.body.classList.contains('locked')) {
         // Chế độ mở khóa: Định vị ngay trên nút
@@ -171,8 +170,9 @@ function showPopup(text, targetElement){
     }
 
     setTimeout(()=>{
-        popupElement.style.opacity='0';
-        setTimeout(()=>popupElement.style.display='none',500)
+        // Đặt opacity về 0 ngay lập tức
+        popupElement.style.opacity='0'; 
+        setTimeout(()=>popupElement.style.display='none',0) // Đã đổi 500ms thành 0ms
     },2000)
 }
 
@@ -206,7 +206,6 @@ function moveSpeak(dir){
     const c=getCards();
     if(c.length===0)return;
 
-    // Các nút điều khiển nằm trong controlArea, nên ta dùng nút 'Phát lại' làm target
     const targetButton = controlArea.querySelector('.current-btn-color'); 
     
     if(dir===0){
@@ -217,13 +216,12 @@ function moveSpeak(dir){
     }
 }
 
-// Sửa lỗi: Chỉ ẩn các phần tử không mong muốn, giữ lại controlArea
 function toggleLock(lock){
     const u=document.getElementById('unlock-btn');
     if(lock){
         buttonContainer.style.display='none';
         addBtnMove.style.display='none';
-        settingsArea.style.display='none'; // Ẩn khu vực cài đặt
+        settingsArea.style.display='none';
         
         controlArea.classList.add('locked');
         document.body.classList.add('locked');
@@ -232,7 +230,7 @@ function toggleLock(lock){
     } else {
         buttonContainer.style.display='grid';
         addBtnMove.style.display='block';
-        settingsArea.style.display='block'; // Hiện khu vực cài đặt
+        settingsArea.style.display='block';
         
         controlArea.classList.remove('locked');
         document.body.classList.remove('locked');
