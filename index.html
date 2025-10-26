@@ -9,9 +9,9 @@
 body{font-family:'Segoe UI',sans-serif;background:#e3f2fd;margin:0;padding:0 0 55px;text-align:center}
 /* Chống người dùng vuốt màn hình khi khóa */
 body.locked {
-    overflow: hidden; 
-    overscroll-behavior-y: contain; 
-    touch-action: none;
+    overflow: hidden; 
+    overscroll-behavior-y: contain; 
+    touch-action: none;
 }
 
 .main-wrapper{max-width:700px;margin:0 auto;padding:20px 10px}
@@ -23,111 +23,77 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
 .btn{padding:12px;border:none;border-radius:8px;color:white;font-size:16px;cursor:pointer;transition:.3s;display:flex;justify-content:center;align-items:center}
 .play-btn{background:linear-gradient(45deg,#4CAF50,#43A047)}
 .add-btn,.install-btn{width:200px}
-
-/* Căn chỉnh lại nhóm nút cài đặt */
 .reset-btn,.settings-btn,.install-btn.large-control-btn{
-    width:220px;
-    height:50px;
-    font-size:18px;
-    margin:8px auto; /* Đã có căn giữa, không cần thay đổi */
-    display:flex;
-    justify-content:center;
-    align-items:center;
+    width:220px;
+    height:50px;
+    font-size:18px;
+    margin:8px auto;
+    display:flex;
+    justify-content:center;
+    align-items:center;
 }
-.install-btn{background:linear-gradient(45deg,#00BCD4,#0097A7)} 
-/* THAY ĐỔI MÀU: Nút Thêm câu mới thành màu xanh dương */
-.add-btn{background:linear-gradient(45deg,#2196F3,#1976D2)} 
-.reset-btn{background:linear-gradient(45deg,#2196F3,#1976D2)}
+.install-btn{background:linear-gradient(45deg,#00BCD4,#0097A7)} 
+.add-btn,.reset-btn{background:linear-gradient(45deg,#2196F3,#1976D2)}
 .settings-btn{background:linear-gradient(45deg,#f44336,#d32f2f)}
-
 .delete-btn{position:absolute;top:6px;right:8px;background:transparent;border:none;color:#e53935;font-size:18px;cursor:pointer;padding:0}
 #unlock-btn{width:160px;height:60px;display:none;background:linear-gradient(45deg,#f44336,#d32f2f)}
 .control-container{display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:20px;transition:.3s;position:relative}
-
-/* THAY ĐỔI: Sử dụng flexbox để giãn rộng các nút và tạo khoảng cách giữa chúng */
-.navigation-group{
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    /* Tăng khoảng cách giữa các nút từ 15px lên 25px */
-    gap:25px; 
-    margin:25px 0 0
-}
+.navigation-group{display:flex;flex-direction:column;align-items:center;gap:15px;margin:25px 0 0}
 /* THAY ĐỔI: Sử dụng touch-action: manipulation; để ưu tiên các sự kiện nhấn/chạm */
 .control-btn{
-    /* Tăng chiều rộng nút từ 150px lên 220px để giãn rộng */
-    width:220px;
-    height:60px;
-    border-radius:8px;
-    color:white;
-    font-size:18px;
-    border:none;
-    cursor:pointer;
-    transition:.3s;
-    font-weight:bold;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    touch-action: manipulation; 
+    width:150px;height:60px;border-radius:8px;color:white;font-size:18px;border:none;cursor:pointer;transition:.3s;font-weight:bold;display:flex;justify-content:center;align-items:center;
+    touch-action: manipulation; 
 }
 .play-control-btn{background:linear-gradient(45deg,#4CAF50,#43A047)}
 .current-btn-color{background:#ff9800}
-
-/* THAY ĐỔI: Căn giữa nhóm nút cài đặt */
-#settingsArea{
-    margin-top:30px;
-    text-align:center;
-    display: flex;
-    flex-direction: column;
-    align-items: center; /* Đảm bảo các nút được căn giữa */
-}
+#settingsArea{margin-top:30px;text-align:center}
 
 /* CSS cho chế độ khóa */
 .control-container.locked{
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    overflow:hidden;
-    z-index:99;
-    background:#e3f2fd;
-    justify-content: center; 
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    z-index:99;
+    background:#e3f2fd;
+    justify-content: center; 
 }
 .control-container.locked #add-btn-move,
 .control-container.locked #settingsArea {
-    display: none !important;
+    display: none !important;
 }
 .control-container.locked .navigation-group{
-    margin:0;
+    margin:0;
 }
 .control-container.locked #unlock-btn{
-    position:fixed;
-    bottom: 80px; 
-    left:50%;
-    transform:translateX(-50%);
-    display:flex;
-    z-index:100;
+    position:fixed;
+    bottom: 80px; 
+    left:50%;
+    transform:translateX(-50%);
+    display:flex;
+    z-index:100;
 }
 
 /* Cập nhật CSS cho Popup: Luôn fixed và căn giữa */
 #popup{
-    position: fixed;
-    top: 200px;
-    left: 50%;
-    transform: translateX(-50%);
-    
-    background:rgba(0,0,0,.8);
-    color:#fff;
-    padding:15px 20px;
-    border-radius:12px;
-    font-size:18px;
-    display:none;
-    z-index:1000;
-    max-width:90%;
-    min-width:100px;
-    text-align:center;
-    transition: opacity 0.5s ease-out; 
+    position: fixed;
+    top: 200px;
+    left: 50%;
+    transform: translateX(-50%);
+    
+    background:rgba(0,0,0,.8);
+    color:#fff;
+    padding:15px 20px;
+    border-radius:12px;
+    font-size:18px;
+    display:none;
+    z-index:1000;
+    max-width:90%;
+    min-width:100px;
+    text-align:center;
+    transition: opacity 0.5s ease-out; 
 }
 
 #tts-info{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:700px;text-align:center;padding:10px;border-top:1px solid #ccc;color:#616161;background:#e3f2fd;font-size:14px;z-index:1010}
@@ -165,48 +131,48 @@ let deferredPrompt,currentIndex=0,defaults=["Tôi muốn ăn cơm","Tôi muốn 
 const controlArea=document.getElementById('controlArea'),
       installButton=document.getElementById('installButton'),
       addBtnMove=document.getElementById('add-btn-move'),
-      popupElement=document.getElementById('popup'),
-      buttonContainer=document.getElementById('buttonContainer'),
-      settingsArea=document.getElementById('settingsArea');
+      popupElement=document.getElementById('popup'),
+      buttonContainer=document.getElementById('buttonContainer'),
+      settingsArea=document.getElementById('settingsArea');
 
 function speak(text, targetElement){
-    if(!text||!('speechSynthesis'in window))return;
-    speechSynthesis.cancel();
-    let u=new SpeechSynthesisUtterance(text);
-    u.lang='vi-VN';
-    speechSynthesis.speak(u);
-    showPopup(text); 
+    if(!text||!('speechSynthesis'in window))return;
+    speechSynthesis.cancel();
+    let u=new SpeechSynthesisUtterance(text);
+    u.lang='vi-VN';
+    speechSynthesis.speak(u);
+    showPopup(text); 
 }
 
 function showPopup(text){
-    popupElement.textContent=text;
-    popupElement.style.display='block';
-    popupElement.style.opacity='1';
+    popupElement.textContent=text;
+    popupElement.style.display='block';
+    popupElement.style.opacity='1';
 
-    setTimeout(()=>{ 
-        popupElement.style.opacity='0'; 
-        setTimeout(()=>popupElement.style.display='none', 500) 
-    },3500) 
+    setTimeout(()=>{ 
+        popupElement.style.opacity='0'; 
+        setTimeout(()=>popupElement.style.display='none', 500) 
+    },3500) 
 }
 
 function addButton(v=''){
-    let c=document.createElement('div');
-    c.className='card';
-    let i=document.createElement('input');
-    i.value=v;
-    i.placeholder="Nhập văn bản...";
-    i.onchange=saveAll;
-    let p=document.createElement('button');
-    p.className='btn play-btn';
-    p.textContent='🔊 Phát âm';
-    p.onclick=()=>speak(i.value.trim(), p); 
-    let d=document.createElement('button');
-    d.className='delete-btn';
-    d.textContent='❌';
-    d.onclick=()=>{c.remove();saveAll();currentIndex=Math.min(currentIndex,getCards().length-1)};
-    c.append(i,p,d);
-    document.getElementById('buttonContainer').appendChild(c);
-    saveAll()
+    let c=document.createElement('div');
+    c.className='card';
+    let i=document.createElement('input');
+    i.value=v;
+    i.placeholder="Nhập văn bản...";
+    i.onchange=saveAll;
+    let p=document.createElement('button');
+    p.className='btn play-btn';
+    p.textContent='🔊 Phát âm';
+    p.onclick=()=>speak(i.value.trim(), p); 
+    let d=document.createElement('button');
+    d.className='delete-btn';
+    d.textContent='❌';
+    d.onclick=()=>{c.remove();saveAll();currentIndex=Math.min(currentIndex,getCards().length-1)};
+    c.append(i,p,d);
+    document.getElementById('buttonContainer').appendChild(c);
+    saveAll()
 }
 
 function saveAll(){localStorage.setItem('voiceButtons',JSON.stringify([...document.querySelectorAll('.card input')].map(i=>i.value.trim())))}
@@ -215,89 +181,94 @@ function resetDefaults(){if(confirm("Đặt lại mặc định?")){localStorage
 function getCards(){return document.querySelectorAll('.card input')}
 function cleanupEmptyCards(){let c=document.querySelectorAll('.card'),save=false;for(let i=c.length-1;i>=0;i--){let inp=c[i].querySelector('input');if(!inp||inp.value.trim()===''){c[i].remove();save=true}}if(save){saveAll();currentIndex=Math.min(currentIndex,getCards().length-1)}}
 function moveSpeak(dir){
-    cleanupEmptyCards();
-    const c=getCards();
-    if(c.length===0)return;
-    
-    if(dir===0){
-        speak(c[currentIndex].value.trim());
-    } else {
-        currentIndex=(currentIndex+dir+c.length)%c.length;
-        speak(c[currentIndex].value.trim());
-    }
+    cleanupEmptyCards();
+    const c=getCards();
+    if(c.length===0)return;
+    
+    if(dir===0){
+        speak(c[currentIndex].value.trim());
+    } else {
+        currentIndex=(currentIndex+dir+c.length)%c.length;
+        speak(c[currentIndex].value.trim());
+    }
 }
 
 function toggleLock(lock){
-    const u=document.getElementById('unlock-btn');
-    if(lock){
-        buttonContainer.style.display='none';
-        addBtnMove.style.display='none';
-        settingsArea.style.display='none';
-        
-        controlArea.classList.add('locked');
-        document.body.classList.add('locked');
-        document.getElementById('mainTitle').classList.add('locked-h1');
-        u.style.display='flex';
-    } else {
-        buttonContainer.style.display='grid';
-        addBtnMove.style.display='block';
-        settingsArea.style.display='flex'; /* Đã đổi từ 'block' thành 'flex' để hỗ trợ căn giữa tốt hơn */
-        
-        controlArea.classList.remove('locked');
-        document.body.classList.remove('locked');
-        document.getElementById('mainTitle').classList.remove('locked-h1');
-        u.style.display='none';
-    }
+    const u=document.getElementById('unlock-btn');
+    if(lock){
+        buttonContainer.style.display='none';
+        addBtnMove.style.display='none';
+        settingsArea.style.display='none';
+        
+        controlArea.classList.add('locked');
+        document.body.classList.add('locked');
+        document.getElementById('mainTitle').classList.add('locked-h1');
+        u.style.display='flex';
+    } else {
+        buttonContainer.style.display='grid';
+        addBtnMove.style.display='block';
+        settingsArea.style.display='block';
+        
+        controlArea.classList.remove('locked');
+        document.body.classList.remove('locked');
+        document.getElementById('mainTitle').classList.remove('locked-h1');
+        u.style.display='none';
+    }
 }
 
 // Gắn sự kiện cho các nút điều hướng
 document.querySelectorAll('.control-btn').forEach(button => {
-    button.addEventListener('click', function(event) {
-        moveSpeak(parseInt(event.target.dataset.direction)); 
-    });
+    button.addEventListener('click', function(event) {
+        moveSpeak(parseInt(event.target.dataset.direction)); // Hoặc điều chỉnh để phù hợp với logic của bạn
+    });
+    
+    // Thêm sự kiện touchend để hỗ trợ trên thiết bị di động
+    button.addEventListener('touchend', function(event) {
+        moveSpeak(parseInt(event.target.dataset.direction));
+    });
 });
 
-window.addEventListener('beforeinstallprompt',e=>{ 
-    e.preventDefault(); 
-    deferredPrompt=e; 
-    if (installState === 'before_install') {
-        installButton.style.display='flex';
-        installButton.onclick=installApp;
-    }
+window.addEventListener('beforeinstallprompt',e=>{ 
+    e.preventDefault(); 
+    deferredPrompt=e; 
+    if (installState === 'before_install') {
+        installButton.style.display='flex';
+        installButton.onclick=installApp;
+    }
 });
 
 function installApp(){
-    if(deferredPrompt){
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then((choiceResult)=>{
-            if (choiceResult.outcome === 'accepted') {
-                installState = 'installed';
-            } else {
-                installState = 'rejected';
-            }
-            deferredPrompt=null;
-            installButton.style.display='none';
-        });
-    }
+    if(deferredPrompt){
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult)=>{
+            if (choiceResult.outcome === 'accepted') {
+                installState = 'installed';
+            } else {
+                installState = 'rejected';
+            }
+            deferredPrompt=null;
+            installButton.style.display='none';
+        });
+    }
 }
 
-window.addEventListener('appinstalled',()=>{ 
-    installState = 'installed'; 
-    installButton.style.display='none'; 
+window.addEventListener('appinstalled',()=>{ 
+    installState = 'installed'; 
+    installButton.style.display='none'; 
 });
 
-if (installState === 'before_install') { 
-    installButton.style.display='none'; 
+if (installState === 'before_install') { 
+    installButton.style.display='none'; 
 }
 
 function warmUpTTS(){
-    if(!('speechSynthesis'in window))return;
-    let u=new SpeechSynthesisUtterance(" ");
-    u.lang='vi-VN';
-    u.volume=0;
-    u.rate=10;
-    speechSynthesis.speak(u);
-    setTimeout(()=>speechSynthesis.cancel(),500)
+    if(!('speechSynthesis'in window))return;
+    let u=new SpeechSynthesisUtterance(" ");
+    u.lang='vi-VN';
+    u.volume=0;
+    u.rate=10;
+    speechSynthesis.speak(u);
+    setTimeout(()=>speechSynthesis.cancel(),500)
 }
 window.onload=()=>{loadButtons();warmUpTTS();}
 </script>
