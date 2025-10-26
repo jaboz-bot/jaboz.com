@@ -31,7 +31,7 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
 .control-container.locked{position:fixed;top:0;left:0;width:100%;height:100%;overflow:hidden;z-index:99;background:#e3f2fd}
 .control-container.locked .navigation-group{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);margin:0}
 .control-container.locked #unlock-btn{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);display:flex;z-index:100}
-#popup{position:fixed;top:150px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.8);color:#fff;padding:15px 20px;border-radius:12px;font-size:18px;display:none;z-index:1000;max-width:90%;min-width:100px;text-align:center;transition:.5s}
+#popup{position:fixed;background:rgba(0,0,0,.8);color:#fff;padding:15px 20px;border-radius:12px;font-size:18px;display:none;z-index:1000;max-width:90%;min-width:100px;text-align:center;transition:.5s}
 #tts-info{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:700px;text-align:center;padding:10px;border-top:1px solid #ccc;color:#616161;background:#e3f2fd;font-size:14px;z-index:1010}
 #tts-info a{color:#2196F3;text-decoration:none}
 </style>
@@ -68,7 +68,38 @@ const controlArea=document.getElementById('controlArea'),
       addBtnMove=document.getElementById('add-btn-move');
 
 function speak(text){if(!text||!('speechSynthesis'in window))return;speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(text);u.lang='vi-VN';speechSynthesis.speak(u);showPopup(text)}
-function showPopup(text){const p=document.getElementById('popup');p.textContent=text;p.style.display='block';p.style.opacity='1';setTimeout(()=>{p.style.opacity='0';setTimeout(()=>p.style.display='none',500)},2000)}
+
+function showPopup(text){
+    const p=document.getElementById('popup');
+    p.textContent=text;
+    p.style.display='block';
+    p.style.opacity='1';
+
+    const isLocked = controlArea.classList.contains('locked');
+    if(isLocked){
+        // Khi khóa: cố định, hạ xuống 200px
+        p.style.position = 'fixed';
+        p.style.top = '200px';
+        p.style.left = '50%';
+        p.style.transform = 'translateX(-50%)';
+    } else {
+        // Khi chưa khóa: hiển thị sát input hiện tại
+        const inputs = getCards();
+        if(inputs.length && currentIndex >= 0 && currentIndex < inputs.length){
+            const rect = inputs[currentIndex].getBoundingClientRect();
+            p.style.position = 'absolute';
+            p.style.left = `${rect.left + rect.width/2 + window.scrollX}px`;
+            p.style.top = `${rect.top + window.scrollY - 10}px`; // 10px trên input
+            p.style.transform = 'translateX(-50%)';
+        }
+    }
+
+    setTimeout(()=>{
+        p.style.opacity='0';
+        setTimeout(()=>p.style.display='none',500);
+    },2000);
+}
+
 function addButton(v=''){let c=document.createElement('div');c.className='card';let i=document.createElement('input');i.value=v;i.placeholder="Nhập văn bản...";i.onchange=saveAll;let p=document.createElement('button');p.className='btn play-btn';p.textContent='🔊 Phát âm';p.onclick=()=>speak(i.value.trim());let d=document.createElement('button');d.className='delete-btn';d.textContent='❌';d.onclick=()=>{c.remove();saveAll();currentIndex=Math.min(currentIndex,getCards().length-1)};c.append(i,p,d);document.getElementById('buttonContainer').appendChild(c);saveAll()}
 function saveAll(){localStorage.setItem('voiceButtons',JSON.stringify([...document.querySelectorAll('.card input')].map(i=>i.value.trim())))}
 function loadButtons(){let s=JSON.parse(localStorage.getItem('voiceButtons')||"[]");(s.length?s:defaults).forEach(t=>addButton(t));currentIndex=0}
