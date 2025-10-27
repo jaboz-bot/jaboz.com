@@ -299,7 +299,7 @@ function extractWordBeforeCursor(inputElement) {
     return { word: '', startIndex: -1 };
 }
 
-// HÀM SỬA ĐỔI: Sử dụng logic trích xuất mới và sắp xếp ưu tiên
+// HÀM SỬA ĐỔI: Sử dụng logic trích xuất mới, sắp xếp ưu tiên và GIỚI HẠN KÝ TỰ
 function showSuggestions(inputElement, boxElement) {
     const fullText = inputElement.value;
     const { word: lastWord, startIndex: lastWordStart } = extractWordBeforeCursor(inputElement);
@@ -337,9 +337,11 @@ function showSuggestions(inputElement, boxElement) {
         return 0;
     });
 
-    // 3. Cắt (Chỉ lấy 5 kết quả)
-    filteredSuggestions = filteredSuggestions.slice(0, 5);
-    
+    // 3. THAY ĐỔI: Cắt (Giới hạn số lượng hiển thị bằng độ dài từ đang gõ - không dấu)
+    const limit = lastWordNoDiacritics.length; 
+    filteredSuggestions = filteredSuggestions.slice(0, limit);
+    // KẾT THÚC THAY ĐỔI
+
     // BẮT ĐẦU LOGIC ĐIỀU CHỈNH VỊ TRÍ (Mặc định SỔ LÊN)
     if (filteredSuggestions.length > 0) {
         const rect = inputElement.getBoundingClientRect();
