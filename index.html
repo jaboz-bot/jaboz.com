@@ -96,39 +96,23 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
     transition: opacity 0.5s ease-out; 
 }
 
-/* SỬA ĐỔI LỚN: Sử dụng FIXED để kiểm soát vị trí độc lập với luồng trang (đặc biệt khi bàn phím ảo hiện ra) */
+/* BỔ SUNG CSS CHO HỘP GỢI Ý TÙY CHỈNH (ĐÃ ĐIỀU CHỈNH SỔ LÊN TRÊN) */
 .suggestion-box {
-    position: fixed; /* THAY ĐỔI: Dùng fixed để neo vào viewport */
-    /* BỎ CÁC THUỘC TÍNH top/bottom/left/right ở đây. Sẽ dùng JS để tính */
-    z-index: 1001; /* Tăng z-index để chắc chắn nằm trên popup */
-    width: auto; /* Kích thước sẽ được JS đặt bằng với input */
-     
-    background: #fff;
-    border: 1px solid #ddd;
-    max-height: 150px;
-    overflow-y: auto;
-    text-align: left;
-    display: none; 
+    position: absolute;
+    bottom: calc(100% - 10px); /* THAY ĐỔI LỚN: Đặt ngay phía trên input */
+    left: 0;
+    right: 0;
+    z-index: 10;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-bottom: none; /* THAY ĐỔI: Bỏ viền dưới */
+    border-radius: 8px 8px 0 0; /* THAY ĐỔI: Bo góc trên */
+    box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1); /* THAY ĐỔI: Đổ bóng lên trên */
+    max-height: 150px;
+    overflow-y: auto;
+    text-align: left;
+    display: none; 
 }
-
-/* KHÔNG CẦN .suggestion-box.down NỮA. JS sẽ tự động đặt vị trí và kiểu dáng */
-
-/* Định nghĩa kiểu dáng Sổ Lên mặc định */
-.suggestion-box.upward {
-    border-bottom: none; /* Bỏ viền dưới */
-    border-top: 1px solid #ddd;
-    border-radius: 8px 8px 0 0; /* Bo góc trên */
-    box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1); /* Đổ bóng lên trên */
-}
-
-/* Định nghĩa kiểu dáng Sổ Xuống */
-.suggestion-box.downward {
-    border-top: none; /* Bỏ viền trên */
-    border-bottom: 1px solid #ddd;
-    border-radius: 0 0 8px 8px; /* Bo góc dưới */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Đổ bóng xuống */
-}
-    
 .suggestion-item {
     padding: 10px;
     cursor: pointer;
@@ -218,10 +202,10 @@ function showSuggestions(inputElement, boxElement) {
     const fullText = inputElement.value;
     // Tách chuỗi bằng dấu cách (bao gồm nhiều dấu cách liên tiếp)
     const parts = fullText.split(/\s+/).filter(p => p.length > 0); 
-
-    // 1. Lấy từ cuối cùng đang được gõ
-    const lastWord = parts.length > 0 ? parts[parts.length - 1] : ''; 
-
+    
+    // 1. Lấy từ cuối cùng đang được gõ (không cần lowerCase ở đây)
+    const lastWord = parts.length > 0 ? parts[parts.length - 1] : '';
+    
     // CHUẨN HÓA: Lấy từ cuối cùng KHÔNG DẤU mà người dùng gõ
     const lastWordNoDiacritics = removeDiacritics(lastWord).toLowerCase();
 
@@ -230,72 +214,27 @@ function showSuggestions(inputElement, boxElement) {
         boxElement.style.display = 'none';
         return;
     }
-
+    
     boxElement.innerHTML = '';
-
-    // Lọc danh sách gợi ý
+    
+    // Lọc danh sách gợi ý: So sánh gợi ý (đã bỏ dấu) với từ cuối cùng (đã bỏ dấu)
     const filteredSuggestions = wordSuggestions
         .filter(phrase => removeDiacritics(phrase).toLowerCase().startsWith(lastWordNoDiacritics))
         .slice(0, 5); 
 
     if (filteredSuggestions.length > 0) {
-        /* PHẦN LOGIC MỚI BẮT ĐẦU: Tính toán vị trí FIXED */
-        const rect = inputElement.getBoundingClientRect();
-        // Giả định chiều cao tối đa của suggestion box là 160px (150px + padding/border)
-        const SUGGESTION_HEIGHT = 160; 
-        const WINDOW_HEIGHT = window.innerHeight;
-        
-        let shouldGoDown;
-        
-        // Kiểm tra xem có đủ không gian phía trên (ví dụ: cần > 180px để sổ lên)
-        const spaceAbove = rect.top;
-        // Kiểm tra xem có đủ không gian phía dưới (ví dụ: cần > 180px để sổ xuống)
-        const spaceBelow = WINDOW_HEIGHT - rect.bottom;
-
-        // Ưu tiên SỔ LÊN, trừ khi không đủ chỗ phía trên VÀ đủ chỗ phía dưới
-        if (spaceAbove < SUGGESTION_HEIGHT && spaceBelow >= SUGGESTION_HEIGHT) {
-            shouldGoDown = true; // Bắt buộc sổ xuống
-        } else if (spaceAbove >= SUGGESTION_HEIGHT) {
-            shouldGoDown = false; // Đủ chỗ, sổ lên mặc định
-        } else {
-            // Trường hợp không đủ chỗ cả trên lẫn dưới (quá hiếm hoặc màn hình quá nhỏ)
-            // Ta chọn sổ xuống để tránh tràn qua cạnh trên cùng
-            shouldGoDown = true; 
-        }
-
-        // 1. Đặt kích thước và vị trí LEFT/RIGHT (luôn cố định)
-        boxElement.style.left = rect.left + 'px';
-        boxElement.style.width = rect.width + 'px';
-
-        // 2. Đặt vị trí TOP/BOTTOM và kiểu dáng
-        if (shouldGoDown) {
-            // SỔ XUỐNG
-            boxElement.style.top = rect.bottom + 'px';
-            boxElement.style.bottom = 'auto'; // Vô hiệu hóa bottom
-            boxElement.classList.remove('upward');
-            boxElement.classList.add('downward');
-        } else {
-            // SỔ LÊN (MẶC ĐỊNH)
-            boxElement.style.bottom = (WINDOW_HEIGHT - rect.top) + 'px';
-            boxElement.style.top = 'auto'; // Vô hiệu hóa top
-            boxElement.classList.remove('downward');
-            boxElement.classList.add('upward');
-        }
-        /* PHẦN LOGIC MỚI KẾT THÚC */
-
         filteredSuggestions.forEach(phrase => {
             const item = document.createElement('div');
             item.className = 'suggestion-item';
             item.textContent = phrase;
-
+            
             // Xử lý khi click vào mục gợi ý (dùng mousedown để ngăn input blur ngay lập tức)
             item.addEventListener('mousedown', (e) => {
-                e.preventDefault(); 
-
+                e.preventDefault(); 
+                
                 // Tìm vị trí bắt đầu của từ cuối cùng
-                const lastWordIndex = fullText.trimEnd().lastIndexOf(lastWord);
-                const lastWordStart = (lastWordIndex !== -1) ? lastWordIndex : fullText.length;
-
+                const lastWordStart = fullText.lastIndexOf(lastWord);
+                
                 // Tái tạo văn bản: Thay thế từ cuối cùng bằng gợi ý (có dấu) được chọn
                 let newText = fullText.substring(0, lastWordStart) + phrase;
 
@@ -303,11 +242,11 @@ function showSuggestions(inputElement, boxElement) {
                 newText += ' '; 
 
                 inputElement.value = newText;
-
+                
                 boxElement.style.display = 'none';
-                saveAll(); 
+                saveAll(); 
                 inputElement.focus();
-
+                
                 // Đặt con trỏ về cuối input
                 inputElement.selectionStart = inputElement.selectionEnd = newText.length;
             });
