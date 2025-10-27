@@ -119,37 +119,32 @@ input {
     transition: opacity 0.5s ease-out; 
 }
 
-/* BẮT ĐẦU PHẦN CSS ĐÃ SỬA: Mặc định SỔ LÊN VÀ CĂN GIỮA */
+/* BẮT ĐẦU PHẦN CSS ĐÃ SỬA: Mặc định SỔ LÊN */
 .suggestion-box {
-    position: absolute;
-    bottom: calc(100% - 2px); 
-    left: 50%; /* BỔ SUNG */
-    transform: translateX(-50%); /* BỔ SUNG */
-    z-index: 10;
-    background: #fff;
-    border: 1px solid #ddd;
-    border-bottom: none; 
-    border-radius: 8px 8px 0 0; 
-    box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1); 
-    max-height: 150px;
-    overflow-y: auto;
-    text-align: left;
-    display: none;
-    box-sizing: border-box; 
-    max-width: 90%; /* BỔ SUNG */
-    min-width: 250px; /* BỔ SUNG */
+    position: absolute;
+    bottom: calc(100% - 10px); /* THAY ĐỔI: Mặc định SỔ LÊN trên input */
+    left: 0;
+    right: 0;
+    z-index: 10;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-bottom: none; /* Bỏ viền dưới */
+    border-radius: 8px 8px 0 0; /* Bo góc trên */
+    box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1); /* Đổ bóng lên trên */
+    max-height: 150px;
+    overflow-y: auto;
+    text-align: left;
+    display: none;
 }
 
 /* THÊM CLASS MỚI CHO TRƯỜNG HỢP NGOẠI LỆ (Sổ XUỐNG) */
-.suggestion-box.align-bottom { 
-    bottom: auto; 
-    top: calc(100% - 2px); 
-    /* left: 50%; transform: translateX(-50%); đã kế thừa */
-    border-top: none; 
-    border-bottom: 1px solid #ddd; 
-    border-radius: 0 0 8px 8px; 
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
-    box-sizing: border-box; 
+.suggestion-box.align-bottom { /* Đặt tên class mới để dễ hiểu hơn */
+    bottom: auto; /* Xóa thuộc tính bottom */
+    top: calc(100% - 10px); /* Đặt ngay phía dưới input */
+    border-top: none; /* Bỏ viền trên */
+    border-bottom: 1px solid #ddd; /* Khôi phục viền dưới */
+    border-radius: 0 0 8px 8px; /* Bo góc dưới */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Đổ bóng xuống dưới */
 }
 
 .suggestion-item {
@@ -171,18 +166,7 @@ input {
 
 #tts-info{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:700px;text-align:center;padding:10px;border-top:1px solid #ccc;color:#616161;background:#e3f2fd;font-size:14px;z-index:1010}
 #tts-info a{color:#2196F3;text-decoration:none}
-
-/* CSS BỔ SUNG (CHỈ DÀNH CHO WEBKIT/CHROME/SAFARI) */
-.suggestion-box::-webkit-scrollbar {
-    width: 6px; /* Chiều rộng thanh trượt */
-}
-.suggestion-box::-webkit-scrollbar-thumb {
-    background-color: #ccc; /* Màu nền của thanh trượt */
-    border-radius: 10px;
-}
-    
 </style>
-    
 </head>
 <body>
 <div class="main-wrapper">
