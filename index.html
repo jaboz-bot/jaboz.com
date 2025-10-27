@@ -79,6 +79,15 @@ body.locked #scrolling-message {
 body.locked #tts-info {
     z-index: 1011; /* Đảm bảo tts-info nằm trên cùng */
 }
+
+/* Media Query: Chỉ áp dụng cho màn hình có chiều rộng tối đa 700px (Điện thoại/Tablet) */
+@media (max-width: 700px) {
+    #scrolling-message {
+        /* ÁP DỤNG GIÁ TRỊ RẤT THẤP CHỈ CHO ĐIỆN THOẠI */
+        bottom: 39px; /* Thử với 39px. Nếu vẫn hở, giảm xuống 38px */
+    }
+}
+
     
 </style>
     
