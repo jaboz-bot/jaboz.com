@@ -183,7 +183,7 @@ async function loadSuggestions() {
     }
 }
 
-// HÀM MỚI: Hiển thị gợi ý tùy chỉnh
+// HÀM MỚI: Hiển thị gợi ý tùy chỉnh (giới hạn 4 từ)
 function showSuggestions(inputElement, boxElement) {
     const inputText = inputElement.value.trim().toLowerCase();
     boxElement.innerHTML = '';
@@ -193,10 +193,10 @@ function showSuggestions(inputElement, boxElement) {
         return;
     }
 
-    // SỬA ĐỔI: Dùng .includes() thay vì .startsWith() để tìm kiếm bất kỳ đâu trong cụm từ
+    // Lọc danh sách gợi ý
     const filteredSuggestions = wordSuggestions
-        .filter(phrase => phrase.toLowerCase().includes(inputText))
-        //.slice(0, 4); // Giữ giới hạn 4 hoặc xóa nếu muốn hiện tất cả
+        .filter(phrase => phrase.toLowerCase().startsWith(inputText))
+        //.slice(0, 4); // CHỈ GIỚI HẠN 4 GỢI Ý ĐẦU TIÊN
 
     if (filteredSuggestions.length > 0) {
         filteredSuggestions.forEach(phrase => {
