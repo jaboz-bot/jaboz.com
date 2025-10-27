@@ -186,9 +186,13 @@ input {
 </div>
 
 <div id="settingsArea">
-<button class="btn settings-btn" onclick="toggleLock(true)">Khóa giao diện</button>
-<button class="btn install-btn large-control-btn" id="installButton">📲 Cài đặt app</button>
-<button class="btn reset-btn" onclick="resetDefaults()">♻️ Reset mặc định</button>
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 10px; margin-bottom: 20px; padding: 10px; border: 1px solid #ccc; border-radius: 8px; background: #fff;">
+        <label for="rate-slider" style="font-weight: bold; color: #333;">Tốc độ đọc (<span id="rate-value">1.0</span>)</label>
+        <input type="range" id="rate-slider" min="0.5" max="2.0" step="0.1" value="1.0" style="width: 90%; cursor: pointer;">
+    </div>
+    <button class="btn settings-btn" onclick="toggleLock(true)">Khóa giao diện</button>
+    <button class="btn install-btn large-control-btn" id="installButton">📲 Cài đặt app</button>
+    <button class="btn reset-btn" onclick="resetDefaults()">♻️ Reset mặc định</button>
 </div>
 </div>
 
@@ -358,11 +362,18 @@ const controlArea=document.getElementById('controlArea'),
       buttonContainer=document.getElementById('buttonContainer'),
       settingsArea=document.getElementById('settingsArea');
 
+// BỔ SUNG: Khởi tạo biến cho tốc độ đọc
+let currentRate = 1.0; 
+const rateSlider = document.getElementById('rate-slider');
+const rateValueSpan = document.getElementById('rate-value');
+    
 function speak(text, targetElement){
     if(!text||!('speechSynthesis'in window))return;
     speechSynthesis.cancel();
     let u=new SpeechSynthesisUtterance(text);
     u.lang='vi-VN';
+    // SỬA ĐỔI: Áp dụng tốc độ đọc hiện tại
+    u.rate = currentRate; 
     speechSynthesis.speak(u);
     showPopup(text); 
 }
@@ -569,7 +580,47 @@ function warmUpTTS(){
     setTimeout(()=>speechSynthesis.cancel(),500)
 }
 // SỬA ĐỔI: Gọi hàm tải gợi ý mới
-window.onload=()=>{loadButtons();warmUpTTS();loadSuggestions();} 
+// HÀM MỚI: Tải tốc độ đọc từ LocalStorage
+function loadRate() {
+    const savedRate = localStorage.getItem('ttsRate');
+    if (savedRate !== null) {
+        currentRate = parseFloat(savedRate);
+    }
+    // Cập nhật giao diện
+    if (rateSlider) {
+        rateSlider.value = currentRate.toFixed(1);
+        rateValueSpan.textContent = currentRate.toFixed(1);
+    }
+}
+
+// HÀM MỚI: Lưu tốc độ đọc
+function saveRate(rate) {
+    currentRate = rate;
+    localStorage.setItem('ttsRate', rate.toFixed(1));
+    rateValueSpan.textContent = rate.toFixed(1);
+}
+
+// LOGIC THANH TRƯỢT
+window.addEventListener('DOMContentLoaded', () => {
+    // Chỉ chạy nếu thanh trượt tồn tại
+    if (rateSlider) {
+        rateSlider.addEventListener('input', (e) => {
+            const newRate = parseFloat(e.target.value);
+            // Cập nhật ngay khi kéo, nhưng chỉ lưu vào localStorage khi dừng hẳn (dùng change)
+            rateValueSpan.textContent = newRate.toFixed(1);
+            currentRate = newRate; // Cập nhật biến để dùng ngay
+        });
+
+        rateSlider.addEventListener('change', (e) => {
+            // Lưu vào LocalStorage khi người dùng nhấc tay ra khỏi thanh trượt
+            saveRate(parseFloat(e.target.value)); 
+        });
+    }
+});
+    
+// SỬA ĐỔI: Gọi hàm tải gợi ý mới và tải tốc độ đọc
+window.onload=()=>{loadButtons();warmUpTTS();loadSuggestions();loadRate();}
+    
 </script>
 
 </body>
