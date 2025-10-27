@@ -96,23 +96,34 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
     transition: opacity 0.5s ease-out; 
 }
 
-/* BỔ SUNG CSS CHO HỘP GỢI Ý TÙY CHỈNH (ĐÃ ĐIỀU CHỈNH SỔ LÊN TRÊN) */
+/* BẮT ĐẦU PHẦN CSS ĐÃ SỬA: Mặc định SỔ LÊN */
 .suggestion-box {
     position: absolute;
-    bottom: calc(100% - 10px); /* THAY ĐỔI LỚN: Đặt ngay phía trên input */
+    bottom: calc(100% - 10px); /* THAY ĐỔI: Mặc định SỔ LÊN trên input */
     left: 0;
     right: 0;
     z-index: 10;
     background: #fff;
     border: 1px solid #ddd;
-    border-bottom: none; /* THAY ĐỔI: Bỏ viền dưới */
-    border-radius: 8px 8px 0 0; /* THAY ĐỔI: Bo góc trên */
-    box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1); /* THAY ĐỔI: Đổ bóng lên trên */
+    border-bottom: none; /* Bỏ viền dưới */
+    border-radius: 8px 8px 0 0; /* Bo góc trên */
+    box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1); /* Đổ bóng lên trên */
     max-height: 150px;
     overflow-y: auto;
     text-align: left;
-    display: none; 
+    display: none;
 }
+
+/* THÊM CLASS MỚI CHO TRƯỜNG HỢP NGOẠI LỆ (Sổ XUỐNG) */
+.suggestion-box.align-bottom { /* Đặt tên class mới để dễ hiểu hơn */
+    bottom: auto; /* Xóa thuộc tính bottom */
+    top: calc(100% - 10px); /* Đặt ngay phía dưới input */
+    border-top: none; /* Bỏ viền trên */
+    border-bottom: 1px solid #ddd; /* Khôi phục viền dưới */
+    border-radius: 0 0 8px 8px; /* Bo góc dưới */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Đổ bóng xuống dưới */
+}
+
 .suggestion-item {
     padding: 10px;
     cursor: pointer;
@@ -126,6 +137,7 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
 .suggestion-item:hover {
     background-color: #f0f0f0;
 }
+    
 /* KẾT THÚC BỔ SUNG CSS */
 
 
@@ -197,57 +209,73 @@ async function loadSuggestions() {
     }
 }
 
-// HÀM SỬA ĐỔI CUỐI CÙNG: Hiển thị gợi ý tùy chỉnh (Hỗ trợ gõ không dấu)
+// HÀM SỬA ĐỔI: Đảo ngược logic (Mặc định SỔ LÊN, Sổ XUỐNG khi sát mép trên)
 function showSuggestions(inputElement, boxElement) {
     const fullText = inputElement.value;
-    // Tách chuỗi bằng dấu cách (bao gồm nhiều dấu cách liên tiếp)
-    const parts = fullText.split(/\s+/).filter(p => p.length > 0); 
-    
-    // 1. Lấy từ cuối cùng đang được gõ (không cần lowerCase ở đây)
+    const parts = fullText.split(/\s+/).filter(p => p.length > 0); 
     const lastWord = parts.length > 0 ? parts[parts.length - 1] : '';
-    
-    // CHUẨN HÓA: Lấy từ cuối cùng KHÔNG DẤU mà người dùng gõ
     const lastWordNoDiacritics = removeDiacritics(lastWord).toLowerCase();
 
-    // Ẩn box nếu input rỗng hoặc chỉ có khoảng trắng
     if (fullText.trim().length === 0 || lastWord.length === 0) {
         boxElement.style.display = 'none';
         return;
     }
-    
+     
     boxElement.innerHTML = '';
-    
-    // Lọc danh sách gợi ý: So sánh gợi ý (đã bỏ dấu) với từ cuối cùng (đã bỏ dấu)
+     
     const filteredSuggestions = wordSuggestions
         .filter(phrase => removeDiacritics(phrase).toLowerCase().startsWith(lastWordNoDiacritics))
-        .slice(0, 5); 
+        .slice(0, 5); 
 
     if (filteredSuggestions.length > 0) {
+        
+        // BẮT ĐẦU LOGIC ĐIỀU CHỈNH VỊ TRÍ MỚI (Mặc định SỔ LÊN)
+        const rect = inputElement.getBoundingClientRect();
+        const suggestionHeight = 150; // max-height trong CSS
+        const spaceBelow = window.innerHeight - rect.bottom;
+        const spaceAbove = rect.top;
+
+        // Xác định ngưỡng linh hoạt: 15% chiều cao màn hình
+        const TOP_THRESHOLD = window.innerHeight * 0.15; 
+        
+        let shouldAlignBottom = false; // Mặc định là Sổ LÊN (align-top)
+
+        // Kịch bản 1: Không đủ chỗ bên trên VÀ đủ chỗ bên dưới -> Sổ XUỐNG
+        // Ngăn ngừa trường hợp tràn trên (khi bàn phím không bật)
+        if (spaceAbove < suggestionHeight + 50 && spaceBelow > suggestionHeight) {
+            shouldAlignBottom = true;
+        } 
+        
+        // Kịch bản 2 (Mục tiêu của bạn): Nếu Input SÁT MÉP TRÊN (< 15% màn hình)
+        // Bắt buộc sổ XUỐNG để tránh bị che bởi thanh trình duyệt/thanh trạng thái.
+        if (rect.top < TOP_THRESHOLD) { 
+            shouldAlignBottom = true; // Bắt buộc sổ xuống
+        }
+
+        // Áp dụng class mới
+        if (shouldAlignBottom) {
+            boxElement.classList.add('align-bottom');
+        } else {
+            boxElement.classList.remove('align-bottom');
+        }
+        // KẾT THÚC LOGIC ĐIỀU CHỈNH VỊ TRÍ
+
         filteredSuggestions.forEach(phrase => {
             const item = document.createElement('div');
             item.className = 'suggestion-item';
             item.textContent = phrase;
             
-            // Xử lý khi click vào mục gợi ý (dùng mousedown để ngăn input blur ngay lập tức)
             item.addEventListener('mousedown', (e) => {
                 e.preventDefault(); 
-                
-                // Tìm vị trí bắt đầu của từ cuối cùng
                 const lastWordStart = fullText.lastIndexOf(lastWord);
-                
-                // Tái tạo văn bản: Thay thế từ cuối cùng bằng gợi ý (có dấu) được chọn
                 let newText = fullText.substring(0, lastWordStart) + phrase;
-
-                // Thêm dấu cách
-                newText += ' '; 
-
+                newText += ' '; 
                 inputElement.value = newText;
                 
                 boxElement.style.display = 'none';
                 saveAll(); 
                 inputElement.focus();
                 
-                // Đặt con trỏ về cuối input
                 inputElement.selectionStart = inputElement.selectionEnd = newText.length;
             });
 
@@ -258,7 +286,6 @@ function showSuggestions(inputElement, boxElement) {
         boxElement.style.display = 'none';
     }
 }
-
     
 // KẾT THÚC PHẦN BỔ SUNG
 
