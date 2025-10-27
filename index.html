@@ -41,7 +41,47 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
 .suggestion-item:hover{background-color:#f0f0f0}
 #tts-info{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:700px;text-align:center;padding:10px;border-top:1px solid #ccc;color:#616161;background:#e3f2fd;font-size:14px;z-index:1010}
 #tts-info a{color:#2196F3;text-decoration:none}
+
+/* CSS MỚI ĐỂ TẠO HIỆU ỨNG CHẠY CHỮ */
+#scrolling-message {
+    position: fixed;
+    bottom: 45px; /* Đặt ở trên #tts-info */
+    left: 0;
+    width: 100%;
+    padding: 8px 0;
+    background: linear-gradient(90deg, #bbdefb, #e3f2fd, #bbdefb); /* Nền nhẹ nhàng */
+    border-top: 1px solid #90caf9;
+    border-bottom: 1px solid #90caf9;
+    color: #1565c0; /* Màu chữ xanh */
+    font-size: 15px;
+    font-weight: bold;
+    white-space: nowrap; /* Ngăn chữ xuống dòng */
+    overflow: hidden; /* Che đi phần chữ thừa */
+    box-sizing: border-box;
+    z-index: 1005;
+}
+
+#scrolling-message-content {
+    display: inline-block;
+    padding-left: 100%; /* Bắt đầu từ ngoài cùng bên phải */
+    animation: marquee 25s linear infinite; /* Hiệu ứng chạy chữ */
+}
+
+@keyframes marquee {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(-100%, 0); }
+}
+
+body.locked #scrolling-message {
+    bottom: 150px; /* Di chuyển lên khi giao diện bị khóa */
+}
+
+body.locked #tts-info {
+    z-index: 1011; /* Đảm bảo tts-info nằm trên cùng */
+}
+    
 </style>
+    
 </head>
 <body>
 <div class="main-wrapper">
@@ -68,7 +108,11 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
     <button class="btn reset-btn" onclick="resetDefaults()">♻️ Reset mặc định</button>
 </div>
 </div>
-
+<div id="scrolling-message">
+    <span id="scrolling-message-content">
+        ⭐️ Đây là nền tảng hỗ trợ giao tiếp dành cho người gặp khó khăn về phát âm hoặc vận động, đặc biệt là sau tai biến. Hệ thống cho phép người dùng tạo và phát âm thanh các câu nói thường dùng, giúp việc trao đổi với gia đình, y bác sĩ hay người chăm sóc trở nên dễ dàng hơn. ⭐️
+    </span>
+</div>
 <div id="tts-info">Nếu không thấy âm thanh, tải <a href="https://play.google.com/store/apps/details?id=com.google.android.tts" target="_blank">Google Play</a></div>
 
 <script>
