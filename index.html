@@ -96,24 +96,36 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
     transition: opacity 0.5s ease-out; 
 }
 
-/* BỔ SUNG CSS CHO HỘP GỢI Ý TÙY CHỈNH (SỔ LÊN) */
+/* BỔ SUNG: Vùng chứa cho input và suggestion-box */
+.input-wrapper {
+    position: relative; /* Điểm neo mới cho suggestion-box */
+    width: 100%;       /* Đảm bảo chiếm hết chiều rộng */
+    /* Quan trọng: Ngăn không cho các phần tử khác của card (như nút Play) bị chồng lên */
+    min-height: 40px; 
+}
+
+/* Tối ưu hóa lại suggestion-box để nằm gọn trong input-wrapper */
 .suggestion-box {
-    position: absolute;
-    /* THAY ĐỔI: Dùng bottom: 100% để đặt hộp ngay trên input */
-    bottom: 100%;
-    left: 0;
-    right: 0;
-    z-index: 10;
-    background: #fff;
-    border: 1px solid #ddd;
-    /* THAY ĐỔI: Thêm border-bottom: none và bo tròn góc trên */
-    border-bottom: none;
-    border-radius: 8px 8px 0 0; 
-    box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1); /* Đổi hướng bóng đổ */
-    max-height: 150px;
-    overflow-y: auto;
-    text-align: left;
-    display: none; 
+    position: absolute;
+    bottom: 100%; /* Sổ lên trên input */
+    left: 0;
+    right: 0;
+    z-index: 10;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+    box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1); 
+    max-height: 150px; /* Chiều cao tối đa */
+    overflow-y: auto; /* Kích hoạt thanh trượt */
+    text-align: left;
+    display: none;
+}
+
+/* Điều chỉnh lại input để nằm gọn trong input-wrapper */
+.input-wrapper input {
+    /* Đảm bảo input không bị đẩy xuống hoặc có lề không mong muốn */
+    margin: 0; 
 }
 .suggestion-item {
     padding: 10px;
@@ -262,15 +274,20 @@ function updateCurrentIndexAfterChange() {
 }
 
 // HÀM SỬA ĐỔI: Thêm suggestion-box và sự kiện input/blur
+// HÀM SỬA ĐỔI: Thêm inputWrapper để neo hộp gợi ý và đảm bảo thanh trượt hoạt động
 function addButton(v=''){
-    let c=document.createElement('div');
-    c.className='card';
-    
+    let c=document.createElement('div');
+    c.className='card';
+    
+    // BỔ SUNG: Tạo vùng chứa cho input và suggestion box
+    let inputWrapper = document.createElement('div');
+    inputWrapper.className = 'input-wrapper'; // Sử dụng class input-wrapper mới
+    
     // INPUT BỔ SUNG: Thêm sự kiện và tạo suggestion-box
-    let i=document.createElement('input');
-    i.value=v;
-    i.placeholder="Nhập văn bản...";
-    i.onchange=saveAll;
+    let i=document.createElement('input');
+    i.value=v;
+    i.placeholder="Nhập văn bản...";
+    i.onchange=saveAll;
     
     let sBox = document.createElement('div'); // Hộp gợi ý
     sBox.className = 'suggestion-box';
@@ -282,20 +299,31 @@ function addButton(v=''){
     i.addEventListener('blur', () => {
         setTimeout(() => sBox.style.display = 'none', 150);
     });
+    
+    // Đính kèm input và suggestion box vào inputWrapper
+    inputWrapper.append(i, sBox);
+    
     // KẾT THÚC SỬA ĐỔI INPUT
     
-    let p=document.createElement('button');
-    p.className='btn play-btn';
-    p.textContent='🔊 Phát âm';
-    p.onclick=()=>speak(i.value.trim(), p); 
-    let d=document.createElement('button');
-    d.className='delete-btn';
-    d.textContent='❌';
-    d.onclick=()=>{
-        c.remove();
-        saveAll();
-        updateCurrentIndexAfterChange(); // Cập nhật sau khi xóa
-    };
+    let p=document.createElement('button');
+    p.className='btn play-btn';
+    p.textContent='🔊 Phát âm';
+    p.onclick=()=>speak(i.value.trim(), p);  
+    let d=document.createElement('button');
+    d.className='delete-btn';
+    d.textContent='❌';
+    d.onclick=()=>{
+        c.remove();
+        saveAll();
+        updateCurrentIndexAfterChange(); // Cập nhật sau khi xóa
+    };
+    // THAY ĐỔI: Đính kèm inputWrapper thay vì input trực tiếp
+    c.append(inputWrapper, p, d); 
+    document.getElementById('buttonContainer').appendChild(c);
+    saveAll();
+    // Đặt currentIndex vào thẻ mới (thẻ cuối cùng)
+    currentIndex = getCards().length - 1;  
+}
     // Đính kèm suggestion box vào card
     c.append(i, sBox, p, d); 
     document.getElementById('buttonContainer').appendChild(c);
