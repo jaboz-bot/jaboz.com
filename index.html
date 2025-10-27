@@ -113,6 +113,17 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
     text-align: left;
     display: none; 
 }
+
+/* BỔ SUNG CSS: Trạng thái sổ xuống khi gần cạnh trên */
+.suggestion-box.down {
+    top: 100%; /* Đặt ngay bên dưới input */
+    bottom: auto; /* Hủy bỏ bottom */
+    border-top: none; /* Bỏ viền trên */
+    border-bottom: 1px solid #ddd; /* Thêm viền dưới */
+    border-radius: 0 0 8px 8px; /* Bo góc dưới */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Đổ bóng xuống */
+}
+    
 .suggestion-item {
     padding: 10px;
     cursor: pointer;
@@ -199,64 +210,80 @@ async function loadSuggestions() {
 
 // HÀM SỬA ĐỔI CUỐI CÙNG: Hiển thị gợi ý tùy chỉnh (Hỗ trợ gõ không dấu)
 function showSuggestions(inputElement, boxElement) {
-    const fullText = inputElement.value;
-    // Tách chuỗi bằng dấu cách (bao gồm nhiều dấu cách liên tiếp)
-    const parts = fullText.split(/\s+/).filter(p => p.length > 0); 
-    
-    // 1. Lấy từ cuối cùng đang được gõ (không cần lowerCase ở đây)
-    const lastWord = parts.length > 0 ? parts[parts.length - 1] : '';
-    
-    // CHUẨN HÓA: Lấy từ cuối cùng KHÔNG DẤU mà người dùng gõ
-    const lastWordNoDiacritics = removeDiacritics(lastWord).toLowerCase();
+    const fullText = inputElement.value;
+    // Tách chuỗi bằng dấu cách (bao gồm nhiều dấu cách liên tiếp)
+    const parts = fullText.split(/\s+/).filter(p => p.length > 0); 
+    
+    // 1. Lấy từ cuối cùng đang được gõ (không cần lowerCase ở đây)
+    const lastWord = parts.length > 0 ? parts[parts.length - 1] : '';
+    
+    // CHUẨN HÓA: Lấy từ cuối cùng KHÔNG DẤU mà người dùng gõ
+    const lastWordNoDiacritics = removeDiacritics(lastWord).toLowerCase();
 
-    // Ẩn box nếu input rỗng hoặc chỉ có khoảng trắng
-    if (fullText.trim().length === 0 || lastWord.length === 0) {
-        boxElement.style.display = 'none';
-        return;
-    }
-    
-    boxElement.innerHTML = '';
-    
-    // Lọc danh sách gợi ý: So sánh gợi ý (đã bỏ dấu) với từ cuối cùng (đã bỏ dấu)
-    const filteredSuggestions = wordSuggestions
-        .filter(phrase => removeDiacritics(phrase).toLowerCase().startsWith(lastWordNoDiacritics))
-        .slice(0, 5); 
+    // Ẩn box nếu input rỗng hoặc chỉ có khoảng trắng
+    if (fullText.trim().length === 0 || lastWord.length === 0) {
+        boxElement.style.display = 'none';
+        return;
+    }
+    
+    boxElement.innerHTML = '';
+    
+    // Lọc danh sách gợi ý: So sánh gợi ý (đã bỏ dấu) với từ cuối cùng (đã bỏ dấu)
+    const filteredSuggestions = wordSuggestions
+        .filter(phrase => removeDiacritics(phrase).toLowerCase().startsWith(lastWordNoDiacritics))
+        .slice(0, 5); 
 
-    if (filteredSuggestions.length > 0) {
-        filteredSuggestions.forEach(phrase => {
-            const item = document.createElement('div');
-            item.className = 'suggestion-item';
-            item.textContent = phrase;
-            
-            // Xử lý khi click vào mục gợi ý (dùng mousedown để ngăn input blur ngay lập tức)
-            item.addEventListener('mousedown', (e) => {
-                e.preventDefault(); 
-                
-                // Tìm vị trí bắt đầu của từ cuối cùng
-                const lastWordStart = fullText.lastIndexOf(lastWord);
-                
-                // Tái tạo văn bản: Thay thế từ cuối cùng bằng gợi ý (có dấu) được chọn
-                let newText = fullText.substring(0, lastWordStart) + phrase;
+    if (filteredSuggestions.length > 0) {
+        /* PHẦN LOGIC MỚI BẮT ĐẦU */
+        const rect = inputElement.getBoundingClientRect();
+        // 250px là ngưỡng cách cạnh trên, đủ không gian cho hộp gợi ý sổ lên
+        const threshold = 250; 
 
-                // Thêm dấu cách
-                newText += ' '; 
+        if (rect.top < threshold) {
+            // Sổ xuống
+            boxElement.classList.add('down');
+        } else {
+            // Sổ lên mặc định
+            boxElement.classList.remove('down');
+        }
+        /* PHẦN LOGIC MỚI KẾT THÚC */
 
-                inputElement.value = newText;
-                
-                boxElement.style.display = 'none';
-                saveAll(); 
-                inputElement.focus();
-                
-                // Đặt con trỏ về cuối input
-                inputElement.selectionStart = inputElement.selectionEnd = newText.length;
-            });
+        filteredSuggestions.forEach(phrase => {
+            const item = document.createElement('div');
+            item.className = 'suggestion-item';
+            item.textContent = phrase;
+            
+            // Xử lý khi click vào mục gợi ý (dùng mousedown để ngăn input blur ngay lập tức)
+            item.addEventListener('mousedown', (e) => {
+                e.preventDefault(); 
+                
+                // Tìm vị trí bắt đầu của từ cuối cùng
+                // Sử dụng regex để tìm vị trí từ cuối cùng sau khoảng trắng
+                const lastWordIndex = fullText.trimEnd().lastIndexOf(lastWord);
+                const lastWordStart = (lastWordIndex !== -1) ? lastWordIndex : fullText.length;
+                
+                // Tái tạo văn bản: Thay thế từ cuối cùng bằng gợi ý (có dấu) được chọn
+                let newText = fullText.substring(0, lastWordStart) + phrase;
 
-            boxElement.appendChild(item);
-        });
-        boxElement.style.display = 'block';
-    } else {
-        boxElement.style.display = 'none';
-    }
+                // Thêm dấu cách
+                newText += ' '; 
+
+                inputElement.value = newText;
+                
+                boxElement.style.display = 'none';
+                saveAll(); 
+                inputElement.focus();
+                
+                // Đặt con trỏ về cuối input
+                inputElement.selectionStart = inputElement.selectionEnd = newText.length;
+            });
+
+            boxElement.appendChild(item);
+        });
+        boxElement.style.display = 'block';
+    } else {
+        boxElement.style.display = 'none';
+    }
 }
 
     
