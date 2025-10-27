@@ -248,7 +248,7 @@ function showSuggestions(inputElement, boxElement) {
      
     const filteredSuggestions = wordSuggestions
         .filter(phrase => removeDiacritics(phrase).toLowerCase().startsWith(lastWordNoDiacritics))
-        .slice(0, 5); 
+        .slice(0, 3); 
 
     if (filteredSuggestions.length > 0) {
         
