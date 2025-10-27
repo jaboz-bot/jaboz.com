@@ -213,27 +213,49 @@ function removeDiacritics(str) {
         .replace(/đ/g, "d");
 }
     
-// BẮT ĐẦU PHẦN BỔ SUNG VÀ SỬA ĐỔI
-const SUGGESTION_URL = 'goi-y-tu.json'; 
-let wordSuggestions = []; // Dùng để lưu trữ danh sách từ gợi ý
 
 // HÀM MỚI: Tải dữ liệu gợi ý và lưu vào wordSuggestions
+const SUGGESTION_URL = 'goi-y-tu.txt'; // ⬅️ QUAN TRỌNG: Đổi đường dẫn file
+const LOCAL_SUGGESTION_KEY = 'userSuggestions'; 
+let serverSuggestions = []; 
+let userSuggestions = []; 
+let wordSuggestions = []; 
+
+// HÀM SỬA ĐỔI: Tải và xử lý file TXT
 async function loadSuggestions() {
+    // 1. Tải từ Server (SỬ DỤNG .text() VÀ TỰ PHÂN TÍCH)
     try {
-        const response = await fetch(SUGGESTION_URL); 
-        if (!response.ok) {
-            console.error('Lỗi tải file gợi ý (kiểm tra file goi-y-tu.json):', response.statusText);
-            return;
+        const response = await fetch(SUGGESTION_URL);
+        if (response.ok) {
+            // Lấy nội dung file dưới dạng văn bản thô
+            const textContent = await response.text(); 
+            
+            // Tách chuỗi văn bản thành mảng dựa trên ký tự xuống dòng ('\n')
+            serverSuggestions = textContent
+                .split('\n')
+                .map(line => line.trim()) // Loại bỏ khoảng trắng thừa ở đầu/cuối mỗi từ
+                .filter(line => line.length > 0); // Loại bỏ các dòng trống
+            
+        } else {
+            console.error('Lỗi tải file gợi ý server (kiểm tra file goi-y-tu.txt):', response.statusText);
         }
-        wordSuggestions = await response.json();
-        if (!Array.isArray(wordSuggestions)) {
-            wordSuggestions = [];
-            console.error('Dữ liệu gợi ý không phải là mảng.');
-        }
-        console.log(`Đã tải ${wordSuggestions.length} gợi ý.`);
     } catch (error) {
-        console.error('Lỗi khi tải hoặc xử lý file JSON:', error);
+        console.error('Lỗi khi tải hoặc xử lý file TXT:', error);
     }
+
+    // 2. Tải từ LocalStorage (Giữ nguyên)
+    try {
+        const saved = localStorage.getItem(LOCAL_SUGGESTION_KEY);
+        // Vì lưu trong LocalStorage vẫn là JSON string, ta vẫn dùng JSON.parse
+        userSuggestions = saved ? JSON.parse(saved) : []; 
+    } catch(e) {
+        console.error('Lỗi tải gợi ý người dùng:', e);
+        userSuggestions = [];
+    }
+
+    // 3. Hợp nhất, loại bỏ trùng lặp và sắp xếp
+    wordSuggestions = [...new Set([...serverSuggestions, ...userSuggestions])].sort();
+    console.log(`Đã tải tổng cộng ${wordSuggestions.length} gợi ý từ file TXT và LocalStorage.`);
 }
 
 // HÀM SỬA ĐỔI: Đảo ngược logic (Mặc định SỔ LÊN, Sổ XUỐNG khi sát mép trên)
