@@ -131,7 +131,7 @@ input {
     border-bottom: none; /* Bỏ viền dưới */
     border-radius: 8px 8px 0 0; /* Bo góc trên */
     box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1); /* Đổ bóng lên trên */
-    max-height: 150px;
+    max-height: 100100px;
     overflow-y: auto;
     text-align: left;
     display: none;
@@ -248,7 +248,7 @@ function showSuggestions(inputElement, boxElement) {
      
     const filteredSuggestions = wordSuggestions
         .filter(phrase => removeDiacritics(phrase).toLowerCase().startsWith(lastWordNoDiacritics))
-        .slice(0, 3); 
+        .slice(0, 5); 
 
     if (filteredSuggestions.length > 0) {
         
