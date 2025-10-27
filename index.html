@@ -272,6 +272,7 @@ async function loadSuggestions() {
     }
 
     // 3. Hợp nhất, loại bỏ trùng lặp và sắp xếp
+    // Ban đầu sắp xếp theo mặc định (bảng chữ cái có dấu)
     wordSuggestions = [...new Set([...serverSuggestions, ...userSuggestions])].sort();
     console.log(`Đã tải tổng cộng ${wordSuggestions.length} gợi ý từ file TXT và LocalStorage.`);
 }
@@ -323,21 +324,28 @@ function showSuggestions(inputElement, boxElement) {
     let filteredSuggestions = wordSuggestions
         .filter(phrase => removeDiacritics(phrase).toLowerCase().startsWith(lastWordNoDiacritics));
 
-    // 2. Sắp xếp: Ưu tiên Thanh Bằng (1), Sắc/Hỏi (2), Huyền/Ngã/Nặng (3)
+    // 2. THAY ĐỔI LOGIC SẮP XẾP: Ưu tiên các từ có cùng gốc không dấu theo thứ tự dấu thanh
     filteredSuggestions.sort((a, b) => {
-        const toneA = getTonePriority(a);
-        const toneB = getTonePriority(b);
+        const aNoDiacritics = removeDiacritics(a).toLowerCase();
+        const bNoDiacritics = removeDiacritics(b).toLowerCase();
         
-        if (toneA !== toneB) {
+        // CÙNG GỐC (VD: 'quan' và 'quán' đều là 'quan')
+        if (aNoDiacritics === bNoDiacritics) {
+            // Nếu cùng gốc, sắp xếp theo ưu tiên dấu thanh (1, 2, 3)
+            const toneA = getTonePriority(a);
+            const toneB = getTonePriority(b);
             return toneA - toneB; 
-        }
+        } 
         
-        if (a < b) return -1;
-        if (a > b) return 1;
-        return 0;
+        // KHÁC GỐC: Sắp xếp theo bảng chữ cái không dấu (để 'quan' đứng trước 'quân')
+        if (aNoDiacritics < bNoDiacritics) return -1;
+        if (aNoDiacritics > bNoDiacritics) return 1;
+        
+        // Trường hợp không bao giờ xảy ra vì đã so sánh dấu ở trên
+        return 0; 
     });
 
-    // 3. THAY ĐỔI: Cắt (Giới hạn số lượng hiển thị bằng độ dài từ đang gõ - không dấu)
+    // 3. Cắt (Giới hạn số lượng hiển thị bằng độ dài từ đang gõ - không dấu)
     const limit = lastWordNoDiacritics.length; 
     filteredSuggestions = filteredSuggestions.slice(0, limit);
     // KẾT THÚC THAY ĐỔI
