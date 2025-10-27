@@ -70,16 +70,7 @@ input {
 .play-control-btn{background:linear-gradient(45deg,#4CAF50,#43A047)}
 .current-btn-color{background:#ff9800}
 #settingsArea{margin-top:30px;text-align:center}
-<div id="settingsArea">
-    <div style="margin-bottom: 15px; text-align: left; padding: 0 10px;">
-        <label for="rateSlider">Tốc độ giọng nói: </label>
-        <span id="rateValue">1.0</span>
-        <input type="range" id="rateSlider" min="0.5" max="2" value="1.0" step="0.1" style="width: 100%; margin-top: 5px;">
-    </div>
-    <button class="btn settings-btn" onclick="toggleLock(true)">Khóa giao diện</button>
-    <button class="btn install-btn large-control-btn" id="installButton">📲 Cài đặt app</button>
-    <button class="btn reset-btn" onclick="resetDefaults()">♻️ Reset mặc định</button>
-</div>
+
 /* CSS cho chế độ khóa */
 .control-container.locked{
     position:fixed;
@@ -274,6 +265,10 @@ function showSuggestions(inputElement, boxElement) {
         .filter(phrase => removeDiacritics(phrase).toLowerCase().startsWith(lastWordNoDiacritics))
         .slice(0, 5);    
 
+    // ... (Phần logic còn lại giữ nguyên) ...
+    // BẮT ĐẦU LOGIC ĐIỀU CHỈNH VỊ TRÍ MỚI (Mặc định SỔ LÊN)
+    // ... (Phần này giữ nguyên) ...
+
     if (filteredSuggestions.length > 0) {
         // BẮT ĐẦU LOGIC ĐIỀU CHỈNH VỊ TRÍ MỚI (Mặc định SỔ LÊN)
         const rect = inputElement.getBoundingClientRect();
@@ -355,8 +350,7 @@ function showSuggestions(inputElement, boxElement) {
     
 // KẾT THÚC PHẦN BỔ SUNG
 
-// BỔ SUNG: Khai báo biến tốc độ
-let deferredPrompt,currentIndex=0,speechRate=1.0,defaults=["Tôi muốn ăn cơm","Tôi muốn uống nước","Tôi muốn đi vệ sinh","Tôi muốn đi ngủ"],installState = 'before_install';
+let deferredPrompt,currentIndex=0,defaults=["Tôi muốn ăn cơm","Tôi muốn uống nước","Tôi muốn đi vệ sinh","Tôi muốn đi ngủ"],installState = 'before_install';
 const controlArea=document.getElementById('controlArea'),
       installButton=document.getElementById('installButton'),
       addBtnMove=document.getElementById('add-btn-move'),
@@ -364,16 +358,11 @@ const controlArea=document.getElementById('controlArea'),
       buttonContainer=document.getElementById('buttonContainer'),
       settingsArea=document.getElementById('settingsArea');
 
-// BỔ SUNG: Biến cho thanh trượt
-let rateSlider, rateValueDisplay;
-
-// HÀM SỬA ĐỔI QUAN TRỌNG: Áp dụng tốc độ (speechRate)
 function speak(text, targetElement){
     if(!text||!('speechSynthesis'in window))return;
     speechSynthesis.cancel();
     let u=new SpeechSynthesisUtterance(text);
     u.lang='vi-VN';
-    u.rate = speechRate; // ÁP DỤNG TỐC ĐỘ ĐÃ LƯU
     speechSynthesis.speak(u);
     showPopup(text); 
 }
@@ -391,16 +380,19 @@ function showPopup(text){
 
 function getCards(){return document.querySelectorAll('.card input')}
 
+// Hàm này đảm bảo currentIndex luôn trỏ đến một vị trí hợp lệ
 function updateCurrentIndexAfterChange() {
     const c = getCards();
     currentIndex = Math.min(currentIndex, c.length - 1);
     if (currentIndex < 0) currentIndex = 0;
 }
 
+// HÀM SỬA ĐỔI: Thêm suggestion-box và sự kiện input/blur
 function addButton(v=''){
     let c=document.createElement('div');
     c.className='card';
     
+    // INPUT BỔ SUNG: Thêm sự kiện và tạo suggestion-box
     let i=document.createElement('input');
     i.value=v;
     i.placeholder="Nhập văn bản...";
@@ -409,11 +401,14 @@ function addButton(v=''){
     let sBox = document.createElement('div'); // Hộp gợi ý
     sBox.className = 'suggestion-box';
 
+    // Gắn sự kiện khi gõ
     i.addEventListener('input', (e) => showSuggestions(e.target, sBox));
     
+    // Ẩn hộp gợi ý khi mất focus (dùng setTimeout để cho phép click vào gợi ý)
     i.addEventListener('blur', () => {
         setTimeout(() => sBox.style.display = 'none', 150);
     });
+    // KẾT THÚC SỬA ĐỔI INPUT
     
     let p=document.createElement('button');
     p.className='btn play-btn';
@@ -437,7 +432,7 @@ function addButton(v=''){
 
 function saveAll(){localStorage.setItem('voiceButtons',JSON.stringify([...document.querySelectorAll('.card input')].map(i=>i.value.trim())))}
 function loadButtons(){let s=JSON.parse(localStorage.getItem('voiceButtons')||"[]");(s.length?s:defaults).forEach(t=>addButton(t));currentIndex=0; cleanupEmptyCards();}
-function resetDefaults(){if(confirm("Đặt lại mặc định?")){localStorage.removeItem('voiceButtons');localStorage.removeItem('speechRate');document.getElementById('buttonContainer').innerHTML='';loadButtons();currentIndex=0; loadRateSetting();}} // SỬA ĐỔI: Reset cả tốc độ
+function resetDefaults(){if(confirm("Đặt lại mặc định?")){localStorage.removeItem('voiceButtons');document.getElementById('buttonContainer').innerHTML='';loadButtons();currentIndex=0;}}
 
 function cleanupEmptyCards(){
     let c=document.querySelectorAll('.card'),save=false;
@@ -456,10 +451,12 @@ function cleanupEmptyCards(){
 }
 
 function moveSpeak(dir){
+    // BỎ cleanupEmptyCards() để đảm bảo điều hướng ổn định
     const c=getCards();
     if(c.length===0)return;
     
     if(dir===0){
+        // Phát lại câu hiện tại, kiểm tra trống
         const text = c[currentIndex].value.trim();
         if (text) {
             speak(text);
@@ -467,18 +464,22 @@ function moveSpeak(dir){
             showPopup("Câu trống! Vui lòng sửa hoặc xóa.");
         }
     } else {
+        // Di chuyển câu trước/sau
         currentIndex=(currentIndex+dir+c.length)%c.length;
         
+        // Vòng lặp tìm câu không trống (để tránh lặp vô tận nếu TẤT CẢ trống)
         let count = 0;
         while(c[currentIndex].value.trim() === '' && count < c.length) {
             currentIndex=(currentIndex+dir+c.length)%c.length;
             count++;
         }
         
+        // Nếu tìm thấy câu để đọc
         const text = c[currentIndex].value.trim();
         if (text) {
             speak(text);
         } else {
+             // Chỉ xảy ra nếu tất cả các câu đều trống
             showPopup("Không có câu nào để đọc.");
         }
     }
@@ -486,6 +487,7 @@ function moveSpeak(dir){
 
 function toggleLock(lock){
     const u=document.getElementById('unlock-btn');
+    // Khi thoát khỏi chế độ khóa, dọn dẹp thẻ trống
     if (!lock) {
         cleanupEmptyCards();
     }
@@ -513,9 +515,12 @@ function toggleLock(lock){
 
 // Gắn sự kiện cho các nút điều hướng
 document.querySelectorAll('.control-btn').forEach(button => {
+    // Giữ cả click và touchend để tối ưu phản hồi trên di động
     ['click', 'touchend'].forEach(event => {
         button.addEventListener(event, function(e) {
+            // Ngăn chặn sự kiện chạm kích hoạt click hai lần
             e.preventDefault(); 
+            // Dùng currentTarget để lấy data-direction của nút
             moveSpeak(parseInt(e.currentTarget.dataset.direction)); 
         }, { passive: false });
     });
@@ -563,30 +568,8 @@ function warmUpTTS(){
     speechSynthesis.speak(u);
     setTimeout(()=>speechSynthesis.cancel(),500)
 }
-
-// HÀM MỚI: Tải cài đặt tốc độ
-function loadRateSetting() {
-    rateSlider = document.getElementById('rateSlider');
-    rateValueDisplay = document.getElementById('rateValue');
-    
-    // Lấy giá trị từ Local Storage, mặc định là 1.0
-    const savedRate = parseFloat(localStorage.getItem('speechRate'));
-    speechRate = savedRate > 0 ? savedRate : 1.0; 
-    
-    // Cập nhật giao diện
-    rateSlider.value = speechRate;
-    rateValueDisplay.textContent = speechRate.toFixed(1);
-
-    // Gắn sự kiện thay đổi cho thanh trượt
-    rateSlider.addEventListener('input', function() {
-        speechRate = parseFloat(this.value);
-        rateValueDisplay.textContent = speechRate.toFixed(1);
-        localStorage.setItem('speechRate', speechRate);
-    });
-}
-
-// GỌI HÀM MỚI VÀO window.onload
-window.onload=()=>{loadButtons();warmUpTTS();loadSuggestions();loadRateSetting();} 
+// SỬA ĐỔI: Gọi hàm tải gợi ý mới
+window.onload=()=>{loadButtons();warmUpTTS();loadSuggestions();} 
 </script>
 
 </body>
