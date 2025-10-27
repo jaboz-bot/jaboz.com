@@ -21,7 +21,10 @@ h1{margin-bottom:20px}
 .card{background:#fff;padding:18px;border-radius:12px;box-shadow:0 3px 8px rgba(0,0,0,.15);display:flex;flex-direction:column;gap:10px;position:relative}
 input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:100%}
 .btn{padding:12px;border:none;border-radius:8px;color:white;font-size:16px;cursor:pointer;transition:.3s;display:flex;justify-content:center;align-items:center}
-.play-btn{background:linear-gradient(45deg,#4CAF50,#43A047)}
+.play-btn {
+    background:linear-gradient(45deg,#4CAF50,#43A047);
+    width: 100%; /* BỔ SUNG: Cho nút Phát âm chiếm toàn bộ chiều rộng thẻ cha */
+}
 .add-btn,.install-btn{width:200px}
 .reset-btn,.settings-btn,.install-btn.large-control-btn{
     width:220px;
