@@ -71,11 +71,11 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
     0% { transform: translate(0, 0); }
     100% { transform: translate(-100%, 0); }
 }
-
+    
 body.locked #scrolling-message {
-    bottom: 148px; /* Di chuyển lên khi giao diện bị khóa */
+    display: none; /* Ẩn hoàn toàn khi giao diện bị khóa */
 }
-
+    
 body.locked #tts-info {
     z-index: 1011; /* Đảm bảo tts-info nằm trên cùng */
 }
