@@ -235,43 +235,60 @@ async function loadSuggestions() {
 // HÀM SỬA ĐỔI: Đảo ngược logic (Mặc định SỔ LÊN, Sổ XUỐNG khi sát mép trên)
 function showSuggestions(inputElement, boxElement) {
     const fullText = inputElement.value;
-    const parts = fullText.split(/\s+/).filter(p => p.length > 0); 
-    const lastWord = parts.length > 0 ? parts[parts.length - 1] : '';
-    const lastWordNoDiacritics = removeDiacritics(lastWord).toLowerCase();
+    const trimmedText = fullText.trim();
 
-    if (fullText.trim().length === 0 || lastWord.length === 0) {
+    // LẤY TỪ CUỐI CÙNG HOẶC CHUỖI RỖNG
+    const parts = trimmedText.split(/\s+/).filter(p => p.length > 0);
+    const lastWord = parts.length > 0 ? parts[parts.length - 1] : '';
+    
+    // BỔ SUNG: Kiểm tra ký tự cuối cùng trong fullText
+    const lastCharIsSpace = fullText.length > 0 && fullText[fullText.length - 1] === ' ';
+
+    // 1. TẮT GỢI Ý: Nếu toàn bộ trống HOẶC ký tự cuối cùng là phím cách
+    if (trimmedText.length === 0 || lastCharIsSpace) {
         boxElement.style.display = 'none';
         return;
     }
-     
+
+    // Nếu không phải phím cách, tiến hành gợi ý cho 'lastWord'
+    const lastWordNoDiacritics = removeDiacritics(lastWord).toLowerCase();
+    
+    // Nếu từ cuối cùng không có ký tự, tắt gợi ý
+    if (lastWord.length === 0) {
+        boxElement.style.display = 'none';
+        return;
+    }
+    
     boxElement.innerHTML = '';
-     
+    
     const filteredSuggestions = wordSuggestions
         .filter(phrase => removeDiacritics(phrase).toLowerCase().startsWith(lastWordNoDiacritics))
-        .slice(0, 5); 
+        .slice(0, 5);    
+
+    // ... (Phần logic còn lại giữ nguyên) ...
+    // BẮT ĐẦU LOGIC ĐIỀU CHỈNH VỊ TRÍ MỚI (Mặc định SỔ LÊN)
+    // ... (Phần này giữ nguyên) ...
 
     if (filteredSuggestions.length > 0) {
-        
         // BẮT ĐẦU LOGIC ĐIỀU CHỈNH VỊ TRÍ MỚI (Mặc định SỔ LÊN)
         const rect = inputElement.getBoundingClientRect();
         const suggestionHeight = 150; // max-height trong CSS
-        const spaceBelow = window.innerHeight - rect.bottom;
         const spaceAbove = rect.top;
 
         // Xác định ngưỡng linh hoạt: 15% chiều cao màn hình
-        const TOP_THRESHOLD = window.innerHeight * 0.15; 
+        const TOP_THRESHOLD = window.innerHeight * 0.15; 
         
         let shouldAlignBottom = false; // Mặc định là Sổ LÊN (align-top)
 
         // Kịch bản 1: Không đủ chỗ bên trên VÀ đủ chỗ bên dưới -> Sổ XUỐNG
         // Ngăn ngừa trường hợp tràn trên (khi bàn phím không bật)
-        if (spaceAbove < suggestionHeight + 50 && spaceBelow > suggestionHeight) {
+        if (spaceAbove < suggestionHeight + 50 && (window.innerHeight - rect.bottom) > suggestionHeight) {
             shouldAlignBottom = true;
         } 
         
         // Kịch bản 2 (Mục tiêu của bạn): Nếu Input SÁT MÉP TRÊN (< 15% màn hình)
         // Bắt buộc sổ XUỐNG để tránh bị che bởi thanh trình duyệt/thanh trạng thái.
-        if (rect.top < TOP_THRESHOLD) { 
+        if (rect.top < TOP_THRESHOLD) { 
             shouldAlignBottom = true; // Bắt buộc sổ xuống
         }
 
@@ -289,17 +306,38 @@ function showSuggestions(inputElement, boxElement) {
             item.textContent = phrase;
             
             item.addEventListener('mousedown', (e) => {
-                e.preventDefault(); 
-                const lastWordStart = fullText.lastIndexOf(lastWord);
-                let newText = fullText.substring(0, lastWordStart) + phrase;
-                newText += ' '; 
-                inputElement.value = newText;
+                e.preventDefault(); 
+                
+                // Lấy lại từ cuối cùng (để đảm bảo không bị lẫn phím cách)
+                const currentFullText = inputElement.value;
+                const currentTrimmedText = currentFullText.trim();
+                const currentParts = currentTrimmedText.split(/\s+/).filter(p => p.length > 0);
+                const currentLastWord = currentParts.length > 0 ? currentParts[currentParts.length - 1] : '';
+                
+                // Tìm vị trí bắt đầu của từ cuối cùng trong chuỗi *ban đầu* (có thể có khoảng trắng cuối)
+                let lastWordStart = -1;
+                // Nếu không có khoảng trắng cuối, ta tìm từ cuối trong chuỗi đã trim
+                if (currentFullText.endsWith(currentLastWord)) {
+                   lastWordStart = currentFullText.lastIndexOf(currentLastWord);
+                } else {
+                   // Trường hợp có khoảng trắng cuối (lỗi logic với trim, nhưng an toàn hơn là dùng lastWord.length)
+                   lastWordStart = currentFullText.length - currentLastWord.length; 
+                }
+                
+                // Đảm bảo không thay thế nhầm nếu từ cuối không tồn tại
+                if (lastWordStart === -1 || currentLastWord.length === 0) {
+                     inputElement.value += phrase + ' ';
+                } else {
+                     let newText = currentFullText.substring(0, lastWordStart) + phrase;
+                     newText += ' ';
+                     inputElement.value = newText;
+                }
                 
                 boxElement.style.display = 'none';
-                saveAll(); 
+                saveAll(); 
                 inputElement.focus();
                 
-                inputElement.selectionStart = inputElement.selectionEnd = newText.length;
+                inputElement.selectionStart = inputElement.selectionEnd = inputElement.value.length;
             });
 
             boxElement.appendChild(item);
