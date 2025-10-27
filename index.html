@@ -198,7 +198,7 @@ function showSuggestions(inputElement, boxElement) {
     // Lọc danh sách gợi ý
     const filteredSuggestions = wordSuggestions
         .filter(phrase => phrase.toLowerCase().startsWith(inputText))
-        .slice(0, 4); // CHỈ GIỚI HẠN 4 GỢI Ý ĐẦU TIÊN
+        //.slice(0, 4); // CHỈ GIỚI HẠN 4 GỢI Ý ĐẦU TIÊN
 
     if (filteredSuggestions.length > 0) {
         filteredSuggestions.forEach(phrase => {
