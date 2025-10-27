@@ -9,9 +9,9 @@
 body{font-family:'Segoe UI',sans-serif;background:#e3f2fd;margin:0;padding:0 0 55px;text-align:center}
 /* Chống người dùng vuốt màn hình khi khóa */
 body.locked {
-    overflow: hidden; 
-    overscroll-behavior-y: contain; 
-    touch-action: none;
+    overflow: hidden; 
+    overscroll-behavior-y: contain; 
+    touch-action: none;
 }
 
 .main-wrapper{max-width:700px;margin:0 auto;padding:20px 10px}
@@ -24,15 +24,15 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
 .play-btn{background:linear-gradient(45deg,#4CAF50,#43A047)}
 .add-btn,.install-btn{width:200px}
 .reset-btn,.settings-btn,.install-btn.large-control-btn{
-    width:220px;
-    height:50px;
-    font-size:18px;
-    margin:8px auto;
-    display:flex;
-    justify-content:center;
-    align-items:center;
+    width:220px;
+    height:50px;
+    font-size:18px;
+    margin:8px auto;
+    display:flex;
+    justify-content:center;
+    align-items:center;
 }
-.install-btn{background:linear-gradient(45deg,#00BCD4,#0097A7)} 
+.install-btn{background:linear-gradient(45deg,#00BCD4,#0097A7)} 
 .add-btn,.reset-btn{background:linear-gradient(45deg,#2196F3,#1976D2)}
 .settings-btn{background:linear-gradient(45deg,#f44336,#d32f2f)}
 .delete-btn{position:absolute;top:6px;right:8px;background:transparent;border:none;color:#e53935;font-size:18px;cursor:pointer;padding:0}
@@ -41,8 +41,8 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
 .navigation-group{display:flex;flex-direction:column;align-items:center;gap:15px;margin:25px 0 0}
 /* THAY ĐỔI: Sử dụng touch-action: manipulation; để ưu tiên các sự kiện nhấn/chạm */
 .control-btn{
-    width:150px;height:60px;border-radius:8px;color:white;font-size:18px;border:none;cursor:pointer;transition:.3s;font-weight:bold;display:flex;justify-content:center;align-items:center;
-    touch-action: manipulation; 
+    width:150px;height:60px;border-radius:8px;color:white;font-size:18px;border:none;cursor:pointer;transition:.3s;font-weight:bold;display:flex;justify-content:center;align-items:center;
+    touch-action: manipulation; 
 }
 .play-control-btn{background:linear-gradient(45deg,#4CAF50,#43A047)}
 .current-btn-color{background:#ff9800}
@@ -50,81 +50,96 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
 
 /* CSS cho chế độ khóa */
 .control-container.locked{
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    overflow:hidden;
-    z-index:99;
-    background:#e3f2fd;
-    justify-content: center; 
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    z-index:99;
+    background:#e3f2fd;
+    justify-content: center; 
 }
 .control-container.locked #add-btn-move,
 .control-container.locked #settingsArea {
-    display: none !important;
+    display: none !important;
 }
 .control-container.locked .navigation-group{
-    margin:0;
+    margin:0;
 }
 .control-container.locked #unlock-btn{
-    position:fixed;
-    bottom: 80px; 
-    left:50%;
-    transform:translateX(-50%);
-    display:flex;
-    z-index:100;
+    position:fixed;
+    bottom: 80px; 
+    left:50%;
+    transform:translateX(-50%);
+    display:flex;
+    z-index:100;
 }
 
 /* Cập nhật CSS cho Popup: Luôn fixed và căn giữa */
 #popup{
-    position: fixed;
-    top: 200px;
-    left: 50%;
-    transform: translateX(-50%);
-    
-    background:rgba(0,0,0,.8);
-    color:#fff;
-    padding:15px 20px;
-    border-radius:12px;
-    font-size:18px;
-    display:none;
-    z-index:1000;
-    max-width:90%;
-    min-width:100px;
-    text-align:center;
-    transition: opacity 0.5s ease-out; 
+    position: fixed;
+    top: 200px;
+    left: 50%;
+    transform: translateX(-50%);
+    
+    background:rgba(0,0,0,.8);
+    color:#fff;
+    padding:15px 20px;
+    border-radius:12px;
+    font-size:18px;
+    display:none;
+    z-index:1000;
+    max-width:90%;
+    min-width:100px;
+    text-align:center;
+    transition: opacity 0.5s ease-out; 
 }
 
-/* BỔ SUNG CSS CHO HỘP GỢI Ý TÙY CHỈNH (ĐÃ ĐIỀU CHỈNH SỔ LÊN TRÊN) */
+/* BỔ SUNG CSS CHO HỘP GỢI Ý TÙY CHỈNH (ĐÃ SỬA ĐỂ HỖ TRỢ SỔ LÊN VÀ SỔ XUỐNG) */
 .suggestion-box {
-    position: absolute;
-    bottom: calc(100% - 10px); /* THAY ĐỔI LỚN: Đặt ngay phía trên input */
-    left: 0;
-    right: 0;
-    z-index: 10;
-    background: #fff;
-    border: 1px solid #ddd;
-    border-bottom: none; /* THAY ĐỔI: Bỏ viền dưới */
-    border-radius: 8px 8px 0 0; /* THAY ĐỔI: Bo góc trên */
-    box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1); /* THAY ĐỔI: Đổ bóng lên trên */
-    max-height: 150px;
-    overflow-y: auto;
-    text-align: left;
-    display: none; 
+    position: absolute;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px; /* Bo góc mặc định */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+    max-height: 150px;
+    overflow-y: auto;
+    text-align: left;
+    display: none; 
 }
+
+/* CSS cho trường hợp sổ lên (Khi input ở dưới) */
+.suggestion-box.up {
+    bottom: calc(100% + 5px); /* Sổ lên phía trên input */
+    border-bottom: 1px solid #ddd; /* Giữ lại viền dưới */
+    border-radius: 8px 8px 0 0; /* Bo góc trên */
+    box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1); /* Đổ bóng lên trên */
+}
+
+/* CSS cho trường hợp sổ xuống (Khi input ở trên) */
+.suggestion-box.down {
+    top: calc(100% + 5px); /* Sổ xuống phía dưới input */
+    border-top: 1px solid #ddd; /* Giữ lại viền trên */
+    border-radius: 0 0 8px 8px; /* Bo góc dưới */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Đổ bóng xuống dưới */
+}
+
 .suggestion-item {
-    padding: 10px;
-    cursor: pointer;
-    font-size: 16px;
-    border-bottom: 1px solid #eee;
-    transition: background-color 0.2s;
+    padding: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.2s;
 }
 .suggestion-item:last-child {
-    border-bottom: none;
+    border-bottom: none;
 }
 .suggestion-item:hover {
-    background-color: #f0f0f0;
+    background-color: #f0f0f0;
 }
 /* KẾT THÚC BỔ SUNG CSS */
 
@@ -163,183 +178,206 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
 
 // HÀM BỔ SUNG: Chuyển đổi chuỗi có dấu thành không dấu
 function removeDiacritics(str) {
-    if (typeof str !== 'string') return '';
-    return str.toLowerCase()
-        .replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a")
-        .replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e")
-        .replace(/ì|í|ị|ỉ|ĩ/g, "i")
-        .replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o")
-        .replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u")
-        .replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y")
-        .replace(/đ/g, "d");
+    if (typeof str !== 'string') return '';
+    return str.toLowerCase()
+        .replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a")
+        .replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e")
+        .replace(/ì|í|ị|ỉ|ĩ/g, "i")
+        .replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o")
+        .replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u")
+        .replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y")
+        .replace(/đ/g, "d");
 }
-    
+    
 // BẮT ĐẦU PHẦN BỔ SUNG VÀ SỬA ĐỔI
-const SUGGESTION_URL = 'goi-y-tu.json'; 
+const SUGGESTION_URL = 'goi-y-tu.json'; 
 let wordSuggestions = []; // Dùng để lưu trữ danh sách từ gợi ý
 
 // HÀM MỚI: Tải dữ liệu gợi ý và lưu vào wordSuggestions
 async function loadSuggestions() {
-    try {
-        const response = await fetch(SUGGESTION_URL); 
-        if (!response.ok) {
-            console.error('Lỗi tải file gợi ý (kiểm tra file goi-y-tu.json):', response.statusText);
-            return;
-        }
-        wordSuggestions = await response.json();
-        if (!Array.isArray(wordSuggestions)) {
-            wordSuggestions = [];
-            console.error('Dữ liệu gợi ý không phải là mảng.');
-        }
-        console.log(`Đã tải ${wordSuggestions.length} gợi ý.`);
-    } catch (error) {
-        console.error('Lỗi khi tải hoặc xử lý file JSON:', error);
-    }
+    try {
+        const response = await fetch(SUGGESTION_URL); 
+        if (!response.ok) {
+            console.error('Lỗi tải file gợi ý (kiểm tra file goi-y-tu.json):', response.statusText);
+            return;
+        }
+        wordSuggestions = await response.json();
+        if (!Array.isArray(wordSuggestions)) {
+            wordSuggestions = [];
+            console.error('Dữ liệu gợi ý không phải là mảng.');
+        }
+        console.log(`Đã tải ${wordSuggestions.length} gợi ý.`);
+    } catch (error) {
+        console.error('Lỗi khi tải hoặc xử lý file JSON:', error);
+    }
 }
 
-// HÀM SỬA ĐỔI CUỐI CÙNG: Hiển thị gợi ý tùy chỉnh (Hỗ trợ gõ không dấu)
+// HÀM SỬA ĐỔI CUỐI CÙNG: Hiển thị gợi ý tùy chỉnh (Hỗ trợ gõ không dấu và Tự động điều chỉnh vị trí)
 function showSuggestions(inputElement, boxElement) {
-    const fullText = inputElement.value;
-    // Tách chuỗi bằng dấu cách (bao gồm nhiều dấu cách liên tiếp)
-    const parts = fullText.split(/\s+/).filter(p => p.length > 0); 
-    
-    // 1. Lấy từ cuối cùng đang được gõ (không cần lowerCase ở đây)
-    const lastWord = parts.length > 0 ? parts[parts.length - 1] : '';
-    
-    // CHUẨN HÓA: Lấy từ cuối cùng KHÔNG DẤU mà người dùng gõ
-    const lastWordNoDiacritics = removeDiacritics(lastWord).toLowerCase();
+    const fullText = inputElement.value;
+    // Tách chuỗi bằng dấu cách (bao gồm nhiều dấu cách liên tiếp)
+    const parts = fullText.split(/\s+/).filter(p => p.length > 0); 
+    
+    // 1. Lấy từ cuối cùng đang được gõ
+    const lastWord = parts.length > 0 ? parts[parts.length - 1] : '';
+    
+    // CHUẨN HÓA: Lấy từ cuối cùng KHÔNG DẤU để so khớp
+    const lastWordNoDiacritics = removeDiacritics(lastWord).toLowerCase();
 
-    // Ẩn box nếu input rỗng hoặc chỉ có khoảng trắng
-    if (fullText.trim().length === 0 || lastWord.length === 0) {
-        boxElement.style.display = 'none';
-        return;
-    }
-    
-    boxElement.innerHTML = '';
-    
-    // Lọc danh sách gợi ý: So sánh gợi ý (đã bỏ dấu) với từ cuối cùng (đã bỏ dấu)
-    const filteredSuggestions = wordSuggestions
-        .filter(phrase => removeDiacritics(phrase).toLowerCase().startsWith(lastWordNoDiacritics))
-        .slice(0, 5); 
+    // ----------------------------------------------------
+    // LOGIC ĐIỀU CHỈNH VỊ TRÍ HỘP GỢI Ý (MỚI)
+    // ----------------------------------------------------
+    const inputRect = inputElement.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    const boxHeight = 150; // Chiều cao tối đa của hộp gợi ý (max-height) + một chút đệm
 
-    if (filteredSuggestions.length > 0) {
-        filteredSuggestions.forEach(phrase => {
-            const item = document.createElement('div');
-            item.className = 'suggestion-item';
-            item.textContent = phrase;
-            
-            // Xử lý khi click vào mục gợi ý (dùng mousedown để ngăn input blur ngay lập tức)
-            item.addEventListener('mousedown', (e) => {
-                e.preventDefault(); 
-                
-                // Tìm vị trí bắt đầu của từ cuối cùng
-                const lastWordStart = fullText.lastIndexOf(lastWord);
-                
-                // Tái tạo văn bản: Thay thế từ cuối cùng bằng gợi ý (có dấu) được chọn
-                let newText = fullText.substring(0, lastWordStart) + phrase;
+    // Tính khoảng trống còn lại ở phía trên và phía dưới input
+    const spaceAbove = inputRect.top;
+    const spaceBelow = viewportHeight - inputRect.bottom;
 
-                // Thêm dấu cách
-                newText += ' '; 
-
-                inputElement.value = newText;
-                
-                boxElement.style.display = 'none';
-                saveAll(); 
-                inputElement.focus();
-                
-                // Đặt con trỏ về cuối input
-                inputElement.selectionStart = inputElement.selectionEnd = newText.length;
-            });
-
-            boxElement.appendChild(item);
-        });
-        boxElement.style.display = 'block';
+    // Ưu tiên sổ xuống (down) nếu còn đủ chỗ hoặc không đủ chỗ phía trên
+    // Nếu khoảng trống phía dưới lớn hơn khoảng trống phía trên HOẶC khoảng trống phía trên không đủ 200px
+    if (spaceBelow > spaceAbove || spaceAbove < boxHeight + 50) { 
+        boxElement.classList.remove('up');
+        boxElement.classList.add('down');
     } else {
-        boxElement.style.display = 'none';
+        // Ưu tiên sổ lên (up)
+        boxElement.classList.remove('down');
+        boxElement.classList.add('up');
     }
+    // ----------------------------------------------------
+    
+    // Ẩn box nếu input rỗng hoặc chỉ có khoảng trắng
+    if (fullText.trim().length === 0 || lastWord.length === 0) {
+        boxElement.style.display = 'none';
+        return;
+    }
+    
+    boxElement.innerHTML = '';
+    
+    // Lọc danh sách gợi ý: So sánh gợi ý (đã bỏ dấu) với từ cuối cùng (đã bỏ dấu)
+    const filteredSuggestions = wordSuggestions
+        .filter(phrase => removeDiacritics(phrase).toLowerCase().startsWith(lastWordNoDiacritics))
+        .slice(0, 5); 
+
+    if (filteredSuggestions.length > 0) {
+        filteredSuggestions.forEach(phrase => {
+            const item = document.createElement('div');
+            item.className = 'suggestion-item';
+            item.textContent = phrase;
+            
+            // Xử lý khi click vào mục gợi ý (dùng mousedown để ngăn input blur ngay lập tức)
+            item.addEventListener('mousedown', (e) => {
+                e.preventDefault(); 
+                
+                // Tìm vị trí bắt đầu của từ cuối cùng
+                const lastWordStart = fullText.lastIndexOf(lastWord);
+                
+                // Tái tạo văn bản: Thay thế từ cuối cùng bằng gợi ý (có dấu) được chọn
+                let newText = fullText.substring(0, lastWordStart) + phrase;
+
+                // Thêm dấu cách
+                newText += ' '; 
+
+                inputElement.value = newText;
+                
+                boxElement.style.display = 'none';
+                saveAll(); 
+                inputElement.focus();
+                
+                // Đặt con trỏ về cuối input
+                inputElement.selectionStart = inputElement.selectionEnd = newText.length;
+            });
+
+            boxElement.appendChild(item);
+        });
+        boxElement.style.display = 'block';
+    } else {
+        boxElement.style.display = 'none';
+    }
 }
 
-    
+    
 // KẾT THÚC PHẦN BỔ SUNG
 
 let deferredPrompt,currentIndex=0,defaults=["Tôi muốn ăn cơm","Tôi muốn uống nước","Tôi muốn đi vệ sinh","Tôi muốn đi ngủ"],installState = 'before_install';
 const controlArea=document.getElementById('controlArea'),
-      installButton=document.getElementById('installButton'),
-      addBtnMove=document.getElementById('add-btn-move'),
-      popupElement=document.getElementById('popup'),
-      buttonContainer=document.getElementById('buttonContainer'),
-      settingsArea=document.getElementById('settingsArea');
+      installButton=document.getElementById('installButton'),
+      addBtnMove=document.getElementById('add-btn-move'),
+      popupElement=document.getElementById('popup'),
+      buttonContainer=document.getElementById('buttonContainer'),
+      settingsArea=document.getElementById('settingsArea');
 
 function speak(text, targetElement){
-    if(!text||!('speechSynthesis'in window))return;
-    speechSynthesis.cancel();
-    let u=new SpeechSynthesisUtterance(text);
-    u.lang='vi-VN';
-    speechSynthesis.speak(u);
-    showPopup(text); 
+    if(!text||!('speechSynthesis'in window))return;
+    speechSynthesis.cancel();
+    let u=new SpeechSynthesisUtterance(text);
+    u.lang='vi-VN';
+    speechSynthesis.speak(u);
+    showPopup(text); 
 }
 
 function showPopup(text){
-    popupElement.textContent=text;
-    popupElement.style.display='block';
-    popupElement.style.opacity='1';
+    popupElement.textContent=text;
+    popupElement.style.display='block';
+    popupElement.style.opacity='1';
 
-    setTimeout(()=>{ 
-        popupElement.style.opacity='0'; 
-        setTimeout(()=>popupElement.style.display='none', 500) 
-    },3500) 
+    setTimeout(()=>{ 
+        popupElement.style.opacity='0'; 
+        setTimeout(()=>popupElement.style.display='none', 500) 
+    },3500) 
 }
 
 function getCards(){return document.querySelectorAll('.card input')}
 
 // Hàm này đảm bảo currentIndex luôn trỏ đến một vị trí hợp lệ
 function updateCurrentIndexAfterChange() {
-    const c = getCards();
-    currentIndex = Math.min(currentIndex, c.length - 1);
-    if (currentIndex < 0) currentIndex = 0;
+    const c = getCards();
+    currentIndex = Math.min(currentIndex, c.length - 1);
+    if (currentIndex < 0) currentIndex = 0;
 }
 
 // HÀM SỬA ĐỔI: Thêm suggestion-box và sự kiện input/blur
 function addButton(v=''){
-    let c=document.createElement('div');
-    c.className='card';
-    
-    // INPUT BỔ SUNG: Thêm sự kiện và tạo suggestion-box
-    let i=document.createElement('input');
-    i.value=v;
-    i.placeholder="Nhập văn bản...";
-    i.onchange=saveAll;
-    
-    let sBox = document.createElement('div'); // Hộp gợi ý
-    sBox.className = 'suggestion-box';
+    let c=document.createElement('div');
+    c.className='card';
+    
+    // INPUT BỔ SUNG: Thêm sự kiện và tạo suggestion-box
+    let i=document.createElement('input');
+    i.value=v;
+    i.placeholder="Nhập văn bản...";
+    i.onchange=saveAll;
+    
+    let sBox = document.createElement('div'); // Hộp gợi ý
+    sBox.className = 'suggestion-box';
 
-    // Gắn sự kiện khi gõ
-    i.addEventListener('input', (e) => showSuggestions(e.target, sBox));
-    
-    // Ẩn hộp gợi ý khi mất focus (dùng setTimeout để cho phép click vào gợi ý)
-    i.addEventListener('blur', () => {
-        setTimeout(() => sBox.style.display = 'none', 150);
-    });
-    // KẾT THÚC SỬA ĐỔI INPUT
-    
-    let p=document.createElement('button');
-    p.className='btn play-btn';
-    p.textContent='🔊 Phát âm';
-    p.onclick=()=>speak(i.value.trim(), p); 
-    let d=document.createElement('button');
-    d.className='delete-btn';
-    d.textContent='❌';
-    d.onclick=()=>{
-        c.remove();
-        saveAll();
-        updateCurrentIndexAfterChange(); // Cập nhật sau khi xóa
-    };
-    // Đính kèm suggestion box vào card
-    c.append(i, sBox, p, d); 
-    document.getElementById('buttonContainer').appendChild(c);
-    saveAll();
-    // Đặt currentIndex vào thẻ mới (thẻ cuối cùng)
-    currentIndex = getCards().length - 1; 
+    // Gắn sự kiện khi gõ
+    i.addEventListener('input', (e) => showSuggestions(e.target, sBox));
+    
+    // Ẩn hộp gợi ý khi mất focus (dùng setTimeout để cho phép click vào gợi ý)
+    i.addEventListener('blur', () => {
+        setTimeout(() => sBox.style.display = 'none', 150);
+    });
+    // KẾT THÚC SỬA ĐỔI INPUT
+    
+    let p=document.createElement('button');
+    p.className='btn play-btn';
+    p.textContent='🔊 Phát âm';
+    p.onclick=()=>speak(i.value.trim(), p); 
+    let d=document.createElement('button');
+    d.className='delete-btn';
+    d.textContent='❌';
+    d.onclick=()=>{
+        c.remove();
+        saveAll();
+        updateCurrentIndexAfterChange(); // Cập nhật sau khi xóa
+    };
+    // Đính kèm suggestion box vào card
+    c.append(i, sBox, p, d); 
+    document.getElementById('buttonContainer').appendChild(c);
+    saveAll();
+    // Đặt currentIndex vào thẻ mới (thẻ cuối cùng)
+    currentIndex = getCards().length - 1; 
 }
 
 function saveAll(){localStorage.setItem('voiceButtons',JSON.stringify([...document.querySelectorAll('.card input')].map(i=>i.value.trim())))}
@@ -347,141 +385,141 @@ function loadButtons(){let s=JSON.parse(localStorage.getItem('voiceButtons')||"[
 function resetDefaults(){if(confirm("Đặt lại mặc định?")){localStorage.removeItem('voiceButtons');document.getElementById('buttonContainer').innerHTML='';loadButtons();currentIndex=0;}}
 
 function cleanupEmptyCards(){
-    let c=document.querySelectorAll('.card'),save=false;
-    for(let i=c.length-1;i>=0;i--){
-        let inp=c[i].querySelector('input');
-        // Chỉ xóa thẻ nếu nó hoàn toàn trống
-        if(!inp||inp.value.trim()===''){
-            c[i].remove();
-            save=true;
-        }
-    }
-    if(save){
-        saveAll();
-        updateCurrentIndexAfterChange();
-    }
+    let c=document.querySelectorAll('.card'),save=false;
+    for(let i=c.length-1;i>=0;i--){
+        let inp=c[i].querySelector('input');
+        // Chỉ xóa thẻ nếu nó hoàn toàn trống
+        if(!inp||inp.value.trim()===''){
+            c[i].remove();
+            save=true;
+        }
+    }
+    if(save){
+        saveAll();
+        updateCurrentIndexAfterChange();
+    }
 }
 
 function moveSpeak(dir){
-    // BỎ cleanupEmptyCards() để đảm bảo điều hướng ổn định
-    const c=getCards();
-    if(c.length===0)return;
-    
-    if(dir===0){
-        // Phát lại câu hiện tại, kiểm tra trống
-        const text = c[currentIndex].value.trim();
-        if (text) {
-            speak(text);
-        } else {
-            showPopup("Câu trống! Vui lòng sửa hoặc xóa.");
-        }
-    } else {
-        // Di chuyển câu trước/sau
-        currentIndex=(currentIndex+dir+c.length)%c.length;
-        
-        // Vòng lặp tìm câu không trống (để tránh lặp vô tận nếu TẤT CẢ trống)
-        let count = 0;
-        while(c[currentIndex].value.trim() === '' && count < c.length) {
-            currentIndex=(currentIndex+dir+c.length)%c.length;
-            count++;
-        }
-        
-        // Nếu tìm thấy câu để đọc
-        const text = c[currentIndex].value.trim();
-        if (text) {
-            speak(text);
-        } else {
-             // Chỉ xảy ra nếu tất cả các câu đều trống
-            showPopup("Không có câu nào để đọc.");
-        }
-    }
+    // BỎ cleanupEmptyCards() để đảm bảo điều hướng ổn định
+    const c=getCards();
+    if(c.length===0)return;
+    
+    if(dir===0){
+        // Phát lại câu hiện tại, kiểm tra trống
+        const text = c[currentIndex].value.trim();
+        if (text) {
+            speak(text);
+        } else {
+            showPopup("Câu trống! Vui lòng sửa hoặc xóa.");
+        }
+    } else {
+        // Di chuyển câu trước/sau
+        currentIndex=(currentIndex+dir+c.length)%c.length;
+        
+        // Vòng lặp tìm câu không trống (để tránh lặp vô tận nếu TẤT CẢ trống)
+        let count = 0;
+        while(c[currentIndex].value.trim() === '' && count < c.length) {
+            currentIndex=(currentIndex+dir+c.length)%c.length;
+            count++;
+        }
+        
+        // Nếu tìm thấy câu để đọc
+        const text = c[currentIndex].value.trim();
+        if (text) {
+            speak(text);
+        } else {
+             // Chỉ xảy ra nếu tất cả các câu đều trống
+            showPopup("Không có câu nào để đọc.");
+        }
+    }
 }
 
 function toggleLock(lock){
-    const u=document.getElementById('unlock-btn');
-    // Khi thoát khỏi chế độ khóa, dọn dẹp thẻ trống
-    if (!lock) {
-        cleanupEmptyCards();
-    }
-    
-    if(lock){
-        buttonContainer.style.display='none';
-        addBtnMove.style.display='none';
-        settingsArea.style.display='none';
-        
-        controlArea.classList.add('locked');
-        document.body.classList.add('locked');
-        document.getElementById('mainTitle').classList.add('locked-h1');
-        u.style.display='flex';
-    } else {
-        buttonContainer.style.display='grid';
-        addBtnMove.style.display='block';
-        settingsArea.style.display='block';
-        
-        controlArea.classList.remove('locked');
-        document.body.classList.remove('locked');
-        document.getElementById('mainTitle').classList.remove('locked-h1');
-        u.style.display='none';
-    }
+    const u=document.getElementById('unlock-btn');
+    // Khi thoát khỏi chế độ khóa, dọn dẹp thẻ trống
+    if (!lock) {
+        cleanupEmptyCards();
+    }
+    
+    if(lock){
+        buttonContainer.style.display='none';
+        addBtnMove.style.display='none';
+        settingsArea.style.display='none';
+        
+        controlArea.classList.add('locked');
+        document.body.classList.add('locked');
+        document.getElementById('mainTitle').classList.add('locked-h1');
+        u.style.display='flex';
+    } else {
+        buttonContainer.style.display='grid';
+        addBtnMove.style.display='block';
+        settingsArea.style.display='block';
+        
+        controlArea.classList.remove('locked');
+        document.body.classList.remove('locked');
+        document.getElementById('mainTitle').classList.remove('locked-h1');
+        u.style.display='none';
+    }
 }
 
 // Gắn sự kiện cho các nút điều hướng
 document.querySelectorAll('.control-btn').forEach(button => {
-    // Giữ cả click và touchend để tối ưu phản hồi trên di động
-    ['click', 'touchend'].forEach(event => {
-        button.addEventListener(event, function(e) {
-            // Ngăn chặn sự kiện chạm kích hoạt click hai lần
-            e.preventDefault(); 
-            // Dùng currentTarget để lấy data-direction của nút
-            moveSpeak(parseInt(e.currentTarget.dataset.direction)); 
-        }, { passive: false });
-    });
+    // Giữ cả click và touchend để tối ưu phản hồi trên di động
+    ['click', 'touchend'].forEach(event => {
+        button.addEventListener(event, function(e) {
+            // Ngăn chặn sự kiện chạm kích hoạt click hai lần
+            e.preventDefault(); 
+            // Dùng currentTarget để lấy data-direction của nút
+            moveSpeak(parseInt(e.currentTarget.dataset.direction)); 
+        }, { passive: false });
+    });
 });
 
-window.addEventListener('beforeinstallprompt',e=>{ 
-    e.preventDefault(); 
-    deferredPrompt=e; 
-    if (installState === 'before_install') {
-        installButton.style.display='flex';
-        installButton.onclick=installApp;
-    }
+window.addEventListener('beforeinstallprompt',e=>{ 
+    e.preventDefault(); 
+    deferredPrompt=e; 
+    if (installState === 'before_install') {
+        installButton.style.display='flex';
+        installButton.onclick=installApp;
+    }
 });
 
 function installApp(){
-    if(deferredPrompt){
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then((choiceResult)=>{
-            if (choiceResult.outcome === 'accepted') {
-                installState = 'installed';
-            } else {
-                installState = 'rejected';
-            }
-            deferredPrompt=null;
-            installButton.style.display='none';
-        });
-    }
+    if(deferredPrompt){
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult)=>{
+            if (choiceResult.outcome === 'accepted') {
+                installState = 'installed';
+            } else {
+                installState = 'rejected';
+            }
+            deferredPrompt=null;
+            installButton.style.display='none';
+        });
+    }
 }
 
-window.addEventListener('appinstalled',()=>{ 
-    installState = 'installed'; 
-    installButton.style.display='none'; 
+window.addEventListener('appinstalled',()=>{ 
+    installState = 'installed'; 
+    installButton.style.display='none'; 
 });
 
-if (installState === 'before_install') { 
-    installButton.style.display='none'; 
+if (installState === 'before_install') { 
+    installButton.style.display='none'; 
 }
 
 function warmUpTTS(){
-    if(!('speechSynthesis'in window))return;
-    let u=new SpeechSynthesisUtterance(" ");
-    u.lang='vi-VN';
-    u.volume=0;
-    u.rate=10;
-    speechSynthesis.speak(u);
-    setTimeout(()=>speechSynthesis.cancel(),500)
+    if(!('speechSynthesis'in window))return;
+    let u=new SpeechSynthesisUtterance(" ");
+    u.lang='vi-VN';
+    u.volume=0;
+    u.rate=10;
+    speechSynthesis.speak(u);
+    setTimeout(()=>speechSynthesis.cancel(),500)
 }
 // SỬA ĐỔI: Gọi hàm tải gợi ý mới
-window.onload=()=>{loadButtons();warmUpTTS();loadSuggestions();} 
+window.onload=()=>{loadButtons();warmUpTTS();loadSuggestions();} 
 </script>
 
 </body>
