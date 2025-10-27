@@ -96,22 +96,24 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
     transition: opacity 0.5s ease-out; 
 }
 
-/* BỔ SUNG CSS CHO HỘP GỢI Ý TÙY CHỈNH */
+/* BỔ SUNG CSS CHO HỘP GỢI Ý TÙY CHỈNH (SỔ LÊN) */
 .suggestion-box {
-    position: absolute;
-    top: calc(100% - 10px); /* Đặt ngay dưới input */
-    left: 0;
-    right: 0;
-    z-index: 10;
-    background: #fff;
-    border: 1px solid #ddd;
-    border-top: none;
-    border-radius: 0 0 8px 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    max-height: 150px;
-    overflow-y: auto;
-    text-align: left;
-    display: none; 
+    position: absolute;
+    /* THAY ĐỔI: Dùng bottom: 100% để đặt hộp ngay trên input */
+    bottom: 100%;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    background: #fff;
+    border: 1px solid #ddd;
+    /* THAY ĐỔI: Thêm border-bottom: none và bo tròn góc trên */
+    border-bottom: none;
+    border-radius: 8px 8px 0 0; 
+    box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1); /* Đổi hướng bóng đổ */
+    max-height: 150px;
+    overflow-y: auto;
+    text-align: left;
+    display: none; 
 }
 .suggestion-item {
     padding: 10px;
