@@ -183,20 +183,35 @@ async function loadSuggestions() {
     }
 }
 
-// HÀM MỚI: Hiển thị gợi ý tùy chỉnh (giới hạn 4 từ)
+// HÀM MỚI (ĐÃ SỬA ĐỔI): Hiển thị gợi ý tùy chỉnh (chỉ gợi ý cho từ cuối cùng)
 function showSuggestions(inputElement, boxElement) {
-    const inputText = inputElement.value.trim().toLowerCase();
-    boxElement.innerHTML = '';
+    const fullText = inputElement.value;
+    // Tách chuỗi bằng dấu cách (bao gồm nhiều dấu cách liên tiếp)
+    // và lọc bỏ các chuỗi rỗng để tìm từ cuối cùng
+    const parts = fullText.split(/\s+/).filter(p => p.length > 0); 
     
-    if (inputText.length === 0) {
+    // 1. Lấy từ cuối cùng đang được gõ (hoặc chuỗi rỗng nếu không có)
+    const lastWord = parts.length > 0 ? parts[parts.length - 1].toLowerCase() : '';
+    
+    // Nếu toàn bộ input là khoảng trắng, ẩn box
+    if (fullText.trim().length === 0) {
+        boxElement.style.display = 'none';
+        return;
+    }
+    
+    // Nếu từ cuối cùng trống (người dùng vừa ấn Space), ẩn box
+    if (lastWord.length === 0) {
         boxElement.style.display = 'none';
         return;
     }
 
-    // Lọc danh sách gợi ý
+    boxElement.innerHTML = '';
+    
+    // Lọc danh sách gợi ý: So sánh gợi ý với từ cuối cùng
+    // Giới hạn 5 gợi ý để không chiếm quá nhiều không gian
     const filteredSuggestions = wordSuggestions
-        .filter(phrase => phrase.toLowerCase().startsWith(inputText))
-        //.slice(0, 4); // CHỈ GIỚI HẠN 4 GỢI Ý ĐẦU TIÊN
+        .filter(phrase => phrase.toLowerCase().startsWith(lastWord))
+        .slice(0, 10); 
 
     if (filteredSuggestions.length > 0) {
         filteredSuggestions.forEach(phrase => {
@@ -206,11 +221,25 @@ function showSuggestions(inputElement, boxElement) {
             
             // Xử lý khi click vào mục gợi ý (dùng mousedown để ngăn input blur ngay lập tức)
             item.addEventListener('mousedown', (e) => {
-                e.preventDefault(); 
-                inputElement.value = phrase;
+                e.preventDefault(); 
+                
+                // 2. Tái tạo văn bản: Thay thế từ cuối cùng bằng gợi ý được chọn
+                // Tìm vị trí bắt đầu của từ cuối cùng (để giữ lại phần văn bản trước đó)
+                const lastWordStart = fullText.lastIndexOf(lastWord);
+                
+                let newText = fullText.substring(0, lastWordStart) + phrase;
+
+                // Thêm dấu cách vào cuối để chuẩn bị cho từ tiếp theo (theo yêu cầu)
+                newText += ' '; 
+
+                inputElement.value = newText;
+                
                 boxElement.style.display = 'none';
-                saveAll(); 
+                saveAll(); 
                 inputElement.focus();
+                
+                // Đặt con trỏ về cuối input để người dùng gõ tiếp
+                inputElement.selectionStart = inputElement.selectionEnd = newText.length;
             });
 
             boxElement.appendChild(item);
