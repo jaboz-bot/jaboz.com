@@ -200,6 +200,38 @@ input {
 
 <script>
 
+// HÀM MỚI: Trích xuất dấu thanh cho mục đích sắp xếp ưu tiên
+function getTonePriority(word) {
+    // 1: Thanh Bằng/Ngang (có thể không dấu) - Ưu tiên cao nhất
+    // 2: Thanh Sắc, Hỏi
+    // 3: Thanh Huyền, Ngã, Nặng
+    
+    // Logic đơn giản:
+    // a/e/o/u/i/y có thể có dấu: á/à/ả/ã/ạ, é/è/ẻ/ẽ/ẹ, v.v.
+    
+    // Nếu không có dấu, coi là Thanh Bằng (1)
+    if (removeDiacritics(word).toLowerCase() === word.toLowerCase()) {
+        return 1;
+    }
+    
+    // Dấu Sắc (á, é, í, ó, ú, ý) và Hỏi (ả, ẻ, ỉ, ỏ, ủ, ỷ)
+    // Sắc: áéíóúý
+    // Hỏi: ảẻỉỏủỷ
+    if (/[áéíóúýảẻỉỏủỷ]/.test(word.toLowerCase())) {
+        return 2;
+    }
+
+    // Dấu Huyền (à, è, ì, ò, ù, ỳ), Ngã (ã, ẽ, ĩ, õ, ũ, ỹ) và Nặng (ạ, ẹ, ị, ọ, ụ, ỵ)
+    // Huyền/Ngã/Nặng: àèìòùỳãẽĩõũỹạẹịọụỵ
+    // Trả về ưu tiên thấp hơn (3)
+    if (/[àèìòùỳãẽĩõũỹạẹịọụỵ]/.test(word.toLowerCase())) {
+        return 3;
+    }
+    
+    // Các trường hợp đặc biệt khác hoặc không tìm thấy dấu (fallback)
+    return 1;
+}
+    
 // HÀM BỔ SUNG: Chuyển đổi chuỗi có dấu thành không dấu
 function removeDiacritics(str) {
     if (typeof str !== 'string') return '';
@@ -287,9 +319,28 @@ function showSuggestions(inputElement, boxElement) {
     
     boxElement.innerHTML = '';
     
-    const filteredSuggestions = wordSuggestions
-        .filter(phrase => removeDiacritics(phrase).toLowerCase().startsWith(lastWordNoDiacritics))
-        .slice(0, 5);    
+   // 1. Lọc: Chỉ lấy các từ bắt đầu bằng 'lastWordNoDiacritics'
+    let filteredSuggestions = wordSuggestions
+        .filter(phrase => removeDiacritics(phrase).toLowerCase().startsWith(lastWordNoDiacritics));
+
+    // 2. Sắp xếp: Ưu tiên Thanh Bằng (priority 1), sau đó là Thanh Sắc/Hỏi (priority 2), v.v.
+    filteredSuggestions.sort((a, b) => {
+        const toneA = getTonePriority(a);
+        const toneB = getTonePriority(b);
+        
+        // Sắp xếp theo ưu tiên thanh (1 -> 2 -> 3)
+        if (toneA !== toneB) {
+            return toneA - toneB;
+        }
+        
+        // Nếu cùng thanh, sắp xếp theo thứ tự bảng chữ cái (mặc định đã được sắp xếp trước đó)
+        if (a < b) return -1;
+        if (a > b) return 1;
+        return 0;
+    });
+    
+    // 3. Cắt: Chỉ lấy 5 kết quả đầu tiên sau khi đã sắp xếp
+    filteredSuggestions = filteredSuggestions.slice(0, 5);  
 
     // ... (Phần logic còn lại giữ nguyên) ...
     // BẮT ĐẦU LOGIC ĐIỀU CHỈNH VỊ TRÍ MỚI (Mặc định SỔ LÊN)
