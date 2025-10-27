@@ -300,14 +300,13 @@ function extractWordBeforeCursor(inputElement) {
     return { word: '', startIndex: -1 };
 }
 
-// HÀM SỬA ĐỔI: Sử dụng logic trích xuất mới, sắp xếp ưu tiên và GIỚI HẠN KÝ TỰ
+// HÀM SỬA ĐỔI (ĐÃ BỎ LOGIC SẮP XẾP ƯU TIÊN DẤU THANH)
 function showSuggestions(inputElement, boxElement) {
     const fullText = inputElement.value;
     const { word: lastWord, startIndex: lastWordStart } = extractWordBeforeCursor(inputElement);
     
     const cursorPosition = inputElement.selectionStart;
     const charBeforeCursor = fullText.charAt(cursorPosition - 1);
-    // Tắt gợi ý nếu ngay sau khoảng trắng hoặc ở đầu chuỗi (không có từ để gợi ý)
     const isAfterSpace = cursorPosition === 0 || /\s/.test(charBeforeCursor);
 
     // 1. TẮT GỢI Ý
@@ -324,26 +323,24 @@ function showSuggestions(inputElement, boxElement) {
     let filteredSuggestions = wordSuggestions
         .filter(phrase => removeDiacritics(phrase).toLowerCase().startsWith(lastWordNoDiacritics));
 
-    // 2. THAY ĐỔI LOGIC SẮP XẾP: Ưu tiên các từ có cùng gốc không dấu theo thứ tự dấu thanh
+    // 2. LOGIC SẮP XẾP ĐƠN GIẢN HƠN: CHỈ SẮP XẾP THEO BẢNG CHỮ CÁI KHÔNG DẤU
+    // Điều này sẽ giữ cho các từ có cùng gốc không dấu (như 'quan', 'quán', 'quản')
+    // được sắp xếp theo thứ tự bảng chữ cái thông thường mà không cần ưu tiên dấu.
     filteredSuggestions.sort((a, b) => {
         const aNoDiacritics = removeDiacritics(a).toLowerCase();
         const bNoDiacritics = removeDiacritics(b).toLowerCase();
         
-        // CÙNG GỐC (VD: 'quan' và 'quán' đều là 'quan')
-        if (aNoDiacritics === bNoDiacritics) {
-            // Nếu cùng gốc, sắp xếp theo ưu tiên dấu thanh (1, 2, 3)
-            const toneA = getTonePriority(a);
-            const toneB = getTonePriority(b);
-            return toneA - toneB; 
-        } 
-        
-        // KHÁC GỐC: Sắp xếp theo bảng chữ cái không dấu (để 'quan' đứng trước 'quân')
+        // Sắp xếp theo bảng chữ cái không dấu
         if (aNoDiacritics < bNoDiacritics) return -1;
         if (aNoDiacritics > bNoDiacritics) return 1;
         
-        // Trường hợp không bao giờ xảy ra vì đã so sánh dấu ở trên
-        return 0; 
+        // Nếu cùng gốc không dấu (VD: 'quan' và 'quán'), sắp xếp theo bảng chữ cái có dấu (mặc định)
+        if (a < b) return -1;
+        if (a > b) return 1;
+        
+        return 0;
     });
+    // KẾT THÚC LOGIC SẮP XẾP ĐƠN GIẢN
 
     // 3. Cắt (Giới hạn số lượng hiển thị bằng độ dài từ đang gõ - không dấu)
     const limit = lastWordNoDiacritics.length; 
@@ -402,7 +399,7 @@ function showSuggestions(inputElement, boxElement) {
                      // Nếu từ gợi ý không phải cuối chuỗi và không có khoảng trắng, thêm một khoảng trắng
                      const nextChar = newText.charAt(lastWordStart + phrase.length);
                      if (/\S/.test(nextChar) && nextChar.length > 0) {
-                        newText = newText.substring(0, lastWordStart + phrase.length) + ' ' + newText.substring(lastWordStart + phrase.length);
+                         newText = newText.substring(0, lastWordStart + phrase.length) + ' ' + newText.substring(lastWordStart + phrase.length);
                      }
                 }
                 
