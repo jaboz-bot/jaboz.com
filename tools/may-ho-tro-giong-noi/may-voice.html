@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Máy hỗ trợ giọng nói</title>
-<link rel="manifest" href="/tools/may-ho-tro-giong-noi/may-voice.json">
+<link rel="manifest" href="may-voice.json">
 <style>
 body{font-family:'Segoe UI',sans-serif;background:#e3f2fd;margin:0;padding:0 0 55px;text-align:center}
 body.locked{overflow:hidden;overscroll-behavior-y:contain;touch-action:none}
@@ -402,7 +402,7 @@ document.querySelectorAll('.control-btn').forEach(button => {
 window.addEventListener('beforeinstallprompt', e => {
     e.preventDefault();
     deferredPrompt = e;
-    // if (installState === 'before_install') {
+    if (installState === 'before_install') {
         installButton.style.display = 'flex';
         installButton.onclick = installApp;
     }
@@ -420,7 +420,7 @@ function installApp(){
 }
 
 window.addEventListener('appinstalled', ()=>{ installState = 'installed'; installButton.style.display = 'none'; });
-// if(installState === 'before_install') installButton.style.display = 'none';
+if(installState === 'before_install') installButton.style.display = 'none';
 
 function warmUpTTS(){
     if(!('speechSynthesis' in window)) return;
