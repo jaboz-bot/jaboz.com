@@ -63,15 +63,14 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
 
 #scrolling-message-content {
     display: inline-block;
-    white-space: nowrap;
-    will-change: transform;
-    animation: marquee 60s linear infinite;
+    padding-left: 100%; /* Bắt đầu từ ngoài cùng bên phải */
     width: max-content;
+    animation: marquee 65s linear infinite; /* Hiệu ứng chạy chữ */
 }
 
 @keyframes marquee {
-    0% { transform: translateX(100%); }  /* bắt đầu giữa chừng, gần mép trái */
-    100% { transform: translateX(-50%); }  /* đi hết */
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(-50%, 0); }
 }
     
 body.locked #scrolling-message {
