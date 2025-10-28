@@ -69,12 +69,12 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
     /* Giảm thời gian để chạy nhanh hơn và tăng giá trị dịch chuyển cho mượt */
     animation: marquee 65s linear infinite; 
     /* Dùng biến CSS để tính toán dịch chuyển mượt mà hơn */
-    transform: translateX(100%); 
+    /* transform: translateX(100%); */
 }
 
 @keyframes marquee {
     /* Bắt đầu: Nội dung dịch chuyển sang phải một lần chiều rộng của chính nó */
-    0% { transform: translateX(0); } 
+    0% { transform: translateX(100%,0); } 
     /* Kết thúc: Nội dung dịch chuyển sang trái bằng chiều rộng của một lần lặp thông điệp */
     /* GIẢ SỬ nội dung đã được lặp 2 lần trong HTML và bạn muốn dịch chuyển một nửa (để lần lặp thứ 2 lấp vào) */
     100% { transform: translateX(-50%); } 
