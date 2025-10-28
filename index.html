@@ -66,11 +66,12 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
     white-space: nowrap;
     will-change: transform;
     animation: marquee 60s linear infinite;
+    width: max-content;
 }
 
 @keyframes marquee {
-    0% { transform: translateX(-45%,0); }  /* bắt đầu giữa chừng, gần mép trái */
-    100% { transform: translateX(-50,0%); }  /* đi hết */
+    0% { transform: translateX(100%); }  /* bắt đầu giữa chừng, gần mép trái */
+    100% { transform: translateX(-50%); }  /* đi hết */
 }
     
 body.locked #scrolling-message {
