@@ -18,8 +18,8 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
 .btn{padding:12px;border:none;border-radius:8px;color:white;font-size:16px;cursor:pointer;transition:.3s;display:flex;justify-content:center;align-items:center}
 .play-btn{background:linear-gradient(45deg,#4CAF50,#43A047);width:100%;box-sizing:border-box}
 .add-btn,.install-btn{width:200px}
-.reset-btn,.settings-btn,.install-btn.large-control-btn{width:220px;height:50px;font-size:18px;margin:8px auto;display:none;justify-content:center;align-items:center}
-.install-btn{background:linear-gradient(45deg,#00BCD4,#0097A7);display:none;}
+.reset-btn,.settings-btn,.install-btn.large-control-btn{width:220px;height:50px;font-size:18px;margin:8px auto;display:flex;justify-content:center;align-items:center}
+.install-btn{background:linear-gradient(45deg,#00BCD4,#0097A7)}
 .add-btn,.reset-btn{background:linear-gradient(45deg,#2196F3,#1976D2)}
 .settings-btn{background:linear-gradient(45deg,#f44336,#d32f2f)}
 .delete-btn{position:absolute;top:6px;right:8px;background:transparent;border:none;color:#e53935;font-size:18px;cursor:pointer;padding:0}
@@ -420,7 +420,7 @@ function installApp(){
 }
 
 window.addEventListener('appinstalled', ()=>{ installState = 'installed'; installButton.style.display = 'none'; });
-//if(installState === 'before_install') installButton.style.display = 'none';
+if(installState === 'before_install') installButton.style.display = 'none';
 
 function warmUpTTS(){
     if(!('speechSynthesis' in window)) return;
