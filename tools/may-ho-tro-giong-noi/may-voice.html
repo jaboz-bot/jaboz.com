@@ -1,10 +1,11 @@
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Máy hỗ trợ giọng nói</title>
-<link rel="manifest" href="may-voice.json"> 
+<link rel="manifest" href="may-voice.json">
 <style>
 body{font-family:'Segoe UI',sans-serif;background:#e3f2fd;margin:0;padding:0 0 55px;text-align:center}
 body.locked{overflow:hidden;overscroll-behavior-y:contain;touch-action:none}
@@ -44,55 +45,55 @@ input{padding:10px;font-size:16px;border-radius:8px;border:1px solid #ccc;width:
 
 /* CSS MỚI ĐỂ TẠO HIỆU ỨNG CHẠY CHỮ */
 #scrolling-message {
-    position: fixed;
-    bottom: 39px; /* Đặt ở trên #tts-info */
-    left: 0;
-    width: 100%;
-    padding: 8px 0;
-    background: linear-gradient(90deg, #bbdefb, #e3f2fd, #bbdefb); /* Nền nhẹ nhàng */
-    border-top: 1px solid #90caf9;
-    border-bottom: 1px solid #90caf9;
-    color: #1565c0; /* Màu chữ xanh */
-    font-size: 15px;
-    font-weight: bold;
-    white-space: nowrap; /* Ngăn chữ xuống dòng */
-    overflow: hidden; /* Che đi phần chữ thừa */
-    box-sizing: border-box;
-    z-index: 1005;
+    position: fixed;
+    bottom: 39px; /* Đặt ở trên #tts-info */
+    left: 0;
+    width: 100%;
+    padding: 8px 0;
+    background: linear-gradient(90deg, #bbdefb, #e3f2fd, #bbdefb); /* Nền nhẹ nhàng */
+    border-top: 1px solid #90caf9;
+    border-bottom: 1px solid #90caf9;
+    color: #1565c0; /* Màu chữ xanh */
+    font-size: 15px;
+    font-weight: bold;
+    white-space: nowrap; /* Ngăn chữ xuống dòng */
+    overflow: hidden; /* Che đi phần chữ thừa */
+    box-sizing: border-box;
+    z-index: 1005;
 }
 
 #scrolling-message-content {
-    display: inline-block;
-    padding-left: 1%; /* Bắt đầu từ ngoài cùng bên phải */
-    width: max-content;
-    animation: marquee 65s linear infinite; /* Hiệu ứng chạy chữ */
-    transform: translateX(100%);
+    display: inline-block;
+    padding-left: 1%; /* Bắt đầu từ ngoài cùng bên phải */
+    width: max-content;
+    animation: marquee 65s linear infinite; /* Hiệu ứng chạy chữ */
+    transform: translateX(100%);
 }
 
 @keyframes marquee {
-    0% { transform: translate(0%); }
-    100% { transform: translate(-50%); }
+    0% { transform: translate(0%); }
+    100% { transform: translate(-50%); }
 }
-    
+    
 body.locked #scrolling-message {
-    display: none; /* Ẩn hoàn toàn khi giao diện bị khóa */
+    display: none; /* Ẩn hoàn toàn khi giao diện bị khóa */
 }
-    
+    
 body.locked #tts-info {
-    z-index: 1011; /* Đảm bảo tts-info nằm trên cùng */
+    z-index: 1011; /* Đảm bảo tts-info nằm trên cùng */
 }
 
 /* Media Query: Chỉ áp dụng cho màn hình có chiều rộng tối đa 700px (Điện thoại/Tablet) */
 @media (max-width: 700px) {
-    #scrolling-message {
-        /* ÁP DỤNG GIÁ TRỊ RẤT THẤP CHỈ CHO ĐIỆN THOẠI */
-        bottom: 36px; /* Thử với 39px. Nếu vẫn hở, giảm xuống 38px */
-    }
+    #scrolling-message {
+        /* ÁP DỤNG GIÁ TRỊ RẤT THẤP CHỈ CHO ĐIỆN THOẠI */
+        bottom: 36px; /* Thử với 39px. Nếu vẫn hở, giảm xuống 38px */
+    }
 }
 
-    
+    
 </style>
-    
+    
 </head>
 <body>
 <div class="main-wrapper">
@@ -110,42 +111,42 @@ body.locked #tts-info {
 </div>
 
 <div id="settingsArea">
-    <div style="display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:20px;padding:10px;border:1px solid #ccc;border-radius:8px;background:#fff">
-        <label for="rate-slider" style="font-weight:bold;color:#333">Tốc độ đọc (<span id="rate-value">1.0</span>)</label>
-        <input type="range" id="rate-slider" min="0.5" max="2.0" step="0.1" value="1.0" style="width:90%;cursor:pointer">
-    </div>
-    <button class="btn settings-btn" onclick="toggleLock(true)">Khóa giao diện</button>
-    <button class="btn install-btn large-control-btn" id="installButton" style="display: none;">📲 Cài đặt app</button>
-    <button class="btn reset-btn" onclick="resetDefaults()">♻️ Reset mặc định</button>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:20px;padding:10px;border:1px solid #ccc;border-radius:8px;background:#fff">
+        <label for="rate-slider" style="font-weight:bold;color:#333">Tốc độ đọc (<span id="rate-value">1.0</span>)</label>
+        <input type="range" id="rate-slider" min="0.5" max="2.0" step="0.1" value="1.0" style="width:90%;cursor:pointer">
+    </div>
+    <button class="btn settings-btn" onclick="toggleLock(true)">Khóa giao diện</button>
+    <button class="btn install-btn large-control-btn" id="installButton">📲 Cài đặt app</button>
+    <button class="btn reset-btn" onclick="resetDefaults()">♻️ Reset mặc định</button>
 </div>
 </div>
 <div id="scrolling-message">
     <span id="scrolling-message-content">
-        ⭐️ Đây là nền tảng hỗ trợ giao tiếp miễn phí dành cho người gặp khó khăn về phát âm hoặc vận động, đặc biệt là sau tai biến. Hệ thống cho phép người dùng tạo và phát âm thanh các câu nói thường dùng, giúp việc trao đổi với gia đình, y bác sĩ hay người chăm sóc trở nên dễ dàng hơn. Cần hỗ trợ? Hãy liên hệ: jaboz.bot@gmail.com ⭐️ 
-         <span style="display:inline-block; width: 4em;"></span>
-         ⭐️ Đây là nền tảng hỗ trợ giao tiếp miễn phí dành cho người gặp khó khăn về phát âm hoặc vận động, đặc biệt là sau tai biến. Hệ thống cho phép người dùng tạo và phát âm thanh các câu nói thường dùng, giúp việc trao đổi với gia đình, y bác sĩ hay người chăm sóc trở nên dễ dàng hơn. Cần hỗ trợ? Hãy liên hệ: jaboz.bot@gmail.com ⭐️
+        ⭐️ Đây là nền tảng hỗ trợ giao tiếp miễn phí dành cho người gặp khó khăn về phát âm hoặc vận động, đặc biệt là sau tai biến. Hệ thống cho phép người dùng tạo và phát âm thanh các câu nói thường dùng, giúp việc trao đổi với gia đình, y bác sĩ hay người chăm sóc trở nên dễ dàng hơn. Cần hỗ trợ? Hãy liên hệ: jaboz.bot@gmail.com ⭐️ 
+         <span style="display:inline-block; width: 4em;"></span>
+         ⭐️ Đây là nền tảng hỗ trợ giao tiếp miễn phí dành cho người gặp khó khăn về phát âm hoặc vận động, đặc biệt là sau tai biến. Hệ thống cho phép người dùng tạo và phát âm thanh các câu nói thường dùng, giúp việc trao đổi với gia đình, y bác sĩ hay người chăm sóc trở nên dễ dàng hơn. Cần hỗ trợ? Hãy liên hệ: jaboz.bot@gmail.com ⭐️
     </span>
 </div>
 <div id="tts-info">Nếu không thấy âm thanh, tải <a href="https://play.google.com/store/apps/details?id=com.google.android.tts" target="_blank">Giọng Nói</a></div>
 
 <script>
 function getTonePriority(word){
-    const lowerWord = word.toLowerCase();
-    if (/[áéíóúýảẻỉỏủỷ]/.test(lowerWord)) return 2;
-    if (/[àèìòùỳãẽĩõũỹạẹịọụỵ]/.test(lowerWord)) return 3;
-    return 1;
+    const lowerWord = word.toLowerCase();
+    if (/[áéíóúýảẻỉỏủỷ]/.test(lowerWord)) return 2;
+    if (/[àèìòùỳãẽĩõũỹạẹịọụỵ]/.test(lowerWord)) return 3;
+    return 1;
 }
 
 function removeDiacritics(str){
-    if (typeof str !== 'string') return '';
-    return str.toLowerCase()
-        .replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a")
-        .replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e")
-        .replace(/ì|í|ị|ỉ|ĩ/g, "i")
-        .replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o")
-        .replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u")
-        .replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y")
-        .replace(/đ/g, "d");
+    if (typeof str !== 'string') return '';
+    return str.toLowerCase()
+        .replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a")
+        .replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e")
+        .replace(/ì|í|ị|ỉ|ĩ/g, "i")
+        .replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o")
+        .replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u")
+        .replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y")
+        .replace(/đ/g, "d");
 }
 
 const SUGGESTION_URL = 'goi-y-tu.txt';
@@ -153,181 +154,182 @@ const LOCAL_SUGGESTION_KEY = 'userSuggestions';
 let serverSuggestions = [], userSuggestions = [], wordSuggestions = [];
 
 async function loadSuggestions(){
-    try{
-        const response = await fetch(SUGGESTION_URL);
-        if(response.ok){
-            const textContent = await response.text();
-            serverSuggestions = textContent.split('\n').map(line => line.trim()).filter(line => line.length > 0);
-        } else {
-            console.error('Lỗi tải file gợi ý server (kiểm tra file goi-y-tu.txt):', response.statusText);
-        }
-    } catch (error){
-        console.error('Lỗi khi tải hoặc xử lý file TXT:', error);
-    }
+    try{
+        const response = await fetch(SUGGESTION_URL);
+        if(response.ok){
+            const textContent = await response.text();
+            serverSuggestions = textContent.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+        } else {
+            console.error('Lỗi tải file gợi ý server (kiểm tra file goi-y-tu.txt):', response.statusText);
+        }
+    } catch (error){
+        console.error('Lỗi khi tải hoặc xử lý file TXT:', error);
+    }
 
-    try{
-        const saved = localStorage.getItem(LOCAL_SUGGESTION_KEY);
-        userSuggestions = saved ? JSON.parse(saved) : [];
-    } catch(e){
-        console.error('Lỗi tải gợi ý người dùng:', e);
-        userSuggestions = [];
-    }
+    try{
+        const saved = localStorage.getItem(LOCAL_SUGGESTION_KEY);
+        userSuggestions = saved ? JSON.parse(saved) : [];
+    } catch(e){
+        console.error('Lỗi tải gợi ý người dùng:', e);
+        userSuggestions = [];
+    }
 
-    wordSuggestions = [...new Set([...serverSuggestions, ...userSuggestions])].sort();
-    console.log(`Đã tải tổng cộng ${wordSuggestions.length} gợi ý từ file TXT và LocalStorage.`);
+    wordSuggestions = [...new Set([...serverSuggestions, ...userSuggestions])].sort();
+    console.log(`Đã tải tổng cộng ${wordSuggestions.length} gợi ý từ file TXT và LocalStorage.`);
 }
 
 function extractWordBeforeCursor(inputElement){
-    const fullText = inputElement.value;
-    const cursorPosition = inputElement.selectionStart;
-    const textBeforeCursor = fullText.substring(0, cursorPosition);
-    const match = textBeforeCursor.match(/(\S+)$/);
-    if(match){
-        return { word: match[0], startIndex: match.index };
-    }
-    return { word: '', startIndex: -1 };
+    const fullText = inputElement.value;
+    const cursorPosition = inputElement.selectionStart;
+    const textBeforeCursor = fullText.substring(0, cursorPosition);
+    const match = textBeforeCursor.match(/(\S+)$/);
+    if(match){
+        return { word: match[0], startIndex: match.index };
+    }
+    return { word: '', startIndex: -1 };
 }
 
 function showSuggestions(inputElement, boxElement){
-    const fullText = inputElement.value;
-    const { word: lastWord, startIndex: lastWordStart } = extractWordBeforeCursor(inputElement);
-    const cursorPosition = inputElement.selectionStart;
-    const charBeforeCursor = fullText.charAt(cursorPosition - 1);
-    const isAfterSpace = cursorPosition === 0 || /\s/.test(charBeforeCursor);
+    const fullText = inputElement.value;
+    const { word: lastWord, startIndex: lastWordStart } = extractWordBeforeCursor(inputElement);
+    const cursorPosition = inputElement.selectionStart;
+    const charBeforeCursor = fullText.charAt(cursorPosition - 1);
+    const isAfterSpace = cursorPosition === 0 || /\s/.test(charBeforeCursor);
 
-    if(lastWord.length === 0 || isAfterSpace){
-        boxElement.style.display = 'none';
-        return;
-    }
+    if(lastWord.length === 0 || isAfterSpace){
+        boxElement.style.display = 'none';
+        return;
+    }
 
-    const lastWordNoDiacritics = removeDiacritics(lastWord).toLowerCase();
-    boxElement.innerHTML = '';
+    const lastWordNoDiacritics = removeDiacritics(lastWord).toLowerCase();
+    boxElement.innerHTML = '';
 
-    let filteredSuggestions = wordSuggestions
-        .filter(phrase => removeDiacritics(phrase).toLowerCase().startsWith(lastWordNoDiacritics));
+    let filteredSuggestions = wordSuggestions
+        .filter(phrase => removeDiacritics(phrase).toLowerCase().startsWith(lastWordNoDiacritics));
 
-    filteredSuggestions.sort((a, b) => {
-        const aNo = removeDiacritics(a).toLowerCase();
-        const bNo = removeDiacritics(b).toLowerCase();
-        if(aNo < bNo) return -1;
-        if(aNo > bNo) return 1;
-        if(a < b) return -1;
-        if(a > b) return 1;
-        return 0;
-    });
+    filteredSuggestions.sort((a, b) => {
+        const aNo = removeDiacritics(a).toLowerCase();
+        const bNo = removeDiacritics(b).toLowerCase();
+        if(aNo < bNo) return -1;
+        if(aNo > bNo) return 1;
+        if(a < b) return -1;
+        if(a > b) return 1;
+        return 0;
+    });
 
-    if(filteredSuggestions.length > 0){
-        const rect = inputElement.getBoundingClientRect();
-        const suggestionHeight = 150;
-        const spaceAbove = rect.top;
-        const TOP_THRESHOLD = window.innerHeight * 0.15;
-        let shouldAlignBottom = false;
+    if(filteredSuggestions.length > 0){
+        const rect = inputElement.getBoundingClientRect();
+        const suggestionHeight = 150;
+        const spaceAbove = rect.top;
+        const TOP_THRESHOLD = window.innerHeight * 0.15;
+        let shouldAlignBottom = false;
 
-        if(spaceAbove < suggestionHeight + 50 && (window.innerHeight - rect.bottom) > suggestionHeight){
-            shouldAlignBottom = true;
-        }
-        if(rect.top < TOP_THRESHOLD) shouldAlignBottom = true;
+        if(spaceAbove < suggestionHeight + 50 && (window.innerHeight - rect.bottom) > suggestionHeight){
+            shouldAlignBottom = true;
+        }
+        if(rect.top < TOP_THRESHOLD) shouldAlignBottom = true;
 
-        if(shouldAlignBottom) boxElement.classList.add('align-bottom');
-        else boxElement.classList.remove('align-bottom');
+        if(shouldAlignBottom) boxElement.classList.add('align-bottom');
+        else boxElement.classList.remove('align-bottom');
 
-        filteredSuggestions.forEach(phrase => {
-            const item = document.createElement('div');
-            item.className = 'suggestion-item';
-            item.textContent = phrase;
-            item.addEventListener('mousedown', (e) => {
-                e.preventDefault();
-                const currentFullText = inputElement.value;
-                const currentCursorPosition = inputElement.selectionStart;
-                let newText = currentFullText.substring(0, lastWordStart) + phrase;
-                newText += currentFullText.substring(currentCursorPosition);
-                if(currentCursorPosition === currentFullText.length){
-                    newText += ' ';
-                } else if(!newText.endsWith(' ')){
-                    const nextChar = newText.charAt(lastWordStart + phrase.length);
-                    if(/\S/.test(nextChar) && nextChar.length > 0){
-                        newText = newText.substring(0, lastWordStart + phrase.length) + ' ' + newText.substring(lastWordStart + phrase.length);
-                    }
-                }
-                inputElement.value = newText;
-                boxElement.style.display = 'none';
-                saveAll();
-                inputElement.focus();
-                inputElement.selectionStart = inputElement.selectionEnd = lastWordStart + phrase.length + (newText.charAt(lastWordStart + phrase.length) === ' ' ? 1 : 0);
-            });
-            boxElement.appendChild(item);
-        });
-        boxElement.style.display = 'block';
-    } else {
-        boxElement.style.display = 'none';
-    }
+        filteredSuggestions.forEach(phrase => {
+            const item = document.createElement('div');
+            item.className = 'suggestion-item';
+            item.textContent = phrase;
+            item.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                const currentFullText = inputElement.value;
+                const currentCursorPosition = inputElement.selectionStart;
+                let newText = currentFullText.substring(0, lastWordStart) + phrase;
+                newText += currentFullText.substring(currentCursorPosition);
+                if(currentCursorPosition === currentFullText.length){
+                    newText += ' ';
+                } else if(!newText.endsWith(' ')){
+                    const nextChar = newText.charAt(lastWordStart + phrase.length);
+                    if(/\S/.test(nextChar) && nextChar.length > 0){
+                        newText = newText.substring(0, lastWordStart + phrase.length) + ' ' + newText.substring(lastWordStart + phrase.length);
+                    }
+                }
+                inputElement.value = newText;
+                boxElement.style.display = 'none';
+                saveAll();
+                inputElement.focus();
+                inputElement.selectionStart = inputElement.selectionEnd = lastWordStart + phrase.length + (newText.charAt(lastWordStart + phrase.length) === ' ' ? 1 : 0);
+            });
+            boxElement.appendChild(item);
+        });
+        boxElement.style.display = 'block';
+    } else {
+        boxElement.style.display = 'none';
+    }
 }
 
 let deferredPrompt, currentIndex = 0;
 const defaults = ["Tôi muốn ăn cơm","Tôi muốn uống nước","Tôi muốn đi vệ sinh","Tôi muốn đi ngủ"];
+let installState = 'before_install';
 const controlArea = document.getElementById('controlArea'),
-      installButton = document.getElementById('installButton'),
-      addBtnMove = document.getElementById('add-btn-move'),
-      popupElement = document.getElementById('popup'),
-      buttonContainer = document.getElementById('buttonContainer'),
-      settingsArea = document.getElementById('settingsArea');
+      installButton = document.getElementById('installButton'),
+      addBtnMove = document.getElementById('add-btn-move'),
+      popupElement = document.getElementById('popup'),
+      buttonContainer = document.getElementById('buttonContainer'),
+      settingsArea = document.getElementById('settingsArea');
 
 let currentRate = 1.0;
 const rateSlider = document.getElementById('rate-slider');
 const rateValueSpan = document.getElementById('rate-value');
 
 function speak(text){
-    if(!text || !('speechSynthesis' in window)) return;
-    speechSynthesis.cancel();
-    let u = new SpeechSynthesisUtterance(text);
-    u.lang = 'vi-VN';
-    u.rate = currentRate;
-    speechSynthesis.speak(u);
-    showPopup(text);
+    if(!text || !('speechSynthesis' in window)) return;
+    speechSynthesis.cancel();
+    let u = new SpeechSynthesisUtterance(text);
+    u.lang = 'vi-VN';
+    u.rate = currentRate;
+    speechSynthesis.speak(u);
+    showPopup(text);
 }
 
 function showPopup(text){
-    popupElement.textContent = text;
-    popupElement.style.display = 'block';
-    popupElement.style.opacity = '1';
-    setTimeout(()=>{ popupElement.style.opacity = '0'; setTimeout(()=>popupElement.style.display='none',500) },3500);
+    popupElement.textContent = text;
+    popupElement.style.display = 'block';
+    popupElement.style.opacity = '1';
+    setTimeout(()=>{ popupElement.style.opacity = '0'; setTimeout(()=>popupElement.style.display='none',500) },3500);
 }
 
 function getCards(){ return document.querySelectorAll('.card input') }
 
 function updateCurrentIndexAfterChange(){
-    const c = getCards();
-    currentIndex = Math.min(currentIndex, c.length - 1);
-    if(currentIndex < 0) currentIndex = 0;
+    const c = getCards();
+    currentIndex = Math.min(currentIndex, c.length - 1);
+    if(currentIndex < 0) currentIndex = 0;
 }
 
 function addButton(v=''){
-    let c = document.createElement('div');
-    c.className = 'card';
-    let i = document.createElement('input');
-    i.value = v;
-    i.placeholder = "Nhập văn bản...";
-    i.onchange = saveAll;
+    let c = document.createElement('div');
+    c.className = 'card';
+    let i = document.createElement('input');
+    i.value = v;
+    i.placeholder = "Nhập văn bản...";
+    i.onchange = saveAll;
 
-    let sBox = document.createElement('div');
-    sBox.className = 'suggestion-box';
+    let sBox = document.createElement('div');
+    sBox.className = 'suggestion-box';
 
-    i.addEventListener('input', (e) => showSuggestions(e.target, sBox));
-    i.addEventListener('blur', () => { setTimeout(() => sBox.style.display = 'none', 150); });
+    i.addEventListener('input', (e) => showSuggestions(e.target, sBox));
+    i.addEventListener('blur', () => { setTimeout(() => sBox.style.display = 'none', 150); });
 
-    let p = document.createElement('button');
-    p.className = 'btn play-btn';
-    p.textContent = '🔊 Phát âm';
-    p.onclick = ()=>speak(i.value.trim());
-    let d = document.createElement('button');
-    d.className = 'delete-btn';
-    d.textContent = '❌';
-    d.onclick = ()=>{ c.remove(); saveAll(); updateCurrentIndexAfterChange(); };
+    let p = document.createElement('button');
+    p.className = 'btn play-btn';
+    p.textContent = '🔊 Phát âm';
+    p.onclick = ()=>speak(i.value.trim());
+    let d = document.createElement('button');
+    d.className = 'delete-btn';
+    d.textContent = '❌';
+    d.onclick = ()=>{ c.remove(); saveAll(); updateCurrentIndexAfterChange(); };
 
-    c.append(i, sBox, p, d);
-    document.getElementById('buttonContainer').appendChild(c);
-    saveAll();
-    currentIndex = getCards().length - 1;
+    c.append(i, sBox, p, d);
+    document.getElementById('buttonContainer').appendChild(c);
+    saveAll();
+    currentIndex = getCards().length - 1;
 }
 
 function saveAll(){ localStorage.setItem('voiceButtons', JSON.stringify([...document.querySelectorAll('.card input')].map(i=>i.value.trim()))) }
@@ -335,142 +337,128 @@ function loadButtons(){ let s = JSON.parse(localStorage.getItem('voiceButtons') 
 function resetDefaults(){ if(confirm("Đặt lại mặc định?")){ localStorage.removeItem('voiceButtons'); document.getElementById('buttonContainer').innerHTML = ''; loadButtons(); currentIndex = 0; } }
 
 function cleanupEmptyCards(){
-    let c = document.querySelectorAll('.card'), save = false;
-    for(let i = c.length - 1; i >= 0; i--){
-        let inp = c[i].querySelector('input');
-        if(!inp || inp.value.trim() === ''){
-            c[i].remove();
-            save = true;
-        }
-    }
-    if(save){ saveAll(); updateCurrentIndexAfterChange(); }
+    let c = document.querySelectorAll('.card'), save = false;
+    for(let i = c.length - 1; i >= 0; i--){
+        let inp = c[i].querySelector('input');
+        if(!inp || inp.value.trim() === ''){
+            c[i].remove();
+            save = true;
+        }
+    }
+    if(save){ saveAll(); updateCurrentIndexAfterChange(); }
 }
 
 function moveSpeak(dir){
-    const c = getCards();
-    if(c.length === 0) return;
-    if(dir === 0){
-        const text = c[currentIndex].value.trim();
-        if(text) speak(text);
-        else showPopup("Câu trống! Vui lòng sửa hoặc xóa.");
-    } else {
-        currentIndex = (currentIndex + dir + c.length) % c.length;
-        let count = 0;
-        while(c[currentIndex].value.trim() === '' && count < c.length){
-            currentIndex = (currentIndex + dir + c.length) % c.length;
-            count++;
-        }
-        const text = c[currentIndex].value.trim();
-        if(text) speak(text);
-        else showPopup("Không có câu nào để đọc.");
-    }
+    const c = getCards();
+    if(c.length === 0) return;
+    if(dir === 0){
+        const text = c[currentIndex].value.trim();
+        if(text) speak(text);
+        else showPopup("Câu trống! Vui lòng sửa hoặc xóa.");
+    } else {
+        currentIndex = (currentIndex + dir + c.length) % c.length;
+        let count = 0;
+        while(c[currentIndex].value.trim() === '' && count < c.length){
+            currentIndex = (currentIndex + dir + c.length) % c.length;
+            count++;
+        }
+        const text = c[currentIndex].value.trim();
+        if(text) speak(text);
+        else showPopup("Không có câu nào để đọc.");
+    }
 }
 
 function toggleLock(lock){
-    const u = document.getElementById('unlock-btn');
-    if(!lock) cleanupEmptyCards();
-    if(lock){
-        buttonContainer.style.display = 'none';
-        addBtnMove.style.display = 'none';
-        settingsArea.style.display = 'none';
-        controlArea.classList.add('locked');
-        document.body.classList.add('locked');
-        document.getElementById('mainTitle').classList.add('locked-h1');
-        u.style.display = 'flex';
-    } else {
-        buttonContainer.style.display = 'grid';
-        addBtnMove.style.display = 'block';
-        settingsArea.style.display = 'block';
-        controlArea.classList.remove('locked');
-        document.body.classList.remove('locked');
-        document.getElementById('mainTitle').classList.remove('locked-h1');
-        u.style.display = 'none';
-    }
+    const u = document.getElementById('unlock-btn');
+    if(!lock) cleanupEmptyCards();
+    if(lock){
+        buttonContainer.style.display = 'none';
+        addBtnMove.style.display = 'none';
+        settingsArea.style.display = 'none';
+        controlArea.classList.add('locked');
+        document.body.classList.add('locked');
+        document.getElementById('mainTitle').classList.add('locked-h1');
+        u.style.display = 'flex';
+    } else {
+        buttonContainer.style.display = 'grid';
+        addBtnMove.style.display = 'block';
+        settingsArea.style.display = 'block';
+        controlArea.classList.remove('locked');
+        document.body.classList.remove('locked');
+        document.getElementById('mainTitle').classList.remove('locked-h1');
+        u.style.display = 'none';
+    }
 }
 
 document.querySelectorAll('.control-btn').forEach(button => {
-    ['click','touchend'].forEach(event => {
-        button.addEventListener(event, function(e){
-            e.preventDefault();
-            moveSpeak(parseInt(e.currentTarget.dataset.direction));
-        }, { passive: false });
-    });
+    ['click','touchend'].forEach(event => {
+        button.addEventListener(event, function(e){
+            e.preventDefault();
+            moveSpeak(parseInt(e.currentTarget.dataset.direction));
+        }, { passive: false });
+    });
 });
 
-/* LOGIC PWA MỚI */
-function setupPWA() {
-    const installButton = document.getElementById('installButton');
-    let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (installState === 'before_install') {
+        installButton.style.display = 'flex';
+        installButton.onclick = installApp;
+    }
+});
 
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        installButton.style.display = 'flex'; // Hiển thị nút cài đặt
-        installButton.onclick = () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        console.log('Người dùng đã chấp nhận cài đặt PWA');
-                    } else {
-                        console.log('Người dùng đã từ chối cài đặt PWA');
-                    }
-                    deferredPrompt = null;
-                });
-            }
-        };
-    });
-
-    // Ẩn nút sau khi ứng dụng đã được cài đặt
-    window.addEventListener('appinstalled', () => {
-        installButton.style.display = 'none';
-    });
-
-    // Kiểm tra trạng thái hiển thị
-    if(window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone){
-        installButton.style.display = 'none';
-    }
+function installApp(){
+    if(deferredPrompt){
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+            installState = (choiceResult.outcome === 'accepted') ? 'installed' : 'rejected';
+            deferredPrompt = null;
+            installButton.style.display = 'none';
+        });
+    }
 }
-/* KẾT THÚC LOGIC PWA MỚI */
 
+window.addEventListener('appinstalled', ()=>{ installState = 'installed'; installButton.style.display = 'none'; });
+if(installState === 'before_install') installButton.style.display = 'none';
 
 function warmUpTTS(){
-    if(!('speechSynthesis' in window)) return;
-    let u = new SpeechSynthesisUtterance(" ");
-    u.lang = 'vi-VN';
-    u.volume = 0;
-    u.rate = 10;
-    speechSynthesis.speak(u);
-    setTimeout(()=>speechSynthesis.cancel(), 500);
+    if(!('speechSynthesis' in window)) return;
+    let u = new SpeechSynthesisUtterance(" ");
+    u.lang = 'vi-VN';
+    u.volume = 0;
+    u.rate = 10;
+    speechSynthesis.speak(u);
+    setTimeout(()=>speechSynthesis.cancel(), 500);
 }
 
 function loadRate(){
-    const savedRate = localStorage.getItem('ttsRate');
-    if(savedRate !== null) currentRate = parseFloat(savedRate);
-    if(rateSlider){
-        rateSlider.value = currentRate.toFixed(1);
-        rateValueSpan.textContent = currentRate.toFixed(1);
-    }
+    const savedRate = localStorage.getItem('ttsRate');
+    if(savedRate !== null) currentRate = parseFloat(savedRate);
+    if(rateSlider){
+        rateSlider.value = currentRate.toFixed(1);
+        rateValueSpan.textContent = currentRate.toFixed(1);
+    }
 }
 
 function saveRate(rate){
-    currentRate = rate;
-    localStorage.setItem('ttsRate', rate.toFixed(1));
-    rateValueSpan.textContent = rate.toFixed(1);
+    currentRate = rate;
+    localStorage.setItem('ttsRate', rate.toFixed(1));
+    rateValueSpan.textContent = rate.toFixed(1);
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-    if(rateSlider){
-        rateSlider.addEventListener('input', (e) => {
-            const newRate = parseFloat(e.target.value);
-            rateValueSpan.textContent = newRate.toFixed(1);
-            currentRate = newRate;
-        });
-        rateSlider.addEventListener('change', (e) => { saveRate(parseFloat(e.target.value)); });
-    }
+    if(rateSlider){
+        rateSlider.addEventListener('input', (e) => {
+            const newRate = parseFloat(e.target.value);
+            rateValueSpan.textContent = newRate.toFixed(1);
+            currentRate = newRate;
+        });
+        rateSlider.addEventListener('change', (e) => { saveRate(parseFloat(e.target.value)); });
+    }
 });
 
-window.onload = () => { loadButtons(); warmUpTTS(); loadSuggestions(); loadRate(); setupPWA(); };
+window.onload = () => { loadButtons(); warmUpTTS(); loadSuggestions(); loadRate(); };
 </script>
 
 </body>
