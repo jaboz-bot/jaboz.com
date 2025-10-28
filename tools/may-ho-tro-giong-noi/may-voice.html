@@ -420,7 +420,7 @@ function installApp(){
 }
 
 window.addEventListener('appinstalled', ()=>{ installState = 'installed'; installButton.style.display = 'none'; });
-if(installState === 'before_install') installButton.style.display = 'none';
+
 
 function warmUpTTS(){
     if(!('speechSynthesis' in window)) return;
