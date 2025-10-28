@@ -402,7 +402,7 @@ document.querySelectorAll('.control-btn').forEach(button => {
 window.addEventListener('beforeinstallprompt', e => {
     e.preventDefault();
     deferredPrompt = e;
-    if (installState === 'before_install') {
+    // if (installState === 'before_install') {
         installButton.style.display = 'flex';
         installButton.onclick = installApp;
     }
