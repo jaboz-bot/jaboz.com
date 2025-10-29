@@ -88,7 +88,7 @@
             z-index: 10;
         }
 
-        /* Nút Play/Pause màu đỏ đặc trưng */
+        /* Nút Play/Pause màu đỏ đặc trưng (Không dùng nữa, nhưng giữ lại CSS dự phòng) */
         #togglePower {
             background: #D32F2F;
         }
@@ -103,18 +103,19 @@
 <h1>📺 TV Trực Tuyến</h1>
 
 <div class="tv-frame">
-    <div class="channel-label" id="channelLabel">Đang Tắt</div>
+    <!-- Cập nhật nhãn kênh mặc định -->
+    <div class="channel-label" id="channelLabel">Kênh 1 (Tài liệu)</div>
     <div class="tv-screen">
         <iframe 
             id="tvVideo"
-            src="" <!-- Xóa src ban đầu để JS kiểm soát hoàn toàn -->
+            src="" <!-- Sẽ được JS tải ngay lập tức -->
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowfullscreen>
         </iframe>
     </div>
     <div class="controls">
         <button onclick="prevChannel()" class="bg-blue-600 hover:bg-blue-800">⬅ Kênh Trước</button>
-        <button id="togglePower" onclick="togglePower()">Tắt TV</button>
+        <!-- Đã XÓA nút Tắt/Mở TV -->
         <button onclick="nextChannel()" class="bg-blue-600 hover:bg-blue-800">Kênh Tiếp ➡</button>
     </div>
 </div>
@@ -122,8 +123,7 @@
 <script>
     const player = document.getElementById('tvVideo');
     const label = document.getElementById('channelLabel');
-    const powerButton = document.getElementById('togglePower');
-    const TV_OFF_URL = "about:blank"; // URL khi TV tắt (màn hình đen)
+    // Đã xóa powerButton và TV_OFF_URL
 
     // Chỉ lưu ID video để dễ dàng thay đổi tham số
     const channels = [
@@ -132,18 +132,14 @@
         { name: "Kênh 3 (Giải trí)", videoId: "4nQ2LT04reQ" }
     ];
 
-    let current = 0; // Kênh mặc định
-    let isTVOn = true;
+    let current = 0; // Kênh mặc định (Kênh 1)
 
     // --- LOGIC CHÍNH ---
 
     function loadChannel(index) {
-        if (!isTVOn) return; // Không tải nếu TV đang tắt
-
         const ch = channels[index];
         
-        // Luôn xây dựng URL với các tham số cần thiết
-        // ĐÃ XÓA mute=1 để bật âm thanh
+        // Xây dựng URL với autoplay=1 và không có mute=1 (đã bật tiếng)
         const fullUrl = `https://www.youtube.com/embed/${ch.videoId}?autoplay=1&vq=hd1080&rel=0`;
         
         player.src = fullUrl;
@@ -151,52 +147,22 @@
     }
 
     function nextChannel() {
-        if (!isTVOn) {
-            turnOnTV();
-            return;
-        }
+        // Không cần kiểm tra isTVOn nữa
         current = (current + 1) % channels.length;
         loadChannel(current);
     }
 
     function prevChannel() {
-        if (!isTVOn) {
-            turnOnTV();
-            return;
-        }
+        // Không cần kiểm tra isTVOn nữa
         current = (current - 1 + channels.length) % channels.length;
         loadChannel(current);
     }
     
-    function turnOnTV() {
-        isTVOn = true;
-        powerButton.textContent = "Tắt TV";
-        powerButton.classList.remove('bg-gray-500', 'hover:bg-gray-600');
-        powerButton.classList.add('bg-red-600', 'hover:bg-red-700');
-        loadChannel(current);
-    }
+    // Đã XÓA các hàm turnOnTV, turnOffTV, togglePower
 
-    function turnOffTV() {
-        isTVOn = false;
-        powerButton.textContent = "Mở TV";
-        powerButton.classList.remove('bg-red-600', 'hover:bg-red-700');
-        powerButton.classList.add('bg-gray-500', 'hover:bg-gray-600');
-        player.src = TV_OFF_URL; // Đặt về URL trống để dừng phát
-        label.textContent = "Đang Tắt";
-    }
-
-    function togglePower() {
-        if (isTVOn) {
-            turnOffTV();
-        } else {
-            turnOnTV();
-        }
-    }
-
-    // Tải kênh mặc định khi trang load xong
+    // Tải kênh mặc định khi trang load xong (TV tự động bật)
     window.onload = function() {
-        // Tắt TV ban đầu, chờ người dùng bật
-        turnOffTV(); 
+        loadChannel(current); 
     };
 
 </script>
