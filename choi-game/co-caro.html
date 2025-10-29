@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trò Chơi Cờ Caro (Tic-Tac-Toe)</title>
+    <title>Trò Chơi Cờ Caro (Tic-Tac-Toe) Hoàn Chỉnh</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
@@ -23,10 +23,10 @@
             transition: background-color 0.1s ease;
             user-select: none;
         }
-        .caro-cell:hover:not(:disabled) {
+        .caro-cell:hover {
             background-color: #e5e7eb; /* Màu xám nhạt khi rê chuột */
         }
-        /* Thêm đường viền ô (sử dụng Tailwind grid/border cho bố cục) */
+        /* Viền ô (sử dụng Tailwind grid/border cho bố cục) */
         #caro-board {
             border-collapse: collapse;
             border: 3px solid #374151; /* Viền ngoài đậm hơn */
@@ -37,20 +37,21 @@
             theme: {
                 extend: {
                     colors: {
-                        'game-primary': '#4CAF50',
-                        'game-tertiary': '#FF5722',
+                        'game-primary': '#4CAF50', // Xanh lá
+                        'game-tertiary': '#FF5722', // Cam/Đỏ
                         'gray-bg': '#f3f4f6'
                     }
                 }
             }
         }
 
-        let board = ['', '', '', '', '', '', '', '', '']; // 9 ô
+        let board = ['', '', '', '', '', '', '', '', '']; // 9 ô đại diện cho bàn cờ
         let currentPlayer = 'X';
         let gameActive = true;
 
         const statusDisplay = document.getElementById('gameStatus');
-
+        
+        // Các điều kiện thắng (tất cả 3 vị trí này phải giống nhau)
         const winningConditions = [
             [0, 1, 2], [3, 4, 5], [6, 7, 8], // Hàng ngang
             [0, 3, 6], [1, 4, 7], [2, 5, 8], // Hàng dọc
@@ -63,16 +64,19 @@
 
         function handleCellClick(clickedCellEvent) {
             const clickedCell = clickedCellEvent.target;
+            // Lấy chỉ mục (index) của ô cờ từ thuộc tính data-index
             const clickedCellIndex = parseInt(clickedCell.getAttribute('data-index'));
 
-            // 1. Kiểm tra: Đã có người chơi chưa? Game còn hoạt động không?
+            // 1. Kiểm tra: Ô này đã được đi chưa? Game còn hoạt động không?
             if (board[clickedCellIndex] !== '' || !gameActive) {
                 return;
             }
 
             // 2. Cập nhật trạng thái và giao diện
             board[clickedCellIndex] = currentPlayer;
-            clickedCell.innerHTML = currentPlayer === 'X' ? '<span class="text-game-primary">X</span>' : '<span class="text-game-tertiary">O</span>';
+            clickedCell.innerHTML = currentPlayer === 'X' 
+                ? '<span class="text-game-primary">X</span>' 
+                : '<span class="text-game-tertiary">O</span>';
 
             // 3. Kiểm tra kết quả
             handleResultValidation();
@@ -81,20 +85,17 @@
         function handleResultValidation() {
             let roundWon = false;
             for (let i = 0; i < 8; i++) {
-                const winCondition = winningConditions[i];
-                let a = board[winCondition[0]];
-                let b = board[winCondition[1]];
-                let c = board[winCondition[2]];
-
-                if (a === '' || b === '' || c === '') {
+                const [a, b, c] = winningConditions[i];
+                
+                if (board[a] === '' || board[b] === '' || board[c] === '') {
                     continue; // Tiếp tục vòng lặp nếu chưa đủ 3 ô
                 }
-                if (a === b && b === c) {
+                if (board[a] === board[b] && board[b] === board[c]) {
                     roundWon = true;
                     // Highlight 3 ô chiến thắng
-                    document.querySelector(`[data-index="${winCondition[0]}"]`).style.backgroundColor = '#bbf7d0';
-                    document.querySelector(`[data-index="${winCondition[1]}"]`).style.backgroundColor = '#bbf7d0';
-                    document.querySelector(`[data-index="${winCondition[2]}"]`).style.backgroundColor = '#bbf7d0';
+                    document.querySelector(`[data-index="${a}"]`).style.backgroundColor = '#bbf7d0';
+                    document.querySelector(`[data-index="${b}"]`).style.backgroundColor = '#bbf7d0';
+                    document.querySelector(`[data-index="${c}"]`).style.backgroundColor = '#bbf7d0';
                     break;
                 }
             }
@@ -105,7 +106,7 @@
                 return;
             }
 
-            // Kiểm tra Hòa (nếu tất cả ô đã được đi)
+            // Kiểm tra Hòa (nếu tất cả ô đã được đi và không có ai thắng)
             let roundDraw = !board.includes('');
             if (roundDraw) {
                 statusDisplay.innerHTML = `🤝 Ván đấu Hòa!`;
@@ -135,7 +136,11 @@
             });
         }
 
-        // Đảm bảo game bắt đầu khi tải trang
+        // ------------------------------------
+        // KHỞI TẠO
+        // ------------------------------------
+
+        // Gán sự kiện click cho tất cả các ô cờ
         window.onload = () => {
             document.querySelectorAll('.caro-cell').forEach(cell => {
                 cell.addEventListener('click', handleCellClick);
@@ -147,14 +152,13 @@
 <body class="bg-gray-bg flex flex-col items-center pt-8 px-4">
 
     <h1 class="text-3xl md:text-4xl font-extrabold text-gray-800 mb-8">
-        Cờ Caro (Tic-Tac-Toe) ❌⭕
+        Cờ Caro (Tic-Tac-Toe) Hoàn Chỉnh ✅
     </h1>
 
     <div class="w-full max-w-sm bg-white p-6 rounded-xl shadow-2xl text-center">
         
         <p id="gameStatus" class="text-xl mb-6 font-medium text-gray-700">
-            Lượt chơi của: <span class="font-extrabold text-game-primary">X</span>
-        </p>
+            </p>
 
         <div id="caro-board" class="grid grid-cols-3 aspect-square mx-auto">
             
