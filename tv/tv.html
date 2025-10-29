@@ -14,7 +14,7 @@
             height: 100vh;
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: center; /* Căn giữa dọc mặc định cho màn hình lớn */
             flex-direction: column;
             color: white;
             padding: 20px;
@@ -25,6 +25,31 @@
             margin-bottom: 20px;
             font-size: 2.5rem;
         }
+
+        /* --- PHẦN ĐIỀU CHỈNH CHO ĐIỆN THOẠI (Mobile First) --- */
+        @media (max-width: 768px) {
+            body {
+                justify-content: flex-start; /* Đẩy nội dung lên sát cạnh trên */
+                padding-top: 10px; /* Giảm padding trên cùng */
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+            h1 {
+                margin-top: 10px;
+                margin-bottom: 15px;
+                font-size: 2rem;
+            }
+            .controls {
+                gap: 10px; /* Giảm khoảng cách giữa các nút */
+                margin-top: 15px;
+            }
+            button {
+                padding: 10px 15px; /* Giảm kích thước nút */
+                font-size: 16px;
+            }
+        }
+        /* -------------------------------------------------------- */
+
 
         .tv-frame {
             /* Đã loại bỏ toàn bộ viền, nền, và bóng đổ của khung TV */
