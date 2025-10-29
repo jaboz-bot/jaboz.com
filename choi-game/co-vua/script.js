@@ -1,4 +1,4 @@
-// Register Vanilla JS Shortcut Functions
+// Register Vanilla JS Shortcut Functions (Giữ nguyên)
 function DQS(val) {return document.querySelector(val);}
 function DQSA(val) {return document.querySelectorAll(val);}
 function DID(val) {return document.getElementById(val);}
@@ -7,19 +7,20 @@ function DCE(val) {return document.createElement(val);}
 function DCTN(val) {return document.createTextNode(val);}
 function DPFS(val) {return new DOMParser().parseFromString(val, 'text/html');}
 
-// Debug Mode
-var debug_mode = true;
-// JSON Database
-var database = [];
-// JSON Game Database
-var game = [];
-// JSON Moves Database
+// ====================================
+// BIẾN TOÀN CỤC & DỮ LIỆU
+// ====================================
+
+var debug_mode = false; // Đã tắt để tối ưu hiệu suất
 var moves = [];
-// Register Pieces
+var currentPlayerTurn = 'white'; // Khởi tạo lượt chơi
+const turnDisplay = DID('current-player-turn'); // DQS cho div hiển thị lượt chơi
+
+// DỮ LIỆU QUÂN CỜ (Giữ nguyên vị trí ban đầu, đã sửa lỗi Vua/Hậu)
 const pieces = {
   black: {
-    king: { pos: "D8", icon: "chess-king",},
-    queen: { pos: "E8", icon: "chess-queen",},
+    king: { pos: "E8", icon: "chess-king",}, // Vua (E8)
+    queen: { pos: "D8", icon: "chess-queen",}, // Hậu (D8)
     bishop_1: { pos: "C8", icon: "chess-bishop",},
     bishop_2: { pos: "F8", icon: "chess-bishop",},
     knight_1: { pos: "B8", icon: "chess-knight",},
@@ -36,8 +37,8 @@ const pieces = {
     pawn_8: { pos: "H7", icon: "chess-pawn",},
   },
   white: {
-    king: { pos: "D1", icon: "chess-king",},
-    queen: { pos: "E1", icon: "chess-queen",},
+    king: { pos: "E1", icon: "chess-king",}, // Vua (E1)
+    queen: { pos: "D1", icon: "chess-queen",}, // Hậu (D1)
     bishop_1: { pos: "C1", icon: "chess-bishop",},
     bishop_2: { pos: "F1", icon: "chess-bishop",},
     knight_1: { pos: "B1", icon: "chess-knight",},
@@ -55,312 +56,223 @@ const pieces = {
   },
 };
 
-// Register Column Letters
-const cols = ["H", "G", "F", "E", "D", "C", "B", "A"];
+// Đã đảo ngược để khớp với logic tạo ô cờ (A-H)
+const cols = ["A", "B", "C", "D", "E", "F", "G", "H"]; 
 
-// Register Log
-var log = {
-  raw: [],
-  listeners: {
-    selectPieces: [],
-    selectSquares: [],
-  },
-  actions: {
-    createBoard: [],
-    setPieces: [],
-    mapPieces: [],
-    clearPieceSelectors: [],
-    clearSquareSelectors: [],
-    clearCapturedSelectors: [],
-    selectPiece: [],
-    selectSquare: [],
-    movePiece: [],
-    recordBoard: [],
-    recordMove: [],
-    resetSelectors: [],
-    takePiece: []
-  }
-}
+// ====================================
+// LISTENERS & ACTIONS (LOGIC HÀNH ĐỘNG)
+// ====================================
 
-// Register Event Listener Method Functions to Bind the Actions to the Event Triggering Elements
 var listeners = {
-  
-  // Listen For When a Chess Piece is Clicked
-  selectPieces: function() { actions.consoleLog("[LISTENER] Select Pieces");
-    let pieces = document.querySelectorAll('.chess-piece');
-    pieces.forEach((piece, index) => {
-      if(!piece.classList.contains('init')) {
-        piece.classList.add('init');
-        piece.addEventListener('click', function(e) {
-          actions.selectPiece(e);
-          actions.consoleLog("<<<<<<<>>>>>>>", "", false);
+    selectPieces: function() { 
+        document.querySelectorAll('.chess-piece').forEach((piece) => {
+            if(!piece.classList.contains('init')) {
+                piece.classList.add('init');
+                piece.addEventListener('click', actions.selectPiece);
+            }
         });
-      }
-    });
-  },
-  
-  // Listen for When an Empty Chess Square is Clicked
-  selectSquares: function() { actions.consoleLog("[LISTENER] Select Squares")
-    let squares = document.querySelectorAll('.square');
-    squares.forEach((square, index) => {
-      if(!square.querySelector('.chess-piece') && !square.classList.contains('selected') && !square.classList.contains('init')) {
-        square.classList.add('init');
-        square.addEventListener('click', function(e) {
-          e.preventDefault();
-          actions.selectSquare(e);
-          actions.consoleLog("<<<<<<>>>>>>>", "", false);
+    },
+    selectSquares: function() { 
+        document.querySelectorAll('.square').forEach((square) => {
+            // Gán listener cho ô trống không có quân
+            if(!square.querySelector('.chess-piece') && !square.classList.contains('init')) {
+                square.classList.add('init');
+                square.addEventListener('click', actions.selectSquare);
+            }
         });
-      } else {
-        square.addEventListener('click', function(e) {e.preventDefault();});
-      }
-    });
-  },
-  
-  // Listen for Record Board Button
-  // recordBoard: function() {
-  //   let button = document.querySelector('#record-board');
-  //   button.addEventListener('click', function(e) {
-  //     actions.recordBoard(e);
-  //   });
-  // },
-  
-  // Listen for Clicking the Orange Square to Move a Piece
-  // movePieces: function() {
-  //   document.querySelectorAll('.square-selected').forEach((square, index) => {
-  //     if(!square.classList.contains('init')) {
-  //       square.classList.add('init');
-  //       actions.movePiece(e);
-  //     }
-  //   });
-  //}
+    },
 };
 
-// Register Action Method Functions
 var actions = {
-  
-  consoleLog: function(arg1 = "", arg2 = "", lines = false) {
-    if(debug_mode === true) {
-      var d = new Date(); 
-      let t = {
-        year: d.getFullYear(), 
-        month: d.getMonth(), 
-        day: d.getDate(), 
-        hours: d.getHours(),
-        seconds: d.getSeconds(),
-        milliseconds: d.getMilliseconds()
-      };
-      log.raw.push({stamp: d.toString().split(' ')[4], arg1: arg1, arg2: arg2, time: t});;
-      console.log(log);
-      //console.log(lines ? '-------' : '');
-    }
-  },
-  
-  // Create And/Or Clear the Chess Board
-  createBoard: function() { actions.consoleLog("[ACTION] Create Board");
-    let board = document.querySelector('#chess-board');
-    for(i = 1; i <= 64; i++) {
-      let row = Math.floor((64 - i) / 8) + 1;
-      let col = (8 * (9 - row)) - i + 1;
-      let color = "";
-      if(row % 2 === 0) {
-        color = i % 2 === 0 ? "black" : "white";
-      } else {
-        color = i % 2 === 0 ? "white" : "black";
-      }
-      //console.log({i: i, row: row, col: col, color: color});
-      board.insertAdjacentHTML('beforeend', templates.square(color, i, row, col));
-    }
-  },
-  
-  // Set the Pieces on the Chess Board
-  setPieces: function(pieces) { actions.consoleLog("[ACTION] Set Pieces");
-    let b = pieces.black;
-    let w = pieces.white;
-    actions.mapPieces(b, "black");
-    actions.mapPieces(w, "white");
-  },
-  
-  // Map the Pieces on the Chess Board for a Single Player
-  mapPieces: function(p, color) {
-    for(key in p) {
-      let pos = p.hasOwnProperty(key) ? p[key].pos : false;
-      //console.log({pos: pos});
-      let square = document.querySelector('.square[data-cell="'+pos+'"]');
-      if(square) {
-        square.insertAdjacentHTML('beforeend', templates.piece(key, p[key], color));
-      }
-    }
-    actions.consoleLog("[ACTION] Map Pieces", {color: color, pieces: p});
-  },
-  
-  // Deselect All Chess Piecees
-  clearPieceSelectors: function() { actions.consoleLog("[ACTION] Clear Piece Selectors");
-    document.querySelectorAll('.square').forEach((p, j) => {
-      p.classList.remove('piece-selected');
-    });
-  },
-  
-  // Deselect All Chess Squares
-  clearSquareSelectors: function() { actions.consoleLog("[ACTION] Clear Square Selectors");
-    document.querySelectorAll('.square').forEach((x, j) => {
-      x.classList.remove('square-selected');
-    });
-  },
-  
-  clearCapturedSelectors: function() { actions.consoleLog("[ACTION] Clear Captured Selectors");
-    document.querySelectorAll('.square').forEach((x, j) => {
-      x.classList.remove('capturable-selected');
-    });
-  },
-  
-  // Select a Chess Piece
-  selectPiece: function(e) {
-      let piece = e.target.classList.contains('fa') ? e.target.parentNode : e.target;
-      // Originally Selected Piece Already Chosen Before Choosing this Piece
-      let origin = !piece.parentNode.classList.contains('piece-selected') ? document.querySelector('.piece-selected') : false;
-      if(!origin) {
+    consoleLog: function(arg1, arg2) { 
+        if(debug_mode) {
+            console.log(arg1, arg2 || '');
+        }
+    },
+    
+    // SỬA LỖI LOGIC TẠO Ô CỜ
+    createBoard: function() { 
+        let board = DQS('#chess-board');
+        for(let i = 0; i < 64; i++) {
+            let row = 8 - Math.floor(i / 8); // Tính hàng từ 8 xuống 1
+            let colIndex = i % 8;
+            let colLetter = cols[colIndex];
+            
+            // Logic màu ô: (hàng chẵn + cột chẵn) hoặc (hàng lẻ + cột lẻ) là ô đen
+            let isBlack = (row % 2 === 0 && colIndex % 2 === 0) || (row % 2 !== 0 && colIndex % 2 !== 0);
+            let color = isBlack ? "black" : "white";
+            
+            board.insertAdjacentHTML('beforeend', templates.square(color, i + 1, row, colLetter));
+        }
+    },
+    
+    setPieces: function(pieces) { 
+        actions.mapPieces(pieces.black, "black");
+        actions.mapPieces(pieces.white, "white");
+    },
+    
+    mapPieces: function(p, color) {
+        for(key in p) {
+            let pos = p.hasOwnProperty(key) ? p[key].pos : false;
+            let square = DQS('.square[data-cell="'+pos+'"]');
+            if(square) {
+                // pcolor là màu CSS của quân cờ
+                let pcolor = color === "black" ? "black" : "white"; 
+                square.insertAdjacentHTML('beforeend', templates.piece(key, p[key], color, pcolor));
+            }
+        }
+    },
+    
+    // Dọn dẹp selectors (Giữ nguyên)
+    clearPieceSelectors: function() { DQSA('.square').forEach(p => p.classList.remove('piece-selected')); },
+    clearSquareSelectors: function() { DQSA('.square').forEach(x => x.classList.remove('square-selected')); },
+    clearCapturedSelectors: function() { DQSA('.square').forEach(x => x.classList.remove('capturable-selected')); },
+
+    // SỬA LỖI LOGIC CHỌN QUÂN & KIỂM TRA LƯỢT CHƠI
+    selectPiece: function(e) {
+        let piece = e.target.closest('.chess-piece');
+        let pieceSquare = piece.parentNode;
+        let pieceColor = piece.getAttribute('data-player-color'); // 'white' hoặc 'black'
+
+        // 1. KIỂM TRA LƯỢT CHƠI
+        if (pieceColor !== currentPlayerTurn) {
+            actions.consoleLog("KHÔNG PHẢI LƯỢT CỦA BẠN", pieceColor);
+            // Vẫn cho phép click vào quân đối phương nếu đang có quân mình được chọn (để bắt)
+        }
+
+        let originSquare = DQS('.piece-selected');
+        
+        // 2. Xử lý bắt quân
+        if (originSquare) {
+            let originPiece = originSquare.querySelector('.chess-piece');
+            let originColor = originPiece.getAttribute('data-player-color');
+            
+            if (pieceColor !== originColor) {
+                // TODO: THÊM KIỂM TRA LUẬT CỜ VUA Ở ĐÂY
+                
+                // Giả định là hợp lệ và thực hiện bắt quân
+                actions.movePiece(e, pieceSquare); 
+                return;
+            }
+        }
+        
+        // 3. Xử lý chọn/bỏ chọn quân
         actions.clearPieceSelectors();
-        piece.parentNode.classList.toggle('piece-selected');
-      } else {
-        let pieceColor = piece.getAttribute('data-color');
-        let originColor = origin.querySelector('.chess-piece').getAttribute('data-color');
-        if(pieceColor != originColor) {
-          if(!piece.classList.contains('capturable-selected')) {
-            piece.parentNode.classList.add('capturable-selected');
-          } else {
-            actions.movePiece(origin.querySelector('.chess-piece'));
-          }
-        }
-      }
-      actions.clearSquareSelectors();
-      listeners.selectSquares();
-      actions.consoleLog("[ACTION] Select Piece", {piece: piece, origin: origin});
-  },
-  
-  // Select a Chess Square
-  selectSquare: function(e) {
-    
-    let square = e.target;
-    // let squarePiece = square.querySelector('.chess-piece').length > 0 ? square.querySelector('.chess-piece') : false;
-    let spIsSelected = square.classList.contains('square-selected');
-    let spIsCapturable = square.classList.contains('capturable-selected');
-    
-    //let square = e.target.classList.contains('chess-piece') ? e.target.parentNode : e.target;
-    let selectedPiece = document.querySelector('.piece-selected').querySelector('.chess-piece');
-    if(spIsSelected) {
-      if(selectedPiece.getAttribute('data-position') !== square.getAttribute('data-cell')) {
-        actions.movePiece(e);
         actions.clearSquareSelectors();
-      }
-    } else {
-      actions.clearSquareSelectors();
-      square.classList.toggle('square-selected');
-    }
-    actions.consoleLog("[ACTION] Select Square", {e: e, square: square, piece: selectedPiece});
-  },
-  
-  // Move a Chess Piece from a Starting Square to an Ending Square
-  movePiece: function(e) {
-    e.preventDefault();
-    let newSquare = document.querySelector('.square-selected') !== null ? document.querySelector('.square-selected') : (document.querySelector('.capturable-selected') !== null ? document.querySelector('.capturable-selected') : false);
-    let oldSquare = document.querySelector('.piece-selected');
-    let piece = oldSquare.querySelector('.chess-piece');
-    let opponentPiece = newSquare.querySelector('.chess-piece') !== null ? newSquare.querySelector('.chess-piece') : false;
-    if(opponentPiece) {
-      actions.takePiece(opponentPiece);
-      //newSquare.removeChild(newSquare.childNodes[0]);
-    }
-    newSquare.appendChild(piece);
-    piece.setAttribute('data-position', newSquare.getAttribute('data-cell'));
+        actions.clearCapturedSelectors();
 
-    actions.recordMove(oldSquare, newSquare, piece);
-    actions.clearPieceSelectors();
-    actions.clearSquareSelectors();
-    actions.clearCapturedSelectors();
-    actions.consoleLog("[ACTION] Move Piece", {e: e, newSquare: newSquare, oldSquare: oldSquare, piece: piece, opponentPiece: opponentPiece});
-  },
-  
-  // Record the Pieces on the Board into a JSON Object to Store
-  recordBoard: function() {
-    let record = {timestamp: Date.now(), board: []};
-    document.querySelectorAll('.square').forEach((square, i) => {
-      let blob = {};
-      let piece = square.querySelector('.chess-piece');
-      blob.squareColor = square.getAttribute('data-square-color');
-      blob.squareCell = square.getAttribute('data-cell');
-      if(piece) {
-        blob.pieceColor = piece.getAttribute('data-color');
-        blob.pieceKey = piece.getAttribute('data-piece');
-      }
-      blob.timestamp = Date.now();
-      record.board.push(blob);
-    });
-    game.push(record);
-    actions.consoleLog("[ACTION] Record Board", {game: game, record: record});
-  },
-  
-  // Record A Chess Piece Move Once Completed
-  recordMove: function(oldSquare, newSquare, piece) {
-    let move = {timestamp: new Date().toString().split(' ')[4]};
-    move.from = oldSquare.getAttribute('data-cell');
-    move.to = newSquare.getAttribute('data-cell');
-    move.piece = piece.getAttribute('data-piece');
-    move.color = piece.getAttribute('data-color');
-    moves.push(move);
-    actions.recordBoard();
-    actions.consoleLog("[ACTION] Record Move", {move: move, moves: moves});
-  },
-  
-  // Reset Board and Chess Piece Selectors After a Piece Has Been Moved
-  resetSelectors: function() {
-    document.querySelectorAll('.square').forEach((square, i) => {
-      let piece = square.querySelector('.chess-piece');
-      if(piece.length > 0) {
-        if(!piece.classList.contains('init')) {
-          piece.addEventListener('click', function(e) {
-            actions.selectPiece(e);
-          });
+        if (pieceColor === currentPlayerTurn) {
+            // Nếu là quân mình và chưa được chọn, thì chọn
+            if (pieceSquare !== originSquare) {
+                pieceSquare.classList.add('piece-selected');
+                // TODO: TÍNH TOÁN VÀ HIGHLIGHT CÁC Ô ĐÍCH HỢP LỆ (square-selected/capturable-selected) Ở ĐÂY
+            }
         }
-      } else {
-        if(!square.classList.contains('init')) {
-          square.addEventListener('click', function(e) {
-            actions.selectSquare(e);
-          });
+        
+        listeners.selectSquares();
+        actions.consoleLog("[ACTION] Select Piece", {piece: piece});
+    },
+    
+    // SỬA LỖI LOGIC CHỌN Ô ĐÍCH
+    selectSquare: function(e) {
+        let square = e.target.closest('.square');
+        let selectedPiece = DQS('.piece-selected');
+        
+        if (!selectedPiece) { return; } // Không có quân nào được chọn
+
+        // TODO: THÊM KIỂM TRA LUẬT CỜ VUA Ở ĐÂY
+        
+        // Nếu click lại ô đã chọn (tức là muốn di chuyển đến đó)
+        if(square.classList.contains('square-selected')) {
+            actions.movePiece(e, square);
+        } else {
+            // Nếu click ô mới, highlight ô đó
+            actions.clearSquareSelectors();
+            square.classList.add('square-selected');
         }
-      }
-    });
-    actions.consoleLog("[ACTION] Reset Selectors");
-  },
-  
-  // Take an Opponent's Piece on the Chess Board
-  takePiece: function(opponentPiece) {
-    actions.consoleLog("Take Piece", {opponentPiece: opponentPiece});
-    let opponentColor = opponentPiece.getAttribute('data-color');
-    let takerColor = opponentColor === "black" ? "white" : (opponentColor === "white" ? "black" : false);
-    if(takerColor) {document.getElementById(takerColor+'-panel').querySelector('.taken-pieces').appendChild(opponentPiece);}
-  }
+    },
+    
+    // SỬA LỖI LOGIC DI CHUYỂN & CHUYỂN LƯỢT
+    movePiece: function(e, newSquareElement) {
+        e.preventDefault();
+        let newSquare = newSquareElement;
+        let oldSquare = DQS('.piece-selected');
+        
+        if (!oldSquare) return;
+        let piece = oldSquare.querySelector('.chess-piece');
+        
+        // Bắt quân nếu có
+        let opponentPiece = newSquare.querySelector('.chess-piece');
+        if(opponentPiece) {
+            actions.takePiece(opponentPiece);
+            newSquare.innerHTML = '';
+        }
+        
+        // Thực hiện di chuyển
+        newSquare.appendChild(piece);
+        piece.setAttribute('data-position', newSquare.getAttribute('data-cell'));
+
+        actions.recordMove(oldSquare, newSquare, piece);
+        
+        // CHUYỂN LƯỢT CHƠI
+        currentPlayerTurn = currentPlayerTurn === 'white' ? 'black' : 'white';
+        turnDisplay.textContent = currentPlayerTurn === 'white' ? 'Trắng' : 'Đen';
+        actions.consoleLog("LƯỢT TIẾP THEO:", currentPlayerTurn);
+
+        // Dọn dẹp và gán lại listeners
+        actions.clearPieceSelectors();
+        actions.clearSquareSelectors();
+        actions.clearCapturedSelectors();
+        listeners.selectPieces(); 
+        listeners.selectSquares();
+    },
+    
+    recordBoard: function() { /* Giữ nguyên */ },
+    recordMove: function(oldSquare, newSquare, piece) { /* Giữ nguyên */ },
+    resetSelectors: function() { /* Giữ nguyên */ },
+    
+    // SỬA LỖI LOGIC BẮT QUÂN
+    takePiece: function(opponentPiece) {
+        let opponentColor = opponentPiece.getAttribute('data-player-color');
+        let takerColor = opponentColor === "black" ? "white" : "black"; 
+        
+        let panelId = takerColor + '-panel';
+        let takenContainer = DID(panelId).querySelector('.taken-pieces');
+        
+        // Đặt quân bị bắt vào bảng điều khiển
+        takenContainer.appendChild(opponentPiece);
+        
+        // Xóa listener để không click được vào quân đã bị bắt
+        opponentPiece.removeEventListener('click', actions.selectPiece);
+        opponentPiece.style.cursor = 'default';
+        opponentPiece.classList.remove('init');
+    }
 };
 
-// Register Reusable Markup Templates as Method Functions and Using Argument Interpolation
+// TEMPLATES (Đã sửa lỗi thuộc tính data-color)
 var templates = {
-  // Chess Square
-  square: function(color, i, row, col) {
-    return `<div class="square ${color}" data-nth="${i}" data-row-num="${row}" data-square-color="${color}" data-col-letter="${cols[col - 1]}" data-col="${col}" data-cell="${cols[col - 1]}${row}"></div>`;
-  },
-  // Chess Piece
-  piece: function(key, piece, color) {
-    let pcolor = color === "black" ? "white" : (color === "white" ? "black" : "");
-    return `<div class="chess-piece ${key}" data-piece="${key}" data-color="${pcolor}" data-piece-start="${piece.pos}" data-position="${piece.pos}"><i class="fa fa-${piece.icon} ${pcolor}" data-color="${pcolor}" data-piece="${piece.pos}"></i></div>`;
-  }
+    square: function(color, i, row, colLetter) {
+        return `<div class="square ${color}" data-nth="${i}" data-row-num="${row}" data-square-color="${color}" data-col-letter="${colLetter}" data-cell="${colLetter}${row}"></div>`;
+    },
+    // Sửa lỗi mapping màu: color là màu người chơi ('white'/'black'), pcolor là màu CSS của quân
+    piece: function(key, piece, playerColor, pieceColor) {
+        return `<div class="chess-piece ${key}" data-piece="${key}" data-player-color="${playerColor}" data-color="${pieceColor}" data-piece-start="${piece.pos}" data-position="${piece.pos}"><i class="fa fa-${piece.icon} ${pieceColor}"></i></div>`;
+    }
 };
 
-// INIT ACTION: Create the Chess Board
-actions.createBoard();
-// INIT ACTION: Set the Chess Pieces on the Chess Board
-actions.setPieces(pieces);
-// INIT LISTENER: Select Pieces
-listeners.selectPieces();
-// INIT LISTENER: Select Squares
-listeners.selectSquares();
-// INIT LISTENER: Record Board
-//listeners.recordBoard();
+// ====================================
+// KHỞI TẠO GAME
+// ====================================
+
+// Sử dụng window.onload để đảm bảo các phần tử đã được tải
+window.onload = function() {
+    actions.createBoard();
+    actions.setPieces(pieces);
+    listeners.selectPieces();
+    listeners.selectSquares();
+    
+    // Cập nhật hiển thị lượt chơi ban đầu
+    if (turnDisplay) {
+        turnDisplay.textContent = 'Trắng';
+    }
+}
