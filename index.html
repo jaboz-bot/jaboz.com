@@ -107,7 +107,7 @@
         </div>
     </div>
 
-    <div class="settings-area">
+<div class="settings-area">
         <!-- Nút Cài đặt PWA. Mặc định ẩn, chỉ hiển thị khi beforeinstallprompt được kích hoạt. -->
         <button id="installButton" class="settings-link" style="display: none;">
             📲 Cài đặt app
@@ -132,27 +132,8 @@
         // 3. Ẩn nút nếu ứng dụng đã được cài đặt và đang chạy ở chế độ standalone
         hideInstallButtonIfStandalone();
 
-
-        // 1. Lắng nghe sự kiện trước khi cài đặt
-        window.addEventListener('beforeinstallprompt', (e) => {
-            // Ngăn chặn trình duyệt tự động hiển thị hộp thoại (để chúng ta có thể kiểm soát nó)
-            e.preventDefault();
-            // Lưu trữ sự kiện để kích hoạt nó sau
-            deferredPrompt = e;
-            
-            // Chỉ hiển thị nút nếu chưa được cài đặt
-            if (!hideInstallButtonIfStandalone()) {
-                installButton.style.display = 'inline-block';
-                console.log('beforeinstallprompt fired. Install button shown.');
-            }
-
-            // 2. Thêm sự kiện click cho nút (Đảm bảo nó chỉ được thêm một lần duy nhất)
-            // Ta sử dụng cờ (flag) hoặc loại bỏ listener cũ nếu cần, nhưng cách đơn giản nhất là 
-            // đảm bảo logic xử lý nằm bên trong event listener
-        });
-
-        // 2. Thêm sự kiện click cho nút
-        installButton.addEventListener('click', () => {
+        // Hàm xử lý khi người dùng nhấn nút cài đặt
+        function installApp() {
             if (deferredPrompt) {
                 // Tạm thời ẩn nút khi hộp thoại cài đặt được hiển thị
                 installButton.style.display = 'none';
@@ -178,7 +159,25 @@
                     deferredPrompt = null;
                 });
             }
+        }
+
+
+        // 1. Lắng nghe sự kiện trước khi cài đặt
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Ngăn chặn trình duyệt tự động hiển thị hộp thoại (để chúng ta có thể kiểm soát nó)
+            e.preventDefault();
+            // Lưu trữ sự kiện để kích hoạt nó sau
+            deferredPrompt = e;
+            
+            // Chỉ hiển thị nút nếu chưa được cài đặt
+            if (!hideInstallButtonIfStandalone()) {
+                installButton.style.display = 'inline-block';
+                console.log('beforeinstallprompt fired. Install button shown.');
+                // Gắn hàm xử lý vào sự kiện click của nút
+                installButton.addEventListener('click', installApp, { once: true });
+            }
         });
+
 
         // 4. Ẩn nút nếu ứng dụng được cài đặt thành công từ hộp thoại trình duyệt
         window.addEventListener('appinstalled', (e) => {
