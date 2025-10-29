@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trò Chơi Đoán Số</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'game-primary': '#4CAF50',
+                        'game-default': '#2196F3',
+                        'gray-bg': '#f3f4f6'
+                    }
+                }
+            }
+        }
+
+        let secretNumber;
+        let attempts = 0;
+
+        function startGame() {
+            // Chọn một số ngẫu nhiên từ 1 đến 100
+            secretNumber = Math.floor(Math.random() * 100) + 1;
+            attempts = 0;
+            document.getElementById('guessInput').value = '';
+            document.getElementById('result').textContent = 'Hãy đoán một số từ 1 đến 100.';
+            document.getElementById('attemptsCount').textContent = attempts;
+            document.getElementById('guessButton').disabled = false;
+        }
+
+        function checkGuess() {
+            const guessInput = document.getElementById('guessInput');
+            const result = document.getElementById('result');
+            const guess = parseInt(guessInput.value);
+
+            if (isNaN(guess) || guess < 1 || guess > 100) {
+                result.textContent = 'Vui lòng nhập một số hợp lệ (1-100).';
+                result.className = 'text-red-500 mt-4 font-semibold';
+                return;
+            }
+
+            attempts++;
+            document.getElementById('attemptsCount').textContent = attempts;
+
+            if (guess === secretNumber) {
+                result.textContent = `🎉 Chúc mừng! Bạn đã đoán đúng số ${secretNumber} trong ${attempts} lần!`;
+                result.className = 'text-game-primary mt-4 font-bold text-xl';
+                document.getElementById('guessButton').disabled = true;
+            } else if (guess < secretNumber) {
+                result.textContent = 'Lớn hơn một chút...';
+                result.className = 'text-yellow-600 mt-4 font-semibold';
+            } else {
+                result.textContent = 'Nhỏ hơn một chút...';
+                result.className = 'text-yellow-600 mt-4 font-semibold';
+            }
+
+            // Xóa ô input sau khi đoán
+            guessInput.value = '';
+            guessInput.focus();
+        }
+
+        // Bắt đầu trò chơi khi tải trang
+        window.onload = startGame;
+    </script>
+</head>
+<body class="bg-gray-bg flex flex-col items-center pt-12 px-4">
+
+    <h1 class="text-3xl md:text-4xl font-extrabold text-game-default mb-8">
+        Trò Chơi Đoán Số 🔢
+    </h1>
+
+    <div class="w-full max-w-md bg-white p-6 md:p-10 rounded-xl shadow-2xl text-center">
+        
+        <p id="result" class="text-gray-600 mt-4 mb-6 font-semibold">
+            Hãy đoán một số từ 1 đến 100.
+        </p>
+
+        <div class="flex flex-col sm:flex-row gap-4 mb-6">
+            <input type="number" id="guessInput" min="1" max="100" placeholder="Nhập số của bạn"
+                   class="flex-grow p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-game-default" />
+            
+            <button id="guessButton" onclick="checkGuess()"
+                    class="bg-game-default hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg 
+                           transition duration-150 ease-in-out shadow-md">
+                Đoán
+            </button>
+        </div>
+
+        <p class="text-sm text-gray-500 mb-4">
+            Số lần đoán: <span id="attemptsCount" class="font-bold text-game-primary">0</span>
+        </p>
+
+        <button onclick="startGame()"
+                class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded-full 
+                       transition duration-150 ease-in-out shadow-sm">
+            Chơi lại
+        </button>
+        
+        <div class="mt-8 text-center">
+            <a href="menu-game.html" 
+               class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-full 
+                      text-blue-500 hover:text-blue-700 transition duration-150 ease-in-out">
+                ← Trở về Menu Trò Chơi
+            </a>
+        </div>
+    </div>
+</body>
+</html>
