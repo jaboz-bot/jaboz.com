@@ -109,24 +109,24 @@
 </div>
 
 <script>
-    // ====================================================================
-    // PWA INSTALLATION LOGIC
-    // ====================================================================
-
     let deferredPrompt = null;
     const installButton = document.getElementById('installButton');
 
+    // Hàm kiểm tra chế độ standalone (đã cài đặt)
     function isRunningStandalone() {
         return window.matchMedia('(display-mode: standalone)').matches;
     }
 
+    // Hàm quyết định hiển thị/ẩn nút
     function updateInstallButtonVisibility() {
-        // Chỉ hiện nút nếu có prompt VÀ KHÔNG chạy ở chế độ standalone
+        // Nút CHỈ hiển thị nếu:
+        // 1. CHƯA chạy ở chế độ standalone (chưa cài đặt)
+        // 2. CÓ prompt cài đặt (trình duyệt đã sẵn sàng)
         if (!isRunningStandalone() && deferredPrompt) { 
             installButton.style.display = 'inline-block';
-            console.log('PWA available. Install button shown.');
+            console.log('PWA available. Install button shown.'); // << HIỆN NÚT
         } else {
-            // Ẩn nút nếu không đủ điều kiện PWA hoặc đã cài đặt
+            // Nút ẩn nếu đã cài đặt HOẶC trình duyệt chưa sẵn sàng
             installButton.style.display = 'none';
         }
     }
@@ -140,35 +140,35 @@
             deferredPrompt.userChoice.then((choiceResult) => {
                 console.log('User choice:', choiceResult.outcome);
                 
-                // Xóa prompt đã lưu và cập nhật hiển thị nút
+                // Xóa prompt sau khi đã sử dụng
                 deferredPrompt = null;
+                // Gọi lại hàm để ẩn nút ngay sau khi hộp thoại đóng (biến mất sau khi tương tác)
                 updateInstallButtonVisibility(); 
             });
         }
     }
     
-    // Xử lý sự kiện: Lưu prompt khi PWA sẵn sàng được cài đặt
+    // 1. SỰ KIỆN HIỂN THỊ NÚT: Trình duyệt báo hiệu đã sẵn sàng cài đặt
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         
         deferredPrompt = e;
-        updateInstallButtonVisibility();
+        updateInstallButtonVisibility(); // << HIỆN NÚT
         
-        // Gắn sự kiện click vào nút
         if (installButton.style.display !== 'none') {
             installButton.addEventListener('click', installApp, { once: true });
         }
     });
 
-    // Xử lý sự kiện: Ẩn nút nếu ứng dụng được cài đặt thành công
+    // 2. SỰ KIỆN ẨN NÚT: Ứng dụng được cài đặt thành công
     window.addEventListener('appinstalled', () => {
         deferredPrompt = null;
-        updateInstallButtonVisibility();
+        updateInstallButtonVisibility(); // << ẨN NÚT
         console.log('App successfully installed.');
     });
     
-    // Khởi tạo: Ẩn nút nếu đang ở chế độ standalone ngay từ đầu
-    updateInstallButtonVisibility();
+    // Khởi tạo: Ẩn nút ngay khi tải trang nếu đã cài đặt trước đó
+    updateInstallButtonVisibility(); 
 </script>
 </body>
 </html>
