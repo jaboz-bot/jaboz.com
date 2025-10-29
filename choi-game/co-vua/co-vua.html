@@ -1,31 +1,43 @@
-<div class="text-center">
-<h1>Chess Game (HTML, CSS, JS)</h1>
-<p>by <a href="https://alexburton.com?utm_source=codepen_chess_game">Alexander Burton</a></p></p>
-<p>I made a way better Chess Game <a href="https://chess.alexburton.com?utm_source=codepen_chess_game">here</a></p>
-</div>
-<div id="chess">
-  <div id="wrap">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess Game (HTML, CSS, JS)</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"> 
+</head>
+<body>
     
-      <!-- Player White Panel -->
-      <div id="white-panel" class="chess-panel white">
-        <div class="chess-panel-header">
-          <h2>White</h2>
+    <div class="text-center">
+        <h1>Chess Game (HTML, CSS, JS)</h1>
+        <p>by <a href="https://alexburton.com" target="_blank">Alexander Burton</a></p>
+    </div>
+    
+    <div id="chess">
+        <div id="wrap">
+            
+            <div id="white-panel" class="chess-panel white">
+                <div class="chess-panel-header">
+                    <h2>White (Trắng)</h2>
+                </div>
+                <div class="taken-pieces"></div>
+            </div>
+            
+            <div id="chess-board">
+                </div>
+            
+            <div id="black-panel" class="chess-panel black">
+                <div class="chess-panel-header">
+                    <h2 class="white-text">Black (Đen)</h2>
+                </div>
+                <div class="taken-pieces"></div>
+            </div>
+            
         </div>
-        <div class="taken-pieces"></div>
-      </div>
-    
-      <!-- Chess Board -->
-      <div id="chess-board">
-        <!-- Inject Squares Here -->
-      </div>
-    
-      <!-- Player Black Panel -->
-      <div id="black-panel" class="chess-panel black">
-        <div class="chess-panel-header">
-          <h2 class="white-text">Black</h2>
-        </div>
-        <div class="taken-pieces"></div>
-      </div>
-    
-  </div>
-</div>
+    </div>
+       
+    <script src="script.js"></script>
+</body>
+</html>
