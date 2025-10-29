@@ -60,23 +60,28 @@
             background: linear-gradient(45deg, #FF9800, #F57C00);
         }
         .settings-area {
-            width: 100%;
-            text-align: center;
-            padding-bottom: 10px;
-            margin-top: auto;
+        position: fixed;
+        bottom: 20px; /* cách mép dưới một chút cho dễ bấm */
+        left: 0;
+        width: 100%;
+        text-align: center;
+        z-index: 1000; /* đảm bảo nổi lên trên */
+        padding-bottom: 0; /* bỏ phần padding thừa */
+        background: transparent; /* không che nội dung phía dưới */
         }
+
         .settings-link {
-            background: linear-gradient(45deg, #9C27B0, #7B1FA2);
-            padding: 15px 30px;
-            font-size: 16px;
-            width: auto;
-            display: inline-block;
-            border-radius: 8px;
-            color: white; /* Thêm màu chữ để đảm bảo hiển thị */
-            border: none; /* Thêm để đảm bảo trông giống nút */
-            cursor: pointer;
-            text-decoration: none;
+        background: linear-gradient(45deg, #9C27B0, #7B1FA2);
+        padding: 15px 30px;
+        font-size: 16px;
+        border-radius: 8px;
+        color: white;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         }
+
         .settings-link:hover {
              transform: translateY(-2px);
              box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
