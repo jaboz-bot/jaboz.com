@@ -11,22 +11,26 @@
             margin: 0;
             padding: 50px 10px;
             text-align: center;
+            /* Flex container cho toàn bộ nội dung */
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-height: 100vh;
+            min-height: 100vh; /* Đảm bảo body chiếm hết chiều cao */
+            justify-content: space-between; /* Đẩy cài đặt xuống dưới cùng */
         }
         h1 {
             color: #1976D2;
             margin-bottom: 40px;
         }
-        .container {
+        .main-container {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
             gap: 20px;
             max-width: 800px;
             width: 100%;
+            /* Tăng khoảng cách dưới cùng để tách biệt khỏi nút cài đặt */
+            margin-bottom: 50px; 
         }
         .app-link {
             text-decoration: none;
@@ -53,24 +57,59 @@
         .movie-link {
             background: linear-gradient(45deg, #FF9800, #F57C00); /* Cam */
         }
+
+        /* Vùng chứa mới cho nút Cài Đặt */
+        .settings-area {
+            width: 100%;
+            text-align: center;
+            padding-bottom: 30px; /* Khoảng cách từ đáy trang */
+            margin-top: auto; /* Đẩy nó xuống dưới cùng */
+        }
+
+        /* CSS Mới cho nút Cài Đặt Ứng Dụng (nhỏ hơn) */
+        .settings-link {
+            /* Màu tím */
+            background: linear-gradient(45deg, #9C27B0, #7B1FA2); 
+            
+            /* Điều chỉnh kích thước nhỏ hơn */
+            padding: 15px 30px; 
+            font-size: 16px; 
+            width: auto; /* Cho phép nó co lại theo nội dung */
+            display: inline-block; /* Quan trọng để áp dụng width/padding */
+            border-radius: 8px; /* Bo tròn nhỏ hơn */
+        }
+        .settings-link:hover {
+             transform: translateY(-2px); /* Hiệu ứng nhỏ hơn */
+             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
     </style>
 </head>
 <body>
-    <h1>Chọn Ứng Dụng</h1>
-    <div class="container">
-        
-        <a href="tools/may-ho-tro-giong-noi/may-voice.html" class="app-link voice-link">
-            💬 Máy Hỗ Trợ Giọng Nói
-        </a>
-        
-         <a href="choi-game/menu-game.html" class="app-link game-link">
-            🎮 Chơi Game             
-        </a>
-        
-        <a href="tv/tv.html" class="app-link movie-link">
-          🎬 TV Trực Tuyến
-        </a>
-        
+    
+    <div style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+        <h1>Chọn Ứng Dụng</h1>
+        <div class="main-container">
+            
+            <a href="tools/may-ho-tro-giong-noi/may-voice.html" class="app-link voice-link">
+                💬 Máy Hỗ Trợ Giọng Nói
+            </a>
+            
+            <a href="choi-game/menu-game.html" class="app-link game-link">
+                🎮 Chơi Game             
+            </a>
+            
+            <a href="tv/tv.html" class="app-link movie-link">
+                🎬 TV Trực Tuyến
+            </a>
+            
+        </div>
     </div>
+
+    <div class="settings-area">
+        <a href="cai-dat/menu-cai-dat.html" class="app-link settings-link">
+            ⚙️ Cài Đặt Ứng Dụng
+        </a>
+    </div>
+
 </body>
 </html>
