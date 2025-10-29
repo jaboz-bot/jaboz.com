@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -12,7 +11,8 @@
             font-family: 'Segoe UI', sans-serif;
             background: #e3f2fd;
             margin: 0;
-            padding: 50px 10px;
+            /* ĐIỀU CHỈNH: Tăng padding dưới lên 70px để chừa chỗ cho nút cố định */
+            padding: 50px 10px 70px 10px; 
             text-align: center;
             display: flex;
             flex-direction: column;
@@ -59,11 +59,20 @@
         .movie-link {
             background: linear-gradient(45deg, #FF9800, #F57C00);
         }
+        /* THAY ĐỔI LỚN: CỐ ĐỊNH NÚT CÀI ĐẶT */
         .settings-area {
             width: 100%;
             text-align: center;
-            padding-bottom: 10px;
-            margin-top: auto;
+            /* CỐ ĐỊNH VỊ TRÍ */
+            position: fixed; 
+            bottom: 0; 
+            left: 0;
+            z-index: 1000; /* Đảm bảo nút nằm trên các nội dung khác */
+            /* Thêm nền mờ nhẹ */
+            background: rgba(240, 248, 255, 0.95);
+            padding: 10px 0; 
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1); /* Tạo hiệu ứng nổi */
+            /* BỎ: padding-bottom: 10px; và margin-top: auto; */
         }
         .settings-link {
             background: linear-gradient(45deg, #9C27B0, #7B1FA2);
@@ -76,6 +85,7 @@
             border: none; /* Thêm để đảm bảo trông giống nút */
             cursor: pointer;
             text-decoration: none;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Thêm shadow cho nút */
         }
         .settings-link:hover {
              transform: translateY(-2px);
@@ -94,7 +104,7 @@
             </a>
             
             <a href="choi-game/menu-game.html" class="app-link game-link">
-                🎮 Chơi Game             
+                🎮 Chơi Game              
             </a>
             
             <a href="tv/tv.html" class="app-link movie-link">
@@ -106,7 +116,7 @@
 
 <div class="settings-area">
     <button class="btn install-btn large-control-btn settings-link" id="installButton">
-  📲 Cài đặt app
+    📲 Cài đặt app
 </button>
 </div>
 
@@ -173,7 +183,7 @@
     updateInstallButtonVisibility(); 
 
         if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/service-worker.js')
+    navigator.serviceWorker.register('/service-worker.js')
     .then(reg => console.log('SW registered:', reg.scope))
     .catch(err => console.error('SW failed:', err));
 }
