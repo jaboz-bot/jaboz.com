@@ -2,7 +2,7 @@
   "name": "Máy Hỗ Trợ Giọng Nói",
   "short_name": "Voice Aid",
   "description": "Ứng dụng hỗ trợ giao tiếp bằng giọng nói cho người khó nói.",
-  "start_url": "may-voice.html",
+  "start_url": "tools/may-ho-tro-giong-noi/may-voice.html",
   "display": "standalone",
   "background_color": "#e3f2fd",
   "theme_color": "#2196F3",
