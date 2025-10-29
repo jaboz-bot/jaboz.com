@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TV Trực Tuyến</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: radial-gradient(circle at center, #222 0%, #000 100%);
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      color: white;
+    }
+
+    .tv-frame {
+      background: #333;
+      border: 10px solid #444;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
+      position: relative;
+      width: 600px;
+      max-width: 90vw;
+    }
+
+    .tv-screen {
+      background: black;
+      border: 5px inset #111;
+      border-radius: 10px;
+      overflow: hidden;
+      height: 340px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 15px;
+    }
+
+    button {
+      background: #1976D2;
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: #0D47A1;
+    }
+
+    .channel-label {
+      position: absolute;
+      top: 15px;
+      left: 20px;
+      background: rgba(0,0,0,0.7);
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 14px;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>📺 TV Trực Tuyến</h1>
+
+  <div class="tv-frame">
+    <div class="channel-label" id="channelLabel">Kênh 1</div>
+    <div class="tv-screen">
+      <video id="tvVideo" autoplay loop controls>
+        <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+      </video>
+    </div>
+    <div class="controls">
+      <button onclick="prevChannel()">⬅ Kênh Trước</button>
+      <button onclick="nextChannel()">Kênh Tiếp ➡</button>
+    </div>
+  </div>
+
+  <script>
+    const video = document.getElementById('tvVideo');
+    const label = document.getElementById('channelLabel');
+
+    const channels = [
+      { name: "Kênh 1", src: "https://www.w3schools.com/html/mov_bbb.mp4" },
+      { name: "Kênh 2", src: "https://www.w3schools.com/html/movie.mp4" },
+      { name: "Kênh 3", src: "https://cdn.pixabay.com/vimeo/396364702/nature-34541.mp4?width=640&hash=36d55eabe83647cfd00eb87e03053a4fa3e0b6cb" }
+    ];
+
+    let current = 0;
+
+    function loadChannel(index) {
+      const ch = channels[index];
+      video.src = ch.src;
+      label.textContent = ch.name;
+      video.play();
+    }
+
+    function nextChannel() {
+      current = (current + 1) % channels.length;
+      loadChannel(current);
+    }
+
+    function prevChannel() {
+      current = (current - 1 + channels.length) % channels.length;
+      loadChannel(current);
+    }
+  </script>
+</body>
+</html>
