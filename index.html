@@ -182,10 +182,7 @@
     // Khởi tạo: Ẩn nút ngay khi tải trang nếu đã cài đặt trước đó
     updateInstallButtonVisibility(); 
 
-        if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/service-worker.js')
-    .then(reg => console.log('SW registered:', reg.scope))
-    .catch(err => console.error('SW failed:', err));
+   
 }
     
 </script>
