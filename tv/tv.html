@@ -17,6 +17,10 @@
       color: white;
     }
 
+    h1 {
+      margin-bottom: 20px;
+    }
+
     .tv-frame {
       background: #333;
       border: 10px solid #444;
@@ -39,10 +43,11 @@
       align-items: center;
     }
 
-    video {
+    iframe {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      border: none;
+      border-radius: 5px;
     }
 
     .controls {
@@ -85,9 +90,12 @@
   <div class="tv-frame">
     <div class="channel-label" id="channelLabel">Kênh 1</div>
     <div class="tv-screen">
-      <video id="tvVideo" autoplay loop controls>
-        <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
-      </video>
+      <iframe 
+        id="tvVideo"
+        src="https://www.youtube.com/embed/4nQ2LT04reQ?autoplay=1&mute=1&vq=hd1080"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen>
+      </iframe>
     </div>
     <div class="controls">
       <button onclick="prevChannel()">⬅ Kênh Trước</button>
@@ -96,22 +104,20 @@
   </div>
 
   <script>
-    const video = document.getElementById('tvVideo');
+    const player = document.getElementById('tvVideo');
     const label = document.getElementById('channelLabel');
 
     const channels = [
-      { name: "Kênh 1", src: "https://vtv.vn/truyen-hinh-truc-tuyen/vtv1.htm" },
-      { name: "Kênh 2", src: "https://www.w3schools.com/html/movie.mp4" },
-      { name: "Kênh 3", src: "https://cdn.pixabay.com/vimeo/396364702/nature-34541.mp4?width=640&hash=36d55eabe83647cfd00eb87e03053a4fa3e0b6cb" }
+      { name: "Kênh 1", src: "https://www.youtube.com/embed/4nQ2LT04reQ?autoplay=1&mute=1&vq=hd1080" },
+      { name: "Kênh 2", src: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1&vq=hd1080" }
     ];
 
     let current = 0;
 
     function loadChannel(index) {
       const ch = channels[index];
-      video.src = ch.src;
+      player.src = ch.src;
       label.textContent = ch.name;
-      video.play();
     }
 
     function nextChannel() {
@@ -124,5 +130,6 @@
       loadChannel(current);
     }
   </script>
+
 </body>
 </html>
