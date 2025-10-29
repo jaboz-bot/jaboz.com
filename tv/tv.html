@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TV Trực Tuyến</title>
-    <!-- Tải Tailwind CSS CDN để hỗ trợ CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tải Tailwind CSS CDN để hỗ trợ CSS --><script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -17,19 +16,28 @@
             justify-content: center;
             flex-direction: column;
             color: white;
+            padding: 20px; /* Thêm padding cho body để TV không chạm sát mép */
+            box-sizing: border-box; /* Bao gồm padding trong chiều rộng/cao */
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 2.5rem; /* Tiêu đề lớn hơn */
         }
 
         .tv-frame {
             background: #333;
             border: 10px solid #444;
             border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
+            padding: 25px; /* Tăng padding của khung TV */
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.9); /* Bóng đổ mạnh hơn */
             position: relative;
-            width: 600px;
-            max-width: 90vw;
-            /* Điều chỉnh chiều cao cho màn hình nhỏ */
-            max-height: 90vh; 
+            width: 900px; /* Chiều rộng lớn hơn */
+            max-width: 95vw; /* Đảm bảo không vượt quá chiều rộng màn hình */
+            max-height: 95vh; /* Đảm bảo không vượt quá chiều cao màn hình */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .tv-screen {
@@ -37,11 +45,11 @@
             border: 5px inset #111;
             border-radius: 10px;
             overflow: hidden;
-            /* Dùng padding-bottom để giữ tỷ lệ 16:9 responsive */
             position: relative;
             width: 100%;
-            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
-            height: 0;
+            padding-bottom: 56.25%; /* Giữ tỷ lệ 16:9 Aspect Ratio */
+            height: 0; /* Quan trọng để padding-bottom hoạt động */
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.7); /* Thêm bóng đổ bên trong màn hình */
         }
 
         .tv-screen iframe {
@@ -51,51 +59,56 @@
             width: 100%;
             height: 100%;
             border: none;
+            border-radius: 5px; /* Bo tròn nhẹ góc iframe */
         }
 
         .controls {
             display: flex;
             justify-content: center;
-            gap: 15px;
-            margin-top: 20px;
+            gap: 20px; /* Tăng khoảng cách giữa các nút */
+            margin-top: 25px; /* Tăng khoảng cách từ màn hình TV đến các nút */
         }
 
         button {
             border: none;
             color: white;
-            padding: 10px 20px;
-            font-size: 16px;
-            border-radius: 6px;
+            padding: 12px 25px; /* Kích thước nút lớn hơn */
+            font-size: 18px; /* Chữ to hơn trên nút */
+            border-radius: 8px; /* Bo tròn nút nhiều hơn */
             cursor: pointer;
-            transition: transform 0.1s, box-shadow 0.1s;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); /* Bóng đổ mạnh hơn cho nút */
+        }
+
+        button:hover {
+            transform: translateY(-2px); /* Hiệu ứng nhấc nhẹ nút khi hover */
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
         }
 
         button:active {
-            transform: translateY(1px);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transform: translateY(1px); /* Nút lún xuống khi click */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
 
         .channel-label {
             position: absolute;
-            top: 15px;
-            left: 20px;
-            background: rgba(0,0,0,0.7);
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 14px;
+            top: 30px; /* Dịch xuống một chút */
+            left: 35px; /* Dịch vào một chút */
+            background: rgba(0,0,0,0.8); /* Nền tối hơn */
+            padding: 8px 15px; /* Kích thước nhãn lớn hơn */
+            border-radius: 8px; /* Bo tròn nhiều hơn */
+            font-size: 16px; /* Chữ to hơn */
             color: #fff;
             z-index: 10;
-        }
-
-        /* Nút Play/Pause màu đỏ đặc trưng (Không dùng nữa, nhưng giữ lại CSS dự phòng) */
-        #togglePower {
-            background: #D32F2F;
-        }
-        #togglePower:hover {
-            background: #B71C1C;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.5); /* Thêm bóng chữ */
         }
         
+        /* Màu sắc cho các nút */
+        .bg-blue-600 { background-color: #2196F3; } /* Xanh dương đậm */
+        .hover\:bg-blue-800:hover { background-color: #1565C0; } /* Xanh dương đậm hơn khi hover */
+        .bg-green-600 { background-color: #4CAF50; } /* Xanh lá */
+        .hover\:bg-green-800:hover { background-color: #2E7D32; } /* Xanh lá đậm hơn khi hover */
+
     </style>
 </head>
 <body>
@@ -103,19 +116,18 @@
 <h1>📺 TV Trực Tuyến</h1>
 
 <div class="tv-frame">
-    <!-- Cập nhật nhãn kênh mặc định -->
     <div class="channel-label" id="channelLabel">Kênh 1 (Tài liệu)</div>
     <div class="tv-screen">
         <iframe 
             id="tvVideo"
-            src="" <!-- Sẽ được JS tải ngay lập tức -->
+            src="" 
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowfullscreen>
         </iframe>
     </div>
     <div class="controls">
         <button onclick="prevChannel()" class="bg-blue-600 hover:bg-blue-800">⬅ Kênh Trước</button>
-        <!-- Đã XÓA nút Tắt/Mở TV -->
+        <button onclick="toggleFullscreen()" class="bg-green-600 hover:bg-green-800">⬜ Toàn Màn Hình</button>
         <button onclick="nextChannel()" class="bg-blue-600 hover:bg-blue-800">Kênh Tiếp ➡</button>
     </div>
 </div>
@@ -123,23 +135,18 @@
 <script>
     const player = document.getElementById('tvVideo');
     const label = document.getElementById('channelLabel');
-    // Đã xóa powerButton và TV_OFF_URL
+    const tvFrame = document.querySelector('.tv-frame'); // Lấy khung TV để toàn màn hình
 
-    // Chỉ lưu ID video để dễ dàng thay đổi tham số
     const channels = [
         { name: "Kênh 1 (Tài liệu)", videoId: "NV-NXEQLDZI" },
         { name: "Kênh 2 (Nhạc nền)", videoId: "dQw4w9WgXcQ" },
         { name: "Kênh 3 (Giải trí)", videoId: "4nQ2LT04reQ" }
     ];
 
-    let current = 0; // Kênh mặc định (Kênh 1)
-
-    // --- LOGIC CHÍNH ---
+    let current = 0; 
 
     function loadChannel(index) {
         const ch = channels[index];
-        
-        // Xây dựng URL với autoplay=1 và không có mute=1 (đã bật tiếng)
         const fullUrl = `https://www.youtube.com/embed/${ch.videoId}?autoplay=1&vq=hd1080&rel=0`;
         
         player.src = fullUrl;
@@ -147,20 +154,41 @@
     }
 
     function nextChannel() {
-        // Không cần kiểm tra isTVOn nữa
         current = (current + 1) % channels.length;
         loadChannel(current);
     }
 
     function prevChannel() {
-        // Không cần kiểm tra isTVOn nữa
         current = (current - 1 + channels.length) % channels.length;
         loadChannel(current);
     }
-    
-    // Đã XÓA các hàm turnOnTV, turnOffTV, togglePower
 
-    // Tải kênh mặc định khi trang load xong (TV tự động bật)
+    function toggleFullscreen() {
+        if (!document.fullscreenElement) {
+            // Nếu chưa ở chế độ toàn màn hình, yêu cầu toàn màn hình cho iframe
+            if (player.requestFullscreen) {
+                player.requestFullscreen();
+            } else if (player.mozRequestFullScreen) { /* Firefox */
+                player.mozRequestFullScreen();
+            } else if (player.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+                player.webkitRequestFullscreen();
+            } else if (player.msRequestFullscreen) { /* IE/Edge */
+                player.msRequestFullscreen();
+            }
+        } else {
+            // Nếu đang ở chế độ toàn màn hình, thoát
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.mozCancelFullScreen) { /* Firefox */
+                document.mozCancelFullScreen();
+            } else if (document.webkitExitFullscreen) { /* Chrome, Safari & Opera */
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) { /* IE/Edge */
+                document.msExitFullscreen();
+            }
+        }
+    }
+
     window.onload = function() {
         loadChannel(current); 
     };
