@@ -223,6 +223,7 @@
     function toggleFullscreen() {
         // Yêu cầu toàn màn hình cho iframe (chính là video player)
         if (!document.fullscreenElement) {
+            // 1. Yêu cầu toàn màn hình
             if (player.requestFullscreen) {
                 player.requestFullscreen();
             } else if (player.mozRequestFullScreen) { /* Firefox */
@@ -232,8 +233,18 @@
             } else if (player.msRequestFullscreen) { /* IE/Edge */
                 player.msRequestFullscreen();
             }
+
+            // 2. Cố gắng khóa hướng màn hình sang ngang (landscape)
+            if (screen.orientation && screen.orientation.lock) {
+                // 'landscape' bao gồm 'landscape-primary' và 'landscape-secondary'
+                screen.orientation.lock('landscape').catch(err => {
+                    // Xử lý lỗi nếu việc khóa hướng không được phép (thường xảy ra trong iframe)
+                    console.error("Screen orientation lock failed:", err);
+                });
+            }
+
         } else {
-            // Thoát toàn màn hình
+            // 1. Thoát toàn màn hình
             if (document.exitFullscreen) {
                 document.exitFullscreen();
             } else if (document.mozCancelFullScreen) { /* Firefox */
@@ -242,6 +253,11 @@
                 document.webkitExitFullscreen();
             } else if (player.msExitFullscreen) { /* IE/Edge */
                 player.msExitFullscreen();
+            }
+            
+            // 2. Cố gắng mở khóa hướng màn hình
+            if (screen.orientation && screen.orientation.unlock) {
+                screen.orientation.unlock();
             }
         }
     }
