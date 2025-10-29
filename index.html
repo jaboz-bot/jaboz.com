@@ -108,10 +108,66 @@
     </div>
 
     <div class="settings-area">
-        <a href="cai-dat/menu-cai-dat.html" class="app-link settings-link">
-            ⚙️ Cài Đặt Ứng Dụng
-        </a>
+        <!-- Nút Cài đặt PWA. Mặc định ẩn, chỉ hiển thị khi beforeinstallprompt được kích hoạt. -->
+        <button id="installButton" class="app-link settings-link" style="display: none;">
+            📲 Cài đặt app
+        </button>
     </div>
 
+    <script>
+        // Biến này sẽ lưu trữ sự kiện cài đặt PWA của trình duyệt
+        let deferredPrompt;
+        const installButton = document.getElementById('installButton');
+
+        // 1. Lắng nghe sự kiện trước khi cài đặt
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Ngăn chặn trình duyệt tự động hiển thị hộp thoại (để chúng ta có thể kiểm soát nó)
+            e.preventDefault();
+            // Lưu trữ sự kiện để kích hoạt nó sau
+            deferredPrompt = e;
+            
+            // Hiển thị nút Cài đặt PWA cho người dùng
+            installButton.style.display = 'inline-block';
+            console.log('beforeinstallprompt fired. Install button shown.');
+
+            // 2. Thêm sự kiện click cho nút
+            installButton.addEventListener('click', () => {
+                if (deferredPrompt) {
+                    // Ẩn nút trước khi hiển thị hộp thoại cài đặt
+                    installButton.style.display = 'none';
+                    
+                    // Hiển thị hộp thoại cài đặt của trình duyệt
+                    deferredPrompt.prompt();
+                    
+                    // Chờ đợi người dùng chọn
+                    deferredPrompt.userChoice.then((choiceResult) => {
+                        console.log('User choice:', choiceResult.outcome);
+                        // Xóa biến đã lưu trữ sự kiện
+                        deferredPrompt = null;
+                        
+                        // Nếu người dùng không cài đặt, nút có thể không xuất hiện lại ngay lập tức
+                        if (choiceResult.outcome === 'accepted') {
+                            console.log('App installed successfully');
+                        } else {
+                            console.log('Installation cancelled');
+                            // Nếu hủy, có thể hiện lại nút, tùy theo logic bạn muốn
+                        }
+                    });
+                }
+            });
+        });
+
+        // 3. Ẩn nút cài đặt nếu ứng dụng đã được cài đặt và đang chạy ở chế độ standalone
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            installButton.style.display = 'none';
+            console.log('App is running in standalone mode, Install button hidden.');
+        }
+
+        // 4. Ẩn nút nếu ứng dụng được cài đặt thành công từ hộp thoại trình duyệt
+        window.addEventListener('appinstalled', (e) => {
+            installButton.style.display = 'none';
+            console.log('App successfully installed, Install button hidden.');
+        });
+    </script>
 </body>
 </html>
