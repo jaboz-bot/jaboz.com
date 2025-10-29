@@ -1,0 +1,27 @@
+{
+    "name": "Bảng Điều Khiển Chính",
+    "short_name": "Dashboard",
+    "description": "Trung tâm điều khiển và truy cập các ứng dụng chính.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#e3f2fd",
+    "theme_color": "#1976D2",
+    "orientation": "portrait",
+    "icons": [
+        {
+            "src": "/images/icons/icon-72x72.png",
+            "sizes": "72x72",
+            "type": "image/png"
+        },
+        {
+            "src": "/images/icons/icon-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/images/icons/icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
