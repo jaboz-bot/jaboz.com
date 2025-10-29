@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trò Chơi Cờ Vua</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+        /* Tùy chỉnh màu sắc bàn cờ */
+        .square-light {
+            background-color: #f0d9b5; /* Màu sáng */
+        }
+        .square-dark {
+            background-color: #b58863; /* Màu tối */
+        }
+        /* Định dạng chung cho quân cờ (sử dụng font/emoji) */
+        .chess-piece {
+            font-size: 2.5rem; /* Kích thước quân cờ */
+            line-height: 1;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'game-primary': '#4CAF50',
+                        'gray-bg': '#f3f4f6'
+                    }
+                }
+            }
+        }
+
+        // Mảng 2D đại diện cho trạng thái bàn cờ (8x8)
+        // Ký hiệu: r, n, b, q, k, p (quân đen) và R, N, B, Q, K, P (quân trắng)
+        // Lưu ý: Đây chỉ là mảng tĩnh để vẽ bàn cờ ban đầu.
+        // Cần thêm logic JS để quản lý nước đi, chọn quân, v.v.
+        const initialBoard = [
+            ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
+            ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
+            [null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null],
+            ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
+            ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
+        ];
+
+        // Ánh xạ ký hiệu quân cờ sang ký tự Unicode (quân cờ)
+        const pieceMap = {
+            'r': '♜', 'n': '♞', 'b': '♝', 'q': '♛', 'k': '♚', 'p': '♟',
+            'R': '♖', 'N': '♘', 'B': '♗', 'Q': '♕', 'K': '♔', 'P': '♙'
+        };
+        
+        // Hàm để tạo và vẽ bàn cờ
+        function renderBoard() {
+            const boardElement = document.getElementById('chessboard');
+            boardElement.innerHTML = ''; // Xóa bàn cờ cũ
+            
+            for (let row = 0; row < 8; row++) {
+                for (let col = 0; col < 8; col++) {
+                    const isLight = (row + col) % 2 === 0;
+                    const squareClass = isLight ? 'square-light' : 'square-dark';
+                    const pieceCode = initialBoard[row][col];
+                    const pieceChar = pieceMap[pieceCode];
+                    
+                    const square = document.createElement('div');
+                    square.id = `square-${row}-${col}`;
+                    square.className = `w-full h-full ${squareClass} relative`;
+                    
+                    if (pieceChar) {
+                        const pieceElement = document.createElement('div');
+                        pieceElement.className = 'chess-piece';
+                        pieceElement.textContent = pieceChar;
+                        
+                        // Đặt màu quân cờ
+                        const colorClass = (pieceCode === pieceCode.toLowerCase()) ? 'text-black' : 'text-white';
+                        pieceElement.classList.add(colorClass);
+
+                        square.appendChild(pieceElement);
+                    }
+                    
+                    // Thêm sự kiện click (cần được mở rộng để xử lý game logic)
+                    square.onclick = () => handleSquareClick(row, col);
+
+                    boardElement.appendChild(square);
+                }
+            }
+        }
+
+        function handleSquareClick(row, col) {
+            console.log(`Ô được click: Hàng ${row}, Cột ${col}`);
+            // TODO: Triển khai logic chọn quân, di chuyển quân tại đây
+            // Ví dụ: highlight ô đã chọn, kiểm tra nước đi hợp lệ, cập nhật trạng thái bàn cờ
+        }
+
+        // Bắt đầu vẽ bàn cờ khi trang được tải
+        window.onload = renderBoard;
+    </script>
+</head>
+<body class="bg-gray-bg flex flex-col items-center pt-8 px-4">
+
+    <h1 class="text-3xl md:text-4xl font-extrabold text-gray-800 mb-8">
+        Trò Chơi Cờ Vua ♔
+    </h1>
+
+    <div class="w-full max-w-xl bg-gray-700 p-2 rounded-lg shadow-2xl">
+        
+        <div id="chessboard" class="grid grid-cols-8 aspect-square border-4 border-gray-900 rounded-sm">
+            </div>
+
+    </div>
+
+    <div class="w-full max-w-xl mt-6 p-4 bg-white rounded-lg shadow-lg text-center">
+        <p class="text-lg font-semibold text-gray-700 mb-4">Lượt chơi: Trắng</p>
+        <button onclick="renderBoard()"
+                class="bg-game-primary hover:bg-green-600 text-white font-medium py-2 px-4 rounded-full 
+                       transition duration-150 ease-in-out shadow-md">
+            Chơi lại / Reset
+        </button>
+    </div>
+
+    <div class="mt-8 text-center">
+        <a href="menu-game.html" 
+           class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-full 
+                  text-blue-500 hover:text-blue-700 transition duration-150 ease-in-out">
+            ← Trở về Menu Trò Chơi
+        </a>
+    </div>
+
+</body>
+</html>
