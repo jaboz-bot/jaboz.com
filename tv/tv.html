@@ -17,9 +17,7 @@
       color: white;
     }
 
-    h1 {
-      margin-bottom: 20px;
-    }
+    h1 { margin-bottom: 20px; }
 
     .tv-frame {
       background: #333;
@@ -67,9 +65,7 @@
       transition: background 0.2s;
     }
 
-    button:hover {
-      background: #0D47A1;
-    }
+    button:hover { background: #0D47A1; }
 
     .channel-label {
       position: absolute;
@@ -85,51 +81,53 @@
 </head>
 <body>
 
-  <h1>📺 TV Trực Tuyến</h1>
+<h1>📺 TV Trực Tuyến</h1>
 
-  <div class="tv-frame">
-    <div class="channel-label" id="channelLabel">Kênh 1</div>
-    <div class="tv-screen">
-      <iframe 
-        id="tvVideo"
-        src="https://www.youtube.com/embed/4nQ2LT04reQ?autoplay=1&mute=1&vq=hd1080"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        allowfullscreen>
-      </iframe>
-    </div>
-    <div class="controls">
-      <button onclick="prevChannel()">⬅ Kênh Trước</button>
-      <button onclick="nextChannel()">Kênh Tiếp ➡</button>
-    </div>
+<div class="tv-frame">
+  <div class="channel-label" id="channelLabel">Kênh 1</div>
+  <div class="tv-screen">
+    <iframe 
+      id="tvVideo"
+      src="https://www.youtube.com/embed/NV-NXEQLDZI?autoplay=1&mute=1&vq=hd1080"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowfullscreen>
+    </iframe>
   </div>
+  <div class="controls">
+    <button onclick="prevChannel()">⬅ Kênh Trước</button>
+    <button onclick="nextChannel()">Kênh Tiếp ➡</button>
+  </div>
+</div>
 
-  <script>
-    const player = document.getElementById('tvVideo');
-    const label = document.getElementById('channelLabel');
+<script>
+  const player = document.getElementById('tvVideo');
+  const label = document.getElementById('channelLabel');
 
-    const channels = [
-      { name: "Kênh 1", src: "https://www.youtube.com/embed/NV-NXEQLDZI?autoplay=1&mute=1&vq=hd1080" },
-      { name: "Kênh 2", src: "https://www.youtube.com/watch?v=bAP7-1JLoLI?autoplay=1&mute=1&vq=hd1080" }
-    ];
+  // 3 kênh YouTube, dùng embed link, kênh 1 auto play
+  const channels = [
+    { name: "Kênh 1", src: "https://www.youtube.com/embed/NV-NXEQLDZI?autoplay=1&mute=1&vq=hd1080" },
+    { name: "Kênh 2", src: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1&vq=hd1080" },
+    { name: "Kênh 3", src: "https://www.youtube.com/embed/4nQ2LT04reQ?autoplay=1&mute=1&vq=hd1080" }
+  ];
 
-    let current = 0;
+  let current = 0; // kênh 1 mặc định
 
-    function loadChannel(index) {
-      const ch = channels[index];
-      player.src = ch.src;
-      label.textContent = ch.name;
-    }
+  function loadChannel(index) {
+    const ch = channels[index];
+    player.src = ch.src;
+    label.textContent = ch.name;
+  }
 
-    function nextChannel() {
-      current = (current + 1) % channels.length;
-      loadChannel(current);
-    }
+  function nextChannel() {
+    current = (current + 1) % channels.length;
+    loadChannel(current);
+  }
 
-    function prevChannel() {
-      current = (current - 1 + channels.length) % channels.length;
-      loadChannel(current);
-    }
-  </script>
+  function prevChannel() {
+    current = (current - 1 + channels.length) % channels.length;
+    loadChannel(current);
+  }
+</script>
 
 </body>
 </html>
