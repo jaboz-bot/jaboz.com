@@ -2,7 +2,7 @@
     "name": "Bảng Điều Khiển Chính",
     "short_name": "Dashboard",
     "description": "Trung tâm điều khiển và truy cập các ứng dụng chính.",
-    "start_url": "/index.html",
+    "start_url": "index.html",
     "display": "standalone",
     "background_color": "#e3f2fd",
     "theme_color": "#1976D2",
