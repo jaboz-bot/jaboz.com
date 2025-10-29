@@ -8,6 +8,7 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
+            /* Giữ background đẹp mắt */
             background: radial-gradient(circle at center, #222 0%, #000 100%);
             margin: 0;
             height: 100vh;
@@ -16,25 +17,27 @@
             justify-content: center;
             flex-direction: column;
             color: white;
-            padding: 20px; /* Thêm padding cho body để TV không chạm sát mép */
-            box-sizing: border-box; /* Bao gồm padding trong chiều rộng/cao */
+            padding: 20px;
+            box-sizing: border-box;
         }
 
         h1 {
             margin-bottom: 20px;
-            font-size: 2.5rem; /* Tiêu đề lớn hơn */
+            font-size: 2.5rem;
         }
 
         .tv-frame {
-            background: #333;
-            border: 10px solid #444;
-            border-radius: 20px;
-            padding: 25px; /* Tăng padding của khung TV */
-            box-shadow: 0 0 50px rgba(0, 0, 0, 0.9); /* Bóng đổ mạnh hơn */
+            /* Đã loại bỏ toàn bộ viền, nền, và bóng đổ của khung TV */
+            background: none; 
+            border: none;
+            border-radius: 0;
+            padding: 0; 
+            box-shadow: none;
+            
             position: relative;
-            width: 900px; /* Chiều rộng lớn hơn */
-            max-width: 95vw; /* Đảm bảo không vượt quá chiều rộng màn hình */
-            max-height: 95vh; /* Đảm bảo không vượt quá chiều cao màn hình */
+            width: 900px; 
+            max-width: 95vw; 
+            max-height: 95vh; 
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -42,14 +45,16 @@
 
         .tv-screen {
             background: black;
-            border: 5px inset #111;
-            border-radius: 10px;
+            /* Đã loại bỏ viền 5px inset */
+            border: none; 
+            border-radius: 10px; /* Giữ bo tròn nhẹ góc video */
             overflow: hidden;
             position: relative;
             width: 100%;
-            padding-bottom: 56.25%; /* Giữ tỷ lệ 16:9 Aspect Ratio */
-            height: 0; /* Quan trọng để padding-bottom hoạt động */
-            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.7); /* Thêm bóng đổ bên trong màn hình */
+            padding-bottom: 56.25%; 
+            height: 0;
+            /* Đã loại bỏ bóng đổ bên trong */
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.8); /* Thêm bóng đổ nhẹ ra ngoài để nổi bật màn hình */
         }
 
         .tv-screen iframe {
@@ -59,61 +64,62 @@
             width: 100%;
             height: 100%;
             border: none;
-            border-radius: 5px; /* Bo tròn nhẹ góc iframe */
+            border-radius: 5px; 
         }
 
         .controls {
             display: flex;
             justify-content: center;
-            gap: 20px; /* Tăng khoảng cách giữa các nút */
-            margin-top: 25px; /* Tăng khoảng cách từ màn hình TV đến các nút */
+            gap: 20px; 
+            margin-top: 25px; 
         }
 
         button {
             border: none;
             color: white;
-            padding: 12px 25px; /* Kích thước nút lớn hơn */
-            font-size: 18px; /* Chữ to hơn trên nút */
-            border-radius: 8px; /* Bo tròn nút nhiều hơn */
+            padding: 12px 25px;
+            font-size: 18px;
+            border-radius: 8px;
             cursor: pointer;
             transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); /* Bóng đổ mạnh hơn cho nút */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
 
         button:hover {
-            transform: translateY(-2px); /* Hiệu ứng nhấc nhẹ nút khi hover */
+            transform: translateY(-2px);
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
         }
 
         button:active {
-            transform: translateY(1px); /* Nút lún xuống khi click */
+            transform: translateY(1px);
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
 
         .channel-label {
             position: absolute;
-            top: 30px; /* Dịch xuống một chút */
-            left: 35px; /* Dịch vào một chút */
-            background: rgba(0,0,0,0.8); /* Nền tối hơn */
-            padding: 8px 15px; /* Kích thước nhãn lớn hơn */
-            border-radius: 8px; /* Bo tròn nhiều hơn */
-            font-size: 16px; /* Chữ to hơn */
+            /* Điều chỉnh lại vị trí do padding của tv-frame đã bị xóa */
+            top: 15px; 
+            left: 15px; 
+            background: rgba(0,0,0,0.8);
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 16px;
             color: #fff;
             z-index: 10;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.5); /* Thêm bóng chữ */
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
         }
         
         /* Màu sắc cho các nút */
-        .bg-blue-600 { background-color: #2196F3; } /* Xanh dương đậm */
-        .hover\:bg-blue-800:hover { background-color: #1565C0; } /* Xanh dương đậm hơn khi hover */
-        .bg-green-600 { background-color: #4CAF50; } /* Xanh lá */
-        .hover\:bg-green-800:hover { background-color: #2E7D32; } /* Xanh lá đậm hơn khi hover */
+        .bg-blue-600 { background-color: #2196F3; } 
+        .hover\:bg-blue-800:hover { background-color: #1565C0; } 
+        .bg-green-600 { background-color: #4CAF50; } 
+        .hover\:bg-green-800:hover { background-color: #2E7D32; } 
 
     </style>
 </head>
 <body>
 
-<h1>📺 TV Trực Tuyến</h1>
+<h1>📺 Video Trực Tuyến</h1>
 
 <div class="tv-frame">
     <div class="channel-label" id="channelLabel">Kênh 1 (Tài liệu)</div>
@@ -147,6 +153,7 @@
 
     function loadChannel(index) {
         const ch = channels[index];
+        // Xây dựng URL với autoplay=1 và không có mute=1 (đã bật tiếng)
         const fullUrl = `https://www.youtube.com/embed/${ch.videoId}?autoplay=1&vq=hd1080&rel=0`;
         
         player.src = fullUrl;
@@ -164,8 +171,8 @@
     }
 
     function toggleFullscreen() {
+        // Yêu cầu toàn màn hình cho iframe (chính là video player)
         if (!document.fullscreenElement) {
-            // Nếu chưa ở chế độ toàn màn hình, yêu cầu toàn màn hình cho iframe
             if (player.requestFullscreen) {
                 player.requestFullscreen();
             } else if (player.mozRequestFullScreen) { /* Firefox */
@@ -176,7 +183,7 @@
                 player.msRequestFullscreen();
             }
         } else {
-            // Nếu đang ở chế độ toàn màn hình, thoát
+            // Thoát toàn màn hình
             if (document.exitFullscreen) {
                 document.exitFullscreen();
             } else if (document.mozCancelFullScreen) { /* Firefox */
