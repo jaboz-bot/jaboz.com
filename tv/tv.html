@@ -195,8 +195,8 @@
         clearTimeout(labelTimeout); 
 
         const ch = channels[index];
-        // Xây dựng URL với autoplay=1 và không có mute=1 (đã bật tiếng)
-        const fullUrl = `https://www.youtube.com/embed/${ch.videoId}?autoplay=1&vq=hd1080&rel=0`;
+        // Xây dựng URL với autoplay=1, chất lượng cao, rel=0, và THÊM PHỤ ĐỀ TIẾNG VIỆT TỰ ĐỘNG
+        const fullUrl = `https://www.youtube.com/embed/${ch.videoId}?autoplay=1&vq=hd1080&rel=0&cc_load_policy=1&cc_lang_pref=vi`;
         
         player.src = fullUrl;
         label.textContent = ch.name;
@@ -240,8 +240,8 @@
                 document.mozCancelFullScreen();
             } else if (document.webkitExitFullscreen) { /* Chrome, Safari & Opera */
                 document.webkitExitFullscreen();
-            } else if (document.msExitFullscreen) { /* IE/Edge */
-                document.msExitFullscreen();
+            } else if (player.msExitFullscreen) { /* IE/Edge */
+                player.msExitFullscreen();
             }
         }
     }
