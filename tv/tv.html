@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TV Trực Tuyến</title>
-    <!-- Tải Tailwind CSS CDN để hỗ trợ CSS --><script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -44,7 +44,7 @@
                 margin-top: 15px;
             }
             button {
-                padding: 10px 15px; /* Giảm kích thước nút */
+                padding: 12px 18px; /* Giảm kích thước nút cho mobile */
                 font-size: 16px;
             }
         }
@@ -53,16 +53,16 @@
 
         .tv-frame {
             /* Đã loại bỏ toàn bộ viền, nền, và bóng đổ của khung TV */
-            background: none; 
+            background: none;
             border: none;
             border-radius: 0;
-            padding: 0; 
+            padding: 0;
             box-shadow: none;
             
             position: relative;
-            width: 900px; 
-            max-width: 95vw; 
-            max-height: 95vh; 
+            width: 900px;
+            max-width: 95vw;
+            max-height: 95vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -71,12 +71,12 @@
         .tv-screen {
             background: black;
             /* Đã loại bỏ viền 5px inset */
-            border: none; 
+            border: none;
             border-radius: 10px; /* Giữ bo tròn nhẹ góc video */
             overflow: hidden;
             position: relative;
             width: 100%;
-            padding-bottom: 56.25%; 
+            padding-bottom: 56.25%;
             height: 0;
             /* Đã loại bỏ bóng đổ bên trong */
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.8); /* Thêm bóng đổ nhẹ ra ngoài để nổi bật màn hình */
@@ -89,58 +89,44 @@
             width: 100%;
             height: 100%;
             border: none;
-            border-radius: 5px; 
+            border-radius: 5px;
         }
 
         .controls {
             display: flex;
             justify-content: center;
-            gap: 20px; 
-            margin-top: 25px; 
+            gap: 25px; /* Tăng khoảng cách giữa các nút */
+            margin-top: 30px; /* Tăng khoảng cách với TV */
         }
 
         button {
             border: none;
             color: white;
-            padding: 12px 25px;
-            font-size: 18px;
-            border-radius: 8px;
+            padding: 15px 30px; /* Tăng padding để nút to hơn */
+            font-size: 20px; /* Tăng font-size */
+            border-radius: 10px; /* Bo tròn góc hơn một chút */
             cursor: pointer;
-            transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s ease-out, box-shadow 0.2s ease-out, background-color 0.2s ease-in-out; /* Thêm transition cho màu nền */
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4); /* Bóng đổ mạnh hơn */
+            font-weight: 600; /* In đậm chữ */
+            letter-spacing: 0.5px; /* Tăng khoảng cách chữ */
         }
 
         button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            transform: translateY(-3px); /* Nhấc lên nhiều hơn khi hover */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5); /* Bóng đổ mạnh hơn khi hover */
         }
 
         button:active {
-            transform: translateY(1px);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            transform: translateY(0px); /* Về vị trí ban đầu hoặc lún nhẹ xuống */
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3); /* Bóng đổ nhẹ hơn khi click */
         }
 
-        .channel-label {
-            position: absolute;
-            top: 15px; 
-            left: 15px; 
-            background: rgba(0,0,0,0.8);
-            padding: 8px 15px;
-            border-radius: 8px;
-            font-size: 16px;
-            color: #fff;
-            z-index: 10;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
-            /* Đảm bảo hiệu ứng mờ và ẩn mặc định */
-            transition: opacity 0.5s ease-in-out; 
-            opacity: 0; 
-        }
-        
         /* Màu sắc cho các nút */
-        .bg-blue-600 { background-color: #2196F3; } 
-        .hover\:bg-blue-800:hover { background-color: #1565C0; } 
-        .bg-green-600 { background-color: #4CAF50; } 
-        .hover\:bg-green-800:hover { background-color: #2E7D32; } 
+        .bg-blue-600 { background-color: #2196F3; }
+        .hover\:bg-blue-800:hover { background-color: #1565C0; }
+        .bg-green-600 { background-color: #4CAF50; }
+        .hover\:bg-green-800:hover { background-color: #2E7D32; }
 
     </style>
 </head>
@@ -168,7 +154,6 @@
 <script>
     const player = document.getElementById('tvVideo');
     const label = document.getElementById('channelLabel');
-    // const tvFrame = document.querySelector('.tv-frame'); // Lấy khung TV để toàn màn hình
 
     const channels = [
         { name: "Kênh 1", videoId: "NV-NXEQLDZI" },
@@ -187,27 +172,23 @@
         { name: "Kênh 14", videoId: "_eB-7OyJTZg" }
     ];
 
-    let current = 0; 
-    let labelTimeout = null; // Khai báo biến để quản lý thời gian ẩn nhãn
+    let current = 0;
+    let labelTimeout = null;
 
     function loadChannel(index) {
-        // 1. Xóa timeout cũ nếu người dùng chuyển kênh nhanh
-        clearTimeout(labelTimeout); 
+        clearTimeout(labelTimeout);
 
         const ch = channels[index];
-        // Xây dựng URL với autoplay=1, chất lượng cao, rel=0, và THÊM PHỤ ĐỀ TIẾNG VIỆT TỰ ĐỘNG
         const fullUrl = `https://www.youtube.com/embed/${ch.videoId}?autoplay=1&vq=hd1080&rel=0&cc_load_policy=1&cc_lang_pref=vi`;
         
         player.src = fullUrl;
         label.textContent = ch.name;
 
-        // 2. Hiển thị nhãn
         label.style.opacity = '1';
 
-        // 3. Thiết lập ẩn nhãn sau 2 giây (2000ms)
         labelTimeout = setTimeout(() => {
-            label.style.opacity = '0'; // Nhãn sẽ mờ dần
-        }, 2000); // 2 giây
+            label.style.opacity = '0';
+        }, 2000);
     }
 
     function nextChannel() {
@@ -221,9 +202,7 @@
     }
 
     function toggleFullscreen() {
-        // Yêu cầu toàn màn hình cho iframe (chính là video player)
         if (!document.fullscreenElement) {
-            // 1. Yêu cầu toàn màn hình
             if (player.requestFullscreen) {
                 player.requestFullscreen();
             } else if (player.mozRequestFullScreen) { /* Firefox */
@@ -234,17 +213,13 @@
                 player.msRequestFullscreen();
             }
 
-            // 2. Cố gắng khóa hướng màn hình sang ngang (landscape)
             if (screen.orientation && screen.orientation.lock) {
-                // 'landscape' bao gồm 'landscape-primary' và 'landscape-secondary'
                 screen.orientation.lock('landscape').catch(err => {
-                    // Xử lý lỗi nếu việc khóa hướng không được phép (thường xảy ra trong iframe)
                     console.error("Screen orientation lock failed:", err);
                 });
             }
 
         } else {
-            // 1. Thoát toàn màn hình
             if (document.exitFullscreen) {
                 document.exitFullscreen();
             } else if (document.mozCancelFullScreen) { /* Firefox */
@@ -255,7 +230,6 @@
                 player.msExitFullscreen();
             }
             
-            // 2. Cố gắng mở khóa hướng màn hình
             if (screen.orientation && screen.orientation.unlock) {
                 screen.orientation.unlock();
             }
@@ -263,7 +237,7 @@
     }
 
     window.onload = function() {
-        loadChannel(current); 
+        loadChannel(current);
     };
 
 </script>
