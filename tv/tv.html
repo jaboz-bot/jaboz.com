@@ -1,133 +1,204 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TV Trực Tuyến</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: radial-gradient(circle at center, #222 0%, #000 100%);
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      color: white;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TV Trực Tuyến</title>
+    <!-- Tải Tailwind CSS CDN để hỗ trợ CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at center, #222 0%, #000 100%);
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: white;
+        }
 
-    h1 { margin-bottom: 20px; }
+        .tv-frame {
+            background: #333;
+            border: 10px solid #444;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
+            position: relative;
+            width: 600px;
+            max-width: 90vw;
+            /* Điều chỉnh chiều cao cho màn hình nhỏ */
+            max-height: 90vh; 
+        }
 
-    .tv-frame {
-      background: #333;
-      border: 10px solid #444;
-      border-radius: 20px;
-      padding: 20px;
-      box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
-      position: relative;
-      width: 600px;
-      max-width: 90vw;
-    }
+        .tv-screen {
+            background: black;
+            border: 5px inset #111;
+            border-radius: 10px;
+            overflow: hidden;
+            /* Dùng padding-bottom để giữ tỷ lệ 16:9 responsive */
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+        }
 
-    .tv-screen {
-      background: black;
-      border: 5px inset #111;
-      border-radius: 10px;
-      overflow: hidden;
-      height: 340px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+        .tv-screen iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
 
-    iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-      border-radius: 5px;
-    }
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
 
-    .controls {
-      display: flex;
-      justify-content: space-around;
-      margin-top: 15px;
-    }
+        button {
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.1s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
 
-    button {
-      background: #1976D2;
-      border: none;
-      color: white;
-      padding: 10px 20px;
-      font-size: 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
+        button:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
 
-    button:hover { background: #0D47A1; }
+        .channel-label {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            background: rgba(0,0,0,0.7);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            color: #fff;
+            z-index: 10;
+        }
 
-    .channel-label {
-      position: absolute;
-      top: 15px;
-      left: 20px;
-      background: rgba(0,0,0,0.7);
-      padding: 5px 10px;
-      border-radius: 5px;
-      font-size: 14px;
-      color: #fff;
-    }
-  </style>
+        /* Nút Play/Pause màu đỏ đặc trưng */
+        #togglePower {
+            background: #D32F2F;
+        }
+        #togglePower:hover {
+            background: #B71C1C;
+        }
+        
+    </style>
 </head>
 <body>
 
 <h1>📺 TV Trực Tuyến</h1>
 
 <div class="tv-frame">
-  <div class="channel-label" id="channelLabel">Kênh 1</div>
-  <div class="tv-screen">
-    <iframe 
-      id="tvVideo"
-      src="https://www.youtube.com/embed/NV-NXEQLDZI?autoplay=1&mute=1&vq=hd1080"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-      allowfullscreen>
-    </iframe>
-  </div>
-  <div class="controls">
-    <button onclick="prevChannel()">⬅ Kênh Trước</button>
-    <button onclick="nextChannel()">Kênh Tiếp ➡</button>
-  </div>
+    <div class="channel-label" id="channelLabel">Đang Tắt</div>
+    <div class="tv-screen">
+        <iframe 
+            id="tvVideo"
+            src="" <!-- Xóa src ban đầu để JS kiểm soát hoàn toàn -->
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen>
+        </iframe>
+    </div>
+    <div class="controls">
+        <button onclick="prevChannel()" class="bg-blue-600 hover:bg-blue-800">⬅ Kênh Trước</button>
+        <button id="togglePower" onclick="togglePower()">Tắt TV</button>
+        <button onclick="nextChannel()" class="bg-blue-600 hover:bg-blue-800">Kênh Tiếp ➡</button>
+    </div>
 </div>
 
 <script>
-  const player = document.getElementById('tvVideo');
-  const label = document.getElementById('channelLabel');
+    const player = document.getElementById('tvVideo');
+    const label = document.getElementById('channelLabel');
+    const powerButton = document.getElementById('togglePower');
+    const TV_OFF_URL = "about:blank"; // URL khi TV tắt (màn hình đen)
 
-  // 3 kênh YouTube, dùng embed link, kênh 1 auto play
-  const channels = [
-    { name: "Kênh 1", src: "https://www.youtube.com/embed/NV-NXEQLDZI?autoplay=1&mute=1&vq=hd1080" },
-    { name: "Kênh 2", src: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1&vq=hd1080" },
-    { name: "Kênh 3", src: "https://www.youtube.com/embed/4nQ2LT04reQ?autoplay=1&mute=1&vq=hd1080" }
-  ];
+    // Chỉ lưu ID video để dễ dàng thay đổi tham số
+    const channels = [
+        { name: "Kênh 1 (Tài liệu)", videoId: "NV-NXEQLDZI" },
+        { name: "Kênh 2 (Nhạc nền)", videoId: "dQw4w9WgXcQ" },
+        { name: "Kênh 3 (Giải trí)", videoId: "4nQ2LT04reQ" }
+    ];
 
-  let current = 0; // kênh 1 mặc định
+    let current = 0; // Kênh mặc định
+    let isTVOn = true;
 
-  function loadChannel(index) {
-    const ch = channels[index];
-    player.src = ch.src;
-    label.textContent = ch.name;
-  }
+    // --- LOGIC CHÍNH ---
 
-  function nextChannel() {
-    current = (current + 1) % channels.length;
-    loadChannel(current);
-  }
+    function loadChannel(index) {
+        if (!isTVOn) return; // Không tải nếu TV đang tắt
 
-  function prevChannel() {
-    current = (current - 1 + channels.length) % channels.length;
-    loadChannel(current);
-  }
+        const ch = channels[index];
+        
+        // Luôn xây dựng URL với các tham số cần thiết
+        // ĐÃ XÓA mute=1 để bật âm thanh
+        const fullUrl = `https://www.youtube.com/embed/${ch.videoId}?autoplay=1&vq=hd1080&rel=0`;
+        
+        player.src = fullUrl;
+        label.textContent = ch.name;
+    }
+
+    function nextChannel() {
+        if (!isTVOn) {
+            turnOnTV();
+            return;
+        }
+        current = (current + 1) % channels.length;
+        loadChannel(current);
+    }
+
+    function prevChannel() {
+        if (!isTVOn) {
+            turnOnTV();
+            return;
+        }
+        current = (current - 1 + channels.length) % channels.length;
+        loadChannel(current);
+    }
+    
+    function turnOnTV() {
+        isTVOn = true;
+        powerButton.textContent = "Tắt TV";
+        powerButton.classList.remove('bg-gray-500', 'hover:bg-gray-600');
+        powerButton.classList.add('bg-red-600', 'hover:bg-red-700');
+        loadChannel(current);
+    }
+
+    function turnOffTV() {
+        isTVOn = false;
+        powerButton.textContent = "Mở TV";
+        powerButton.classList.remove('bg-red-600', 'hover:bg-red-700');
+        powerButton.classList.add('bg-gray-500', 'hover:bg-gray-600');
+        player.src = TV_OFF_URL; // Đặt về URL trống để dừng phát
+        label.textContent = "Đang Tắt";
+    }
+
+    function togglePower() {
+        if (isTVOn) {
+            turnOffTV();
+        } else {
+            turnOnTV();
+        }
+    }
+
+    // Tải kênh mặc định khi trang load xong
+    window.onload = function() {
+        // Tắt TV ban đầu, chờ người dùng bật
+        turnOffTV(); 
+    };
+
 </script>
-
 </body>
 </html>
