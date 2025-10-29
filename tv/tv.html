@@ -122,7 +122,6 @@
 
         .channel-label {
             position: absolute;
-            /* Điều chỉnh lại vị trí do padding của tv-frame đã bị xóa */
             top: 15px; 
             left: 15px; 
             background: rgba(0,0,0,0.8);
@@ -132,6 +131,9 @@
             color: #fff;
             z-index: 10;
             text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+            /* Đảm bảo hiệu ứng mờ và ẩn mặc định */
+            transition: opacity 0.5s ease-in-out; 
+            opacity: 0; 
         }
         
         /* Màu sắc cho các nút */
@@ -166,7 +168,7 @@
 <script>
     const player = document.getElementById('tvVideo');
     const label = document.getElementById('channelLabel');
-    const tvFrame = document.querySelector('.tv-frame'); // Lấy khung TV để toàn màn hình
+    // const tvFrame = document.querySelector('.tv-frame'); // Lấy khung TV để toàn màn hình
 
     const channels = [
         { name: "Kênh 1", videoId: "NV-NXEQLDZI" },
@@ -186,14 +188,26 @@
     ];
 
     let current = 0; 
+    let labelTimeout = null; // Khai báo biến để quản lý thời gian ẩn nhãn
 
     function loadChannel(index) {
+        // 1. Xóa timeout cũ nếu người dùng chuyển kênh nhanh
+        clearTimeout(labelTimeout); 
+
         const ch = channels[index];
         // Xây dựng URL với autoplay=1 và không có mute=1 (đã bật tiếng)
         const fullUrl = `https://www.youtube.com/embed/${ch.videoId}?autoplay=1&vq=hd1080&rel=0`;
         
         player.src = fullUrl;
         label.textContent = ch.name;
+
+        // 2. Hiển thị nhãn
+        label.style.opacity = '1';
+
+        // 3. Thiết lập ẩn nhãn sau 2 giây (2000ms)
+        labelTimeout = setTimeout(() => {
+            label.style.opacity = '0'; // Nhãn sẽ mờ dần
+        }, 2000); // 2 giây
     }
 
     function nextChannel() {
