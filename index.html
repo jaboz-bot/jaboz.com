@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bảng Điều Khiển</title>
-    <link rel="manifest" href="dashboard.json">
-    <meta name="theme-color" content="#1976D2">
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
@@ -17,20 +15,18 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            justify-content: space-between;
         }
         h1 {
             color: #1976D2;
             margin-bottom: 40px;
         }
-        .main-container {
+        .container {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
             gap: 20px;
             max-width: 800px;
             width: 100%;
-            margin-bottom: 50px;
         }
         .app-link {
             text-decoration: none;
@@ -49,134 +45,32 @@
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
         }
         .voice-link {
-            background: linear-gradient(45deg, #2196F3, #1976D2);
+            background: linear-gradient(45deg, #2196F3, #1976D2); /* Xanh dương */
         }
         .game-link {
-            background: linear-gradient(45deg, #4CAF50, #388E3C);
+            background: linear-gradient(45deg, #4CAF50, #388E3C); /* Xanh lá */
         }
         .movie-link {
-            background: linear-gradient(45deg, #FF9800, #F57C00);
-        }
-        .settings-area {
-            width: 100%;
-            text-align: center;
-            padding-bottom: 30px;
-            margin-top: auto;
-        }
-        .settings-link {
-            background: linear-gradient(45deg, #9C27B0, #7B1FA2);
-            padding: 15px 30px;
-            font-size: 16px;
-            width: auto;
-            display: inline-block;
-            border-radius: 8px;
-            color: white; /* Thêm màu chữ để đảm bảo hiển thị */
-            border: none; /* Thêm để đảm bảo trông giống nút */
-            cursor: pointer;
-            text-decoration: none;
-        }
-        .settings-link:hover {
-             transform: translateY(-2px);
-             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(45deg, #FF9800, #F57C00); /* Cam */
         }
     </style>
 </head>
 <body>
-    
-    <div style="width: 100%; display: flex; flex-direction: column; align-items: center;">
-        <h1>Chọn Ứng Dụng</h1>
-        <div class="main-container">
-            
-            <a href="tools/may-ho-tro-giong-noi/may-voice.html" class="app-link voice-link">
-                💬 Máy Hỗ Trợ Giọng Nói
-            </a>
-            
-            <a href="choi-game/menu-game.html" class="app-link game-link">
-                🎮 Chơi Game             
-            </a>
-            
-            <a href="tv/tv.html" class="app-link movie-link">
-                🎬 TV Online
-            </a>
-            
-        </div>
+    <h1>Chọn Ứng Dụng</h1>
+    <div class="container">
+        
+        <a href="tools/may-ho-tro-giong-noi/may-voice.html" class="app-link voice-link">
+            💬 Máy Hỗ Trợ Giọng Nói
+        </a>
+        
+         <a href="choi-game/menu-game.html" class="app-link game-link">
+            🎮 Chơi Game             
+        </a>
+        
+        <a href="tv/tv.html" class="app-link movie-link">
+          🎬 TV Online
+        </a>
+        
     </div>
-
-<div class="settings-area">
-    <button class="btn install-btn large-control-btn settings-link" id="installButton">
-  📲 Cài đặt app
-</button>
-</div>
-
-<script>
-    let deferredPrompt = null;
-    const installButton = document.getElementById('installButton');
-
-    // Hàm kiểm tra chế độ standalone (đã cài đặt)
-    function isRunningStandalone() {
-        return window.matchMedia('(display-mode: standalone)').matches;
-    }
-
-    // Hàm quyết định hiển thị/ẩn nút
-    function updateInstallButtonVisibility() {
-        // Nút CHỈ hiển thị nếu:
-        // 1. CHƯA chạy ở chế độ standalone (chưa cài đặt)
-        // 2. CÓ prompt cài đặt (trình duyệt đã sẵn sàng)
-        if (!isRunningStandalone() && deferredPrompt) { 
-            installButton.style.display = 'inline-block';
-            console.log('PWA available. Install button shown.'); // << HIỆN NÚT
-        } else {
-            // Nút ẩn nếu đã cài đặt HOẶC trình duyệt chưa sẵn sàng
-            installButton.style.display = 'none';
-        }
-    }
-
-    function installApp() {
-        installButton.removeEventListener('click', installApp);
-
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            
-            deferredPrompt.userChoice.then((choiceResult) => {
-                console.log('User choice:', choiceResult.outcome);
-                
-                // Xóa prompt sau khi đã sử dụng
-                deferredPrompt = null;
-                // Gọi lại hàm để ẩn nút ngay sau khi hộp thoại đóng (biến mất sau khi tương tác)
-                updateInstallButtonVisibility(); 
-            });
-        }
-    }
-    
-    // 1. SỰ KIỆN HIỂN THỊ NÚT: Trình duyệt báo hiệu đã sẵn sàng cài đặt
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        
-        deferredPrompt = e;
-        updateInstallButtonVisibility(); // << HIỆN NÚT
-        
-        if (installButton.style.display !== 'none') {
-            installButton.addEventListener('click', installApp, { once: true });
-        }
-    });
-
-    // 2. SỰ KIỆN ẨN NÚT: Ứng dụng được cài đặt thành công
-    window.addEventListener('appinstalled', () => {
-        deferredPrompt = null;
-        updateInstallButtonVisibility(); // << ẨN NÚT
-        console.log('App successfully installed.');
-    });
-    
-    // Khởi tạo: Ẩn nút ngay khi tải trang nếu đã cài đặt trước đó
-    updateInstallButtonVisibility(); 
-
-        if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/service-worker.js')
-    .then(reg => console.log('SW registered:', reg.scope))
-    .catch(err => console.error('SW failed:', err));
-}
-    
-</script>
-
 </body>
 </html>
