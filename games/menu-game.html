@@ -1,90 +1,90 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chọn Trò Chơi</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            min-height: 100vh;
-        }
-        /* Custom message box style */
-        .message-box {
-            display: none; /* Ẩn đi */
-        }
-    </style>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'game-primary': '#4CAF50',
-                        'game-secondary': '#FFEB3B',
-                        'game-tertiary': '#FF5722',
-                        'game-default': '#2196F3',
-                        'gray-bg': '#f3f4f6'
-                    }
-                }
-            }
-        }
-    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chọn Trò Chơi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+        /* Custom message box style */
+        .message-box {
+            display: none; /* Ẩn đi */
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'game-primary': '#4CAF50',
+                        'game-secondary': '#FFEB3B',
+                        'game-tertiary': '#FF5722',
+                        'game-default': '#2196F3',
+                        'gray-bg': '#f3f4f6'
+                    }
+                }
+            }
+        }
+    </script>
 </head>
 <body class="bg-gray-bg flex flex-col items-center pt-12 px-4">
-    <div id="messageBox" class="message-box"></div>
+    <div id="messageBox" class="message-box"></div>
 
-    <h1 class="text-3xl md:text-4xl font-extrabold text-game-primary mb-8 md:mb-12">
-        Chọn Trò Chơi
-    </h1>
+    <h1 class="text-3xl md:text-4xl font-extrabold text-game-primary mb-8 md:mb-12">
+        Chọn Trò Chơi
+    </h1>
 
-    <div class="w-full max-w-4xl bg-white p-6 md:p-10 rounded-xl shadow-2xl">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="w-full max-w-4xl bg-white p-6 md:p-10 rounded-xl shadow-2xl">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
-            <button onclick="window.location.href='1.html'"
-                class="game-card bg-gradient-to-r from-game-default to-blue-600 text-white p-6 rounded-xl shadow-lg 
-                       text-center font-bold text-xl tracking-wider 
-                       transition duration-300 ease-in-out transform hover:scale-[1.03] hover:shadow-xl">
-                1
-            </button>
+                        <button onclick="window.location.href='https://html5games.com/'"
+                class="game-card bg-gradient-to-r from-game-default to-blue-600 text-white p-6 rounded-xl shadow-lg 
+                       text-center font-bold text-xl tracking-wider 
+                       transition duration-300 ease-in-out transform hover:scale-[1.03] hover:shadow-xl">
+                1
+            </button>
 
-            <button onclick="window.location.href='2.html'"
-                class="game-card bg-gradient-to-r from-game-primary to-green-600 text-white p-6 rounded-xl shadow-lg 
-                       text-center font-bold text-xl tracking-wider 
-                       transition duration-300 ease-in-out transform hover:scale-[1.03] hover:shadow-xl">
-                2
-            </button>
-            
-            <button onclick="window.location.href='3.html'"
-                class="game-card bg-gradient-to-r from-game-tertiary to-red-600 text-white p-6 rounded-xl shadow-lg 
-                       text-center font-bold text-xl tracking-wider 
-                       transition duration-300 ease-in-out transform hover:scale-[1.03] hover:shadow-xl">
-                3
-            </button>
-            
-            <button onclick="window.location.href='4.html'"
-                class="game-card bg-gradient-to-r from-purple-500 to-purple-700 text-white p-6 rounded-xl shadow-lg 
-                       text-center font-bold text-xl tracking-wider 
-                       transition duration-300 ease-in-out transform hover:scale-[1.03] hover:shadow-xl">
-                4
-            </button>
+            <button onclick="window.location.href='2.html'"
+                class="game-card bg-gradient-to-r from-game-primary to-green-600 text-white p-6 rounded-xl shadow-lg 
+                       text-center font-bold text-xl tracking-wider 
+                       transition duration-300 ease-in-out transform hover:scale-[1.03] hover:shadow-xl">
+                2
+            </button>
+            
+            <button onclick="window.location.href='3.html'"
+                class="game-card bg-gradient-to-r from-game-tertiary to-red-600 text-white p-6 rounded-xl shadow-lg 
+                       text-center font-bold text-xl tracking-wider 
+                       transition duration-300 ease-in-out transform hover:scale-[1.03] hover:shadow-xl">
+                3
+            </button>
+            
+            <button onclick="window.location.href='4.html'"
+                class="game-card bg-gradient-to-r from-purple-500 to-purple-700 text-white p-6 rounded-xl shadow-lg 
+                       text-center font-bold text-xl tracking-wider 
+                       transition duration-300 ease-in-out transform hover:scale-[1.03] hover:shadow-xl">
+                4
+            </button>
 
-            <button onclick="window.location.href='5.html'"
-                class="game-card bg-gradient-to-r from-yellow-500 to-yellow-600 text-white p-6 rounded-xl shadow-lg 
-                       text-center font-bold text-xl tracking-wider 
-                       transition duration-300 ease-in-out transform hover:scale-[1.03] hover:shadow-xl">
-                5
-            </button>
+            <button onclick="window.location.href='5.html'"
+                class="game-card bg-gradient-to-r from-yellow-500 to-yellow-600 text-white p-6 rounded-xl shadow-lg 
+                       text-center font-bold text-xl tracking-wider 
+                       transition duration-300 ease-in-out transform hover:scale-[1.03] hover:shadow-xl">
+                5
+            </button>
 
-        </div>
-        
-        <div class="mt-8 text-center">
-            <a href="dashboard.html" 
-               class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-full 
-                      text-gray-700 bg-gray-200 hover:bg-gray-300 transition duration-150 ease-in-out shadow-md">
-                ← Quay lại Bảng Điều Khiển
-            </a>
-        </div>
-    </div>
+        </div>
+        
+        <div class="mt-8 text-center">
+            <a href="dashboard.html" 
+               class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-full 
+                      text-gray-700 bg-gray-200 hover:bg-gray-300 transition duration-150 ease-in-out shadow-md">
+                ← Quay lại Bảng Điều Khiển
+            </a>
+        </div>
+    </div>
 </body>
 </html>
