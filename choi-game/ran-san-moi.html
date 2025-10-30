@@ -87,11 +87,17 @@
     <script>
         var canvas = document.getElementById('game');
         var context = canvas.getContext('2d');
-        var scoreDisplay = document.getElementById('score-display'); // Lấy phần tử hiển thị điểm
-        var score = 0; // Biến điểm số
+        var scoreDisplay = document.getElementById('score-display');
+        var score = 0;
 
         var grid = 16;
         var count = 0;
+        // ----------------------------------------------------------------
+        // 🐍 TỐC ĐỘ BAN ĐẦU: 7 (Tương đương 60/7 ≈ 8.5 FPS)
+        // Giá trị này càng LỚN thì game càng CHẬM.
+        // Tốc độ ban đầu trong code gốc là 4 (15 FPS).
+        var framesPerMove = 7; 
+        // ----------------------------------------------------------------
 
         var snake = {
             x: 160,
@@ -126,12 +132,34 @@
             score += points;
             scoreDisplay.textContent = 'Score: ' + score;
         }
+
+        function resetGame() {
+             snake.x = 160;
+             snake.y = 160;
+             snake.cells = [];
+             snake.maxCells = 4;
+             snake.dx = grid;
+             snake.dy = 0;
+             
+             score = 0; // Reset điểm số
+             updateScore(0); // Cập nhật hiển thị điểm về 0
+             
+             // ----------------------------------------------------------------
+             // 🔄 Reset tốc độ về mức ban đầu
+             framesPerMove = 7; 
+             // ----------------------------------------------------------------
+
+             apple.x = getRandomInt(0, 25) * grid;
+             apple.y = getRandomInt(0, 25) * grid;
+        }
         
         // game loop
         function loop() {
             requestAnimationFrame(loop);
 
-            if (++count < 4) {
+            // ⚠️ Cập nhật logic làm chậm/tăng tốc độ:
+            // Game chỉ di chuyển sau mỗi `framesPerMove` frame.
+            if (++count < framesPerMove) {
                 return;
             }
 
@@ -174,7 +202,15 @@
                 // Rắn ăn táo
                 if (cell.x === apple.x && cell.y === apple.y) {
                     snake.maxCells++;
-                    updateScore(1); // Tăng điểm số
+                    updateScore(1);
+
+                    // ----------------------------------------------------------------
+                    // 🚀 LOGIC TĂNG TỐC ĐỘ: Giảm `framesPerMove` (tối thiểu là 1)
+                    if (framesPerMove > 1) {
+                         // Giảm 1 frame delay (làm game nhanh hơn)
+                        framesPerMove -= 1; 
+                    }
+                    // ----------------------------------------------------------------
 
                     var newAppleX, newAppleY;
                     do {
@@ -189,19 +225,8 @@
                 // Kiểm tra tự va chạm
                 for (var i = index + 1; i < snake.cells.length; i++) {
                     if (cell.x === snake.cells[i].x && cell.y === snake.cells[i].y) {
-                        // Reset game
-                        snake.x = 160;
-                        snake.y = 160;
-                        snake.cells = [];
-                        snake.maxCells = 4;
-                        snake.dx = grid;
-                        snake.dy = 0;
-                        
-                        score = 0; // Reset điểm số
-                        updateScore(0); // Cập nhật hiển thị điểm về 0
-
-                        apple.x = getRandomInt(0, 25) * grid;
-                        apple.y = getRandomInt(0, 25) * grid;
+                        resetGame(); // Gọi hàm reset game mới
+                        break; // Thoát khỏi vòng lặp kiểm tra va chạm
                     }
                 }
             });
