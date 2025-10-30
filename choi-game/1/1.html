@@ -1,18 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WE NEED YOU! - Plant a Tree</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mo-js/0.288.2/mo.min.js"></script>
+
+    <style>
+        /* {
+            border: 1px solid #888;
+        }*/
+
+        @import url('https://fonts.googleapis.com/css?family=Roboto');
+
+        :root {
+            --green: 	#9ff1a5;
+            --red: #ff9292;
+            --dim: 62px;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            background-color: #f8f994;
+        }
+
+        h1, h2 {
+            font-family: 'Roboto', sans-serif;
+            font-weight: bold;
+            color: #333;
+            margin: 10px;
+        }
+
+        h1 {
+            font-size: 60px;
+        }
+
+        h2 {
+            font-size: 37px;
+        }
+
+        p {
+            font-family: 'Roboto', sans-serif;
+            font-size: 23px;
+            font-weight: 100;
+            color: #333; 
+            margin: 10px;
+        }
+
+        .bold {
+            font-weight: 900;
+        }
+
+        .center {
+            position: relative;
+            top: 20%;
+            margin: 0;
+        }
+
+        .center1 {
+            position: relative;
+            margin: 30px;
+        }
+
+        .container {
+            height: 100%;
+            position: relative;
+        }
+
+        .game {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            margin: auto;
+            width: 540px;
+            height: 650px;
+            border-radius: 9px;
+            background-color: #333;
+            padding: 5px;
+
+        }
+
+        .box {
+            height: 100px;
+            width: 100px;
+            float: left;
+            margin: 0;
+            padding: 0px;
+            text-align: center;
+            border-radius: 9px;
+            border: 4px solid #333;
+            background-color: #f1c97c;
+
+            background-position: center;
+            background-size: 70%;
+            background-repeat: no-repeat;
+            cursor: pointer; /* Thêm cursor để dễ chơi hơn */
+        }
+
+        .green {
+            background-color: var(--green);
+            animation-name: getIn;
+            animation-duration: .3s;
+            animation-timing-function: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .tree {
+            /* Sử dụng base64 image cho cây */
+            background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pg0KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDE5LjAuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPg0KPHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJDYXBhXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB2aWV3Qm94PSIwIDAgNDM1LjYzNyA0MzUuNjM3IiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCA0MzUuNjM3IDQzNS42Mzc7IiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxyZWN0IHg9IjIwMS44NzQiIHk9IjM1NC4wMzciIHN0eWxlPSJmaWxsOiNFREFFNzg7IiB3aWR0aD0iMzQuNCIgaGVpZ2h0PSI3NC40Ii8+DQo8cmVjdCB4PSIyMDEuODc0IiB5PSIzNTQuMDM3IiBzdHlsZT0iZmlsbDojRjlDMDk1OyIgd2lkdGg9IjEyLjgiIGhlaWdodD0iNzQuNCIvPg0KPHJlY3QgeD0iMjIxLjg3NCIgeT0iMzU0LjAzNyIgc3R5bGU9ImZpbGw6I0Q2OTM2NTsiIHdpZHRoPSIxMy42IiBoZWlnaHQ9Ijc0LjQiLz4NCjxwb2x5Z29uIHN0eWxlPSJmaWxsOiMyNEJBNzM7IiBwb2ludHM9IjcwLjY3NCwzNTQuMDM3IDEzMy4wNzQsMjc2LjQzNyA4OC4yNzQsMjc2LjQzNyAxNTguNjc0LDE3OS42MzcgMTEzLjg3NCwxNzkuNjM3IA0KCTE3OS40NzQsOTkuNjM3IDEzOS40NzQsOTkuNjM3IDIxOC42NzQsNy42MzcgMjk3Ljg3NCw5OS42MzcgMjU3Ljg3NCw5OS42MzcgMzIzLjQ3NCwxNzkuNjM3IDI3OC42NzQsMTc5LjYzNyAzNDkuMDc0LDI3Ni40MzcgDQoJMzA0LjI3NCwyNzYuNDM3IDM2Ni42NzQsMzU0LjAzNyAiLz4NCjxnPg0KCTxwb2x5Z29uIHN0eWxlPSJmaWxsOiMxQ0EzNUY7IiBwb2ludHM9Ijg4LjI3NCwyNzYuNDM3IDg4LjI3NCwyNzYuNDM3IDkzLjA3NCwyNzYuNDM3IDkzLjA3NCwyNzYuNDM3IAkiLz4NCgk8cG9seWdvbiBzdHlsZT0iZmlsbDojMUNBMzVGOyIgcG9pbnRzPSIyNTcuODc0LDk5LjYzNyAyMTcuODc0LDk5LjYzNyAyODMuNDc0LDE3OS42MzcgMzIzLjQ3NCwxNzkuNjM3IDI1Ny44NzQsOTkuNjM3IA0KCTI5Ny44NzQsOTkuNjM3IDIxOC42NzQsNy42MzcgMTk4LjY3NCwzMC44MzcgCSIvPg0KCTxwb2x5Z29uIHN0eWxlPSJmaWxsOiMxQ0EzNUY7IiBwb2ludHM9IjMwNC4yNzQsMjc2LjQzNyAyNjQuMjc0LDI3Ni40MzcgMzI2LjY3NCwzNTQuMDM3IDM2Ni42NzQsMzU0LjAzNyAiLz4NCgk8cG9seWdvbiBzdHlsZT0iZmlsbDojMUNBMzVGOyIgcG9pbnRzPSIyMzguNjc0LDE3OS42MzcgMzA5LjA3NCwyNzYuNDM3IDM0OS4wNzQsMjc2LjQzNyAyNzguNjc0LDE3OS42MzcgAJIiLz4NCjwvZz4NCjxnPg0KCTxwb2x5Z29uIHN0eWxlPSJmaWxsOiMzNENFODIyIHFub2k8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPC9zdmc+DQo=');
+        }
+
+        .red {
+            background-color: var(--red);
+            animation-name: getIn1;
+            animation-duration: .3s;
+            animation-timing-function: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .factory {
+            /* Sử dụng base64 image cho nhà máy */
+            background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pg0KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDE5LjAuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPg0KPHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJDYXBhXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB2aWV3Qm94PSIwIDAgNTEyLjAwMSA1MTIuMDAxIiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCA1MTIuMDAxIDUxMi4wMDE7IiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxwYXRoIHN0eWxlPSJmaWxsOiNFM0UzRTM7IiBkPSJNMzc5LjAwMSwzMzguODc2di04MC4xMmwtMTIzLDgwdi04MGwtMTE2LjUsNzUuNjhsLTkuNTYtMTE4LjU2aC05Ni42MWwtMC4yNi0wLjAybC0xOS44NCwyNDYuMDENCgljMC4wOTcsMC4wMSwwLjEsMC4wMSwwLjEsMC4wMWwtMC4xLTAuMDFsLTMuMjMsNDAuMDFoMTQzaDM0OXYtMjQzTDM3OS4wMDEsMzM4Ljg3NnogTTE0OS42NzEsNDYxLjg3NkwxNDkuNjcxLDQ2MS44NzZsMC4xLTAuMDENCglMMTQ5LjY3MSw0NjEuODc2eiIvPg0KPGc+DQoJPHJlY3QgeD0iMzk5LjAwMSIgeT0iMzc4Ljg3MSIgc3R5bGU9ImZpbGw6IzREQkJFQjsiIHdpZHRoPSI2MyIgaGVpZ2h0PSI0MCIvPg0KCTxyZWN0IHg9IjI5Ni4wMDEiIHk9IjM3OC44NzEiIHN0eWxlPSJmaWxsOiM0REJCRUI7IiB3aWR0aD0iNjMiIGhlaWdodD0iNDAiLz4NCgk8cmVjdCB4PSIxOTYuMDAxIiB5PSIzNzguODcxIiBzdHlsZT0iZmlsbDojNERCQkVCOyIgd2lkdGg9IjYwIiBoZWlnaHQ9IjQwIi8+DQo8L2c+DQo8Zz4NCgk8cGF0aCBzdHlsZT0iZmlsbDojRkQ2MjQ0OyIgZD0iTTE0OS43NzEsNDYxLjg2NmwzLjIzLDQwLjAxaC0xNDNsMy4yMy00MC4wMWMwLjE1MiwwLjAxNSwxMzYuMjg3LDAuMDEsMTM2LjQ0LDAuMDFMMTQ5Ljc3MSw0NjEuODY2DQoJCXoiLz4NCgk8cG9seWdvbiBzdHlsZT0iZmlsbDojRkQ2MjQ0OyIgcG9pbnRzPSIxMjYuNDcxLDE3Mi44NjYgMTI5Ljk0MSwyMTUuODc2IDMzLjMzMSwyMTUuODc2IDMzLjA3MSwyMTUuODU2IDM2LjUzMSwxNzIuODY2IA0KCQkzNi42NzEsMTcyLjgyNiAxMjYuMzMxLDE3Mi44NzYgCSIvPg0KPC9nPg0KPHBvbHlnb24gc3R5bGU9ImZpbGw6I0UzRTNFMzsiIHBvaW50cz0iMTIzLjAwMSwxMjkuODc2IDEyNi40NzEsMTcyLjg2NiAxMjYuMzMxLDE3Mi44NzYgMzYuNjcxLDE3Mi44NzYgMzYuNTMxLDE3Mi44NjYgDQoJNDAuMDAxLDEyOS44NzYgIi8+DQo8cGF0aCBkPSJNMTk2LjAwMSw0NTEuODc2Yy01LjUyLDAtMTAsNC40OC0xMCwxMHM0LjQ4LDEwLDEwLDEwczEwLTQuNDgsMTAtMTBTMjAxLjUyMSw0NTEuODc2LDE5Ni4wMDEsNDUxLjg3NnoiLz4NCjxwYXRoIGQ9Ik01MDYuNzcsMjUwLjA4NmMtMy4yMjYtMS43NDktNy4xNDctMS41OTItMTAuMjIxLDAuNDA3bC0xMDcuNTQ4LDY5Ljk1di02MS42ODdjMC0zLjY2Ny0yLjAwOC03LjA0MS01LjIzMS04Ljc5DQoJYy0zLjIyNS0xLjc0OC03LjE0Ni0xLjU5Mi0xMC4yMjEsMC40MDdsLTEwNy41NDgsNjkuOTV2LTYxLjU2N2MwLTMuNjY2LTIuMDA3LTcuMDM5LTUuMjI5LTguNzg5DQoJYy0zLjIyMi0xLjc0OS03LjE0NC0xLjU5Ni0xMC4yMTgsMC40MDNsLTEwMi40MzYsNjYuNTQ0Yy0wLjU3OC03LjE3Mi0xNS4wMDktMTg2LjEwOC0xNS4xNDktMTg3Ljg0Mw0KCWMtMC40MTktNS4xOTQtNC43NTctOS4xOTUtOS45NjgtOS4xOTVoLTgzYy01LjIxMSwwLTkuNTQ5LDQuMDAxLTkuOTY4LDkuMTk1bC0zMCwzNzJjLTAuMjI1LDIuNzgzLDAuNzI1LDUuNTMzLDIuNjE4LDcuNTg1DQoJczQuNTU4LDMuMjE5LDcuMzUsMy4yMTljNi40NzksMCw0NjEuMTQ4LDAsNDkyLDBjNS41MjIsMCwxMC00LjQ3NywxMC0xMHYtMjQzQzUxMi4wMDEsMjU1LjIwOSw1MDkuOTkzLDI1MS44MzUsNTA2Ljc3LDI1MC4wODZ6DQoJIE0xMTkuMDk4LDIwNS44NzZINDMuOTA1bDEuODU1LTIzaDcxLjQ4NEwxMTkuMDk4LDIwNS44NzZ6IE00Mi4yOTIsMjI1Ljg3Nmg3OC40MTljMC42OTEsOC41NjMsMTcuMjUxLDIxMy45MjIsMTguMjI1LDIyNkgyNC4wNjcNCglMNDIuMjkyLDIyNS44NzZ6IE0xMTMuNzc2LDEzOS44NzZsMS44NTUsMjNINDcuMzcybDEuODU1LTIzSDExMy43NzZ6IE0yMC44NDEsNDkxLjg3NmwxLjYxMy0yMGgxMTguMDk1bDEuNjEzLDIwSDIwLjg0MXoNCgkgTTQ5Mi4wMDEsNDkxLjg3NkgxNjIuMjI3bC0xMi4yODItMTUyLjNsOTYuMDU2LTYyLjM5OXY2MS41NzljMCwzLjY2NywyLjAwOCw3LjA0MSw1LjIzMSw4Ljc5DQoJYzMuMjI2LDEuNzQ5LDcuMTQ3LDEuNTkzLDEwLjIyMS0wLjQwN2wxMDcuNTQ4LTY5Ljk1djYxLjY4N2MwLDMuNjY3LDIuMDA4LDcuMDQxLDUuMjMxLDguNzljMy4yMjMsMS43NDcsNy4xNDYsMS41OTMsMTAuMjIxLTAuNDA3DQoJbDEwNy41NDgtNjkuOTVWNDkxLjg3NnoiLz4NCjxwYXRoIGQ9Ik0xOTYuMDAxLDQyOC44NzZoNjBjNS41MjIsMCwxMC00LjQ3NywxMC0xMHYtNDBjMC01LjUyMy00LjQ3OC0xMC0xMC0xMGgtNjBjLTUuNTIyLDAtMTAsNC40NzctMTAtMTB2NDANCglDMTg2LjAwMSw0MjQuMzk5LDE5MC40NzksNDI4Ljg3NiwxOTYuMDAxLDQyOC44NzZ6IE0yMDYuMDAxLDM4OC44NzZoNDB2MjBoLTQwVjM4OC44NzZ6Ii8+DQo8cGF0aCBkPSJNMjk2LjAwMSw0MjguODc2aDYzYzUuNTIyLDAsMTAtNC40NzcsMTAtMTB2LTQwYzAtNS41MjMtNC40NzgtMTAtMTAtMTBoLTYzYy01LjUyMiwwLTEwLDQuNDc3LTEwLDEwdjQwDQoJQzI4Ni4wMDEsNDI0LjM5OSwyOTAuNDc5LDQyOC44NzYsMjk2LjAwMSw0MjguODc2eiBNMzA2LjAwMSwzODguODc2aDQzdjIwaC00M1YzODguODc2eiIvPg0KPHBhdGggZD0iTTM5OS4wMDEsNDI4Ljg3Nmg2M2M1LjUyMiwwLDEwLTQuNDc3LDEwLTEwdi00MGMwLTUuNTIzLTQuNDc4LTEwLTEwLTEwaC02M2MtNS41MjIsMC0xMCw0LjQ3Ny0xMCwxMHY0MA0KCUMzODkuMDAxLDQyNC4zOTksMzkzLjQ3OSw0MjguODc2LDM5OS4wMDEsNDI4Ljg3NnoiLz4NCjxwYXRoIGQ9Ik00MDkuMDAxLDM4OC44NzZINDRWOTEuODc2eiIvPg0KPHBhdGggZD0iTTU0LjAwMSw3OS44NzZjNS41MjIsMCwxMC00LjQ3Ny0xMC0xMGMwLTE2LjU0MiwxMy40NTgtMzAsMzAtMzBoMTIwYzguMDMyLDAsMTUuODcyLTMuMjcxLDIxLjUwOS04Ljk3NQ0KCWMyOS41NjgtNS42MzUsOC41ODMtMTMuMDU1LDguNDktMjAuODk0Yy0wLjA2NC01LjQ4Mi00LjUyOC05Ljg4MS05Ljk5Ny05Ljg4MWMtMC4wMzksMC0wLjA4LDAtMC4xMiwwDQoJYy01LjUyMiwwLjA2Ni05Ljk0Niw0LjU5Ni05Ljg4MSwxMC4xMThjMC4wMjksMi40NTItMC45MzcsNC43OTUtMi43MTksNi41OThjLTEuOTA0LDEuOTI4LTQuNTU5LDMuMDMzLTcuMjgyLDMuMDMzaC0xMjINCgljLTI3LjU3LDAtNTAsMjIuNDMtNTAsNTBDNDQuMDAxLDc1LjM5OSw0OC40NzksNzkuODc2LDU0LjAwMSw3OS44NzZ6Ii8+DQo8cGF0aCBkPSJNMjM1Ljk5LDU5Ljc1NmwtMTExLjk4OSwwLjEyYy0xNi41NDIsMC0zMCwxMy40NTgtMzAsMzBjMCw1LjUyMyw0LjQ3OCwxMCwxMCwxMHMxMC00LjQ3NywxMC0xMGMwLTUuNTE0LDQuNDg2LTEwLDEwLjAxMS0xMA0KCWwxMTEuOTg5LTAuMTJjMTYuNTQyLDAsMzAtMTMuMjQzLDMwLTI5LjUydi0wLjIzYzAtNS41MjMtNC40NzgtMTAtMTAtMTBzLTEwLDQuNDc3LTEwLDEwdjAuMjMNCglDMjQ2LjAwMSw1NS40ODUsMjQxLjUxNSw1OS43NTYsMjM1Ljk5LDU5Ljc1NnoiLz4NCjxwYXRoIGQ9Ik00NjIuMDAxLDQ1MS44NzZoLTIyNmMtNS41MjIsMC0xMCw0LjQ3Ny0xMCwxMHM0LjQ3OCwxMCwxMCwxMGgyMjZjNS41MjIsMCwxMC00LjQ3NywxMC0xMFM0NjcuNTI0LDQ1MS44NzYsNDYyLjAwMSw0NTEuODc2DQoJeiIvPg0KPHBhdGggZD0iTTcwLjAwMSwyODguODc2aDIzYzUuNTIyLDAsMTAtNC40NzctMTAtMTBzLTQuNDc4LTEwLTEwLTEwaC0yM2MtNS41MjIsMC0xMCw0LjQ3Ny0xMCwxMFM2NC40NzksMjg4Ljg3Niw3MC4wMDEsMjg4Ljg3NnoiLz4NCjxwYXRoIGQ9Ik03MC4wMDEsMzI4Ljg3NmgyM2M1LjUyMiwwLDEwLTQuNDc3LDEwLTEwcy00LjQ3OC0xMC0xMC0xMGgtMjNjLTUuNTIyLDAtMTAsNC40NzctMTAsMTBTNjQuNDc5LDMyOC44NzYsNzAuMDAxLDMyOC44NzZ6Ii8+DQo8cGF0aCBkPSJNNzAuMDAxLDM2OC44NzZoMjNjNS41MjIsMCwxMC00LjQ3NywxMC0xMHMtNC40NzgtMTAtMTAtMTBoLTIzYy01LjUyMiwwLTEwLDQuNDc3LTEwLDEwUzY0LjQ3OSwzNjguODc2LDcwLjAwMSwzNjguODc2eiIvPg0KPHBhdGggZD0iTTkzLjAwMSwzODguODc2aC0yM2MtNS41MjIsMC0xMCw0LjQ3Ny0xMCwxMHM0LjQ3OCwxMCwxMCwxMGgyM2M1LjUyMiwwLDEwLTQuNDc3LDEwLTEwUzk4LjUyNCwzODguODc2LDkzLjAwMSwzODguODc2eiIvPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2g+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjwvc3ZnPg0K');
+        }
+
+        .won, .init {
+            z-index: 999;
+            position: fixed;
+            left: 0;
+            right: 0;
+            margin: auto;
+            text-align: center;
+            border: 8px solid #333;
+            border-radius: 7px;
+        }
+
+        .won {
+            background-color: var(--green);
+            top: 100%;
+            width: 600px;
+            height: 300px;
+        }
+
+        .init {
+            background-color: var(--red);
+            top: 30%;
+            width: 600px;
+            height: 300px;
+        }
+
+        .floating {
+            position: relative;
+            animation-name: floating;
+            animation-iteration-count: infinite;
+            animation-duration: 1.5s;
+            animation-timing-function: ease-in-out;
+            cursor: pointer;
+            text-decoration: underline;
+            text-decoration-color: #333;
+            margin-top: 30px;
+        }
+
+        .levelUp {
+            animation: levelUp 2.5s ease-in-out;
+            animation-delay: 2s;
+        }
+
+        .hidden {
+            /* Sửa lại: Thay vì visibility: hidden, hãy dùng display: none để ẩn hoàn toàn */
+            display: none; 
+        }
+        
+        /* Thêm class để ẩn hoàn toàn khi bắt đầu game */
+        .hide-init {
+            display: none !important;
+        }
+
+        @keyframes won {
+            from {top: 100%; transform: rotate(180deg);}
+            to 	{top: 30%; transform: rotate(0deg);}	
+        }
+
+        @keyframes start {
+            from 	{top: 30%; transform: rotate(0deg);}	
+            to {top: 100%; transform: rotate(180deg);}
+        }
+
+        @keyframes floating {
+            0% {top: 0px; transform: rotate(0deg);}
+            25% {top: 5px; transform: rotate(3deg);}
+            50% {top: -5px; transform: rotate(-3deg);}
+            100% 	{top: 0px; transform: rotate(0deg);}	
+        }
+
+        @keyframes getIn {
+            from {background-size: 0%;}
+            to 	{background-size: 70%;}
+        }
+
+        @keyframes getIn1 {
+            from {background-size: 0%;}
+            to 	{background-size: 70%;}
+        }
+
+        @keyframes levelUp {
+            0% {opacity: 0; visibility: visible;}
+            50% {opacity: 1;}
+            100% 	{opacity: 0; visibility: hidden;}	
+        }
+
+        @media (max-width: 500px) {
+            h1 {
+                font-size: 37px;
+            }
+        
+            .game {
+                width: 331px;
+                height: 396px;
+            }
+
+            .box {
+                width: var(--dim);
+                height: var(--dim);
+                border: 2.1px solid #333;
+            }
+
+            .won, .init {
+                width: 300px;
+                height: 400px;
+            }
+        
+            .init {
+                top: 10%;
+            }
+        }
+    </style>
+</head>
+<body>
+    
     <div class="init">
         <div class="center1">
             <h1>WE NEED YOU!</h1>
             <p>Click on each square to plant a tree. You must hurry or the factories will colonize us!</p>
-            <p class="floating bold">START GAME</p>
+            <p class="floating bold" id="startGameButton">START GAME</p>
         </div>
     </div>
+
     <div class="won">
         <div class="center">
             <h1>YOU WON!</h1>
             <p class="floating replay bold">save the World again</p>
         </div>
     </div>
-    <div class="init hidden"><h1 class="center">INCREASED VELOCITY!</h1></div>
-   <!-- <h2 class="counter">Level: 1</h2> -->
+
+    <div class="levelUpMessage hidden">
+        <h1 class="center">INCREASED VELOCITY!</h1>
+    </div>
+    
     <div class="container">
-        <div class="game"></div>
-    </div>  
+        <div class="game">
+            </div>
+    </div>
+
+
+    <script>
+        const game = document.querySelector('.game');
+        var arrFactory = [];
+        var arrTree = [];
+        var newFactory;
+        var interval = 800;
+        //var counter = 1;
+
+        // Tên class đã được đổi từ '.hidden' sang '.levelUpMessage' để tránh nhầm lẫn
+        const levelUpMessage = document.querySelector('.levelUpMessage');
+
+        function createGame() {
+            // Tạo 30 ô vuông (5 cột x 6 hàng)
+            for (let i = 0; i < 30; i++) {
+                let a = document.querySelector('.game');
+                let b = document.createElement('div');
+                b.classList.add('box');
+                b.setAttribute('data-value', i);
+                a.appendChild(b);	
+            }
+        }
+
+        function replay() {
+            var replayBtn = document.querySelector('.replay');
+            replayBtn.addEventListener('click', function() {
+                // Reset game state
+                arrFactory = [];
+                arrTree = [];
+
+                box.forEach(function(box) {
+                    box.classList.remove('green');
+                    box.classList.remove('tree');
+                    box.classList.remove('red');
+                    box.classList.remove('factory');
+                });
+                
+                // Hiển thị thông báo tăng tốc (Level Up)
+                levelUpMessage.classList.remove('hidden');
+                levelUpMessage.classList.add('levelUp');
+                
+                // Khởi động lại vòng lặp nhà máy
+                newFactory = setInterval(randomFactory, interval);
+                
+                // Ẩn màn hình WON
+                let bang = document.querySelector('.won');
+                bang.style.animation = 'start .6s ease-in-out';
+                bang.style.top = '100%';
+
+                // Sau khi animation levelUp kết thúc, ẩn thông báo đi
+                setTimeout(() => {
+                    levelUpMessage.classList.add('hidden');
+                    levelUpMessage.classList.remove('levelUp');
+                }, 2500); // 2.5s là thời gian của animation levelUp
+            });
+        }
+
+        function addTree(e) {
+            let c = e.target;
+            
+            // Nếu ô đó chưa có cây
+            if(arrTree.indexOf(c.dataset.value) == -1) {
+                arrTree.push(c.dataset.value);
+                
+                // Kiểm tra điều kiện thắng (trồng đủ 30 cây)
+                if(arrTree.length == 30) {
+                    clearInterval(newFactory);
+                    
+                    let bang = document.querySelector('.won');
+                    bang.style.animation = 'won .6s ease-in-out';
+                    bang.style.top = '30%';
+                    replay();
+                }
+            }	
+
+            // Nếu ô đó đang là nhà máy, loại bỏ nó
+            if(arrFactory.indexOf(c.dataset.value) != -1) {
+                arrFactory.splice(arrFactory.indexOf(c.dataset.value) ,1);
+            }
+
+            // Thêm class cây (Tree)
+            c.classList.remove('red');
+            c.classList.remove('factory');
+            c.classList.add('green');
+            c.classList.add('tree');
+            // console.log("Trees:", arrTree);
+        }
+
+        function randomFactory() {
+            let boxes = document.querySelectorAll('.box');
+            if (arrFactory.length >= boxes.length) {
+                // Game Over logic (nếu cần) - Hiện tại code chỉ dừng
+                clearInterval(newFactory);
+                return;
+            }
+
+            let e = Math.random() * boxes.length;
+            let g = Math.floor(e);
+            let targetBox = boxes[g];
+            
+            if(arrFactory.indexOf(targetBox.dataset.value) == -1) {
+                arrFactory.push(targetBox.dataset.value);
+                
+                // Nếu ô đó đang là cây, loại bỏ cây
+                if(arrTree.indexOf(targetBox.dataset.value) != -1) {
+                    arrTree.splice(arrTree.indexOf(targetBox.dataset.value), 1);
+                }
+
+                // Thêm class nhà máy (Factory)
+                targetBox.classList.add('red');
+                targetBox.classList.remove('green');
+                targetBox.classList.add('factory');
+
+                // Kiểm tra điều kiện thua (nếu tất cả ô đều là nhà máy)
+                if(arrFactory.length == boxes.length) {
+                    clearInterval(newFactory);
+                    // Ở đây bạn có thể thêm logic Game Over
+                }
+            } else {
+                // Nếu ô ngẫu nhiên đã có nhà máy, gọi lại để tìm ô khác
+                randomFactory(); 
+                return;
+            }
+            // console.log("Factories:", arrFactory);
+        }
+        
+        // Khởi tạo Game Grid
+        createGame();
+
+        var box = document.querySelectorAll('.box');
+        var startButton = document.querySelector('#startGameButton'); 
+
+        // Xử lý nút START GAME
+        startButton.addEventListener('click', function() {
+            let init = document.querySelector('.init');
+            
+            // Bắt đầu animation ẩn màn hình init
+            init.style.animation = 'start .5s ease-in';
+            init.style.top = '100%';
+            
+            // Ẩn hoàn toàn sau khi animation kết thúc
+            setTimeout(() => {
+                init.classList.add('hide-init');
+            }, 500);
+
+            // Bắt đầu vòng lặp sinh nhà máy
+            newFactory = setInterval(randomFactory, interval);
+        });
+
+        // Gán sự kiện click cho từng ô vuông để trồng cây
+        box.forEach(function(box) {
+            box.addEventListener('click', addTree, false);
+        }, false);
+
+
+        // Logic hiệu ứng mo.js (đã được sửa lỗi tham chiếu mojs)
+        box.forEach(function(box) {
+            box.addEventListener('click', function(e) {
+                // Kiểm tra mojs đã load chưa trước khi sử dụng
+                if (typeof mojs !== 'undefined') {
+                    const itemDim = this.getBoundingClientRect();
+                    const itemSize = {
+                        x: itemDim.right - itemDim.left,
+                        y: itemDim.bottom - itemDim.top,
+                    };
+                    
+                    let burst = new mojs.Burst({
+                        left: itemDim.left + (itemSize.x/2),
+                        top: itemDim.top + (itemSize.y/1.7),
+                        count: 9,
+                        radius: {50 : 90},
+                        // Thêm màu sắc để khớp với cây (Green)
+                        fill: ['#9ff1a5', '#4CAF50', '#6aa36d'] 
+                    });
+                    burst.play();
+                } else {
+                    console.error("mojs library not loaded.");
+                }
+            });
+        });
+
+    </script>
+</body>
+</html>
