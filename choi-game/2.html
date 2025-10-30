@@ -18,40 +18,43 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            flex-direction: column; /* Cho phép xếp control bên dưới */
+            flex-direction: column; 
+            padding: 0;
         }
         
         canvas {
             border: 1px solid white;
-            /* Đảm bảo canvas không vượt quá kích thước màn hình */
-            max-width: 95vw; 
+            /* Thiết lập kích thước tối đa và duy trì tỷ lệ 400x500 */
+            width: 95vw; 
+            height: calc(95vw * 500 / 400); /* Duy trì tỷ lệ 4:5 */
             max-height: 95vh;
+            max-width: calc(95vh * 400 / 500); 
+            
+            /* Center canvas for scaling */
+            margin: auto;
         }
 
         /* Định dạng cho vùng điều khiển */
         #controls {
-            margin-top: 15px;
-            width: 300px;
-            max-width: 90vw;
+            /* Vùng điều khiển mỏng hơn, nằm ngang toàn màn hình */
+            width: 95vw;
+            margin-top: 10px;
             display: flex;
-            justify-content: space-between;
+            justify-content: space-around;
         }
         
         .control-btn {
             background-color: #333;
             color: white;
             border: none;
-            padding: 10px 20px;
-            font-size: 18px;
+            padding: 15px 30px; /* Nút to hơn */
+            font-size: 20px;
             cursor: pointer;
-            border-radius: 5px;
+            border-radius: 8px;
             user-select: none;
             touch-action: manipulation;
-        }
-        
-        #btn-launch {
-            background-color: #007bff;
-            padding: 10px 40px;
+            flex-grow: 1;
+            margin: 0 5px;
         }
         
         .control-btn:active {
@@ -63,17 +66,14 @@
 <canvas width="400" height="500" id="game"></canvas>
 
 <div id="controls">
-    <button class="control-btn" id="btn-left">⬅️ Trái</button>
-    <button class="control-btn" id="btn-launch">BẮT ĐẦU</button>
-    <button class="control-btn" id="btn-right">Phải ➡️</button>
+    <button class="control-btn" id="btn-left">⬅️ TRÁI</button>
+    <button class="control-btn" id="btn-right">PHẢI ➡️</button>
 </div>
 
 <script>
 const canvas = document.getElementById('game');
 const context = canvas.getContext('2d');
 
-// each row is 14 bricks long. the level consists of 6 blank rows then 8 rows
-// of 4 colors: red, orange, green, and yellow
 const level1 = [
     [],
     [],
@@ -91,7 +91,6 @@ const level1 = [
     ['Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y']
 ];
 
-// create a mapping between color short code (R, O, G, Y) and color name
 const colorMap = {
     'R': 'red',
     'O': 'orange',
@@ -99,21 +98,14 @@ const colorMap = {
     'Y': 'yellow'
 };
 
-// use a 2px gap between each brick
 const brickGap = 2;
 const brickWidth = 25;
 const brickHeight = 12;
 
-// the wall width takes up the remaining space of the canvas width. with 14 bricks
-// and 13 2px gaps between them, thats: 400 - (14 * 25 + 2 * 13) = 24px. so each
-// wall will be 12px
 const wallSize = 12;
 const bricks = [];
 
-// create the level by looping over each row and column in the level1 array
-// and creating an object with the bricks position (x, y) and color
 function createBricks() {
-    // Xóa bricks cũ nếu có
     bricks.length = 0; 
     for (let row = 0; row < level1.length; row++) {
         for (let col = 0; col < level1[row].length; col++) {
@@ -133,13 +125,10 @@ function createBricks() {
 createBricks();
 
 const paddle = {
-    // place the paddle horizontally in the middle of the screen
     x: canvas.width / 2 - brickWidth / 2,
     y: 440,
     width: brickWidth,
     height: brickHeight,
-
-    // paddle x velocity
     dx: 0
 };
 
@@ -155,16 +144,12 @@ const ball = {
     y: initialBallState.y,
     width: 5,
     height: 5,
-
-    // how fast the ball should go in either the x or y direction
     speed: 2,
-
-    // ball velocity
     dx: initialBallState.dx,
     dy: initialBallState.dy
 };
 
-let gameRunning = true; // Biến kiểm soát trạng thái game
+let gameRunning = true; 
 let isPaddleMovingLeft = false;
 let isPaddleMovingRight = false;
 
@@ -175,15 +160,12 @@ function resetBall() {
     ball.dx = initialBallState.dx;
     ball.dy = initialBallState.dy;
     
-    // Đảm bảo paddle không vượt tường khi reset
     paddle.x = canvas.width / 2 - brickWidth / 2; 
     paddle.dx = 0;
     isPaddleMovingLeft = false;
     isPaddleMovingRight = false;
 }
 
-// check for collision between two objects using axis-aligned bounding box (AABB)
-// @see https://developer.mozilla.org/en-US/docs/Games/Techniques/2D_collision_detection
 function collides(obj1, obj2) {
     return obj1.x < obj2.x + obj2.width &&
             obj1.x + obj1.width > obj2.x &&
@@ -191,34 +173,33 @@ function collides(obj1, obj2) {
             obj1.y + obj1.height > obj2.y;
 }
 
-// Hàm khởi chạy bóng
+// Hàm khởi chạy bóng (tự động gọi khi người chơi cố di chuyển lần đầu)
 function launchBall() {
      if (ball.dx === 0 && ball.dy === 0) {
-        // Tốc độ ban đầu, đi xuống và sang phải
         ball.dx = ball.speed;
-        ball.dy = ball.speed; 
+        ball.dy = -ball.speed; 
     }
 }
 
-
-// game loop
 function loop() {
     requestAnimationFrame(loop);
     context.clearRect(0,0,canvas.width,canvas.height);
 
-    if (!gameRunning) return; // Dừng vòng lặp khi game dừng
+    if (!gameRunning) return; 
 
     // --- Cập nhật Paddle ---
     if (isPaddleMovingLeft) {
         paddle.dx = -3;
+        launchBall(); // Bắt đầu game khi di chuyển
     } else if (isPaddleMovingRight) {
         paddle.dx = 3;
+        launchBall(); // Bắt đầu game khi di chuyển
     } else {
         paddle.dx = 0;
     }
     paddle.x += paddle.dx;
 
-    // prevent paddle from going through walls
+    // ... (logic kiểm tra va chạm tường cho paddle giữ nguyên)
     if (paddle.x < wallSize) {
         paddle.x = wallSize
     }
@@ -230,8 +211,7 @@ function loop() {
     ball.x += ball.dx;
     ball.y += ball.dy;
 
-    // prevent ball from going through walls by changing its velocity
-    // left & right walls
+    // ... (logic va chạm tường cho ball giữ nguyên)
     if (ball.x < wallSize) {
         ball.x = wallSize;
         ball.dx *= -1;
@@ -240,7 +220,6 @@ function loop() {
         ball.x = canvas.width - wallSize - ball.width;
         ball.dx *= -1;
     }
-    // top wall
     if (ball.y < wallSize) {
         ball.y = wallSize;
         ball.dy *= -1;
@@ -249,7 +228,6 @@ function loop() {
     // reset ball if it goes below the screen (Game Over)
     if (ball.y > canvas.height) {
         resetBall();
-        // Có thể thêm logic Game Over tại đây nếu muốn
     }
     
     // Nếu hết gạch thì thắng game
@@ -263,40 +241,28 @@ function loop() {
     // check to see if ball collides with paddle. if they do change y velocity
     if (collides(ball, paddle)) {
         ball.dy *= -1;
-
-        // move ball above the paddle otherwise the collision will happen again
-        // in the next frame
         ball.y = paddle.y - ball.height;
         
-        // Tăng/giảm dx của bóng dựa trên vị trí chạm paddle
         const hitPoint = (ball.x + ball.width / 2) - (paddle.x + paddle.width / 2);
-        const ratio = hitPoint / (paddle.width / 2); // -1 đến 1
+        const ratio = hitPoint / (paddle.width / 2); 
         
-        // Thay đổi dx, đảm bảo tốc độ không đổi
-        ball.dx = ratio * ball.speed; 
+        ball.dx = ratio * ball.speed * 2;
+        ball.dy = -Math.abs(ball.dy); 
     }
 
-    // check to see if ball collides with a brick. if it does, remove the brick
-    // and change the ball velocity based on the side the brick was hit on
+    // check to see if ball collides with a brick.
     for (let i = 0; i < bricks.length; i++) {
         const brick = bricks[i];
 
         if (collides(ball, brick)) {
-            // remove brick from the bricks array
             bricks.splice(i, 1);
-
-            // ball is above or below the brick, change y velocity
-            // account for the balls speed since it will be inside the brick when it
-            // collides
             if (ball.y + ball.height - ball.speed <= brick.y ||
                 ball.y >= brick.y + brick.height - ball.speed) {
                 ball.dy *= -1;
             }
-            // ball is on either side of the brick, change x velocity
             else {
                 ball.dx *= -1;
             }
-
             break;
         }
     }
@@ -308,7 +274,7 @@ function loop() {
     context.fillRect(0, 0, wallSize, canvas.height);
     context.fillRect(canvas.width - wallSize, 0, wallSize, canvas.height);
 
-    // draw ball if it's moving
+    // draw ball 
     if (ball.dx || ball.dy) {
         context.fillRect(ball.x, ball.y, ball.width, ball.height);
     } else {
@@ -328,8 +294,48 @@ function loop() {
 }
 
 // ----------------------------------------------------------------
-// --- Điều khiển Bàn phím (Máy tính) ---
+// --- Điều khiển Bàn phím & Cảm ứng ---
 // ----------------------------------------------------------------
+
+const btnLeft = document.getElementById('btn-left');
+const btnRight = document.getElementById('btn-right');
+
+function handleStartMove(e, direction) {
+    if (e.cancelable) e.preventDefault(); 
+    
+    if (direction === 'left') {
+        isPaddleMovingLeft = true;
+        isPaddleMovingRight = false; 
+    } else if (direction === 'right') {
+        isPaddleMovingRight = true;
+        isPaddleMovingLeft = false;
+    }
+}
+
+function handleStopMove() {
+    isPaddleMovingLeft = false;
+    isPaddleMovingRight = false;
+}
+
+// --- Gắn Sự kiện (Bao gồm Cảm ứng) ---
+
+// Nút Trái
+btnLeft.addEventListener('touchstart', (e) => handleStartMove(e, 'left'), { passive: false });
+btnLeft.addEventListener('touchend', handleStopMove);
+btnLeft.addEventListener('touchcancel', handleStopMove);
+btnLeft.addEventListener('mousedown', (e) => handleStartMove(e, 'left')); 
+btnLeft.addEventListener('mouseup', handleStopMove);
+btnLeft.addEventListener('mouseout', handleStopMove); 
+
+// Nút Phải
+btnRight.addEventListener('touchstart', (e) => handleStartMove(e, 'right'), { passive: false });
+btnRight.addEventListener('touchend', handleStopMove);
+btnRight.addEventListener('touchcancel', handleStopMove);
+btnRight.addEventListener('mousedown', (e) => handleStartMove(e, 'right')); 
+btnRight.addEventListener('mouseup', handleStopMove);
+btnRight.addEventListener('mouseout', handleStopMove);
+
+// Điều khiển Bàn phím (Máy tính)
 document.addEventListener('keydown', function(e) {
     if (e.which === 37) { // Trái
         isPaddleMovingLeft = true;
@@ -337,11 +343,7 @@ document.addEventListener('keydown', function(e) {
     else if (e.which === 39) { // Phải
         isPaddleMovingRight = true;
     }
-    
-    // space key
-    if (e.which === 32) {
-        launchBall();
-    }
+    // Loại bỏ nút Space, thay bằng tự động phóng khi di chuyển
 });
 
 document.addEventListener('keyup', function(e) {
@@ -352,52 +354,6 @@ document.addEventListener('keyup', function(e) {
         isPaddleMovingRight = false;
     }
 });
-
-
-// ----------------------------------------------------------------
-// --- Điều khiển Cảm ứng (Điện thoại) ---
-// ----------------------------------------------------------------
-
-// Lấy tham chiếu đến các nút
-const btnLeft = document.getElementById('btn-left');
-const btnRight = document.getElementById('btn-right');
-const btnLaunch = document.getElementById('btn-launch');
-
-// --- Di chuyển Trái/Phải ---
-
-// Hàm xử lý chạm xuống (start/touch)
-function handleStartMove(direction) {
-    if (direction === 'left') {
-        isPaddleMovingLeft = true;
-        isPaddleMovingRight = false; // Đảm bảo không đi cả hai hướng
-    } else if (direction === 'right') {
-        isPaddleMovingRight = true;
-        isPaddleMovingLeft = false;
-    }
-}
-
-// Hàm xử lý nhả chạm (end/release)
-function handleStopMove() {
-    isPaddleMovingLeft = false;
-    isPaddleMovingRight = false;
-}
-
-// Gắn sự kiện cho nút Trái
-btnLeft.addEventListener('touchstart', (e) => { e.preventDefault(); handleStartMove('left'); }, { passive: false });
-btnLeft.addEventListener('touchend', handleStopMove);
-btnLeft.addEventListener('mousedown', () => handleStartMove('left')); // Hỗ trợ chuột
-btnLeft.addEventListener('mouseup', handleStopMove);
-btnLeft.addEventListener('mouseout', handleStopMove); // Trường hợp ngón tay trượt khỏi nút
-
-// Gắn sự kiện cho nút Phải
-btnRight.addEventListener('touchstart', (e) => { e.preventDefault(); handleStartMove('right'); }, { passive: false });
-btnRight.addEventListener('touchend', handleStopMove);
-btnRight.addEventListener('mousedown', () => handleStartMove('right')); // Hỗ trợ chuột
-btnRight.addEventListener('mouseup', handleStopMove);
-btnRight.addEventListener('mouseout', handleStopMove);
-
-// --- Khởi chạy Bóng ---
-btnLaunch.addEventListener('click', launchBall);
 
 // start the game
 requestAnimationFrame(loop);
