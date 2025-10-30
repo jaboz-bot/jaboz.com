@@ -1,362 +1,160 @@
-<!DOCTYPE html>
+
+<!doctype html>
 <html>
-<head>
-    <title>Basic Breakout HTML Game</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-            /* Ngăn cuộn/phóng to trang khi chạm */
-            touch-action: none;
-            overflow: hidden;
-        }
+	<head>
+		<meta charset="utf-8">
+		<meta name="robots" content="index,follow">
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,width=device-width,minimal-ui">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+		<meta name="HandheldFriendly" content="true">
+		<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 
-        body {
-            background: black;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column; 
-            padding: 0;
-        }
         
-        canvas {
-            border: 1px solid white;
-            /* Thiết lập kích thước tối đa và duy trì tỷ lệ 400x500 */
-            width: 95vw; 
-            height: calc(95vw * 500 / 400); /* Duy trì tỷ lệ 4:5 */
-            max-height: 95vh;
-            max-width: calc(95vh * 400 / 500); 
-            
-            /* Center canvas for scaling */
-            margin: auto;
-        }
+		<title>Bubble Tower 3D</title>
+		<style>
+		html, body {
+			background: #000;
+			color: #ff7;
+			font: 14px/1.2 Arial, "Helvetica Neue", sans-serif;
+			height: 100%;
+		}
 
-        /* Định dạng cho vùng điều khiển */
-        #controls {
-            /* Vùng điều khiển mỏng hơn, nằm ngang toàn màn hình */
-            width: 95vw;
-            margin-top: 10px;
-            display: flex;
-            justify-content: space-around;
-        }
-        
-        .control-btn {
-            background-color: #333;
-            color: white;
-            border: none;
-            padding: 15px 30px; /* Nút to hơn */
-            font-size: 20px;
-            cursor: pointer;
-            border-radius: 8px;
-            user-select: none;
-            touch-action: manipulation;
-            flex-grow: 1;
-            margin: 0 5px;
-        }
-        
-        .control-btn:active {
-            background-color: #555;
-        }
-    </style>
-</head>
-<body>
-<canvas width="400" height="500" id="game"></canvas>
+		.fg-preroll-trigger {
+			cursor: pointer;
+		}
+		</style>
+		<link rel="stylesheet" type="text/css" href="/assets/0.2-22b5c0c2/css/play.css">
+				<script src="/assets/0.2-22b5c0c2/js/helper.js"></script>
+		<script>
+			famobi_dataLayer = window.famobi_dataLayer || window.dataLayer || [];
+		</script>
+	</head>
+	<body>
+		<div id="gameContainer">
+    <div id="div-gpt-ad-banner-top" class="horizontalAd"></div>
+   
+    <div class="row">
+       <div id="div-gpt-ad-banner-left" class="verticalAd"></div>
+        <iframe id="game-iframe" src="" webkit-playsinline="true" scrolling="no" frameborder="0" allow="autoplay"></iframe>
+        <div id="div-gpt-ad-banner-right" class="verticalAd"></div>
+    </div>
 
-<div id="controls">
-    <button class="control-btn" id="btn-left">⬅️ TRÁI</button>
-    <button class="control-btn" id="btn-right">PHẢI ➡️</button>
+    <div id="div-gpt-ad-banner-bottom" class="horizontalAd"></div>
 </div>
 
+<style>
+	* {
+	  padding: 0;
+	  margin: 0;
+	}
+
+	body{
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background-color: #333333;
+	}
+
+	#gameContainer * {
+	  display: flex;
+	}
+
+	#gameContainer {
+	  display: flex;
+	  flex-direction: column;
+	  height: 100%;
+	  width: 100%;
+	}
+
+	.row {
+	  flex: 1;
+	  background-color: blue;
+	  width: 100%;
+	}
+
+	#game-iframe {
+	  flex: 1;
+	  background-color: #333333;
+	}
+
+	.verticalAd {
+		background-color: #333333;
+		justify-content: center;
+		align-items: center;
+		box-shadow: inset 0px 0px 16px 0px rgba(0,0,0,0.33);
+		padding: 12px;
+	}
+
+	.horizontalAd {
+		background-color: #333333;
+		justify-content: center;
+		align-items: center;
+		box-shadow: inset 0px 0px 16px 0px rgba(0,0,0,0.33);
+	}
+
+	#div-gpt-ad-banner-left {
+		max-width: 160px;
+		width: 35vh;
+	}
+
+	#div-gpt-ad-banner-right {
+		max-width: 160px;
+		width: 35vh;
+	}
+
+	#div-gpt-ad-banner-top {
+		height: 10vh;
+		max-height: 100px;
+	}
+
+	#div-gpt-ad-banner-bottom {
+		height: 100px;
+	}
+
+	@media (orientation: portrait) {
+	  #div-gpt-ad-banner-left, #div-gpt-ad-banner-right, #div-gpt-ad-banner-top {
+	    display: none;
+	  }
+	}
+
+	@media (orientation: landscape) {
+	  #div-gpt-ad-banner-top, #div-gpt-ad-banner-bottom {
+	    display: none;
+	  }
+	}
+
+	@media (max-width: 1200px) and (orientation: landscape) {
+		#div-gpt-ad-banner-left {
+			display: none;
+		}
+	}
+
+	@media (max-height: 700px) and (orientation: portrait) {
+		#div-gpt-ad-banner-bottom {
+			height: 60px;
+		}
+	}
+</style>
+
 <script>
-const canvas = document.getElementById('game');
-const context = canvas.getContext('2d');
-
-const level1 = [
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    ['R','R','R','R','R','R','R','R','R','R','R','R','R','R'],
-    ['R','R','R','R','R','R','R','R','R','R','R','R','R','R'],
-    ['O','O','O','O','O','O','O','O','O','O','O','O','O','O'],
-    ['O','O','O','O','O','O','O','O','O','O','O','O','O','O'],
-    ['G','G','G','G','G','G','G','G','G','G','G','G','G','G'],
-    ['G','G','G','G','G','G','G','G','G','G','G','G','G','G'],
-    ['Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y'],
-    ['Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y']
-];
-
-const colorMap = {
-    'R': 'red',
-    'O': 'orange',
-    'G': 'green',
-    'Y': 'yellow'
-};
-
-const brickGap = 2;
-const brickWidth = 25;
-const brickHeight = 12;
-
-const wallSize = 12;
-const bricks = [];
-
-function createBricks() {
-    bricks.length = 0; 
-    for (let row = 0; row < level1.length; row++) {
-        for (let col = 0; col < level1[row].length; col++) {
-            const colorCode = level1[row][col];
-            
-            bricks.push({
-                x: wallSize + (brickWidth + brickGap) * col,
-                y: wallSize + (brickHeight + brickGap) * row,
-                color: colorMap[colorCode],
-                width: brickWidth,
-                height: brickHeight
-            });
-        }
-    }
-}
-
-createBricks();
-
-const paddle = {
-    x: canvas.width / 2 - brickWidth / 2,
-    y: 440,
-    width: brickWidth,
-    height: brickHeight,
-    dx: 0
-};
-
-const initialBallState = {
-    x: 130,
-    y: 260,
-    dx: 0,
-    dy: 0,
-};
-
-const ball = {
-    x: initialBallState.x,
-    y: initialBallState.y,
-    width: 5,
-    height: 5,
-    speed: 2,
-    dx: initialBallState.dx,
-    dy: initialBallState.dy
-};
-
-let gameRunning = true; 
-let isPaddleMovingLeft = false;
-let isPaddleMovingRight = false;
-
-
-function resetBall() {
-    ball.x = initialBallState.x;
-    ball.y = initialBallState.y;
-    ball.dx = initialBallState.dx;
-    ball.dy = initialBallState.dy;
-    
-    paddle.x = canvas.width / 2 - brickWidth / 2; 
-    paddle.dx = 0;
-    isPaddleMovingLeft = false;
-    isPaddleMovingRight = false;
-}
-
-function collides(obj1, obj2) {
-    return obj1.x < obj2.x + obj2.width &&
-            obj1.x + obj1.width > obj2.x &&
-            obj1.y < obj2.y + obj2.height &&
-            obj1.y + obj1.height > obj2.y;
-}
-
-// Hàm khởi chạy bóng (tự động gọi khi người chơi cố di chuyển lần đầu)
-function launchBall() {
-     if (ball.dx === 0 && ball.dy === 0) {
-        ball.dx = ball.speed;
-        ball.dy = -ball.speed; 
-    }
-}
-
-function loop() {
-    requestAnimationFrame(loop);
-    context.clearRect(0,0,canvas.width,canvas.height);
-
-    if (!gameRunning) return; 
-
-    // --- Cập nhật Paddle ---
-    if (isPaddleMovingLeft) {
-        paddle.dx = -3;
-        launchBall(); // Bắt đầu game khi di chuyển
-    } else if (isPaddleMovingRight) {
-        paddle.dx = 3;
-        launchBall(); // Bắt đầu game khi di chuyển
-    } else {
-        paddle.dx = 0;
-    }
-    paddle.x += paddle.dx;
-
-    // ... (logic kiểm tra va chạm tường cho paddle giữ nguyên)
-    if (paddle.x < wallSize) {
-        paddle.x = wallSize
-    }
-    else if (paddle.x + brickWidth > canvas.width - wallSize) {
-        paddle.x = canvas.width - wallSize - brickWidth;
-    }
-
-    // --- Cập nhật Ball ---
-    ball.x += ball.dx;
-    ball.y += ball.dy;
-
-    // ... (logic va chạm tường cho ball giữ nguyên)
-    if (ball.x < wallSize) {
-        ball.x = wallSize;
-        ball.dx *= -1;
-    }
-    else if (ball.x + ball.width > canvas.width - wallSize) {
-        ball.x = canvas.width - wallSize - ball.width;
-        ball.dx *= -1;
-    }
-    if (ball.y < wallSize) {
-        ball.y = wallSize;
-        ball.dy *= -1;
-    }
-
-    // reset ball if it goes below the screen (Game Over)
-    if (ball.y > canvas.height) {
-        resetBall();
-    }
-    
-    // Nếu hết gạch thì thắng game
-    if (bricks.length === 0) {
-        gameRunning = false;
-        context.fillStyle = 'yellow';
-        context.font = '30px Arial';
-        context.fillText('YOU WIN!', canvas.width / 2 - 70, canvas.height / 2);
-    }
-
-    // check to see if ball collides with paddle. if they do change y velocity
-    if (collides(ball, paddle)) {
-        ball.dy *= -1;
-        ball.y = paddle.y - ball.height;
-        
-        const hitPoint = (ball.x + ball.width / 2) - (paddle.x + paddle.width / 2);
-        const ratio = hitPoint / (paddle.width / 2); 
-        
-        ball.dx = ratio * ball.speed * 2;
-        ball.dy = -Math.abs(ball.dy); 
-    }
-
-    // check to see if ball collides with a brick.
-    for (let i = 0; i < bricks.length; i++) {
-        const brick = bricks[i];
-
-        if (collides(ball, brick)) {
-            bricks.splice(i, 1);
-            if (ball.y + ball.height - ball.speed <= brick.y ||
-                ball.y >= brick.y + brick.height - ball.speed) {
-                ball.dy *= -1;
-            }
-            else {
-                ball.dx *= -1;
-            }
-            break;
-        }
-    }
-
-    // --- Draw ---
-    // draw walls
-    context.fillStyle = 'lightgrey';
-    context.fillRect(0, 0, canvas.width, wallSize);
-    context.fillRect(0, 0, wallSize, canvas.height);
-    context.fillRect(canvas.width - wallSize, 0, wallSize, canvas.height);
-
-    // draw ball 
-    if (ball.dx || ball.dy) {
-        context.fillRect(ball.x, ball.y, ball.width, ball.height);
-    } else {
-        // Vẽ bóng dính vào paddle khi chưa bắt đầu
-        context.fillRect(paddle.x + paddle.width / 2 - ball.width / 2, paddle.y - ball.height, ball.width, ball.height);
-    }
-
-    // draw bricks
-    bricks.forEach(function(brick) {
-        context.fillStyle = brick.color;
-        context.fillRect(brick.x, brick.y, brick.width, brick.height);
-    });
-
-    // draw paddle
-    context.fillStyle = 'cyan';
-    context.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
-}
-
-// ----------------------------------------------------------------
-// --- Điều khiển Bàn phím & Cảm ứng ---
-// ----------------------------------------------------------------
-
-const btnLeft = document.getElementById('btn-left');
-const btnRight = document.getElementById('btn-right');
-
-function handleStartMove(e, direction) {
-    if (e.cancelable) e.preventDefault(); 
-    
-    if (direction === 'left') {
-        isPaddleMovingLeft = true;
-        isPaddleMovingRight = false; 
-    } else if (direction === 'right') {
-        isPaddleMovingRight = true;
-        isPaddleMovingLeft = false;
-    }
-}
-
-function handleStopMove() {
-    isPaddleMovingLeft = false;
-    isPaddleMovingRight = false;
-}
-
-// --- Gắn Sự kiện (Bao gồm Cảm ứng) ---
-
-// Nút Trái
-btnLeft.addEventListener('touchstart', (e) => handleStartMove(e, 'left'), { passive: false });
-btnLeft.addEventListener('touchend', handleStopMove);
-btnLeft.addEventListener('touchcancel', handleStopMove);
-btnLeft.addEventListener('mousedown', (e) => handleStartMove(e, 'left')); 
-btnLeft.addEventListener('mouseup', handleStopMove);
-btnLeft.addEventListener('mouseout', handleStopMove); 
-
-// Nút Phải
-btnRight.addEventListener('touchstart', (e) => handleStartMove(e, 'right'), { passive: false });
-btnRight.addEventListener('touchend', handleStopMove);
-btnRight.addEventListener('touchcancel', handleStopMove);
-btnRight.addEventListener('mousedown', (e) => handleStartMove(e, 'right')); 
-btnRight.addEventListener('mouseup', handleStopMove);
-btnRight.addEventListener('mouseout', handleStopMove);
-
-// Điều khiển Bàn phím (Máy tính)
-document.addEventListener('keydown', function(e) {
-    if (e.which === 37) { // Trái
-        isPaddleMovingLeft = true;
-    }
-    else if (e.which === 39) { // Phải
-        isPaddleMovingRight = true;
-    }
-    // Loại bỏ nút Space, thay bằng tự động phóng khi di chuyển
-});
-
-document.addEventListener('keyup', function(e) {
-    if (e.which === 37) {
-        isPaddleMovingLeft = false;
-    }
-    else if (e.which === 39) {
-        isPaddleMovingRight = false;
-    }
-});
-
-// start the game
-requestAnimationFrame(loop);
+(function(){
+	const packageId = "bubble-tower-3d";
+	let affiliateId = "A1000-10";
+	const iframe = document.querySelector("#game-iframe");
+	if (affiliateId == "A1000-10") {
+		affiliateId += (Math.random() >= 0.5) ? "A" : "B";
+	}
+	if(iframe) {
+		iframe.setAttribute("src", 'https://play.famobi.com/' + packageId + "/" + affiliateId);
+	}
+})();
 </script>
-</body>
+
+<script src="/assets/0.2-22b5c0c2/js/bannerads.js"></script>
+	</body>
 </html>
