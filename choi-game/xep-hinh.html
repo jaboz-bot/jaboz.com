@@ -1,196 +1,309 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trò Chơi Xếp Hình (Tetris)</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            min-height: 100vh;
-        }
-        /* Định nghĩa kích thước và bố cục cho bảng Tetris */
-        .tetris-grid {
-            /* Tetris chuẩn thường là 10 cột x 20 hàng */
-            display: grid;
-            grid-template-columns: repeat(10, 1fr); 
-            grid-template-rows: repeat(20, 1fr);
-            border: 4px solid #374151; /* Viền ngoài */
-            background-color: #000000; /* Nền tối */
-            width: 300px; /* Chiều rộng cố định (ví dụ: 30px/cột * 10 cột) */
-            height: 600px; /* Chiều cao cố định (ví dụ: 30px/hàng * 20 hàng) */
-        }
-        /* Kích thước ô (cell) */
-        .grid-cell {
-            width: 100%;
-            height: 100%;
-            border: 1px solid #1f2937; /* Viền ô nhỏ để dễ nhìn */
-        }
-        /* Định nghĩa màu cho các khối Tetris (ví dụ, sẽ được thêm bằng JS) */
-        .shape-i { background-color: #00FFFF; } /* Cyan */
-        .shape-o { background-color: #FFFF00; } /* Yellow */
-        .shape-t { background-color: #800080; } /* Purple */
-        .shape-j { background-color: #0000FF; } /* Blue */
-        .shape-l { background-color: #FFA500; } /* Orange */
-        .shape-s { background-color: #00FF00; } /* Green */
-        .shape-z { background-color: #FF0000; } /* Red */
-        
-        .game-over-overlay {
-            background-color: rgba(0, 0, 0, 0.8);
-            color: white;
-            z-index: 10;
-        }
-    </style>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'game-primary': '#4CAF50',
-                        'game-default': '#2196F3',
-                        'gray-bg': '#f3f4f6'
-                    }
-                }
-            }
-        }
-        
-        // Cấu hình trò chơi
-        const GRID_WIDTH = 10;
-        const GRID_HEIGHT = 20;
-        let score = 0;
-        let gameActive = false;
-        let boardState = []; // Mảng 2D lưu trữ trạng thái các ô đã cố định
+  <title>Basic Sokoban HTML Game</title>
+  <meta charset="UTF-8">
+  <style>
+  html, body {
+    height: 100%;
+    margin: 0;
+  }
 
-        // Các phần tử DOM
-        const gameBoard = document.getElementById('gameBoard');
-        const scoreElement = document.getElementById('score');
-        const nextShapeElement = document.getElementById('nextShape');
-        const overlayElement = document.getElementById('gameOverOverlay');
-
-        // ------------------------------------
-        // LOGIC KHỞI TẠO VÀ VẼ
-        // ------------------------------------
-
-        function createEmptyBoard() {
-            // Khởi tạo một mảng 2D 20x10, tất cả đều là null (trống)
-            boardState = Array(GRID_HEIGHT).fill(0).map(() => Array(GRID_WIDTH).fill(null));
-        }
-
-        function renderBoard() {
-            gameBoard.innerHTML = '';
-            
-            // Vẽ các ô dựa trên boardState
-            for (let r = 0; r < GRID_HEIGHT; r++) {
-                for (let c = 0; c < GRID_WIDTH; c++) {
-                    const cell = document.createElement('div');
-                    cell.className = 'grid-cell';
-                    
-                    const cellType = boardState[r][c]; // Ví dụ: 'i', 'o', 't', hoặc null
-                    
-                    if (cellType) {
-                        cell.classList.add(`shape-${cellType}`);
-                    }
-                    
-                    gameBoard.appendChild(cell);
-                }
-            }
-            
-            // TODO: Thêm logic vẽ khối đang rơi (current piece) lên trên boardState
-        }
-
-        function initGame() {
-            score = 0;
-            scoreElement.textContent = score;
-            gameActive = true;
-            overlayElement.classList.add('hidden');
-            
-            createEmptyBoard();
-            renderBoard();
-            
-            // TODO: Khởi tạo khối đầu tiên và bắt đầu vòng lặp game
-            // if (gameLoopInterval) clearInterval(gameLoopInterval);
-            // gameLoopInterval = setInterval(gameLoop, 1000); // Khối rơi mỗi 1 giây
-        }
-        
-        // ------------------------------------
-        // CHỨC NĂNG CHÍNH (CẦN THÊM LOGIC ĐẦY ĐỦ)
-        // ------------------------------------
-        
-        function gameLoop() {
-            if (!gameActive) return;
-
-            // 1. Rơi khối: Di chuyển khối đang rơi xuống 1 ô
-            // 2. Kiểm tra va chạm: Nếu va chạm (với đáy hoặc khối khác):
-            //    a. Cố định khối vào boardState
-            //    b. Kiểm tra và xóa hàng
-            //    c. Sinh khối tiếp theo
-            // 3. Kiểm tra Game Over (Nếu khối mới không thể sinh)
-            
-            // renderBoard();
-        }
-
-        function endGame() {
-            gameActive = false;
-            // clearInterval(gameLoopInterval);
-            overlayElement.classList.remove('hidden');
-        }
-        
-        // TODO: Thêm hàm xử lý phím bấm (di chuyển ngang, xoay, rơi nhanh)
-        // document.addEventListener('keydown', handleKeydown);
-
-
-        // Bắt đầu trò chơi khi tải trang
-        window.onload = initGame;
-    </script>
+  body {
+    background: #ded6ae;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  </style>
 </head>
-<body class="bg-gray-bg flex flex-col items-center pt-8 px-4">
+<body>
+<canvas width="400" height="400" id="game"></canvas>
+<script>
+const canvas = document.getElementById('game');
+const context = canvas.getContext('2d');
 
-    <h1 class="text-3xl md:text-4xl font-extrabold text-purple-600 mb-6">
-        Xếp Hình (Tetris) 🧱
-    </h1>
+const grid = 64;
 
-    <div class="flex flex-col md:flex-row gap-6 p-4 bg-white rounded-xl shadow-2xl">
-        
-        <div class="md:w-48 p-4 bg-gray-100 rounded-lg shadow-inner flex flex-col items-center">
-            
-            <h2 class="text-xl font-bold text-gray-700 mb-4">ĐIỂM SỐ</h2>
-            <p id="score" class="text-4xl font-extrabold text-game-default mb-8">0</p>
-            
-            <h2 class="text-xl font-bold text-gray-700 mb-4">KHỐI TIẾP THEO</h2>
-            <div id="nextShape" class="grid grid-cols-4 grid-rows-4 w-24 h-24 border border-gray-400 bg-gray-200">
-                </div>
-            
-            <p class="text-xs text-gray-500 mt-6">Dùng phím mũi tên để chơi.</p>
-        </div>
+// create a new canvas and draw the wall image. then we can use this
+// canvas to draw the images later on
+const wallCanvas = document.createElement('canvas');
+const wallCtx = wallCanvas.getContext('2d');
+wallCanvas.width = wallCanvas.height = grid;
 
-        <div class="relative">
-            <div id="gameBoard" class="tetris-grid">
-                </div>
-            
-            <div id="gameOverOverlay" class="game-over-overlay absolute inset-0 flex flex-col items-center justify-center hidden">
-                <p class="text-4xl font-extrabold mb-4">GAME OVER</p>
-                <button onclick="initGame()"
-                        class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg 
-                               transition duration-150 ease-in-out shadow-lg">
-                    Chơi Lại
-                </button>
-            </div>
-        </div>
-    </div>
+wallCtx.fillStyle = '#5b5530';
+wallCtx.fillRect(0, 0, grid, grid);
+wallCtx.fillStyle = '#a19555';
 
-    <div class="mt-8 text-center">
-        <button onclick="initGame()"
-                class="bg-game-primary hover:bg-green-600 text-white font-medium py-2 px-6 rounded-full 
-                       transition duration-150 ease-in-out shadow-md mr-4">
-            Bắt đầu / Reset Game
-        </button>
-        <a href="menu-game.html" 
-           class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-full 
-                  text-blue-500 hover:text-blue-700 transition duration-150 ease-in-out">
-            ← Trở về Menu Trò Chơi
-        </a>
-    </div>
+// 1st row brick
+wallCtx.fillRect(1, 1, grid - 2, 20);
 
+// 2nd row bricks
+wallCtx.fillRect(0, 23, 20, 18);
+wallCtx.fillRect(22, 23, 42, 18);
+
+// 3rd row bricks
+wallCtx.fillRect(0, 43, 42, 20);
+wallCtx.fillRect(44, 43, 20, 20);
+
+// the direction to move the player each frame. we'll use change in
+// direction so "row: 1" means move down 1 row, "row: -1" means move
+// up one row, etc.
+let playerDir = { row: 0, col: 0 };
+let playerPos = { row: 0, col: 0 };  // player position in the 2d array
+let rAF = null;  // keep track of the animation frame so we can cancel it
+let width = 0;  // find the largest row and use that as the game width
+
+// create a mapping of object types using the sok file format
+// @see http://www.sokobano.de/wiki/index.php?title=Level_format
+const types = {
+  wall: '#',
+  player: '@',
+  playerOnGoal: '+',
+  block: '$',
+  blockOnGoal: '*',
+  goal: '.',
+  empty: ' '
+};
+
+// a sokoban level using the sok file format
+const level1 = `
+  #####
+###   #
+#.@$  #
+### $.#
+#.##$ #
+# # . ##
+#$ *$$.#
+#   .  #
+########
+`;
+
+// keep track of what is in every cell of the game using a 2d array
+const cells = [];
+
+// use each line of the level as the row (remove empty lines)
+level1.split('\n')
+  .filter(rowData => !!rowData)
+  .forEach((rowData, row) => {
+    cells[row] = [];
+
+    if (rowData.length > width) {
+      width = rowData.length;
+    }
+
+    // use each character of the level as the col
+    rowData.split('').forEach((colData, col) => {
+      cells[row][col] = colData;
+
+      if (colData === types.player || colData === types.playerOnGoal) {
+        playerPos = { row, col };
+      }
+    });
+});
+
+// update the size of the canvas to the level size
+canvas.width = width * grid;
+canvas.height = cells.length * grid;
+
+// move an entity from one cell to another
+function move(startPos, endPos) {
+  const startCell = cells[startPos.row][startPos.col];
+  const endCell = cells[endPos.row][endPos.col];
+
+  const isPlayer = startCell === types.player || startCell === types.playerOnGoal;
+
+  // first remove then entity from its current cell
+  switch(startCell) {
+
+    // if the start cell is the player or a block (no goal)
+    // then leave empty
+    case types.player:
+    case types.block:
+      cells[startPos.row][startPos.col] = types.empty;
+      break;
+
+    // if the start cell has a goal then leave a goal
+    case types.playerOnGoal:
+    case types.blockOnGoal:
+      cells[startPos.row][startPos.col] = types.goal;
+      break;
+  }
+
+  // then move then entity into the new cell
+  switch(endCell) {
+
+    // if the end cell is empty, add the block or player
+    case types.empty:
+      cells[endPos.row][endPos.col] = isPlayer ? types.player : types.block;
+      break;
+
+    // if the cell has a goal then make sure to preserve the goal
+    case types.goal:
+      cells[endPos.row][endPos.col] = isPlayer ? types.playerOnGoal : types.blockOnGoal;
+      break;
+  }
+}
+
+// show the win screen
+function showWin() {
+  cancelAnimationFrame(rAF);
+
+  context.fillStyle = 'black';
+  context.globalAlpha = 0.75;
+  context.fillRect(0, canvas.height / 2 - 30, canvas.width, 60);
+
+  context.globalAlpha = 1;
+  context.fillStyle = 'white';
+  context.font = '36px monospace';
+  context.textAlign = 'center';
+  context.textBaseline = 'middle';
+  context.fillText('YOU WIN!', canvas.width / 2, canvas.height / 2);
+}
+
+// game loop
+function loop() {
+  rAF = requestAnimationFrame(loop);
+  context.clearRect(0,0,canvas.width,canvas.height);
+
+  // check to see if the player can move in the desired direction
+  const row = playerPos.row + playerDir.row;
+  const col = playerPos.col + playerDir.col;
+  const cell = cells[row][col];
+  switch(cell) {
+
+    // allow the player to move into empty or goal cells
+    case types.empty:
+    case types.goal:
+      move(playerPos, { row, col });
+
+      playerPos.row = row;
+      playerPos.col = col;
+      break;
+
+    // don't allow the player to move into a wall cell
+    case types.wall:
+      break;
+
+    // only allow the player to move into a block cell if the cell
+    // after the block is empty or a goal
+    case types.block:
+    case types.blockOnGoal:
+      const nextRow = row + playerDir.row;
+      const nextCol = col + playerDir.col;
+      const nextCell = cells[nextRow][nextCol];
+
+      if (nextCell === types.empty || nextCell === types.goal) {
+        // move the block first, then the player
+        move({ row, col }, { row: nextRow, col: nextCol });
+        move(playerPos, { row, col });
+
+        playerPos.row = row;
+        playerPos.col = col;
+      }
+      break;
+  }
+
+  // reset player dir after checking move
+  playerDir = { row: 0, col: 0 };
+
+  // check to see if all blocks are on goals
+  let allBlocksOnGoals = true;
+
+  // draw the board. because multiple things can be drawn on the same
+  // cell we shouldn't use a switch as that would only allow us to draw
+  // a single thing per cell
+  context.strokeStyle = 'black';
+  context.lineWidth = 2;
+  for (let row = 0; row < cells.length; row++) {
+    for (let col = 0; col < cells[row].length; col++) {
+      const cell = cells[row][col];
+
+      if (cell === types.wall) {
+        context.drawImage(wallCanvas, col * grid, row * grid);
+      }
+
+      if (cell === types.block || cell === types.blockOnGoal) {
+        if (cell === types.block) {
+          context.fillStyle = '#ffbb5b';
+
+          // block is not on goal
+          allBlocksOnGoals = false;
+        }
+        else {
+          context.fillStyle = '#ba6a15';
+        }
+
+        context.fillRect(col * grid, row * grid, grid, grid);
+        context.strokeRect(col * grid, row * grid, grid, grid);
+        context.strokeRect((col + 0.1) * grid, (row + 0.1) * grid, grid - (0.2 * grid), grid - (0.2 * grid));
+
+        // X
+        context.beginPath();
+        context.moveTo((col + 0.1) * grid, (row + 0.1) * grid);
+        context.lineTo((col + 0.9) * grid, (row + 0.9) * grid);
+        context.moveTo((col + 0.9) * grid, (row + 0.1) * grid);
+        context.lineTo((col + 0.1) * grid, (row + 0.9) * grid);
+        context.stroke();
+      }
+
+      if (cell === types.goal || cell === types.playerOnGoal) {
+        context.fillStyle = '#914430';
+        context.beginPath();
+        context.arc((col + 0.5) * grid, (row + 0.5) * grid, 10, 0, Math.PI * 2);
+        context.fill();
+      }
+
+      if (cell === types.player || cell === types.playerOnGoal) {
+        context.fillStyle = 'black';
+        context.beginPath();
+
+        // head
+        context.arc((col + 0.5) * grid, (row + 0.3) * grid, 8, 0, Math.PI * 2);
+        context.fill();
+        // body
+        context.fillRect((col + 0.48) * grid, (row + 0.3) * grid, 2, grid/ 2.5 );
+        // arms
+        context.fillRect((col + 0.3) * grid, (row + 0.5) * grid, grid / 2.5, 2);
+        // legs
+        context.moveTo((col + 0.5) * grid, (row + 0.7) * grid);
+        context.lineTo((col + 0.65) * grid, (row + 0.9) * grid);
+        context.moveTo((col + 0.5) * grid, (row + 0.7) * grid);
+        context.lineTo((col + 0.35) * grid, (row + 0.9) * grid);
+        context.stroke();
+      }
+    }
+  }
+
+  if (allBlocksOnGoals) {
+    showWin();
+  }
+}
+
+// listen to keyboard events to move the player
+document.addEventListener('keydown', function(e) {
+  playerDir = { row: 0, col: 0};
+
+  // left arrow key
+  if (e.which === 37) {
+    playerDir.col = -1;
+  }
+  // up arrow key
+  else if (e.which === 38) {
+    playerDir.row = -1;
+  }
+  // right arrow key
+  else if (e.which === 39) {
+    playerDir.col = 1;
+  }
+  // down arrow key
+  else if (e.which === 40) {
+    playerDir.row = 1;
+  }
+});
+
+// start the game
+requestAnimationFrame(loop);
+</script>
 </body>
 </html>
