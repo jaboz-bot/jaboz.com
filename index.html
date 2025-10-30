@@ -34,7 +34,8 @@
             width: 100%;
             margin-bottom: 50px;
         }
-        .app-link {
+        /* Thay đổi từ .app-link thành class chung cho tất cả các nút ứng dụng (bao gồm cả game) */
+        .app-item { /* Đổi tên class để linh hoạt hơn */
             text-decoration: none;
             color: white;
             padding: 30px 40px;
@@ -45,8 +46,9 @@
             text-align: center;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer; /* Thêm con trỏ để trông giống nút */
         }
-        .app-link:hover {
+        .app-item:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
         }
@@ -99,15 +101,15 @@
         <h1>Chọn Ứng Dụng</h1>
         <div class="main-container">
             
-            <a href="tools/may-ho-tro-giong-noi/may-voice.html" class="app-link voice-link">
+            <a href="tools/may-ho-tro-giong-noi/may-voice.html" class="app-item voice-link">
                 💬 Máy Hỗ Trợ Giọng Nói
             </a>
             
-            <a href="https://gamesnacks.com/" class="app-link game-link">
+            <div id="gameLink" class="app-item game-link">
                 🎮 Chơi Game              
-            </a>
+            </div>
             
-            <a href="tv/tv.html" class="app-link movie-link">
+            <a href="tv/tv.html" class="app-item movie-link">
                 🎬 TV Online
             </a>
             
@@ -121,6 +123,19 @@
 </div>
 
 <script>
+    // === Logic Chuyển Hướng Game ===
+    // 1. Lấy phần tử nút Game
+    const gameLink = document.getElementById('gameLink');
+    // 2. Định nghĩa hàm chuyển hướng
+    function redirectToGame() {
+        // Sử dụng window.location.href để chuyển hướng
+        // Đường link này sẽ KHÔNG HIỂN THỊ trong mã nguồn HTML mà chỉ nằm trong JS
+        window.location.href = 'https://gamesnacks.com/';
+    }
+    // 3. Gắn sự kiện click
+    gameLink.addEventListener('click', redirectToGame);
+
+    // === Logic PWA (Giữ nguyên) ===
     let deferredPrompt = null;
     const installButton = document.getElementById('installButton');
 
@@ -181,10 +196,6 @@
     
     // Khởi tạo: Ẩn nút ngay khi tải trang nếu đã cài đặt trước đó
     updateInstallButtonVisibility(); 
-
-   
-}
-    
 </script>
 
 </body>
