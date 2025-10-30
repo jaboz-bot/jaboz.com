@@ -1,171 +1,242 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Basic Snake HTML Game</title>
-  <meta charset="UTF-8">
-  <style>
-  html, body {
-    height: 100%;
-    margin: 0;
-  }
+    <title>Basic Snake HTML Game</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            /* Ngăn cuộn trang trên mobile khi chạm */
+            touch-action: none; 
+        }
 
-  body {
-    background: black;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  canvas {
-    border: 1px solid white;
-  }
-  </style>
+        body {
+            background: black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        canvas {
+            border: 1px solid white;
+            /* Thiết lập kích thước canvas tối đa cho mobile */
+            max-width: 90vh; 
+            max-height: 90vh;
+        }
+    </style>
 </head>
 <body>
-<canvas width="400" height="400" id="game"></canvas>
-<script>
-var canvas = document.getElementById('game');
-var context = canvas.getContext('2d');
+    <canvas width="400" height="400" id="game"></canvas>
+    <script>
+        var canvas = document.getElementById('game');
+        var context = canvas.getContext('2d');
 
-// the canvas width & height, snake x & y, and the apple x & y, all need to be a multiples of the grid size in order for collision detection to work
-// (e.g. 16 * 25 = 400)
-var grid = 16;
-var count = 0;
+        // the canvas width & height, snake x & y, and the apple x & y, all need to be a multiples of the grid size in order for collision detection to work
+        // (e.g. 16 * 25 = 400)
+        var grid = 16;
+        var count = 0;
 
-var snake = {
-  x: 160,
-  y: 160,
+        var snake = {
+            x: 160,
+            y: 160,
 
-  // snake velocity. moves one grid length every frame in either the x or y direction
-  dx: grid,
-  dy: 0,
+            // snake velocity. moves one grid length every frame in either the x or y direction
+            dx: grid,
+            dy: 0,
 
-  // keep track of all grids the snake body occupies
-  cells: [],
+            // keep track of all grids the snake body occupies
+            cells: [],
 
-  // length of the snake. grows when eating an apple
-  maxCells: 4
-};
-var apple = {
-  x: 320,
-  y: 320
-};
+            // length of the snake. grows when eating an apple
+            maxCells: 4
+        };
+        var apple = {
+            x: 320,
+            y: 320
+        };
 
-// get random whole numbers in a specific range
-// @see https://stackoverflow.com/a/1527820/2124254
-function getRandomInt(min, max) {
-  return Math.floor(Math.random() * (max - min)) + min;
-}
+        // get random whole numbers in a specific range
+        // @see https://stackoverflow.com/a/1527820/2124254
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min)) + min;
+        }
 
-// game loop
-function loop() {
-  requestAnimationFrame(loop);
+        // Hàm xử lý việc thay đổi hướng của rắn, ngăn rắn đi ngược lại chính nó
+        function setSnakeDirection(newDx, newDy) {
+            if ((newDx !== 0 && snake.dx === 0) || (newDy !== 0 && snake.dy === 0)) {
+                if (newDx !== 0 && snake.dx === 0) { // Đang đi lên/xuống, chuyển sang trái/phải
+                    snake.dx = newDx;
+                    snake.dy = 0;
+                } else if (newDy !== 0 && snake.dy === 0) { // Đang đi trái/phải, chuyển sang lên/xuống
+                    snake.dy = newDy;
+                    snake.dx = 0;
+                }
+            }
+        }
+        
+        // game loop
+        function loop() {
+            requestAnimationFrame(loop);
 
-  // slow game loop to 15 fps instead of 60 (60/15 = 4)
-  if (++count < 4) {
-    return;
-  }
+            // slow game loop to 15 fps instead of 60 (60/15 = 4)
+            if (++count < 4) {
+                return;
+            }
 
-  count = 0;
-  context.clearRect(0,0,canvas.width,canvas.height);
+            count = 0;
+            context.clearRect(0, 0, canvas.width, canvas.height);
 
-  // move snake by it's velocity
-  snake.x += snake.dx;
-  snake.y += snake.dy;
+            // move snake by it's velocity
+            snake.x += snake.dx;
+            snake.y += snake.dy;
 
-  // wrap snake position horizontally on edge of screen
-  if (snake.x < 0) {
-    snake.x = canvas.width - grid;
-  }
-  else if (snake.x >= canvas.width) {
-    snake.x = 0;
-  }
+            // wrap snake position horizontally on edge of screen
+            if (snake.x < 0) {
+                snake.x = canvas.width - grid;
+            } else if (snake.x >= canvas.width) {
+                snake.x = 0;
+            }
 
-  // wrap snake position vertically on edge of screen
-  if (snake.y < 0) {
-    snake.y = canvas.height - grid;
-  }
-  else if (snake.y >= canvas.height) {
-    snake.y = 0;
-  }
+            // wrap snake position vertically on edge of screen
+            if (snake.y < 0) {
+                snake.y = canvas.height - grid;
+            } else if (snake.y >= canvas.height) {
+                snake.y = 0;
+            }
 
-  // keep track of where snake has been. front of the array is always the head
-  snake.cells.unshift({x: snake.x, y: snake.y});
+            // keep track of where snake has been. front of the array is always the head
+            snake.cells.unshift({
+                x: snake.x,
+                y: snake.y
+            });
 
-  // remove cells as we move away from them
-  if (snake.cells.length > snake.maxCells) {
-    snake.cells.pop();
-  }
+            // remove cells as we move away from them
+            if (snake.cells.length > snake.maxCells) {
+                snake.cells.pop();
+            }
 
-  // draw apple
-  context.fillStyle = 'red';
-  context.fillRect(apple.x, apple.y, grid-1, grid-1);
+            // draw apple
+            context.fillStyle = 'red';
+            context.fillRect(apple.x, apple.y, grid - 1, grid - 1);
 
-  // draw snake one cell at a time
-  context.fillStyle = 'green';
-  snake.cells.forEach(function(cell, index) {
+            // draw snake one cell at a time
+            context.fillStyle = 'green';
+            snake.cells.forEach(function(cell, index) {
 
-    // drawing 1 px smaller than the grid creates a grid effect in the snake body so you can see how long it is
-    context.fillRect(cell.x, cell.y, grid-1, grid-1);
+                // drawing 1 px smaller than the grid creates a grid effect in the snake body so you can see how long it is
+                context.fillRect(cell.x, cell.y, grid - 1, grid - 1);
 
-    // snake ate apple
-    if (cell.x === apple.x && cell.y === apple.y) {
-      snake.maxCells++;
+                // snake ate apple
+                if (cell.x === apple.x && cell.y === apple.y) {
+                    snake.maxCells++;
 
-      // canvas is 400x400 which is 25x25 grids
-      apple.x = getRandomInt(0, 25) * grid;
-      apple.y = getRandomInt(0, 25) * grid;
-    }
+                    // canvas is 400x400 which is 25x25 grids
+                    // Đảm bảo táo không sinh ra trên thân rắn
+                    var newAppleX, newAppleY;
+                    do {
+                        newAppleX = getRandomInt(0, 25) * grid;
+                        newAppleY = getRandomInt(0, 25) * grid;
+                    } while (snake.cells.some(c => c.x === newAppleX && c.y === newAppleY)); 
 
-    // check collision with all cells after this one (modified bubble sort)
-    for (var i = index + 1; i < snake.cells.length; i++) {
+                    apple.x = newAppleX;
+                    apple.y = newAppleY;
+                }
 
-      // snake occupies same space as a body part. reset game
-      if (cell.x === snake.cells[i].x && cell.y === snake.cells[i].y) {
-        snake.x = 160;
-        snake.y = 160;
-        snake.cells = [];
-        snake.maxCells = 4;
-        snake.dx = grid;
-        snake.dy = 0;
+                // check collision with all cells after this one (modified bubble sort)
+                for (var i = index + 1; i < snake.cells.length; i++) {
 
-        apple.x = getRandomInt(0, 25) * grid;
-        apple.y = getRandomInt(0, 25) * grid;
-      }
-    }
-  });
-}
+                    // snake occupies same space as a body part. reset game
+                    if (cell.x === snake.cells[i].x && cell.y === snake.cells[i].y) {
+                        snake.x = 160;
+                        snake.y = 160;
+                        snake.cells = [];
+                        snake.maxCells = 4;
+                        snake.dx = grid;
+                        snake.dy = 0;
 
-// listen to keyboard events to move the snake
-document.addEventListener('keydown', function(e) {
-  // prevent snake from backtracking on itself by checking that it's
-  // not already moving on the same axis (pressing left while moving
-  // left won't do anything, and pressing right while moving left
-  // shouldn't let you collide with your own body)
+                        apple.x = getRandomInt(0, 25) * grid;
+                        apple.y = getRandomInt(0, 25) * grid;
+                    }
+                }
+            });
+        }
 
-  // left arrow key
-  if (e.which === 37 && snake.dx === 0) {
-    snake.dx = -grid;
-    snake.dy = 0;
-  }
-  // up arrow key
-  else if (e.which === 38 && snake.dy === 0) {
-    snake.dy = -grid;
-    snake.dx = 0;
-  }
-  // right arrow key
-  else if (e.which === 39 && snake.dx === 0) {
-    snake.dx = grid;
-    snake.dy = 0;
-  }
-  // down arrow key
-  else if (e.which === 40 && snake.dy === 0) {
-    snake.dy = grid;
-    snake.dx = 0;
-  }
-});
+        // ----------------------------------------------------------------
+        // --- Xử lý Điều khiển cho Máy tính (Phím) ⌨️ ---
+        // ----------------------------------------------------------------
+        document.addEventListener('keydown', function(e) {
+            // left arrow key (37)
+            if (e.which === 37) {
+                setSnakeDirection(-grid, 0);
+            }
+            // up arrow key (38)
+            else if (e.which === 38) {
+                setSnakeDirection(0, -grid);
+            }
+            // right arrow key (39)
+            else if (e.which === 39) {
+                setSnakeDirection(grid, 0);
+            }
+            // down arrow key (40)
+            else if (e.which === 40) {
+                setSnakeDirection(0, grid);
+            }
+        });
 
-// start the game
-requestAnimationFrame(loop);
-</script>
+        // ----------------------------------------------------------------
+        // --- Xử lý Điều khiển cho Điện thoại (Cảm ứng/Vuốt) 📱 ---
+        // ----------------------------------------------------------------
+        var touchStartX = 0;
+        var touchStartY = 0;
+        var touchEndX = 0;
+        var touchEndY = 0;
+        var minSwipeDistance = 20; // Khoảng cách tối thiểu để được coi là một lần vuốt
+
+        canvas.addEventListener('touchstart', function(event) {
+            // Lấy vị trí bắt đầu chạm (chỉ lấy ngón tay đầu tiên)
+            touchStartX = event.changedTouches[0].screenX;
+            touchStartY = event.changedTouches[0].screenY;
+            // Ngăn cuộn trang trên trình duyệt di động
+            event.preventDefault(); 
+        }, { passive: false }); // {passive: false} quan trọng để ngăn cuộn
+
+        canvas.addEventListener('touchend', function(event) {
+            // Lấy vị trí kết thúc chạm (chỉ lấy ngón tay đầu tiên)
+            touchEndX = event.changedTouches[0].screenX;
+            touchEndY = event.changedTouches[0].screenY;
+            handleGesture();
+            // Ngăn cuộn trang
+            event.preventDefault(); 
+        }, { passive: false });
+
+        function handleGesture() {
+            var dx = touchEndX - touchStartX;
+            var dy = touchEndY - touchStartY;
+
+            // Kiểm tra xem đó có phải là một cử chỉ vuốt đủ dài hay không
+            if (Math.abs(dx) > Math.abs(dy)) { // Vuốt ngang (trái hoặc phải)
+                if (Math.abs(dx) > minSwipeDistance) {
+                    if (dx > 0) { // Vuốt sang phải
+                        setSnakeDirection(grid, 0);
+                    } else { // Vuốt sang trái
+                        setSnakeDirection(-grid, 0);
+                    }
+                }
+            } else { // Vuốt dọc (lên hoặc xuống)
+                if (Math.abs(dy) > minSwipeDistance) {
+                    if (dy > 0) { // Vuốt xuống
+                        setSnakeDirection(0, grid);
+                    } else { // Vuốt lên
+                        setSnakeDirection(0, -grid);
+                    }
+                }
+            }
+        }
+
+        // start the game
+        requestAnimationFrame(loop);
+    </script>
 </body>
 </html>
