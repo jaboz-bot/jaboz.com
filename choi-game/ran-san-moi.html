@@ -14,10 +14,19 @@
         body {
             background: black;
             display: flex;
-            flex-direction: column; /* Sắp xếp canvas và controls theo chiều dọc */
+            flex-direction: column; 
             align-items: center;
             justify-content: center;
             padding: 10px 0;
+        }
+
+        /* Định dạng cho khung điểm số */
+        #score-display {
+            color: white;
+            font-size: 24px;
+            margin-bottom: 10px;
+            font-family: Arial, sans-serif;
+            font-weight: bold;
         }
 
         canvas {
@@ -29,7 +38,7 @@
         /* Định dạng cho vùng điều khiển */
         #controls {
             margin-top: 20px;
-            width: 300px; /* Kích thước vùng điều khiển */
+            width: 300px;
             max-width: 90vw;
             display: grid;
             grid-template-areas: 
@@ -48,21 +57,23 @@
             font-size: 20px;
             cursor: pointer;
             border-radius: 5px;
-            user-select: none; /* Ngăn chọn văn bản trên mobile */
-            touch-action: manipulation; /* Giúp các nút phản hồi nhanh hơn trên mobile */
+            user-select: none;
+            touch-action: manipulation;
         }
 
         #btn-up { grid-area: up; }
         #btn-left { grid-area: left; }
         #btn-right { grid-area: right; }
         #btn-down { grid-area: down; }
-        /* Nút center không dùng, chỉ để tạo layout */
+        
         .control-btn:active {
             background-color: #555;
         }
     </style>
 </head>
 <body>
+    <div id="score-display">Score: 0</div>
+    
     <canvas width="400" height="400" id="game"></canvas>
 
     <div id="controls">
@@ -76,6 +87,8 @@
     <script>
         var canvas = document.getElementById('game');
         var context = canvas.getContext('2d');
+        var scoreDisplay = document.getElementById('score-display'); // Lấy phần tử hiển thị điểm
+        var score = 0; // Biến điểm số
 
         var grid = 16;
         var count = 0;
@@ -97,9 +110,7 @@
             return Math.floor(Math.random() * (max - min)) + min;
         }
 
-        // Hàm xử lý việc thay đổi hướng của rắn (Dùng chung cho Phím và Nút)
         function setSnakeDirection(newDx, newDy) {
-            // Ngăn rắn đi ngược lại chính nó
             if ((newDx !== 0 && snake.dx === 0) || (newDy !== 0 && snake.dy === 0)) {
                 if (newDx !== 0 && snake.dx === 0) {
                     snake.dx = newDx;
@@ -110,8 +121,13 @@
                 }
             }
         }
+
+        function updateScore(points) {
+            score += points;
+            scoreDisplay.textContent = 'Score: ' + score;
+        }
         
-        // game loop (Không thay đổi)
+        // game loop
         function loop() {
             requestAnimationFrame(loop);
 
@@ -158,6 +174,7 @@
                 // Rắn ăn táo
                 if (cell.x === apple.x && cell.y === apple.y) {
                     snake.maxCells++;
+                    updateScore(1); // Tăng điểm số
 
                     var newAppleX, newAppleY;
                     do {
@@ -179,6 +196,9 @@
                         snake.maxCells = 4;
                         snake.dx = grid;
                         snake.dy = 0;
+                        
+                        score = 0; // Reset điểm số
+                        updateScore(0); // Cập nhật hiển thị điểm về 0
 
                         apple.x = getRandomInt(0, 25) * grid;
                         apple.y = getRandomInt(0, 25) * grid;
@@ -188,17 +208,17 @@
         }
 
         // ----------------------------------------------------------------
-        // --- Điều khiển bằng Phím (Không đổi) ⌨️ ---
+        // --- Điều khiển bằng Phím ⌨️ ---
         // ----------------------------------------------------------------
         document.addEventListener('keydown', function(e) {
             if (e.which === 37) {
-                setSnakeDirection(-grid, 0); // Trái
+                setSnakeDirection(-grid, 0);
             } else if (e.which === 38) {
-                setSnakeDirection(0, -grid); // Lên
+                setSnakeDirection(0, -grid);
             } else if (e.which === 39) {
-                setSnakeDirection(grid, 0); // Phải
+                setSnakeDirection(grid, 0);
             } else if (e.which === 40) {
-                setSnakeDirection(0, grid); // Xuống
+                setSnakeDirection(0, grid);
             }
         });
 
