@@ -1,195 +1,405 @@
+
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trò Chơi Cờ Caro (Tic-Tac-Toe) Hoàn Chỉnh</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            min-height: 100vh;
-        }
-        /* Định dạng ô cờ */
-        .caro-cell {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3rem; /* Kích thước ký hiệu X/O */
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.1s ease;
-            user-select: none;
-        }
-        .caro-cell:hover {
-            background-color: #e5e7eb; /* Màu xám nhạt khi rê chuột */
-        }
-        /* Viền ô (sử dụng Tailwind grid/border cho bố cục) */
-        #caro-board {
-            border-collapse: collapse;
-            border: 3px solid #374151; /* Viền ngoài đậm hơn */
-        }
-    </style>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'game-primary': '#4CAF50', // Xanh lá
-                        'game-tertiary': '#FF5722', // Cam/Đỏ
-                        'gray-bg': '#f3f4f6'
-                    }
-                }
-            }
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cờ caro</title>
 
-        let board = ['', '', '', '', '', '', '', '', '']; // 9 ô đại diện cho bàn cờ
-        let currentPlayer = 'X';
-        let gameActive = true;
+  <link rel="stylesheet" href="style.css">
 
-        const statusDisplay = document.getElementById('gameStatus');
-        
-        // Các điều kiện thắng (tất cả 3 vị trí này phải giống nhau)
-        const winningConditions = [
-            [0, 1, 2], [3, 4, 5], [6, 7, 8], // Hàng ngang
-            [0, 3, 6], [1, 4, 7], [2, 5, 8], // Hàng dọc
-            [0, 4, 8], [2, 4, 6]             // Đường chéo
-        ];
-
-        // ------------------------------------
-        // LOGIC CHÍNH CỦA TRÒ CHƠI
-        // ------------------------------------
-
-        function handleCellClick(clickedCellEvent) {
-            const clickedCell = clickedCellEvent.target;
-            // Lấy chỉ mục (index) của ô cờ từ thuộc tính data-index
-            const clickedCellIndex = parseInt(clickedCell.getAttribute('data-index'));
-
-            // 1. Kiểm tra: Ô này đã được đi chưa? Game còn hoạt động không?
-            if (board[clickedCellIndex] !== '' || !gameActive) {
-                return;
-            }
-
-            // 2. Cập nhật trạng thái và giao diện
-            board[clickedCellIndex] = currentPlayer;
-            clickedCell.innerHTML = currentPlayer === 'X' 
-                ? '<span class="text-game-primary">X</span>' 
-                : '<span class="text-game-tertiary">O</span>';
-
-            // 3. Kiểm tra kết quả
-            handleResultValidation();
-        }
-
-        function handleResultValidation() {
-            let roundWon = false;
-            for (let i = 0; i < 8; i++) {
-                const [a, b, c] = winningConditions[i];
-                
-                if (board[a] === '' || board[b] === '' || board[c] === '') {
-                    continue; // Tiếp tục vòng lặp nếu chưa đủ 3 ô
-                }
-                if (board[a] === board[b] && board[b] === board[c]) {
-                    roundWon = true;
-                    // Highlight 3 ô chiến thắng
-                    document.querySelector(`[data-index="${a}"]`).style.backgroundColor = '#bbf7d0';
-                    document.querySelector(`[data-index="${b}"]`).style.backgroundColor = '#bbf7d0';
-                    document.querySelector(`[data-index="${c}"]`).style.backgroundColor = '#bbf7d0';
-                    break;
-                }
-            }
-
-            if (roundWon) {
-                statusDisplay.innerHTML = `🎉 Người chơi <span class="font-extrabold">${currentPlayer}</span> Thắng!`;
-                gameActive = false;
-                return;
-            }
-
-            // Kiểm tra Hòa (nếu tất cả ô đã được đi và không có ai thắng)
-            let roundDraw = !board.includes('');
-            if (roundDraw) {
-                statusDisplay.innerHTML = `🤝 Ván đấu Hòa!`;
-                gameActive = false;
-                return;
-            }
-
-            // Chuyển lượt chơi
-            handlePlayerChange();
-        }
-
-        function handlePlayerChange() {
-            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
-            statusDisplay.innerHTML = `Lượt chơi của: <span class="font-extrabold text-${currentPlayer === 'X' ? 'game-primary' : 'game-tertiary'}">${currentPlayer}</span>`;
-        }
-
-        function handleRestartGame() {
-            gameActive = true;
-            currentPlayer = 'X';
-            board = ['', '', '', '', '', '', '', '', ''];
-            statusDisplay.innerHTML = `Lượt chơi của: <span class="font-extrabold text-game-primary">X</span>`;
-            
-            // Xóa nội dung và màu nền của các ô
-            document.querySelectorAll('.caro-cell').forEach(cell => {
-                cell.innerHTML = '';
-                cell.style.backgroundColor = '';
-            });
-        }
-
-        // ------------------------------------
-        // KHỞI TẠO
-        // ------------------------------------
-
-        // Gán sự kiện click cho tất cả các ô cờ
-        window.onload = () => {
-            document.querySelectorAll('.caro-cell').forEach(cell => {
-                cell.addEventListener('click', handleCellClick);
-            });
-            handleRestartGame(); // Khởi tạo trạng thái ban đầu
-        };
-    </script>
 </head>
-<body class="bg-gray-bg flex flex-col items-center pt-8 px-4">
 
-    <h1 class="text-3xl md:text-4xl font-extrabold text-gray-800 mb-8">
-        Cờ Caro (Tic-Tac-Toe) Hoàn Chỉnh ✅
-    </h1>
+<body>
+  <div class="app">
+    <div class="app-container">
+      <h2 class="title">Cờ Caro</h2>
 
-    <div class="w-full max-w-sm bg-white p-6 rounded-xl shadow-2xl text-center">
-        
-        <p id="gameStatus" class="text-xl mb-6 font-medium text-gray-700">
-            </p>
+    </div>
 
-        <div id="caro-board" class="grid grid-cols-3 aspect-square mx-auto">
-            
-            <div data-index="0" class="caro-cell border-r-4 border-b-4 border-gray-400"></div>
-            <div data-index="1" class="caro-cell border-r-4 border-b-4 border-gray-400"></div>
-            <div data-index="2" class="caro-cell border-b-4 border-gray-400"></div>
-            
-            <div data-index="3" class="caro-cell border-r-4 border-b-4 border-gray-400"></div>
-            <div data-index="4" class="caro-cell border-r-4 border-b-4 border-gray-400"></div>
-            <div data-index="5" class="caro-cell border-b-4 border-gray-400"></div>
+    <div class="board">
 
-            <div data-index="6" class="caro-cell border-r-4 border-gray-400"></div>
-            <div data-index="7" class="caro-cell border-r-4 border-gray-400"></div>
-            <div data-index="8" class="caro-cell"></div>
-
-        </div>
-        
-        <button onclick="handleRestartGame()"
-                class="mt-8 bg-game-primary hover:bg-green-600 text-white font-medium py-2 px-6 rounded-full 
-                       transition duration-150 ease-in-out shadow-md">
-            Chơi lại
+      <div class="status" id="status"></div>
+      <div class="list-button">
+        <button class="button" id="restart-btn">
+          <i class="bi bi-arrow-counterclockwise"></i>
         </button>
-    </div>
+        <button class="button" id="single-player-toggle">&#x1F477</button>
 
-    <div class="mt-8 text-center">
-        <a href="menu-game.html" 
-           class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-full 
-                  text-blue-500 hover:text-blue-700 transition duration-150 ease-in-out">
-            ← Trở về Menu Trò Chơi
-        </a>
-    </div>
+        <button class="button" id="dimension-button">10x10</button>
+      </div>
 
+
+    </div>
+    <div id="board" class="game"></div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+      const dimensionButton = document.getElementById('dimension-button');//hay đổi kích thước của bàn cờ.
+      const dimensionElement = document.getElementById('dimension');//hiển thị kích thước hiện tại của bàn cờ.
+      const statusElement = document.getElementById('status');//hiển thị trạng thái hiện tại của trò chơi (ví dụ: người chiến thắng, lượt đi tiếp theo).
+      const restartButton = document.getElementById('restart-btn');//khởi động lại trò chơi.
+      const singlePlayerToggle = document.getElementById('single-player-toggle');// Đây là nút để chuyển đổi chế độ chơi đơn người.
+      const boardElement = document.getElementById('board');// phần tử chứa bàn cờ.
+
+      let dimension = 10; // Giá trị mặc định
+
+      dimensionButton.textContent = `${dimension}x${dimension}`;
+
+      let singlePlayerMode = false;
+      let squares = Array(dimension).fill(Array(dimension).fill(null));
+
+      let xIsNext = Math.random() < 0.5; // Chọn ngẫu nhiên người chơi đi trước , nhỏ hơn 0.5, xIsNext sẽ được gán giá trị true (người chơi X đi trước)
+      let theWinner = null;
+      let winningLine = [];//khởi tạo với một mảng rỗng để lưu trữ các ô thắng nếu có.
+
+      const dimensions = [10, 12, 16, 20];
+      let dimensionIndex = 0; //để lưu trữ chỉ số của kích thước hiện tại trong mảng dimensions.
+      //  xử lý sự kiện khi người dùng click vào nút thay đổi kích thước bàn cờ.
+      dimensionButton.addEventListener('click', function () {
+        dimensionIndex = (dimensionIndex + 1) % dimensions.length;
+        dimension = dimensions[dimensionIndex];
+        dimensionButton.textContent = `${dimension}x${dimension}`;
+        restartGame();
+      });
+      restartButton.addEventListener('click', restartGame);
+
+      singlePlayerToggle.addEventListener('click', function () {
+        toggleSinglePlayerMode();
+        restartGame();
+        if (singlePlayerMode && !xIsNext) {
+          makeComputerMove();
+        }
+      });
+
+      function handleClick(row, col) {
+        if (theWinner || squares[row][col]) {
+          return;
+        }
+
+        const newSquares = squares.map((row) => [...row]);
+        newSquares[row][col] = xIsNext ? 'X' : 'O';// Sử dụng 'X' hoặc 'O' tùy thuộc vào người chơi hiện tại
+        squares = newSquares;
+        squares = newSquares;
+        xIsNext = !xIsNext;// Chuyển lượt đi cho người chơi tiếp theo
+
+        const winner = calculateWinner(newSquares, row, col);
+        if (winner) {
+          theWinner = winner;
+          winningLine = findWinningLine(newSquares, row, col, winner);
+        }
+
+        renderBoard();
+        updateStatus();
+
+        if (singlePlayerMode && !theWinner && !xIsNext) {
+          makeComputerMove();
+        }
+      }
+
+      function calculateWinner(currentSquares, row, col) {
+        const currentPlayer = currentSquares[row][col];
+
+        // Check horizontally
+        let count = 1;
+        let leftCol = col - 1;
+        while (leftCol >= 0 && currentSquares[row][leftCol] === currentPlayer) {
+          count++;
+          leftCol--;
+        }
+        let rightCol = col + 1;
+        while (rightCol < dimension && currentSquares[row][rightCol] === currentPlayer) {
+          count++;
+          rightCol++;
+        }
+        if (count >= 5) {
+          return currentPlayer;
+        }
+
+        // Check vertically
+        count = 1;
+        let topRow = row - 1;
+        while (topRow >= 0 && currentSquares[topRow][col] === currentPlayer) {
+          count++;
+          topRow--;
+        }
+        let bottomRow = row + 1;
+        while (bottomRow < dimension && currentSquares[bottomRow][col] === currentPlayer) {
+          count++;
+          bottomRow++;
+        }
+        if (count >= 5) {
+          return currentPlayer;
+        }
+
+        // Check diagonally (top-left to bottom-right)
+        count = 1;
+        let topLeftRow = row - 1;
+        let topLeftCol = col - 1;
+        while (topLeftRow >= 0 && topLeftCol >= 0 && currentSquares[topLeftRow][topLeftCol] === currentPlayer) {
+          count++;
+          topLeftRow--;
+          topLeftCol--;
+        }
+        let bottomRightRow = row + 1;
+        let bottomRightCol = col + 1;
+        while (bottomRightRow < dimension && bottomRightCol < dimension && currentSquares[bottomRightRow][bottomRightCol] === currentPlayer) {
+          count++;
+          bottomRightRow++;
+          bottomRightCol++;
+        }
+        if (count >= 5) {
+          return currentPlayer;
+        }
+
+        // Check diagonally (top-right to bottom-left)
+        count = 1;
+        let topRightRow = row - 1;
+        let topRightCol = col + 1;
+        while (topRightRow >= 0 && topRightCol < dimension && currentSquares[topRightRow][topRightCol] === currentPlayer) {
+          count++;
+          topRightRow--;
+          topRightCol++;
+        }
+        let bottomLeftRow = row + 1;
+        let bottomLeftCol = col - 1;
+        while (bottomLeftRow < dimension && bottomLeftCol >= 0 && currentSquares[bottomLeftRow][bottomLeftCol] === currentPlayer) {
+          count++;
+          bottomLeftRow++;
+          bottomLeftCol--;
+        }
+        if (count >= 5) {
+          return currentPlayer;
+        }
+
+        return null;
+      }
+
+      function findWinningLine(currentSquares, row, col, winner) {
+        const currentPlayer = currentSquares[row][col];
+        const lines = [];
+
+        // Check horizontally
+        let leftCol = col - 1;
+        while (leftCol >= 0 && currentSquares[row][leftCol] === currentPlayer) {
+          lines.push([row, leftCol]);
+          leftCol--;
+        }
+        lines.push([row, col]);
+        let rightCol = col + 1;
+        while (rightCol < dimension && currentSquares[row][rightCol] === currentPlayer) {
+          lines.push([row, rightCol]);
+          rightCol++;
+        }
+        if (lines.length >= 5) {
+          return lines;
+        }
+
+        // Check vertically
+        let topRow = row - 1;
+        while (topRow >= 0 && currentSquares[topRow][col] === currentPlayer) {
+          lines.push([topRow, col]);
+          topRow--;
+        }
+        lines.push([row, col]);
+        let bottomRow = row + 1;
+        while (bottomRow < dimension && currentSquares[bottomRow][col] === currentPlayer) {
+          lines.push([bottomRow, col]);
+          bottomRow++;
+        }
+        if (lines.length >= 5) {
+          return lines;
+        }
+
+        // Check diagonally (top-left to bottom-right)
+        let topLeftRow = row - 1;
+        let topLeftCol = col - 1;
+        while (topLeftRow >= 0 && topLeftCol >= 0 && currentSquares[topLeftRow][topLeftCol] === currentPlayer) {
+          lines.push([topLeftRow, topLeftCol]);
+          topLeftRow--;
+          topLeftCol--;
+        }
+        lines.push([row, col]);
+        let bottomRightRow = row + 1;
+        let bottomRightCol = col + 1;
+        while (bottomRightRow < dimension && bottomRightCol < dimension && currentSquares[bottomRightRow][bottomRightCol] === currentPlayer) {
+          lines.push([bottomRightRow, bottomRightCol]);
+          bottomRightRow++;
+          bottomRightCol++;
+        }
+        if (lines.length >= 5) {
+          return lines;
+        }
+
+        // Check diagonally (top-right to bottom-left)
+        let topRightRow = row - 1;
+        let topRightCol = col + 1;
+        while (topRightRow >= 0 && topRightCol < dimension && currentSquares[topRightRow][topRightCol] === currentPlayer) {
+          lines.push([topRightRow, topRightCol]);
+          topRightRow--;
+          topRightCol++;
+        }
+        lines.push([row, col]);
+        let bottomLeftRow = row + 1;
+        let bottomLeftCol = col - 1;
+        while (bottomLeftRow < dimension && bottomLeftCol >= 0 && currentSquares[bottomLeftRow][bottomLeftCol] === currentPlayer) {
+          lines.push([bottomLeftRow, bottomLeftCol]);
+          bottomLeftRow++;
+          bottomLeftCol--;
+        }
+        if (lines.length >= 5) {
+          return lines;
+        }
+
+        return [];
+      }
+
+      function renderBoard() {
+        boardElement.innerHTML = '';
+        for (let row = 0; row < dimension; row++) {
+          const rowElement = document.createElement('div');
+          rowElement.className = 'board-row';
+
+          for (let col = 0; col < dimension; col++) {
+            const value = squares[row][col];
+            const isWinningSquare = winningLine.some(([winRow, winCol]) => winRow === row && winCol === col);
+
+            const squareButton = document.createElement('button');
+            squareButton.className = 'square';
+            squareButton.style.backgroundColor = isWinningSquare ? 'yellow' : 'white';
+            squareButton.style.color = value === 'X' ? 'blue' : 'red';
+            squareButton.style.fontWeight = isWinningSquare ? 'bold' : 'normal';
+            squareButton.textContent = value;
+            squareButton.addEventListener('click', () => {
+              if (!singlePlayerMode || (singlePlayerMode && xIsNext)) {
+                handleClick(row, col);
+              }
+            });
+
+            rowElement.appendChild(squareButton);
+          }
+
+          boardElement.appendChild(rowElement);
+        }
+      }
+
+      function updateStatus() {
+        if (theWinner) {
+          statusElement.textContent = `Chiến thắng: ${theWinner}`;
+        } else {
+          statusElement.textContent = `Người chơi: ${xIsNext ? 'X' : 'O'}`;
+        }
+      }
+
+      function restartGame() {
+        squares = Array(dimension).fill(Array(dimension).fill(null));
+        xIsNext = true; 
+        theWinner = null;
+        winningLine = [];
+        renderBoard();
+        updateStatus();
+      }
+
+      function makeComputerMove() {
+        if (!singlePlayerMode || theWinner) {
+          return;
+        }
+
+        const availableMoves = [];
+        const humanPlayer = xIsNext ? 'X' : 'O';
+        const computerPlayer = xIsNext ? 'O' : 'X';
+
+        squares.forEach((row, rowIndex) => {
+          row.forEach((col, colIndex) => {
+            if (!squares[rowIndex][colIndex]) {
+              availableMoves.push([rowIndex, colIndex]);
+            }
+          });
+        });
+
+        if (availableMoves.length > 0) {
+          // Check if the computer can win in the next move
+          for (let i = 0; i < availableMoves.length; i++) {
+            const [row, col] = availableMoves[i];
+            const newSquares = squares.map((row) => [...row]);
+            newSquares[row][col] = computerPlayer;
+
+            if (calculateWinner(newSquares, row, col) === computerPlayer) {
+              handleClick(row, col);
+              return;
+            }
+          }
+
+          // Check if the human player can win in the next move
+          for (let i = 0; i < availableMoves.length; i++) {
+            const [row, col] = availableMoves[i];
+            const newSquares = squares.map((row) => [...row]);
+            newSquares[row][col] = humanPlayer;
+
+            if (calculateWinner(newSquares, row, col) === humanPlayer) {
+              handleClick(row, col);
+              return;
+            }
+          }
+
+          // Random move for normal difficulty
+          const randomIndex = Math.floor(Math.random() * availableMoves.length);
+          const [row, col] = availableMoves[randomIndex];
+
+          // Choose a winning move for hard difficulty
+          if (availableMoves.length >= 3) {
+            for (let i = 0; i < availableMoves.length; i++) {
+              const [row, col] = availableMoves[i];
+              const newSquares = squares.map((row) => [...row]);
+              newSquares[row][col] = computerPlayer;
+
+              if (isWinningMove(newSquares, computerPlayer)) {
+                handleClick(row, col);
+                return;
+              }
+            }
+          }
+
+          handleClick(row, col);
+        }
+      }
+
+
+
+      function isWinningMove(currentSquares, player) {
+        for (let row = 0; row < dimension; row++) {
+          for (let col = 0; col < dimension; col++) {
+            if (!currentSquares[row][col]) {
+              const newSquares = currentSquares.map((row) => [...row]);
+              newSquares[row][col] = player;
+              if (calculateWinner(newSquares, row, col) === player) {
+                return true;
+              }
+            }
+          }
+        }
+        return false;
+      }
+
+
+
+      function toggleSinglePlayerMode() {
+        singlePlayerMode = !singlePlayerMode;
+        if (singlePlayerMode) {
+          singlePlayerToggle.innerHTML = '&#x1F4BB;';
+        } else {
+          singlePlayerToggle.innerHTML = '&#x1F477; ';
+        }
+      }
+      renderBoard();
+      updateStatus();
+    });
+
+
+  </script>
 </body>
+
 </html>
