@@ -1,24 +1,73 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Basic Breakout HTML Game</title>
-  <meta charset="UTF-8">
-  <style>
-  html, body {
-    height: 100%;
-    margin: 0;
-  }
+    <title>Basic Breakout HTML Game</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            /* Ngăn cuộn/phóng to trang khi chạm */
+            touch-action: none;
+            overflow: hidden;
+        }
 
-  body {
-    background: black;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  </style>
+        body {
+            background: black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column; /* Cho phép xếp control bên dưới */
+        }
+        
+        canvas {
+            border: 1px solid white;
+            /* Đảm bảo canvas không vượt quá kích thước màn hình */
+            max-width: 95vw; 
+            max-height: 95vh;
+        }
+
+        /* Định dạng cho vùng điều khiển */
+        #controls {
+            margin-top: 15px;
+            width: 300px;
+            max-width: 90vw;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .control-btn {
+            background-color: #333;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 5px;
+            user-select: none;
+            touch-action: manipulation;
+        }
+        
+        #btn-launch {
+            background-color: #007bff;
+            padding: 10px 40px;
+        }
+        
+        .control-btn:active {
+            background-color: #555;
+        }
+    </style>
 </head>
 <body>
 <canvas width="400" height="500" id="game"></canvas>
+
+<div id="controls">
+    <button class="control-btn" id="btn-left">⬅️ Trái</button>
+    <button class="control-btn" id="btn-launch">BẮT ĐẦU</button>
+    <button class="control-btn" id="btn-right">Phải ➡️</button>
+</div>
+
 <script>
 const canvas = document.getElementById('game');
 const context = canvas.getContext('2d');
@@ -26,28 +75,28 @@ const context = canvas.getContext('2d');
 // each row is 14 bricks long. the level consists of 6 blank rows then 8 rows
 // of 4 colors: red, orange, green, and yellow
 const level1 = [
-  [],
-  [],
-  [],
-  [],
-  [],
-  [],
-  ['R','R','R','R','R','R','R','R','R','R','R','R','R','R'],
-  ['R','R','R','R','R','R','R','R','R','R','R','R','R','R'],
-  ['O','O','O','O','O','O','O','O','O','O','O','O','O','O'],
-  ['O','O','O','O','O','O','O','O','O','O','O','O','O','O'],
-  ['G','G','G','G','G','G','G','G','G','G','G','G','G','G'],
-  ['G','G','G','G','G','G','G','G','G','G','G','G','G','G'],
-  ['Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y'],
-  ['Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y']
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    ['R','R','R','R','R','R','R','R','R','R','R','R','R','R'],
+    ['R','R','R','R','R','R','R','R','R','R','R','R','R','R'],
+    ['O','O','O','O','O','O','O','O','O','O','O','O','O','O'],
+    ['O','O','O','O','O','O','O','O','O','O','O','O','O','O'],
+    ['G','G','G','G','G','G','G','G','G','G','G','G','G','G'],
+    ['G','G','G','G','G','G','G','G','G','G','G','G','G','G'],
+    ['Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y'],
+    ['Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y','Y']
 ];
 
 // create a mapping between color short code (R, O, G, Y) and color name
 const colorMap = {
-  'R': 'red',
-  'O': 'orange',
-  'G': 'green',
-  'Y': 'yellow'
+    'R': 'red',
+    'O': 'orange',
+    'G': 'green',
+    'Y': 'yellow'
 };
 
 // use a 2px gap between each brick
@@ -63,180 +112,292 @@ const bricks = [];
 
 // create the level by looping over each row and column in the level1 array
 // and creating an object with the bricks position (x, y) and color
-for (let row = 0; row < level1.length; row++) {
-  for (let col = 0; col < level1[row].length; col++) {
-    const colorCode = level1[row][col];
-
-    bricks.push({
-      x: wallSize + (brickWidth + brickGap) * col,
-      y: wallSize + (brickHeight + brickGap) * row,
-      color: colorMap[colorCode],
-      width: brickWidth,
-      height: brickHeight
-    });
-  }
+function createBricks() {
+    // Xóa bricks cũ nếu có
+    bricks.length = 0; 
+    for (let row = 0; row < level1.length; row++) {
+        for (let col = 0; col < level1[row].length; col++) {
+            const colorCode = level1[row][col];
+            
+            bricks.push({
+                x: wallSize + (brickWidth + brickGap) * col,
+                y: wallSize + (brickHeight + brickGap) * row,
+                color: colorMap[colorCode],
+                width: brickWidth,
+                height: brickHeight
+            });
+        }
+    }
 }
 
-const paddle = {
-  // place the paddle horizontally in the middle of the screen
-  x: canvas.width / 2 - brickWidth / 2,
-  y: 440,
-  width: brickWidth,
-  height: brickHeight,
+createBricks();
 
-  // paddle x velocity
-  dx: 0
+const paddle = {
+    // place the paddle horizontally in the middle of the screen
+    x: canvas.width / 2 - brickWidth / 2,
+    y: 440,
+    width: brickWidth,
+    height: brickHeight,
+
+    // paddle x velocity
+    dx: 0
+};
+
+const initialBallState = {
+    x: 130,
+    y: 260,
+    dx: 0,
+    dy: 0,
 };
 
 const ball = {
-  x: 130,
-  y: 260,
-  width: 5,
-  height: 5,
+    x: initialBallState.x,
+    y: initialBallState.y,
+    width: 5,
+    height: 5,
 
-  // how fast the ball should go in either the x or y direction
-  speed: 2,
+    // how fast the ball should go in either the x or y direction
+    speed: 2,
 
-  // ball velocity
-  dx: 0,
-  dy: 0
+    // ball velocity
+    dx: initialBallState.dx,
+    dy: initialBallState.dy
 };
+
+let gameRunning = true; // Biến kiểm soát trạng thái game
+let isPaddleMovingLeft = false;
+let isPaddleMovingRight = false;
+
+
+function resetBall() {
+    ball.x = initialBallState.x;
+    ball.y = initialBallState.y;
+    ball.dx = initialBallState.dx;
+    ball.dy = initialBallState.dy;
+    
+    // Đảm bảo paddle không vượt tường khi reset
+    paddle.x = canvas.width / 2 - brickWidth / 2; 
+    paddle.dx = 0;
+    isPaddleMovingLeft = false;
+    isPaddleMovingRight = false;
+}
 
 // check for collision between two objects using axis-aligned bounding box (AABB)
 // @see https://developer.mozilla.org/en-US/docs/Games/Techniques/2D_collision_detection
 function collides(obj1, obj2) {
-  return obj1.x < obj2.x + obj2.width &&
-         obj1.x + obj1.width > obj2.x &&
-         obj1.y < obj2.y + obj2.height &&
-         obj1.y + obj1.height > obj2.y;
+    return obj1.x < obj2.x + obj2.width &&
+            obj1.x + obj1.width > obj2.x &&
+            obj1.y < obj2.y + obj2.height &&
+            obj1.y + obj1.height > obj2.y;
 }
+
+// Hàm khởi chạy bóng
+function launchBall() {
+     if (ball.dx === 0 && ball.dy === 0) {
+        // Tốc độ ban đầu, đi xuống và sang phải
+        ball.dx = ball.speed;
+        ball.dy = ball.speed; 
+    }
+}
+
 
 // game loop
 function loop() {
-  requestAnimationFrame(loop);
-  context.clearRect(0,0,canvas.width,canvas.height);
+    requestAnimationFrame(loop);
+    context.clearRect(0,0,canvas.width,canvas.height);
 
-  // move paddle by it's velocity
-  paddle.x += paddle.dx;
+    if (!gameRunning) return; // Dừng vòng lặp khi game dừng
 
-  // prevent paddle from going through walls
-  if (paddle.x < wallSize) {
-    paddle.x = wallSize
-  }
-  else if (paddle.x + brickWidth > canvas.width - wallSize) {
-    paddle.x = canvas.width - wallSize - brickWidth;
-  }
-
-  // move ball by it's velocity
-  ball.x += ball.dx;
-  ball.y += ball.dy;
-
-  // prevent ball from going through walls by changing its velocity
-  // left & right walls
-  if (ball.x < wallSize) {
-    ball.x = wallSize;
-    ball.dx *= -1;
-  }
-  else if (ball.x + ball.width > canvas.width - wallSize) {
-    ball.x = canvas.width - wallSize - ball.width;
-    ball.dx *= -1;
-  }
-  // top wall
-  if (ball.y < wallSize) {
-    ball.y = wallSize;
-    ball.dy *= -1;
-  }
-
-  // reset ball if it goes below the screen
-  if (ball.y > canvas.height) {
-    ball.x = 130;
-    ball.y = 260;
-    ball.dx = 0;
-    ball.dy = 0;
-  }
-
-  // check to see if ball collides with paddle. if they do change y velocity
-  if (collides(ball, paddle)) {
-    ball.dy *= -1;
-
-    // move ball above the paddle otherwise the collision will happen again
-    // in the next frame
-    ball.y = paddle.y - ball.height;
-  }
-
-  // check to see if ball collides with a brick. if it does, remove the brick
-  // and change the ball velocity based on the side the brick was hit on
-  for (let i = 0; i < bricks.length; i++) {
-    const brick = bricks[i];
-
-    if (collides(ball, brick)) {
-      // remove brick from the bricks array
-      bricks.splice(i, 1);
-
-      // ball is above or below the brick, change y velocity
-      // account for the balls speed since it will be inside the brick when it
-      // collides
-      if (ball.y + ball.height - ball.speed <= brick.y ||
-          ball.y >= brick.y + brick.height - ball.speed) {
-        ball.dy *= -1;
-      }
-      // ball is on either side of the brick, change x velocity
-      else {
-        ball.dx *= -1;
-      }
-
-      break;
+    // --- Cập nhật Paddle ---
+    if (isPaddleMovingLeft) {
+        paddle.dx = -3;
+    } else if (isPaddleMovingRight) {
+        paddle.dx = 3;
+    } else {
+        paddle.dx = 0;
     }
-  }
+    paddle.x += paddle.dx;
 
-  // draw walls
-  context.fillStyle = 'lightgrey';
-  context.fillRect(0, 0, canvas.width, wallSize);
-  context.fillRect(0, 0, wallSize, canvas.height);
-  context.fillRect(canvas.width - wallSize, 0, wallSize, canvas.height);
+    // prevent paddle from going through walls
+    if (paddle.x < wallSize) {
+        paddle.x = wallSize
+    }
+    else if (paddle.x + brickWidth > canvas.width - wallSize) {
+        paddle.x = canvas.width - wallSize - brickWidth;
+    }
 
-  // draw ball if it's moving
-  if (ball.dx || ball.dy) {
-    context.fillRect(ball.x, ball.y, ball.width, ball.height);
-  }
+    // --- Cập nhật Ball ---
+    ball.x += ball.dx;
+    ball.y += ball.dy;
 
-  // draw bricks
-  bricks.forEach(function(brick) {
-    context.fillStyle = brick.color;
-    context.fillRect(brick.x, brick.y, brick.width, brick.height);
-  });
+    // prevent ball from going through walls by changing its velocity
+    // left & right walls
+    if (ball.x < wallSize) {
+        ball.x = wallSize;
+        ball.dx *= -1;
+    }
+    else if (ball.x + ball.width > canvas.width - wallSize) {
+        ball.x = canvas.width - wallSize - ball.width;
+        ball.dx *= -1;
+    }
+    // top wall
+    if (ball.y < wallSize) {
+        ball.y = wallSize;
+        ball.dy *= -1;
+    }
 
-  // draw paddle
-  context.fillStyle = 'cyan';
-  context.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
+    // reset ball if it goes below the screen (Game Over)
+    if (ball.y > canvas.height) {
+        resetBall();
+        // Có thể thêm logic Game Over tại đây nếu muốn
+    }
+    
+    // Nếu hết gạch thì thắng game
+    if (bricks.length === 0) {
+        gameRunning = false;
+        context.fillStyle = 'yellow';
+        context.font = '30px Arial';
+        context.fillText('YOU WIN!', canvas.width / 2 - 70, canvas.height / 2);
+    }
+
+    // check to see if ball collides with paddle. if they do change y velocity
+    if (collides(ball, paddle)) {
+        ball.dy *= -1;
+
+        // move ball above the paddle otherwise the collision will happen again
+        // in the next frame
+        ball.y = paddle.y - ball.height;
+        
+        // Tăng/giảm dx của bóng dựa trên vị trí chạm paddle
+        const hitPoint = (ball.x + ball.width / 2) - (paddle.x + paddle.width / 2);
+        const ratio = hitPoint / (paddle.width / 2); // -1 đến 1
+        
+        // Thay đổi dx, đảm bảo tốc độ không đổi
+        ball.dx = ratio * ball.speed; 
+    }
+
+    // check to see if ball collides with a brick. if it does, remove the brick
+    // and change the ball velocity based on the side the brick was hit on
+    for (let i = 0; i < bricks.length; i++) {
+        const brick = bricks[i];
+
+        if (collides(ball, brick)) {
+            // remove brick from the bricks array
+            bricks.splice(i, 1);
+
+            // ball is above or below the brick, change y velocity
+            // account for the balls speed since it will be inside the brick when it
+            // collides
+            if (ball.y + ball.height - ball.speed <= brick.y ||
+                ball.y >= brick.y + brick.height - ball.speed) {
+                ball.dy *= -1;
+            }
+            // ball is on either side of the brick, change x velocity
+            else {
+                ball.dx *= -1;
+            }
+
+            break;
+        }
+    }
+
+    // --- Draw ---
+    // draw walls
+    context.fillStyle = 'lightgrey';
+    context.fillRect(0, 0, canvas.width, wallSize);
+    context.fillRect(0, 0, wallSize, canvas.height);
+    context.fillRect(canvas.width - wallSize, 0, wallSize, canvas.height);
+
+    // draw ball if it's moving
+    if (ball.dx || ball.dy) {
+        context.fillRect(ball.x, ball.y, ball.width, ball.height);
+    } else {
+        // Vẽ bóng dính vào paddle khi chưa bắt đầu
+        context.fillRect(paddle.x + paddle.width / 2 - ball.width / 2, paddle.y - ball.height, ball.width, ball.height);
+    }
+
+    // draw bricks
+    bricks.forEach(function(brick) {
+        context.fillStyle = brick.color;
+        context.fillRect(brick.x, brick.y, brick.width, brick.height);
+    });
+
+    // draw paddle
+    context.fillStyle = 'cyan';
+    context.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
 }
 
-// listen to keyboard events to move the paddle
+// ----------------------------------------------------------------
+// --- Điều khiển Bàn phím (Máy tính) ---
+// ----------------------------------------------------------------
 document.addEventListener('keydown', function(e) {
-  // left arrow key
-  if (e.which === 37) {
-    paddle.dx = -3;
-  }
-  // right arrow key
-  else if (e.which === 39) {
-    paddle.dx = 3;
-  }
-
-  // space key
-  // if they ball is not moving, we can launch the ball using the space key. ball
-  // will move towards the bottom right to start
-  if (ball.dx === 0 && ball.dy === 0 && e.which === 32) {
-    ball.dx = ball.speed;
-    ball.dy = ball.speed;
-  }
+    if (e.which === 37) { // Trái
+        isPaddleMovingLeft = true;
+    }
+    else if (e.which === 39) { // Phải
+        isPaddleMovingRight = true;
+    }
+    
+    // space key
+    if (e.which === 32) {
+        launchBall();
+    }
 });
 
-// listen to keyboard events to stop the paddle if key is released
 document.addEventListener('keyup', function(e) {
-  if (e.which === 37 || e.which === 39) {
-    paddle.dx = 0;
-  }
+    if (e.which === 37) {
+        isPaddleMovingLeft = false;
+    }
+    else if (e.which === 39) {
+        isPaddleMovingRight = false;
+    }
 });
+
+
+// ----------------------------------------------------------------
+// --- Điều khiển Cảm ứng (Điện thoại) ---
+// ----------------------------------------------------------------
+
+// Lấy tham chiếu đến các nút
+const btnLeft = document.getElementById('btn-left');
+const btnRight = document.getElementById('btn-right');
+const btnLaunch = document.getElementById('btn-launch');
+
+// --- Di chuyển Trái/Phải ---
+
+// Hàm xử lý chạm xuống (start/touch)
+function handleStartMove(direction) {
+    if (direction === 'left') {
+        isPaddleMovingLeft = true;
+        isPaddleMovingRight = false; // Đảm bảo không đi cả hai hướng
+    } else if (direction === 'right') {
+        isPaddleMovingRight = true;
+        isPaddleMovingLeft = false;
+    }
+}
+
+// Hàm xử lý nhả chạm (end/release)
+function handleStopMove() {
+    isPaddleMovingLeft = false;
+    isPaddleMovingRight = false;
+}
+
+// Gắn sự kiện cho nút Trái
+btnLeft.addEventListener('touchstart', (e) => { e.preventDefault(); handleStartMove('left'); }, { passive: false });
+btnLeft.addEventListener('touchend', handleStopMove);
+btnLeft.addEventListener('mousedown', () => handleStartMove('left')); // Hỗ trợ chuột
+btnLeft.addEventListener('mouseup', handleStopMove);
+btnLeft.addEventListener('mouseout', handleStopMove); // Trường hợp ngón tay trượt khỏi nút
+
+// Gắn sự kiện cho nút Phải
+btnRight.addEventListener('touchstart', (e) => { e.preventDefault(); handleStartMove('right'); }, { passive: false });
+btnRight.addEventListener('touchend', handleStopMove);
+btnRight.addEventListener('mousedown', () => handleStartMove('right')); // Hỗ trợ chuột
+btnRight.addEventListener('mouseup', handleStopMove);
+btnRight.addEventListener('mouseout', handleStopMove);
+
+// --- Khởi chạy Bóng ---
+btnLaunch.addEventListener('click', launchBall);
 
 // start the game
 requestAnimationFrame(loop);
