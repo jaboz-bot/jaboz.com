@@ -18,6 +18,7 @@
             align-items: center;
             justify-content: center;
             padding: 10px 0;
+            position: relative; /* Quan trọng cho Game Over overlay */
         }
 
         /* Định dạng cho khung điểm số */
@@ -34,6 +35,50 @@
             max-width: 90vw; 
             max-height: 90vh;
         }
+
+        /* ---------------------------------- */
+        /* Định dạng cho màn hình GAME OVER */
+        /* ---------------------------------- */
+        #game-over-screen {
+            position: absolute;
+            width: 400px; /* Bằng kích thước canvas */
+            height: 400px; /* Bằng kích thước canvas */
+            background-color: rgba(0, 0, 0, 0.85);
+            z-index: 10;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+            display: none; /* Ban đầu ẩn đi */
+            border: 1px solid red;
+        }
+        
+        #game-over-screen h2 {
+            color: #ff4d4d;
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        
+        #final-score {
+            font-size: 24px;
+            margin-bottom: 30px;
+        }
+        
+        #play-again-btn {
+            padding: 12px 25px;
+            font-size: 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        #play-again-btn:active {
+            background-color: #45a049;
+        }
+        /* ---------------------------------- */
 
         /* Định dạng cho vùng điều khiển */
         #controls {
@@ -74,6 +119,12 @@
 <body>
     <div id="score-display">Score: 0</div>
     
+    <div id="game-over-screen" style="display: none;">
+        <h2>GAME OVER</h2>
+        <p id="final-score">Điểm Cuối: 0</p>
+        <button id="play-again-btn">Chơi Lại</button>
+    </div>
+
     <canvas width="400" height="400" id="game"></canvas>
 
     <div id="controls">
@@ -88,16 +139,19 @@
         var canvas = document.getElementById('game');
         var context = canvas.getContext('2d');
         var scoreDisplay = document.getElementById('score-display');
+        var gameOverScreen = document.getElementById('game-over-screen');
+        var playAgainBtn = document.getElementById('play-again-btn');
+        
         var score = 0;
-
         var grid = 16;
         var count = 0;
+        
         // ----------------------------------------------------------------
-        // 🐍 TỐC ĐỘ BAN ĐẦU: 7 (Tương đương 60/7 ≈ 8.5 FPS)
-        // Giá trị này càng LỚN thì game càng CHẬM.
-        // Tốc độ ban đầu trong code gốc là 4 (15 FPS).
-        var framesPerMove = 7; 
+        // 🐢 TỐC ĐỘ BAN ĐẦU RẤT CHẬM: 10 (khoảng 6 FPS)
+        var framesPerMove = 10; 
         // ----------------------------------------------------------------
+        
+        var isGameOver = false;
 
         var snake = {
             x: 160,
@@ -117,6 +171,8 @@
         }
 
         function setSnakeDirection(newDx, newDy) {
+            if (isGameOver) return; // Không cho đổi hướng khi game over
+
             if ((newDx !== 0 && snake.dx === 0) || (newDy !== 0 && snake.dy === 0)) {
                 if (newDx !== 0 && snake.dx === 0) {
                     snake.dx = newDx;
@@ -133,7 +189,17 @@
             scoreDisplay.textContent = 'Score: ' + score;
         }
 
-        function resetGame() {
+        function handleGameOver() {
+            isGameOver = true;
+            document.getElementById('final-score').textContent = 'Điểm Cuối: ' + score;
+            gameOverScreen.style.display = 'flex';
+        }
+        
+        function startGame() {
+             isGameOver = false;
+             gameOverScreen.style.display = 'none';
+             
+             // Thiết lập lại trạng thái rắn và điểm
              snake.x = 160;
              snake.y = 160;
              snake.cells = [];
@@ -141,14 +207,13 @@
              snake.dx = grid;
              snake.dy = 0;
              
-             score = 0; // Reset điểm số
-             updateScore(0); // Cập nhật hiển thị điểm về 0
+             score = 0;
+             updateScore(0);
              
-             // ----------------------------------------------------------------
-             // 🔄 Reset tốc độ về mức ban đầu
-             framesPerMove = 7; 
-             // ----------------------------------------------------------------
+             // 🔄 Thiết lập lại tốc độ ban đầu
+             framesPerMove = 10; 
 
+             // Đặt táo ở vị trí mới
              apple.x = getRandomInt(0, 25) * grid;
              apple.y = getRandomInt(0, 25) * grid;
         }
@@ -156,9 +221,12 @@
         // game loop
         function loop() {
             requestAnimationFrame(loop);
+            
+            // Dừng game khi Game Over
+            if (isGameOver) {
+                return;
+            }
 
-            // ⚠️ Cập nhật logic làm chậm/tăng tốc độ:
-            // Game chỉ di chuyển sau mỗi `framesPerMove` frame.
             if (++count < framesPerMove) {
                 return;
             }
@@ -169,16 +237,10 @@
             snake.x += snake.dx;
             snake.y += snake.dy;
 
-            // Xử lý đi xuyên tường
-            if (snake.x < 0) {
-                snake.x = canvas.width - grid;
-            } else if (snake.x >= canvas.width) {
-                snake.x = 0;
-            }
-            if (snake.y < 0) {
-                snake.y = canvas.height - grid;
-            } else if (snake.y >= canvas.height) {
-                snake.y = 0;
+            // 🛑 LOGIC VA CHẠM TƯỜNG (GAME OVER)
+            if (snake.x < 0 || snake.x >= canvas.width || snake.y < 0 || snake.y >= canvas.height) {
+                handleGameOver();
+                return; 
             }
 
             snake.cells.unshift({
@@ -204,13 +266,10 @@
                     snake.maxCells++;
                     updateScore(1);
 
-                    // ----------------------------------------------------------------
                     // 🚀 LOGIC TĂNG TỐC ĐỘ: Giảm `framesPerMove` (tối thiểu là 1)
                     if (framesPerMove > 1) {
-                         // Giảm 1 frame delay (làm game nhanh hơn)
                         framesPerMove -= 1; 
                     }
-                    // ----------------------------------------------------------------
 
                     var newAppleX, newAppleY;
                     do {
@@ -222,34 +281,37 @@
                     apple.y = newAppleY;
                 }
 
-                // Kiểm tra tự va chạm
+                // 🛑 KIỂM TRA TỰ VA CHẠM (GAME OVER)
                 for (var i = index + 1; i < snake.cells.length; i++) {
                     if (cell.x === snake.cells[i].x && cell.y === snake.cells[i].y) {
-                        resetGame(); // Gọi hàm reset game mới
-                        break; // Thoát khỏi vòng lặp kiểm tra va chạm
+                        handleGameOver();
+                        return; // Dừng vòng lặp forEach và loop
                     }
                 }
             });
         }
 
         // ----------------------------------------------------------------
-        // --- Điều khiển bằng Phím ⌨️ ---
+        // --- Điều khiển Phím & Nút Bấm ---
         // ----------------------------------------------------------------
+        
+        // Nút Chơi Lại
+        playAgainBtn.addEventListener('click', startGame);
+
+        // Điều khiển Phím
         document.addEventListener('keydown', function(e) {
             if (e.which === 37) {
-                setSnakeDirection(-grid, 0);
+                setSnakeDirection(-grid, 0); // Trái
             } else if (e.which === 38) {
-                setSnakeDirection(0, -grid);
+                setSnakeDirection(0, -grid); // Lên
             } else if (e.which === 39) {
-                setSnakeDirection(grid, 0);
+                setSnakeDirection(grid, 0); // Phải
             } else if (e.which === 40) {
-                setSnakeDirection(0, grid);
+                setSnakeDirection(0, grid); // Xuống
             }
         });
 
-        // ----------------------------------------------------------------
-        // --- Điều khiển bằng Nút Bấm 👆 ---
-        // ----------------------------------------------------------------
+        // Điều khiển Nút Bấm
         document.getElementById('btn-up').addEventListener('click', function() {
              setSnakeDirection(0, -grid);
         });
@@ -263,7 +325,8 @@
              setSnakeDirection(grid, 0);
         });
 
-        // start the game
+        // Khởi động game
+        startGame(); // Thiết lập trạng thái ban đầu
         requestAnimationFrame(loop);
     </script>
 </body>
