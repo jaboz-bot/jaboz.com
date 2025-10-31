@@ -349,6 +349,13 @@ body {
     </style>
 </head>
 <body>
+
+    <div id="companyDisplay" style="text-align:center; font-size:1.4em; font-weight:bold; margin-bottom:10px;">
+    Công ty/Cửa hàng: ...
+
+    </div>
+
+    
     <div class="container" id="timesheetContainer">
         
         <div class="header-controls">
@@ -841,6 +848,9 @@ body {
 
         // --- Chạy khi tải trang ---
         window.onload = function() {
+            // Lấy tên công ty từ localStorage
+        const companyName = localStorage.getItem('companyName') || "Chưa nhập tên công ty";
+        document.getElementById('companyDisplay').textContent = `Công ty/Cửa hàng: ${companyName}`;
             TIMESHEET_CONTAINER.addEventListener('touchstart', handleTouchStart, false);
             TIMESHEET_CONTAINER.addEventListener('touchend', handleTouchEnd, false);
 
