@@ -119,8 +119,6 @@
             padding: 5px 0;
         }
         
-        /* --- ĐIỀU CHỈNH THÊM --- */
-
         /* Thay đổi màu cột Chủ Nhật (TH) */
         .calendar-table th:first-child {
             color: #e74c3c; /* Màu đỏ */
@@ -335,8 +333,10 @@
         </table>
 
         <div class="summary">
-            <p><span data-key="summary_total_hours_prefix">✅ Tổng giờ làm việc trong tháng:</span> <span id="totalHours" class="work-hours">0.00</span> <span data-key="summary_hours_suffix">giờ</span></p>
-            <p data-key="summary_total_income">💵 TỔNG THU NHẬP DỰ KIẾN:</p>
+            <p><span id="summaryHoursPrefix" data-key="summary_total_hours_prefix_month">✅ Tổng giờ làm việc trong tháng:</span> <span id="totalHours" class="work-hours">0.00</span> <span data-key="summary_hours_suffix">giờ</span></p>
+            
+            <p><span id="summaryIncomePrefix" data-key="summary_total_income_month">💵 TỔNG THU NHẬP DỰ KIẾN:</span></p>
+            
             <div id="totalAmount" class="total-amount">0 VND</div>
         </div>
     </div>
@@ -398,7 +398,7 @@
             data: `timeData-${currentYear}-${currentMonth + 1}`
         });
 
-        // --- Dữ liệu Dịch thuật (Đã giữ nguyên H1 trống) ---
+        // --- Dữ liệu Dịch thuật (ĐÃ CẬP NHẬT PHẦN SUMMARY) ---
         const translations = {
             'vi': {
                 title: 'Bảng Chấm Công Theo Tháng',
@@ -410,9 +410,11 @@
                 note_calc: '',
                 th_sun: 'CN', th_mon: 'T2', th_tue: 'T3', th_wed: 'T4', th_thu: 'T5', th_fri: 'T6', th_sat: 'T7',
                 in: 'Vào:', out: 'Ra:', hour_suffix: 'giờ',
-                summary_total_hours_prefix: '✅ Tổng giờ làm việc trong tháng:',
+                // KHÓA MỚI: Chỉ chứa phần prefix và dấu hai chấm
+                summary_total_hours_prefix_month: '✅ Tổng giờ làm việc trong ',
                 summary_hours_suffix: 'giờ',
-                summary_total_income: '💵 TỔNG THU NHẬP DỰ KIẾN:',
+                // KHÓA MỚI: Chỉ chứa phần prefix và dấu hai chấm
+                summary_total_income_month: '💵 TỔNG THU NHẬP DỰ KIẾN ',
                 month_names: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
                                 "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"],
                 modal_title_prefix: 'Nhập Giờ Công',
@@ -429,9 +431,11 @@
                 note_calc: '',
                 th_sun: 'Sun', th_mon: 'Mon', th_tue: 'Tue', th_wed: 'Wed', th_thu: 'Thu', th_fri: 'Fri', th_sat: 'Sat',
                 in: 'In:', out: 'Out:', hour_suffix: 'hours',
-                summary_total_hours_prefix: '✅ Total work hours this month:',
+                // KHÓA MỚI
+                summary_total_hours_prefix_month: '✅ Total work hours for ',
                 summary_hours_suffix: 'hours',
-                summary_total_income: '💵 ESTIMATED TOTAL INCOME:',
+                // KHÓA MỚI
+                summary_total_income_month: '💵 ESTIMATED TOTAL INCOME for ',
                 month_names: ["January", "February", "March", "April", "May", "June",
                                 "July", "August", "September", "October", "November", "December"],
                 modal_title_prefix: 'Enter Timesheet - Day',
@@ -448,9 +452,11 @@
                 note_calc: '',
                 th_sun: '일', th_mon: '월', th_tue: '화', th_wed: '수', th_thu: '목', th_fri: '금', th_sat: '토',
                 in: '출근:', out: '퇴근:', hour_suffix: '시간',
-                summary_total_hours_prefix: '✅ 이번 달 총 근무 시간:',
+                // KHÓA MỚI
+                summary_total_hours_prefix_month: '✅ 총 근무 시간 ',
                 summary_hours_suffix: '시간',
-                summary_total_income: '💵 예상 총 수입:',
+                // KHÓA MỚI
+                summary_total_income_month: '💵 예상 총 수입 ',
                 month_names: ["1월", "2월", "3월", "4월", "5월", "6월",
                                 "7월", "8월", "9월", "10월", "11월", "12월"],
                 modal_title_prefix: '근무 시간 입력 - 날짜',
@@ -511,6 +517,7 @@
             }
         }
 
+        // --- Hàm Cập Nhật Tổng Kết (ĐÃ CHỈNH SỬA) ---
         function updateSummary() {
             let totalHours = 0;
             const hourlyRate = parseFloat(HOURLY_RATE_INPUT.value) || 0;
@@ -519,6 +526,7 @@
             const t = translations[lang];
             const currency = t.currencyCode;
             const locale = t.currencyLocale;
+            const currentMonthName = t.month_names[currentMonth]; // Lấy tên tháng
 
             CALENDAR_BODY.querySelectorAll('.day-cell').forEach(cell => {
                 const dayElement = cell.querySelector('.day-number');
@@ -535,7 +543,7 @@
                 }
                 totalHours += hours;
                 
-                // Cập nhật hiển thị tiền trong ô
+                // Cập nhật hiển thị tiền/giờ trong ô
                 const workDisplay = cell.querySelector('.work-display');
                 if (workDisplay) {
                     if (hours > 0 && hourlyRate > 0) {
@@ -550,13 +558,13 @@
                         workDisplay.textContent = formattedAmount;
                         workDisplay.style.color = '#e74c3c';
                     } else {
-                        // **Bỏ ký hiệu "..." và chỉ hiển thị giờ nếu có (yêu cầu mới)**
-                        workDisplay.textContent = hours > 0 ? hours.toFixed(2) + t.hour_suffix.substring(0, 1) : ''; // Đã bỏ "..."
+                        workDisplay.textContent = hours > 0 ? hours.toFixed(2) + t.hour_suffix.substring(0, 1) : ''; 
                         workDisplay.style.color = '#95a5a6';
                     }
                 }
             });
             
+            // Cập nhật Tổng Kết Cuối Tháng
             const totalAmountFinal = totalHours * hourlyRate;
             TOTAL_HOURS_SPAN.textContent = totalHours.toFixed(2);
             
@@ -564,6 +572,11 @@
             if (summaryHoursSuffix) {
                 summaryHoursSuffix.textContent = t.summary_hours_suffix;
             }
+            
+            // CẬP NHẬT TÊN THÁNG VÀO PHẦN TỔNG KẾT (Yêu cầu mới)
+            document.getElementById('summaryHoursPrefix').textContent = `${t.summary_total_hours_prefix_month} ${currentMonthName}:`;
+            document.getElementById('summaryIncomePrefix').textContent = `${t.summary_total_income_month} ${currentMonthName}:`;
+
 
             TOTAL_AMOUNT_DIV.textContent = totalAmountFinal.toLocaleString(locale, { 
                 style: 'currency', 
@@ -588,7 +601,7 @@
             setLanguage();
         }
 
-        // --- Hàm Đặt Ngôn Ngữ ---
+        // --- Hàm Đặt Ngôn Ngữ (ĐÃ CHỈNH SỬA - Gọi updateSummary sau khi cập nhật các text tĩnh) ---
         function setLanguage(selectedLang) {
             const lang = selectedLang || LANGUAGE_SELECT.value; 
             const t = translations[lang];
@@ -598,18 +611,18 @@
             let currentCurrency = t.currencyCode;
             CURRENCY_UNIT_SPAN.textContent = currentCurrency;
             
-            // Cập nhật hiển thị NĂM ở góc trái
             YEAR_DISPLAY.textContent = currentYear; 
 
             document.querySelectorAll('[data-key]').forEach(element => {
                 const key = element.getAttribute('data-key');
                 if (t[key] !== undefined) {
-                    if (key === 'h1_month_title') { 
-                         // Tiêu đề H1 chỉ dùng để hiển thị tháng và mũi tên
-                    } else if (key.startsWith('modal_title_prefix')) {
+                    if (key.startsWith('modal_title_prefix')) {
                         const day = currentDayInModal ? ` - Ngày <span id="modalDayNumber">${currentDayInModal}</span>` : '';
                         element.innerHTML = `${t.modal_title_prefix}${day}`;
-                    } else {
+                    } else if (key !== 'h1_month_title' && 
+                               key !== 'summary_total_hours_prefix_month' && 
+                               key !== 'summary_total_income_month') {
+                        // Bỏ qua H1 và các prefix summary mới, vì chúng được xử lý trong updateSummary
                         element.textContent = t[key];
                     }
                 }
@@ -617,7 +630,6 @@
             
             document.title = t.title;
             
-            // Cập nhật tên THÁNG vào H1 (chỉ tên tháng)
             document.getElementById('currentMonthYear').textContent = `${t.month_names[currentMonth]}`;
             
             saveDataToLocalStorage();
@@ -649,7 +661,6 @@
                 
                 const currentDay = day.toString();
                 
-                // **Bỏ dấu "..." trong dayContent (Yêu cầu mới)**
                 const dayContent = `
                     <span class="day-number">${currentDay}</span>
                     <span class="work-display"></span> 
