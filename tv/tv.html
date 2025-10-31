@@ -126,7 +126,17 @@
         
         /* Thay đổi màu ô Chủ Nhật (TD) */
         .calendar-table tr td:first-child {
-            background-color: #fcebeb; /* Màu nền đỏ nhạt */
+            background-color: #fcebeb; /* Màu nền đỏ nhạt cho ô có ngày */
+        }
+        
+        /* CSS MỚI: Màu nền tối cho ô không có ngày
+           Sử dụng !important để đảm bảo nó ghi đè lên các màu nền khác, 
+           trừ khi có màu cụ thể hơn được gán (như background-color của .day-cell).
+           Tuy nhiên, vì .day-cell có màu nền trắng nên ô trống (không có .day-cell)
+           sẽ bị màu tối này chi phối */
+        .calendar-table td:empty {
+            background-color: #e0e0e0 !important; /* Màu xám tối ưu tiên */
+            cursor: default;
         }
 
         /* --- TỐI GIẢN HÓA GIAO DIỆN CƠ BẢN --- */
@@ -135,16 +145,10 @@
             width: 14.28%; 
             height: auto; 
             min-height: 50px;
-            background-color: #fcfcfc;
+            background-color: #fcfcfc; /* Mặc định trắng cho ô có ngày */
             position: relative; 
             cursor: pointer; 
             user-select: none;
-        }
-        
-        /* CSS MỚI: Màu nền tối cho ô không có ngày */
-        .calendar-table td:empty {
-            background-color: #e0e0e0 !important; /* Màu xám tối */
-            cursor: default;
         }
         
         .day-number {
