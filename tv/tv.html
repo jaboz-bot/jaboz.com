@@ -8,21 +8,19 @@
         /* === CSS Styling === */
         body {
             font-family: Arial, sans-serif;
-            margin: 0; /* Bỏ margin mặc định của body */
+            margin: 0;
             background-color: #f4f7f6;
         }
 
         .container {
             max-width: 900px;
-            /* Thay đổi margin để căn giữa và có đệm ở mọi kích thước */
             margin: 0 auto; 
-            padding: 10px; /* Giảm padding tổng thể cho mobile */
+            padding: 10px;
             background: #ffffff;
-            border-radius: 0; /* Bỏ border-radius trên mobile */
-            box-shadow: none; /* Bỏ shadow trên mobile */
+            border-radius: 0;
+            box-shadow: none;
         }
         
-        /* Cải thiện giao diện cho màn hình lớn */
         @media (min-width: 768px) {
             .container {
                 padding: 30px;
@@ -33,24 +31,24 @@
 
         .header-controls {
             display: flex;
-            flex-direction: column; /* Sắp xếp dọc trên mobile */
+            flex-direction: column;
             gap: 10px;
             margin-bottom: 15px;
-            align-items: center; /* Căn giữa các controls */
+            align-items: center;
         }
 
         @media (min-width: 600px) {
             .header-controls {
-                flex-direction: row; /* Trở về sắp xếp ngang trên desktop */
+                flex-direction: row;
                 justify-content: space-between;
-                align-items: flex-end; /* Căn dưới (để h1 ở trên) */
+                align-items: flex-end;
             }
         }
         
         .controls {
             display: flex;
             gap: 15px;
-            order: -1; /* Đẩy controls lên trên cùng bên phải trên mobile */
+            order: -1;
             width: 100%;
             justify-content: flex-end;
         }
@@ -73,124 +71,136 @@
             text-align: center;
             color: #2c3e50;
             margin: 10px 0 20px 0;
-            font-size: 1.5em; /* Thu nhỏ font H1 trên mobile */
+            font-size: 1.5em;
         }
 
         /* Lịch */
         .calendar-header {
             text-align: center;
-            font-size: 1.2em; /* Thu nhỏ font */
+            font-size: 1.2em;
             margin-bottom: 15px;
             color: #3498db;
         }
 
         .calendar-table {
             width: 100%;
-            /* Bổ sung table-layout fixed để các cột có kích thước đồng đều */
             table-layout: fixed; 
             border-collapse: collapse;
         }
 
         .calendar-table th, .calendar-table td {
             border: 1px solid #bdc3c7;
-            padding: 3px; /* Giảm padding cho mobile */
+            padding: 0; /* Đặt padding = 0 */
             text-align: center;
-            font-size: 0.7em; /* Thu nhỏ font chữ trong ô */
+            font-size: 0.7em;
         }
-        
-        @media (min-width: 600px) {
-             .calendar-table td {
-                font-size: 0.8em;
-                padding: 5px;
-             }
-        }
-
 
         .calendar-table th {
             background-color: #ecf0f1;
             color: #2c3e50;
+            padding: 5px 0;
         }
-
+        
+        /* --- TỐI GIẢN HÓA GIAO DIỆN CƠ BẢN --- */
         .day-cell {
             vertical-align: top;
             width: 14.28%; 
-            height: 90px; /* Giảm chiều cao cố định cho ô ngày trên mobile */
+            height: 60px; /* Chiều cao tối giản */
             background-color: #fcfcfc;
+            position: relative; /* Quan trọng để căn chỉnh nội dung */
+            cursor: pointer; /* Hiệu ứng có thể nhấp */
         }
         
-        @media (min-width: 600px) {
-             .day-cell {
-                height: 120px;
-             }
-        }
-
+        /* Số ngày ở góc trên trái */
         .day-number {
             font-weight: bold;
+            font-size: 1em;
             display: block;
-            text-align: left;
-            padding: 3px 3px 0 3px; /* Giảm padding */
+            position: absolute;
+            top: 2px;
+            left: 5px;
             color: #2980b9;
         }
         
-        /* Hiển thị cuối tháng */
-        .summary {
-            margin-top: 20px;
-            padding: 15px; /* Giảm padding */
-            border-top: 3px double #3498db;
-            background-color: #eaf6fd;
-            border-radius: 5px;
-        }
-
-        .summary p {
-            font-size: 1em; /* Giảm font */
-            margin: 8px 0;
-            font-weight: 500;
-        }
-
-        .total-amount {
-            font-size: 1.6em; /* Giảm font */
-            color: #e74c3c;
-            font-weight: bold;
-        }
-
-        /* Input Styling */
-        input[type="time"], select {
-            width: 100%; /* Đảm bảo input chiếm 100% không gian */
-            padding: 1px;
-            margin: 1px 0;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-            box-sizing: border-box;
-            font-size: 0.7em; /* Thu nhỏ font input */
-            text-align: center;
-        }
-        
-        @media (min-width: 600px) {
-            input[type="time"] {
-                width: 90%;
-                font-size: 0.8em;
-            }
-        }
-
-        .work-hours {
-            font-size: 0.8em; /* Thu nhỏ font */
+        /* Hiển thị giờ làm/tiền (Vị trí trung tâm) */
+        .work-display {
+            font-size: 0.9em;
             font-weight: bold;
             color: #27ae60;
-            margin-top: 2px;
+            margin-top: 25px; /* Đẩy xuống giữa */
+            display: block;
         }
         
-        .note {
-            font-size: 0.8em; /* Thu nhỏ font ghi chú */
-            margin-top: 10px; 
-            color: #e74c3c;
+        /* Nội dung chi tiết (Mặc định ẩn) */
+        .detail-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.95);
+            display: none; /* Ẩn mặc định */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 5px;
+            box-sizing: border-box;
+            border: 2px solid #3498db;
+            z-index: 10;
         }
         
+        /* Hiển thị chi tiết khi ô được chọn */
+        .day-cell.active .detail-content {
+            display: flex;
+        }
+        
+        /* Ẩn giờ làm khi đang hiển thị chi tiết */
+        .day-cell.active .work-display {
+            display: none;
+        }
+        
+        /* --- Tùy chỉnh input trong chế độ chi tiết --- */
+        .detail-content label {
+            font-size: 0.8em;
+            font-weight: normal;
+        }
+        
+        .detail-content input[type="time"] {
+            width: 90%;
+            padding: 1px;
+            margin: 1px 0 5px 0;
+            font-size: 0.8em;
+            text-align: center;
+        }
+
+        /* --- Input Rate --- */
         .rate-input-group {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 5px;
             font-size: 0.9em;
+        }
+        
+        /* --- Summary --- */
+        .summary {
+            margin-top: 20px;
+            padding: 15px;
+            border-top: 3px double #3498db;
+            background-color: #eaf6fd;
+            border-radius: 5px;
+        }
+
+        .summary p {
+            font-size: 1em;
+            margin: 8px 0;
+            font-weight: 500;
+        }
+
+        .total-amount {
+            font-size: 1.6em;
+            color: #e74c3c;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -219,7 +229,6 @@
                 </div>
             </div>
         </div>
-
         
         <div class="calendar-header">
             <div class="rate-input-group">
@@ -267,15 +276,18 @@
         const CURRENCY_SELECT = document.getElementById('currencySelect');
         const LANGUAGE_SELECT = document.getElementById('languageSelect');
         
-        // --- Dữ liệu Dịch thuật (Đã làm trống ghi chú theo yêu cầu) ---
+        // Dữ liệu Lưu trữ Giờ (để giữ lại khi chuyển ngôn ngữ/render lại)
+        let timeData = {}; 
+        
+        // --- Dữ liệu Dịch thuật ---
         const translations = {
             'vi': {
-                title: 'Bảng Chấm Công Theo Tháng - Trường Giang',
+                title: 'Bảng Chấm Công Theo Tháng',
                 label_lang: 'Ngôn ngữ:',
                 label_currency: 'Tiền tệ:',
                 h1_title: '🗓️ Bảng Chấm Công Tháng',
                 label_rate: '💰 Lương/giờ:',
-                note_calc: '', // Đã bỏ nội dung ghi chú
+                note_calc: '',
                 th_sun: 'CN', th_mon: 'T2', th_tue: 'T3', th_wed: 'T4', th_thu: 'T5', th_fri: 'T6', th_sat: 'T7',
                 in: 'Vào:', out: 'Ra:', hour_suffix: 'giờ',
                 summary_total_hours_prefix: '✅ Tổng giờ làm việc trong tháng:',
@@ -285,12 +297,12 @@
                               "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"]
             },
             'en': {
-                title: 'Monthly Timesheet - Truong Giang',
+                title: 'Monthly Timesheet',
                 label_lang: 'Language:',
                 label_currency: 'Currency:',
                 h1_title: '🗓️ Monthly Timesheet for',
                 label_rate: '💰 Hourly Rate:',
-                note_calc: '', // Đã bỏ nội dung ghi chú
+                note_calc: '',
                 th_sun: 'Sun', th_mon: 'Mon', th_tue: 'Tue', th_wed: 'Wed', th_thu: 'Thu', th_fri: 'Fri', th_sat: 'Sat',
                 in: 'In:', out: 'Out:', hour_suffix: 'hours',
                 summary_total_hours_prefix: '✅ Total work hours this month:',
@@ -300,12 +312,12 @@
                               "July", "August", "September", "October", "November", "December"]
             },
             'ko': {
-                title: '월간 근무 시간표 - 쯔엉장',
+                title: '월간 근무 시간표',
                 label_lang: '언어:',
                 label_currency: '통화:',
                 h1_title: '🗓️ 월간 근무 시간표',
                 label_rate: '💰 시간당 임금:',
-                note_calc: '', // Đã bỏ nội dung ghi chú
+                note_calc: '',
                 th_sun: '일', th_mon: '월', th_tue: '화', th_wed: '수', th_thu: '목', th_fri: '금', th_sat: '토',
                 in: '출근:', out: '퇴근:', hour_suffix: '시간',
                 summary_total_hours_prefix: '✅ 이번 달 총 근무 시간:',
@@ -315,7 +327,7 @@
                               "7월", "8월", "9월", "10월", "11월", "12월"]
             }
         };
-
+        
         // --- 1. Hàm Tính Toán Giờ Làm (Không trừ 1 tiếng) ---
         function calculateWorkHours(timeIn, timeOut) {
             if (!timeIn || !timeOut) return 0;
@@ -328,58 +340,90 @@
 
             let totalMinutes = minutesOut - minutesIn;
             
-            // Xử lý ca qua đêm (cơ bản: nếu giờ ra nhỏ hơn giờ vào)
             if (totalMinutes < 0) {
                 totalMinutes += 24 * 60; 
             }
             
-            return totalMinutes / 60; // Trả về giờ dưới dạng số thập phân
+            return totalMinutes / 60;
         }
 
-        // --- 2. Hàm Cập Nhật Tổng Kết (Có hỗ trợ tiền tệ) ---
+        // --- 2. Hàm Cập Nhật Tổng Kết (Hỗ trợ tiền tệ và lưu trữ data) ---
         function updateSummary() {
             let totalHours = 0;
             const hourlyRate = parseFloat(HOURLY_RATE_INPUT.value) || 0;
             const currency = CURRENCY_SELECT.value;
             const lang = LANGUAGE_SELECT.value;
-            const currentTranslation = translations[lang];
+            const t = translations[lang];
 
-            // 1. Tính tổng giờ
-            CALENDAR_BODY.querySelectorAll('input[type="time"]').forEach(input => {
-                const day = input.dataset.day;
-                const type = input.dataset.type;
+            // 1. Lặp qua tất cả các ngày
+            CALENDAR_BODY.querySelectorAll('.day-cell').forEach(cell => {
+                const day = cell.querySelector('.day-number').textContent;
                 
-                const timeIn = document.querySelector(`input[data-day="${day}"][data-type="in"]`).value;
-                const timeOut = document.querySelector(`input[data-day="${day}"][data-type="out"]`).value;
+                // Lấy giá trị từ input trong detail-content
+                const timeInInput = cell.querySelector('input[data-type="in"]');
+                const timeOutInput = cell.querySelector('input[data-type="out"]');
+                
+                const timeIn = timeInInput ? timeInInput.value : timeData[day]?.in || '';
+                const timeOut = timeOutInput ? timeOutInput.value : timeData[day]?.out || '';
+                
+                // Lưu trữ data (để giữ lại khi chuyển ngôn ngữ/render)
+                timeData[day] = { in: timeIn, out: timeOut };
 
-                if (type === 'out' && timeIn && timeOut) {
-                    const hours = calculateWorkHours(timeIn, timeOut);
-                    totalHours += hours;
-                    
-                    const dayHoursSpan = document.getElementById(`hours-${day}`);
-                    if (dayHoursSpan) {
-                        dayHoursSpan.textContent = `${hours.toFixed(2)} ${currentTranslation.hour_suffix}`;
+                let hours = 0;
+                if (timeIn && timeOut) {
+                    hours = calculateWorkHours(timeIn, timeOut);
+                }
+                totalHours += hours;
+                
+                // 2. Cập nhật hiển thị trong ô
+                const workDisplay = cell.querySelector('.work-display');
+                if (workDisplay) {
+                    if (hours > 0) {
+                        const totalAmount = hours * hourlyRate;
+                        
+                        let locale = 'en-US';
+                        if (currency === 'VND') locale = 'vi-VN';
+                        if (currency === 'KRW') locale = 'ko-KR';
+
+                        const formattedAmount = totalAmount.toLocaleString(locale, { 
+                            style: 'currency', 
+                            currency: currency, 
+                            minimumFractionDigits: (currency === 'VND' || currency === 'KRW') ? 0 : 2
+                        });
+                        
+                        // Hiển thị tiền thay vì giờ (Giao diện tối giản)
+                        workDisplay.textContent = formattedAmount;
+                        workDisplay.style.color = '#e74c3c'; // Màu đỏ cho tiền
+                    } else {
+                        workDisplay.textContent = '...';
+                        workDisplay.style.color = '#95a5a6';
                     }
                 }
             });
             
-            // 2. Tính toán số tiền
-            const totalAmount = totalHours * hourlyRate;
-
-            // 3. Cập nhật hiển thị Tổng Giờ
+            // 3. Cập nhật Tổng Kết Cuối Tháng
+            const totalAmountFinal = totalHours * hourlyRate;
             TOTAL_HOURS_SPAN.textContent = totalHours.toFixed(2);
-            document.querySelector('[data-key="summary_hours_suffix"]').textContent = currentTranslation.summary_hours_suffix;
+            document.querySelector('[data-key="summary_hours_suffix"]').textContent = t.summary_hours_suffix;
 
-            // 4. Cập nhật hiển thị Tổng Tiền theo định dạng tiền tệ
-            let locale = 'en-US'; // Mặc định là Anh Mỹ cho USD
+            let locale = 'en-US';
             if (currency === 'VND') locale = 'vi-VN';
             if (currency === 'KRW') locale = 'ko-KR';
 
-            TOTAL_AMOUNT_DIV.textContent = totalAmount.toLocaleString(locale, { 
+            TOTAL_AMOUNT_DIV.textContent = totalAmountFinal.toLocaleString(locale, { 
                 style: 'currency', 
                 currency: currency, 
                 minimumFractionDigits: (currency === 'VND' || currency === 'KRW') ? 0 : 2
             });
+            
+             // Đảm bảo input trong detail-content luôn giữ giá trị
+             CALENDAR_BODY.querySelectorAll('.day-cell').forEach(cell => {
+                const day = cell.querySelector('.day-number').textContent;
+                const timeInInput = cell.querySelector('input[data-type="in"]');
+                const timeOutInput = cell.querySelector('input[data-type="out"]');
+                if (timeInInput && timeData[day]) timeInInput.value = timeData[day].in;
+                if (timeOutInput && timeData[day]) timeOutInput.value = timeData[day].out;
+             });
         }
         
         // --- 3. Hàm Đặt Ngôn Ngữ ---
@@ -387,7 +431,7 @@
             const lang = LANGUAGE_SELECT.value;
             const t = translations[lang];
 
-            // 1. Cập nhật các chuỗi văn bản tĩnh
+            // Cập nhật các chuỗi văn bản tĩnh
             document.querySelectorAll('[data-key]').forEach(element => {
                 const key = element.getAttribute('data-key');
                 if (t[key] !== undefined) {
@@ -395,41 +439,22 @@
                 }
             });
             
-            // 2. Cập nhật tiêu đề và tháng năm
             document.title = t.title;
             MONTH_YEAR_SPAN.textContent = `${t.month_names[CURRENT_MONTH]}, ${CURRENT_YEAR}`;
             
-            // 3. Cập nhật nội dung trong các ô ngày
-            CALENDAR_BODY.querySelectorAll('.day-cell').forEach(cell => {
-                const day = cell.querySelector('.day-number').textContent;
-                
-                // Lấy giá trị input cũ để giữ lại khi chuyển ngôn ngữ
-                const oldIn = cell.querySelector('input[data-type="in"]').value;
-                const oldOut = cell.querySelector('input[data-type="out"]').value;
-                const oldHours = cell.querySelector('.work-hours').textContent;
-
-
-                cell.innerHTML = `
-                    <span class="day-number">${day}</span>
-                    ${t.in} <input type="time" data-day="${day}" data-type="in" value="${oldIn}" onchange="updateSummary()">
-                    ${t.out} <input type="time" data-day="${day}" data-type="out" value="${oldOut}" onchange="updateSummary()">
-                    <div class="work-hours" id="hours-${day}">${oldHours.replace(/[\w\s]+$/, t.hour_suffix)}</div>
-                `;
-            });
-
-            // 4. Chạy lại updateSummary để cập nhật tiền tệ và giờ làm trong ô
-            updateSummary(); 
+            // Render lại lịch để cập nhật các nhãn Vào/Ra trong detail-content
+            renderCalendar(); 
+            
+            // Sau khi render xong, chạy updateSummary để cập nhật tiền/giờ
+            updateSummary();
         }
 
-
-        // --- 4. Hàm Tạo Lịch ---
+        // --- 4. Hàm Tạo Lịch (Kết hợp data đã lưu) ---
         function renderCalendar() {
             CALENDAR_BODY.innerHTML = ''; 
             
             const lang = LANGUAGE_SELECT.value;
             const t = translations[lang];
-
-            MONTH_YEAR_SPAN.textContent = `${t.month_names[CURRENT_MONTH]}, ${CURRENT_YEAR}`;
 
             const date = new Date(CURRENT_YEAR, CURRENT_MONTH, 1);
             let firstDayOfWeek = date.getDay(); 
@@ -450,13 +475,38 @@
                 const cell = row.insertCell();
                 cell.className = 'day-cell';
                 
+                const currentDay = day.toString();
+                const storedIn = timeData[currentDay]?.in || '';
+                const storedOut = timeData[currentDay]?.out || '';
+                
                 const dayContent = `
-                    <span class="day-number">${day}</span>
-                    ${t.in} <input type="time" data-day="${day}" data-type="in" onchange="updateSummary()">
-                    ${t.out} <input type="time" data-day="${day}" data-type="out" onchange="updateSummary()">
-                    <div class="work-hours" id="hours-${day}">0.00 ${t.hour_suffix}</div>
+                    <span class="day-number">${currentDay}</span>
+                    <span class="work-display">...</span>
+                    <div class="detail-content" onclick="event.stopPropagation()">
+                        <label>${t.in}</label>
+                        <input type="time" data-day="${currentDay}" data-type="in" value="${storedIn}" onchange="updateSummary()">
+                        <label>${t.out}</label>
+                        <input type="time" data-day="${currentDay}" data-type="out" value="${storedOut}" onchange="updateSummary()">
+                    </div>
                 `;
                 cell.innerHTML = dayContent;
+                
+                // Gắn sự kiện click (hoặc tap trên mobile)
+                cell.onclick = function() {
+                    // Đóng tất cả ô chi tiết khác
+                    document.querySelectorAll('.day-cell.active').forEach(c => {
+                        if (c !== cell) {
+                            c.classList.remove('active');
+                        }
+                    });
+                    // Mở hoặc đóng ô hiện tại
+                    cell.classList.toggle('active');
+                    
+                    // Nếu mở, focus vào input đầu tiên
+                    if (cell.classList.contains('active')) {
+                         cell.querySelector('input[data-type="in"]').focus();
+                    }
+                };
                 
                 day++;
                 date.setDate(day);
@@ -469,11 +519,18 @@
             updateSummary(); 
         }
 
+        // Đóng ô chi tiết khi click bên ngoài lịch
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.day-cell')) {
+                 document.querySelectorAll('.day-cell.active').forEach(c => {
+                    c.classList.remove('active');
+                });
+            }
+        });
+
         // --- Chạy khi tải trang ---
         window.onload = function() {
-             // Đặt ngôn ngữ mặc định (vi) và tạo lịch
-             setLanguage();
-             renderCalendar();
+             setLanguage(); // Sẽ gọi renderCalendar và updateSummary
         };
     </script>
 </body>
