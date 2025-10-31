@@ -141,6 +141,12 @@
             user-select: none;
         }
         
+        /* CSS MỚI: Màu nền tối cho ô không có ngày */
+        .calendar-table td:empty {
+            background-color: #e0e0e0 !important; /* Màu xám tối */
+            cursor: default;
+        }
+        
         .day-number {
             font-weight: bold;
             font-size: 1em;
@@ -398,7 +404,7 @@
             data: `timeData-${currentYear}-${currentMonth + 1}`
         });
 
-        // --- Dữ liệu Dịch thuật (ĐÃ CẬP NHẬT PHẦN SUMMARY) ---
+        // --- Dữ liệu Dịch thuật ---
         const translations = {
             'vi': {
                 title: 'Bảng Chấm Công Theo Tháng',
@@ -410,10 +416,8 @@
                 note_calc: '',
                 th_sun: 'CN', th_mon: 'T2', th_tue: 'T3', th_wed: 'T4', th_thu: 'T5', th_fri: 'T6', th_sat: 'T7',
                 in: 'Vào:', out: 'Ra:', hour_suffix: 'giờ',
-                // KHÓA MỚI: Chỉ chứa phần prefix và dấu hai chấm
                 summary_total_hours_prefix_month: '✅ Tổng giờ làm việc trong ',
                 summary_hours_suffix: 'giờ',
-                // KHÓA MỚI: Chỉ chứa phần prefix và dấu hai chấm
                 summary_total_income_month: '💵 TỔNG THU NHẬP DỰ KIẾN ',
                 month_names: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
                                 "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"],
@@ -431,10 +435,8 @@
                 note_calc: '',
                 th_sun: 'Sun', th_mon: 'Mon', th_tue: 'Tue', th_wed: 'Wed', th_thu: 'Thu', th_fri: 'Fri', th_sat: 'Sat',
                 in: 'In:', out: 'Out:', hour_suffix: 'hours',
-                // KHÓA MỚI
                 summary_total_hours_prefix_month: '✅ Total work hours for ',
                 summary_hours_suffix: 'hours',
-                // KHÓA MỚI
                 summary_total_income_month: '💵 ESTIMATED TOTAL INCOME for ',
                 month_names: ["January", "February", "March", "April", "May", "June",
                                 "July", "August", "September", "October", "November", "December"],
@@ -452,10 +454,8 @@
                 note_calc: '',
                 th_sun: '일', th_mon: '월', th_tue: '화', th_wed: '수', th_thu: '목', th_fri: '금', th_sat: '토',
                 in: '출근:', out: '퇴근:', hour_suffix: '시간',
-                // KHÓA MỚI
                 summary_total_hours_prefix_month: '✅ 총 근무 시간 ',
                 summary_hours_suffix: '시간',
-                // KHÓA MỚI
                 summary_total_income_month: '💵 예상 총 수입 ',
                 month_names: ["1월", "2월", "3월", "4월", "5월", "6월",
                                 "7월", "8월", "9월", "10월", "11월", "12월"],
@@ -517,7 +517,6 @@
             }
         }
 
-        // --- Hàm Cập Nhật Tổng Kết (ĐÃ CHỈNH SỬA) ---
         function updateSummary() {
             let totalHours = 0;
             const hourlyRate = parseFloat(HOURLY_RATE_INPUT.value) || 0;
@@ -526,7 +525,7 @@
             const t = translations[lang];
             const currency = t.currencyCode;
             const locale = t.currencyLocale;
-            const currentMonthName = t.month_names[currentMonth]; // Lấy tên tháng
+            const currentMonthName = t.month_names[currentMonth]; 
 
             CALENDAR_BODY.querySelectorAll('.day-cell').forEach(cell => {
                 const dayElement = cell.querySelector('.day-number');
@@ -573,7 +572,7 @@
                 summaryHoursSuffix.textContent = t.summary_hours_suffix;
             }
             
-            // CẬP NHẬT TÊN THÁNG VÀO PHẦN TỔNG KẾT (Yêu cầu mới)
+            // CẬP NHẬT TÊN THÁNG VÀO PHẦN TỔNG KẾT
             document.getElementById('summaryHoursPrefix').textContent = `${t.summary_total_hours_prefix_month} ${currentMonthName}:`;
             document.getElementById('summaryIncomePrefix').textContent = `${t.summary_total_income_month} ${currentMonthName}:`;
 
@@ -601,7 +600,6 @@
             setLanguage();
         }
 
-        // --- Hàm Đặt Ngôn Ngữ (ĐÃ CHỈNH SỬA - Gọi updateSummary sau khi cập nhật các text tĩnh) ---
         function setLanguage(selectedLang) {
             const lang = selectedLang || LANGUAGE_SELECT.value; 
             const t = translations[lang];
@@ -622,7 +620,6 @@
                     } else if (key !== 'h1_month_title' && 
                                key !== 'summary_total_hours_prefix_month' && 
                                key !== 'summary_total_income_month') {
-                        // Bỏ qua H1 và các prefix summary mới, vì chúng được xử lý trong updateSummary
                         element.textContent = t[key];
                     }
                 }
@@ -645,6 +642,7 @@
 
             let row = CALENDAR_BODY.insertRow();
             
+            // Thêm ô trống (màu tối) cho những ngày trước ngày 1
             for (let i = 0; i < firstDayOfWeek; i++) {
                 row.insertCell().innerHTML = '';
             }
@@ -675,6 +673,7 @@
                 date.setDate(day);
             }
             
+            // Thêm ô trống (màu tối) cho những ngày sau ngày cuối tháng
             while (row.cells.length < 7) {
                 row.insertCell().innerHTML = '';
             }
