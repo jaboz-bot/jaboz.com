@@ -37,72 +37,35 @@
             }
         }
 
+        /* Bố cục chính của Header */
         .header-controls {
             display: flex;
-            flex-direction: row; 
-            flex-wrap: wrap; 
+            flex-direction: column; /* Chia thành các dòng */
             gap: 10px;
             margin-bottom: 15px;
-            align-items: center;
-            position: relative; /* Quan trọng để định vị tuyệt đối cho YearDisplay */
+            flex-shrink: 0;
         }
         
-        /* Hiển thị năm ở góc trên trái (Yêu cầu mới) */
+        /* Dòng 1: Năm và Ngôn ngữ */
+        .top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        /* Hiển thị năm ở góc trên trái */
         .year-display {
-            position: absolute;
-            top: -5px; 
-            left: 5px;
-            font-size: 1.2em; 
+            font-size: 1.4em; /* Lớn hơn một chút */
             font-weight: bold;
             color: #27ae60; /* Màu xanh lá nổi bật */
             padding: 5px;
-            z-index: 10; /* Đảm bảo hiển thị trên các thành phần khác nếu chồng lấn */
         }
         
-        h1 {
-            text-align: center;
-            color: #2c3e50;
-            margin: 10px 0 10px 0; 
-            font-size: 1.4em;
-            flex-grow: 1; 
-            order: 1; 
-            width: 100%; /* Chiếm toàn bộ chiều rộng trên mobile */
-        }
-
-        h1 .nav-arrow {
-            cursor: pointer;
-            padding: 0 5px;
-            user-select: none;
-        }
-
         .controls {
             display: flex;
             gap: 15px;
-            order: 2; /* Đảm bảo controls ở vị trí phải trên mobile */
-            width: 100%;
             justify-content: flex-end;
-        }
-        
-        @media (min-width: 600px) {
-            .header-controls {
-                justify-content: space-between;
-                flex-wrap: nowrap;
-            }
-            .year-display {
-                position: static; /* Hủy bỏ định vị tuyệt đối trên desktop */
-                order: -2; 
-                margin-right: 20px;
-                font-size: 1.5em; /* Lớn hơn một chút trên desktop */
-            }
-            h1 {
-                width: auto;
-                order: 0;
-                font-size: 1.5em;
-            }
-            .controls {
-                order: 2; 
-                width: auto;
-            }
         }
 
         .control-group label {
@@ -110,6 +73,22 @@
             color: #555;
             margin-right: 5px;
             font-size: 0.9em;
+        }
+
+        /* Dòng 2: Tiêu đề tháng (H1) */
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin: 0;
+            font-size: 1.5em; /* Kích thước tiêu đề tháng */
+            width: 100%;
+            order: 2; /* Đảm bảo nó là dòng thứ 2 */
+        }
+
+        h1 .nav-arrow {
+            cursor: pointer;
+            padding: 0 5px;
+            user-select: none;
         }
 
         /* Lịch */
@@ -127,6 +106,7 @@
             flex-grow: 1; 
         }
 
+        /* ... Các CSS còn lại giữ nguyên ... */
         .calendar-table th, .calendar-table td {
             border: 1px solid #bdc3c7;
             padding: 0; 
@@ -140,7 +120,6 @@
             padding: 5px 0;
         }
         
-        /* --- TỐI GIẢN HÓA GIAO DIỆN CƠ BẢN --- */
         .day-cell {
             vertical-align: top;
             width: 14.28%; 
@@ -176,7 +155,6 @@
             text-overflow: ellipsis;
         }
         
-        /* --- Input Rate --- */
         .rate-input-group {
             display: flex;
             align-items: center;
@@ -185,7 +163,6 @@
             font-size: 0.9em;
         }
         
-        /* --- Summary --- */
         .summary {
             margin-top: 10px;
             padding: 10px;
@@ -207,7 +184,6 @@
             font-weight: bold;
         }
         
-        /* === MODAL/POPUP CHO NHẬP THỜI GIAN === */
         .modal {
             position: fixed;
             z-index: 1000;
@@ -294,24 +270,26 @@
     <div class="container" id="timesheetContainer">
         
         <div class="header-controls">
-            <div id="yearDisplay" class="year-display"></div> 
-            
-            <h1 data-key="h1_title_short">
-                <span class="nav-arrow" onclick="changeMonth(-1)">◀️</span>
-                🗓️ Chấm Công Tháng <span id="currentMonthYear"></span>
-                <span class="nav-arrow" onclick="changeMonth(1)">▶️</span>
-            </h1>
-            
-            <div class="controls">
-                <div class="control-group">
-                    <label data-key="label_lang" for="languageSelect">Ngôn ngữ:</label>
-                    <select id="languageSelect" onchange="setLanguage(this.value)">
-                        <option value="vi">Tiếng Việt</option>
-                        <option value="en">English</option>
-                        <option value="ko">한국어</option>
-                    </select>
+            <div class="top-row">
+                <div id="yearDisplay" class="year-display"></div> 
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <label data-key="label_lang" for="languageSelect">Ngôn ngữ:</label>
+                        <select id="languageSelect" onchange="setLanguage(this.value)">
+                            <option value="vi">Tiếng Việt</option>
+                            <option value="en">English</option>
+                            <option value="ko">한국어</option>
+                        </select>
+                    </div>
                 </div>
             </div>
+            
+            <h1 data-key="h1_month_title">
+                <span class="nav-arrow" onclick="changeMonth(-1)">◀️</span>
+                <span id="currentMonthYear"></span> 
+                <span class="nav-arrow" onclick="changeMonth(1)">▶️</span>
+            </h1>
         </div>
         
         <div class="calendar-header">
@@ -390,14 +368,14 @@
         const TIME_MODAL = document.getElementById('timeModal');
         const MODAL_TIME_IN = document.getElementById('modalTimeIn');
         const MODAL_TIME_OUT = document.getElementById('modalTimeOut');
-        const YEAR_DISPLAY = document.getElementById('yearDisplay'); // Element mới
+        const YEAR_DISPLAY = document.getElementById('yearDisplay'); 
         
         let timeData = {}; 
         let currentDayInModal = null; 
         
         // Khóa lưu trữ
         const STORAGE_KEY_RATE = 'hourlyRate';
-        const STORAGE_KEY_LANGUAGE = 'appLanguage'; // Khóa mới
+        const STORAGE_KEY_LANGUAGE = 'appLanguage'; 
         
         // Khóa lưu trữ sẽ thay đổi theo tháng/năm hiện tại
         const getStorageKeys = () => ({
@@ -411,7 +389,7 @@
                 label_lang: 'Ngôn ngữ:',
                 currencyCode: 'VND', 
                 currencyLocale: 'vi-VN', 
-                h1_title_short: '🗓️ Chấm Công Tháng', // KHÓA MỚI CHO TIÊU ĐỀ NGẮN
+                h1_month_title: '', // KHÓA MỚI: Tiêu đề H1 trống, chỉ chứa tháng
                 label_rate: '💰 Lương/giờ:',
                 note_calc: '',
                 th_sun: 'CN', th_mon: 'T2', th_tue: 'T3', th_wed: 'T4', th_thu: 'T5', th_fri: 'T6', th_sat: 'T7',
@@ -430,7 +408,7 @@
                 label_lang: 'Language:',
                 currencyCode: 'USD',
                 currencyLocale: 'en-US',
-                h1_title_short: '🗓️ Timesheet for', // KHÓA MỚI CHO TIÊU ĐỀ NGẮN
+                h1_month_title: '', // KHÓA MỚI
                 label_rate: '💰 Hourly Rate:',
                 note_calc: '',
                 th_sun: 'Sun', th_mon: 'Mon', th_tue: 'Tue', th_wed: 'Wed', th_thu: 'Thu', th_fri: 'Fri', th_sat: 'Sat',
@@ -449,7 +427,7 @@
                 label_lang: '언어:',
                 currencyCode: 'KRW',
                 currencyLocale: 'ko-KR',
-                h1_title_short: '🗓️ 근무 시간표', // KHÓA MỚI CHO TIÊU ĐỀ NGẮN
+                h1_month_title: '', // KHÓA MỚI
                 label_rate: '💰 시간당 임금:',
                 note_calc: '',
                 th_sun: '일', th_mon: '월', th_tue: '화', th_wed: '수', th_thu: '목', th_fri: '금', th_sat: '토',
@@ -465,7 +443,6 @@
             }
         };
         
-        // --- Hàm Tính Toán Giờ Làm (Không đổi) ---
         function calculateWorkHours(timeIn, timeOut) {
             if (!timeIn || !timeOut) return 0;
             const [hIn, mIn] = timeIn.split(':').map(Number);
@@ -479,20 +456,17 @@
             return totalMinutes / 60;
         }
 
-        // --- Hàm Lưu Dữ Liệu Tự Động ---
         function saveDataToLocalStorage() {
             try {
                 const keys = getStorageKeys();
                 localStorage.setItem(keys.data, JSON.stringify(timeData));
                 localStorage.setItem(STORAGE_KEY_RATE, HOURLY_RATE_INPUT.value);
-                // Lưu ngôn ngữ hiện tại (ĐÃ THÊM)
                 localStorage.setItem(STORAGE_KEY_LANGUAGE, LANGUAGE_SELECT.value);
             } catch (e) {
                 console.error("Could not save data to localStorage", e);
             }
         }
 
-        // --- Hàm Tải Dữ Liệu Tự Động ---
         function loadDataFromLocalStorage() {
             try {
                 const keys = getStorageKeys();
@@ -509,7 +483,6 @@
                     timeData = {}; 
                 }
 
-                // Tải ngôn ngữ đã chọn (ĐÃ THÊM)
                 const savedLang = localStorage.getItem(STORAGE_KEY_LANGUAGE);
                 if (savedLang) {
                     LANGUAGE_SELECT.value = savedLang;
@@ -522,7 +495,6 @@
             }
         }
 
-        // --- Hàm Cập Nhật Tổng Kết ---
         function updateSummary() {
             let totalHours = 0;
             const hourlyRate = parseFloat(HOURLY_RATE_INPUT.value) || 0;
@@ -569,7 +541,6 @@
                 }
             });
             
-            // Cập nhật Tổng Kết Cuối Tháng
             const totalAmountFinal = totalHours * hourlyRate;
             TOTAL_HOURS_SPAN.textContent = totalHours.toFixed(2);
             
@@ -587,7 +558,6 @@
             saveDataToLocalStorage();
         }
         
-        // --- Hàm Đổi Tháng/Năm ---
         function changeMonth(delta) {
             currentMonth += delta;
             if (currentMonth > 11) {
@@ -599,8 +569,6 @@
             }
             
             loadDataFromLocalStorage(); 
-            
-            // Gọi setLanguage để cập nhật giao diện, tiêu đề và năm
             setLanguage();
         }
 
@@ -614,15 +582,15 @@
             let currentCurrency = t.currencyCode;
             CURRENCY_UNIT_SPAN.textContent = currentCurrency;
             
-            // Cập nhật hiển thị NĂM ở góc trái (Yêu cầu mới)
+            // Cập nhật hiển thị NĂM ở góc trái
             YEAR_DISPLAY.textContent = currentYear; 
 
             document.querySelectorAll('[data-key]').forEach(element => {
                 const key = element.getAttribute('data-key');
                 if (t[key] !== undefined) {
-                    if (key === 'h1_title_short') { 
-                         // Tiêu đề H1 mới: Chỉ hiển thị "Chấm Công Tháng"
-                        element.innerHTML = `<span class="nav-arrow" onclick="changeMonth(-1)">◀️</span> ${t.h1_title_short} <span id="currentMonthYear"></span> <span class="nav-arrow" onclick="changeMonth(1)">▶️</span>`;
+                    if (key === 'h1_month_title') { 
+                         // Tiêu đề H1: Chỉ cập nhật nội dung bên ngoài span currentMonthYear
+                        // (Không cần làm gì vì nội dung key là rỗng, chỉ cần giữ cấu trúc HTML)
                     } else if (key.startsWith('modal_title_prefix')) {
                         const day = currentDayInModal ? ` - Ngày <span id="modalDayNumber">${currentDayInModal}</span>` : '';
                         element.innerHTML = `${t.modal_title_prefix}${day}`;
@@ -633,7 +601,8 @@
             });
             
             document.title = t.title;
-            // Hiển thị THÁNG vào H1
+            
+            // Cập nhật tên THÁNG vào H1 (chỉ tên tháng)
             document.getElementById('currentMonthYear').textContent = `${t.month_names[currentMonth]}`;
             
             saveDataToLocalStorage();
@@ -641,7 +610,6 @@
             renderCalendar(); 
         }
 
-        // --- Hàm Tạo Lịch (Không đổi) ---
         function renderCalendar() {
             CALENDAR_BODY.innerHTML = ''; 
             
@@ -687,7 +655,6 @@
             updateSummary(); 
         }
 
-        // --- Xử lý Modal (Không đổi) ---
         function openModal(day) {
             currentDayInModal = day;
             const lang = LANGUAGE_SELECT.value;
@@ -722,7 +689,6 @@
             updateSummary(); 
         }
 
-        // --- Xử lý Vuốt (Swipe) (Không đổi) ---
         function handleTouchStart(event) {
             touchStartX = event.touches[0].clientX;
         }
@@ -744,17 +710,13 @@
 
         // --- Chạy khi tải trang ---
         window.onload = function() {
-            // **Gắn các sự kiện vuốt**
             TIMESHEET_CONTAINER.addEventListener('touchstart', handleTouchStart, false);
             TIMESHEET_CONTAINER.addEventListener('touchend', handleTouchEnd, false);
 
             HOURLY_RATE_INPUT.addEventListener('change', updateSummary);
             HOURLY_RATE_INPUT.addEventListener('keyup', updateSummary);
 
-            // 1. Tải toàn bộ dữ liệu (bao gồm ngôn ngữ)
             loadDataFromLocalStorage();
-
-            // 2. Sau khi đã tải ngôn ngữ, gọi setLanguage() để render giao diện
             setLanguage(); 
         };
     </script>
