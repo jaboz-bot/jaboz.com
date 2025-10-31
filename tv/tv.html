@@ -56,7 +56,7 @@
 
         /* Hiển thị năm ở góc trên trái */
         .year-display {
-            font-size: 1.4em; /* Lớn hơn một chút */
+            font-size: 1.4em; 
             font-weight: bold;
             color: #27ae60; /* Màu xanh lá nổi bật */
             padding: 5px;
@@ -80,7 +80,7 @@
             text-align: center;
             color: #2c3e50;
             margin: 0;
-            font-size: 1.5em; /* Kích thước tiêu đề tháng */
+            font-size: 1.5em; 
             width: 100%;
             order: 2; /* Đảm bảo nó là dòng thứ 2 */
         }
@@ -106,7 +106,6 @@
             flex-grow: 1; 
         }
 
-        /* ... Các CSS còn lại giữ nguyên ... */
         .calendar-table th, .calendar-table td {
             border: 1px solid #bdc3c7;
             padding: 0; 
@@ -120,6 +119,19 @@
             padding: 5px 0;
         }
         
+        /* --- ĐIỀU CHỈNH THÊM --- */
+
+        /* Thay đổi màu cột Chủ Nhật (TH) */
+        .calendar-table th:first-child {
+            color: #e74c3c; /* Màu đỏ */
+        }
+        
+        /* Thay đổi màu ô Chủ Nhật (TD) */
+        .calendar-table tr td:first-child {
+            background-color: #fcebeb; /* Màu nền đỏ nhạt */
+        }
+
+        /* --- TỐI GIẢN HÓA GIAO DIỆN CƠ BẢN --- */
         .day-cell {
             vertical-align: top;
             width: 14.28%; 
@@ -141,6 +153,7 @@
             color: #2980b9;
         }
         
+        /* Work display (Vị trí trung tâm) */
         .work-display {
             font-size: 0.9em;
             font-weight: bold;
@@ -155,6 +168,7 @@
             text-overflow: ellipsis;
         }
         
+        /* --- Input Rate --- */
         .rate-input-group {
             display: flex;
             align-items: center;
@@ -163,6 +177,7 @@
             font-size: 0.9em;
         }
         
+        /* --- Summary --- */
         .summary {
             margin-top: 10px;
             padding: 10px;
@@ -184,6 +199,7 @@
             font-weight: bold;
         }
         
+        /* === MODAL/POPUP CHO NHẬP THỜI GIAN === */
         .modal {
             position: fixed;
             z-index: 1000;
@@ -382,14 +398,14 @@
             data: `timeData-${currentYear}-${currentMonth + 1}`
         });
 
-        // --- Dữ liệu Dịch thuật (ĐÃ CẬP NHẬT) ---
+        // --- Dữ liệu Dịch thuật (Đã giữ nguyên H1 trống) ---
         const translations = {
             'vi': {
                 title: 'Bảng Chấm Công Theo Tháng',
                 label_lang: 'Ngôn ngữ:',
                 currencyCode: 'VND', 
                 currencyLocale: 'vi-VN', 
-                h1_month_title: '', // KHÓA MỚI: Tiêu đề H1 trống, chỉ chứa tháng
+                h1_month_title: '', 
                 label_rate: '💰 Lương/giờ:',
                 note_calc: '',
                 th_sun: 'CN', th_mon: 'T2', th_tue: 'T3', th_wed: 'T4', th_thu: 'T5', th_fri: 'T6', th_sat: 'T7',
@@ -408,7 +424,7 @@
                 label_lang: 'Language:',
                 currencyCode: 'USD',
                 currencyLocale: 'en-US',
-                h1_month_title: '', // KHÓA MỚI
+                h1_month_title: '', 
                 label_rate: '💰 Hourly Rate:',
                 note_calc: '',
                 th_sun: 'Sun', th_mon: 'Mon', th_tue: 'Tue', th_wed: 'Wed', th_thu: 'Thu', th_fri: 'Fri', th_sat: 'Sat',
@@ -427,7 +443,7 @@
                 label_lang: '언어:',
                 currencyCode: 'KRW',
                 currencyLocale: 'ko-KR',
-                h1_month_title: '', // KHÓA MỚI
+                h1_month_title: '', 
                 label_rate: '💰 시간당 임금:',
                 note_calc: '',
                 th_sun: '일', th_mon: '월', th_tue: '화', th_wed: '수', th_thu: '목', th_fri: '금', th_sat: '토',
@@ -534,8 +550,8 @@
                         workDisplay.textContent = formattedAmount;
                         workDisplay.style.color = '#e74c3c';
                     } else {
-                        // Hiển thị giờ làm nếu không có lương/giờ
-                        workDisplay.textContent = hours > 0 ? hours.toFixed(2) + t.hour_suffix.substring(0, 1) : '...';
+                        // **Bỏ ký hiệu "..." và chỉ hiển thị giờ nếu có (yêu cầu mới)**
+                        workDisplay.textContent = hours > 0 ? hours.toFixed(2) + t.hour_suffix.substring(0, 1) : ''; // Đã bỏ "..."
                         workDisplay.style.color = '#95a5a6';
                     }
                 }
@@ -572,7 +588,7 @@
             setLanguage();
         }
 
-        // --- Hàm Đặt Ngôn Ngữ (ĐÃ CẬP NHẬT) ---
+        // --- Hàm Đặt Ngôn Ngữ ---
         function setLanguage(selectedLang) {
             const lang = selectedLang || LANGUAGE_SELECT.value; 
             const t = translations[lang];
@@ -589,8 +605,7 @@
                 const key = element.getAttribute('data-key');
                 if (t[key] !== undefined) {
                     if (key === 'h1_month_title') { 
-                         // Tiêu đề H1: Chỉ cập nhật nội dung bên ngoài span currentMonthYear
-                        // (Không cần làm gì vì nội dung key là rỗng, chỉ cần giữ cấu trúc HTML)
+                         // Tiêu đề H1 chỉ dùng để hiển thị tháng và mũi tên
                     } else if (key.startsWith('modal_title_prefix')) {
                         const day = currentDayInModal ? ` - Ngày <span id="modalDayNumber">${currentDayInModal}</span>` : '';
                         element.innerHTML = `${t.modal_title_prefix}${day}`;
@@ -634,9 +649,10 @@
                 
                 const currentDay = day.toString();
                 
+                // **Bỏ dấu "..." trong dayContent (Yêu cầu mới)**
                 const dayContent = `
                     <span class="day-number">${currentDay}</span>
-                    <span class="work-display">...</span>
+                    <span class="work-display"></span> 
                 `;
                 cell.innerHTML = dayContent;
                 
