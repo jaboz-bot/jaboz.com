@@ -282,7 +282,7 @@
             <div class="controls">
                 <div class="control-group">
                     <label data-key="label_lang" for="languageSelect">Ngôn ngữ:</label>
-                    <select id="languageSelect" onchange="setLanguage()">
+                    <select id="languageSelect" onchange="setLanguage(this.value)">
                         <option value="vi">Tiếng Việt</option>
                         <option value="en">English</option>
                         <option value="ko">한국어</option>
@@ -362,7 +362,6 @@
         const TOTAL_HOURS_SPAN = document.getElementById('totalHours');
         const TOTAL_AMOUNT_DIV = document.getElementById('totalAmount');
         const HOURLY_RATE_INPUT = document.getElementById('hourlyRate');
-        const MONTH_YEAR_SPAN = document.getElementById('currentMonthYear');
         const LANGUAGE_SELECT = document.getElementById('languageSelect');
         const CURRENCY_UNIT_SPAN = document.getElementById('currencyUnit');
         const TIME_MODAL = document.getElementById('timeModal');
@@ -372,9 +371,12 @@
         let timeData = {}; 
         let currentDayInModal = null; 
         
+        // Khóa lưu trữ
+        const STORAGE_KEY_RATE = 'hourlyRate';
+        const STORAGE_KEY_LANGUAGE = 'appLanguage'; // Khóa mới
+        
         // Khóa lưu trữ sẽ thay đổi theo tháng/năm hiện tại
         const getStorageKeys = () => ({
-            rate: 'hourlyRate',
             data: `timeData-${currentYear}-${currentMonth + 1}`
         });
 
@@ -458,7 +460,9 @@
             try {
                 const keys = getStorageKeys();
                 localStorage.setItem(keys.data, JSON.stringify(timeData));
-                localStorage.setItem(keys.rate, HOURLY_RATE_INPUT.value);
+                localStorage.setItem(STORAGE_KEY_RATE, HOURLY_RATE_INPUT.value);
+                // Lưu ngôn ngữ hiện tại (MỚI)
+                localStorage.setItem(STORAGE_KEY_LANGUAGE, LANGUAGE_SELECT.value);
             } catch (e) {
                 console.error("Could not save data to localStorage", e);
             }
@@ -468,18 +472,26 @@
         function loadDataFromLocalStorage() {
             try {
                 const keys = getStorageKeys();
-                // Tải Rate
-                const savedRate = localStorage.getItem(keys.rate);
+                // Tải Rate (Không đổi)
+                const savedRate = localStorage.getItem(STORAGE_KEY_RATE);
                 if (savedRate) {
                     HOURLY_RATE_INPUT.value = savedRate;
                 }
 
-                // Tải dữ liệu chấm công cho tháng hiện tại
+                // Tải dữ liệu chấm công cho tháng hiện tại (Không đổi)
                 const savedData = localStorage.getItem(keys.data);
                 if (savedData) {
                     timeData = JSON.parse(savedData);
                 } else {
                     timeData = {}; // Reset data nếu chuyển sang tháng mới
+                }
+
+                // Tải ngôn ngữ đã chọn (MỚI)
+                const savedLang = localStorage.getItem(STORAGE_KEY_LANGUAGE);
+                if (savedLang) {
+                    LANGUAGE_SELECT.value = savedLang;
+                } else {
+                    LANGUAGE_SELECT.value = 'vi'; // Mặc định là Tiếng Việt nếu chưa có
                 }
             } catch (e) {
                 console.error("Could not load data from localStorage", e);
@@ -537,7 +549,11 @@
             // Cập nhật Tổng Kết Cuối Tháng
             const totalAmountFinal = totalHours * hourlyRate;
             TOTAL_HOURS_SPAN.textContent = totalHours.toFixed(2);
-            document.querySelector('[data-key="summary_hours_suffix"]').textContent = t.summary_hours_suffix;
+            // Cập nhật hậu tố giờ làm
+            const summaryHoursSuffix = document.querySelector('[data-key="summary_hours_suffix"]');
+            if (summaryHoursSuffix) {
+                summaryHoursSuffix.textContent = t.summary_hours_suffix;
+            }
 
             TOTAL_AMOUNT_DIV.textContent = totalAmountFinal.toLocaleString(locale, { 
                 style: 'currency', 
@@ -549,7 +565,7 @@
             saveDataToLocalStorage();
         }
         
-        // --- Hàm Đổi Tháng/Năm (MỚI) ---
+        // --- Hàm Đổi Tháng/Năm ---
         function changeMonth(delta) {
             currentMonth += delta;
             if (currentMonth > 11) {
@@ -561,17 +577,23 @@
             }
             
             // 1. Tải dữ liệu của tháng mới
+            // Hàm này đã tự động tải ngôn ngữ đã lưu trữ
             loadDataFromLocalStorage(); 
             
-            // 2. Render lại lịch và cập nhật ngôn ngữ (đảm bảo hiển thị tên tháng đúng)
+            // 2. Render lại lịch và cập nhật ngôn ngữ
+            // CHÚ Ý: Không cần truyền tham số vì LANGUAGE_SELECT.value đã được cập nhật
             setLanguage();
         }
 
-        // --- Hàm Đặt Ngôn Ngữ ---
-        function setLanguage() {
-            const lang = LANGUAGE_SELECT.value;
+        // --- Hàm Đặt Ngôn Ngữ (Đã Tối Ưu) ---
+        // Thêm tham số optional `selectedLang` để gọi thủ công khi thay đổi select
+        function setLanguage(selectedLang) {
+            const lang = selectedLang || LANGUAGE_SELECT.value; // Ưu tiên tham số, nếu không thì dùng giá trị hiện tại
             const t = translations[lang];
             
+            // Đảm bảo select luôn đồng bộ với ngôn ngữ đang được hiển thị
+            LANGUAGE_SELECT.value = lang;
+
             let currentCurrency = t.currencyCode;
             CURRENCY_UNIT_SPAN.textContent = currentCurrency;
             
@@ -594,10 +616,13 @@
             // Hiển thị tháng/năm hiện tại
             document.getElementById('currentMonthYear').textContent = `${t.month_names[currentMonth]}, ${currentYear}`;
             
+            // Lưu ngôn ngữ sau khi đã áp dụng
+            saveDataToLocalStorage();
+
             renderCalendar(); 
         }
 
-        // --- Hàm Tạo Lịch (Đã cập nhật) ---
+        // --- Hàm Tạo Lịch (Không đổi) ---
         function renderCalendar() {
             CALENDAR_BODY.innerHTML = ''; 
             
@@ -679,29 +704,23 @@
             updateSummary(); 
         }
 
-        // --- Xử lý Vuốt (Swipe) (MỚI) ---
+        // --- Xử lý Vuốt (Swipe) (Không đổi) ---
         function handleTouchStart(event) {
-            // Chỉ lấy tọa độ X của lần chạm đầu tiên
             touchStartX = event.touches[0].clientX;
         }
 
         function handleTouchEnd(event) {
             if (touchStartX === 0) return;
 
-            // Lấy tọa độ X cuối cùng khi nhấc tay lên
             const touchEndX = event.changedTouches[0].clientX;
             const deltaX = touchEndX - touchStartX;
             
-            // Xử lý vuốt
             if (deltaX > SWIPE_THRESHOLD) {
-                // Vuốt sang phải: Quay lại tháng trước (delta = -1)
                 changeMonth(-1);
             } else if (deltaX < -SWIPE_THRESHOLD) {
-                // Vuốt sang trái: Tiến đến tháng sau (delta = 1)
                 changeMonth(1);
             }
 
-            // Đặt lại touchStartX
             touchStartX = 0;
         }
 
@@ -711,8 +730,11 @@
             TIMESHEET_CONTAINER.addEventListener('touchstart', handleTouchStart, false);
             TIMESHEET_CONTAINER.addEventListener('touchend', handleTouchEnd, false);
 
-            // Tải dữ liệu, đặt ngôn ngữ và render lịch
+            // 1. Tải toàn bộ dữ liệu (bao gồm ngôn ngữ)
             loadDataFromLocalStorage();
+
+            // 2. Sau khi đã tải ngôn ngữ, gọi setLanguage() để render giao diện
+            // Đã cập nhật `onchange` của select để gọi `setLanguage(this.value)`
             setLanguage(); 
         };
     </script>
