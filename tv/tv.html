@@ -71,7 +71,6 @@
         .control-group label {
             font-weight: bold;
             color: #555;
-            margin-right: 5px;
             font-size: 0.9em;
         }
 
@@ -129,7 +128,7 @@
             background-color: #fcebeb; /* Màu nền đỏ nhạt cho ô có ngày */
         }
         
-        /* CSS MỚI: Màu nền tối cho ô không có ngày */
+        /* Màu nền tối cho ô không có ngày */
         .calendar-table td:empty {
             background-color: #e0e0e0 !important; /* Màu xám tối ưu tiên */
             cursor: default;
@@ -147,9 +146,10 @@
             user-select: none;
         }
         
+        /* ĐÃ CẬP NHẬT: Tăng kích thước số ngày */
         .day-number {
             font-weight: bold;
-            font-size: 1em;
+            font-size: 1.1em; /* Tăng từ 1em lên 1.1em */
             display: block;
             position: absolute;
             top: 2px;
@@ -159,7 +159,6 @@
         
         /* Work display (Vị trí trung tâm) */
         .work-display {
-            /* THAY ĐỔI QUAN TRỌNG: Sử dụng Flexbox để xếp 2 dòng */
             display: flex;
             flex-direction: column; 
             justify-content: center;
@@ -170,28 +169,29 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 95%; /* Cho phép nội dung hiển thị rộng hơn */
+            width: 95%; 
             padding: 2px 0;
         }
         
         .work-display span {
-            font-size: 0.8em;
             line-height: 1.1;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             width: 100%;
+            text-align: center;
         }
 
-        /* Dòng Giờ Làm */
+        /* ĐÃ CẬP NHẬT: Tăng kích thước Giờ Làm */
         .work-hours-in-cell {
             color: #2980b9; /* Màu xanh dương cho giờ làm */
+            font-size: 0.9em; /* Tăng từ 0.8em lên 0.9em */
         }
         
-        /* Dòng Số Tiền */
+        /* ĐÃ CẬP NHẬT: Tăng kích thước Số Tiền */
         .work-amount-in-cell {
             color: #e74c3c; /* Màu đỏ cho số tiền */
-            font-size: 0.9em; /* Làm số tiền to hơn một chút */
+            font-size: 1em; /* Tăng từ 0.9em lên 1em */
         }
 
         /* --- Input Rate --- */
