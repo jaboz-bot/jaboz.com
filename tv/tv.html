@@ -6,11 +6,18 @@
     <title data-key="title">Bảng Chấm Công Theo Tháng</title>
     <style>
         /* === CSS Styling === */
+        
+        /* KHẮC PHỤC CĂN GIỮA MODAL: Đảm bảo HTML và BODY chiếm toàn bộ chiều cao màn hình */
+        html, body {
+            height: 100%; /* Dòng QUAN TRỌNG đã được thêm */
+            margin: 0;
+        }
+
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             background-color: #f4f7f6;
-            height: 100vh;
+            height: 100vh; /* Giữ lại 100vh để tương thích tốt hơn */
         }
 
         .container {
@@ -232,7 +239,7 @@
             left: 0;
             top: 0;
             width: 100%;
-            height: 100%;
+            height: 100%; /* Thuộc tính này chỉ hoạt động khi html và body có height: 100% */
             overflow: auto;
             background-color: rgba(0,0,0,0.6);
             display: none;
@@ -459,7 +466,7 @@
                 summary_hours_suffix: 'giờ',
                 summary_total_income_month: '💵 TỔNG THU NHẬP DỰ KIẾN ',
                 month_names: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
-                                "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"],
+                                 "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"],
                 modal_title_prefix: 'Nhập Giờ Công',
                 btn_cancel: 'Hủy',
                 btn_delete: 'Xóa', 
@@ -479,7 +486,7 @@
                 summary_hours_suffix: 'hours',
                 summary_total_income_month: '💵 ESTIMATED TOTAL INCOME for ',
                 month_names: ["January", "February", "March", "April", "May", "June",
-                                "July", "August", "September", "October", "November", "December"],
+                                 "July", "August", "September", "October", "November", "December"],
                 modal_title_prefix: 'Enter Timesheet - Day',
                 btn_cancel: 'Cancel',
                 btn_delete: 'Delete', 
@@ -499,7 +506,7 @@
                 summary_hours_suffix: '시간',
                 summary_total_income_month: '💵 예상 총 수입 ',
                 month_names: ["1월", "2월", "3월", "4월", "5월", "6월",
-                                "7월", "8월", "9월", "10월", "11월", "12월"],
+                                 "7월", "8월", "9월", "10월", "11월", "12월"],
                 modal_title_prefix: '근무 시간 입력 - 날짜',
                 btn_cancel: '취소',
                 btn_delete: '삭제', 
