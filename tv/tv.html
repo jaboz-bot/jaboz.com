@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bảng Chấm Công Theo Tháng By Trường Giang</title>
+    <title>Bảng Chấm Công Theo Tháng - Trường Giang</title>
     <style>
         /* === CSS Styling === */
         body {
@@ -113,7 +113,7 @@
         <div class="calendar-header">
             <label for="hourlyRate">💰 Lương/giờ (VNĐ):</label>
             <input type="number" id="hourlyRate" value="50000" min="1000" onchange="renderCalendar()">
-            <p style="font-size:0.9em; margin-top:10px;">(Tự động trừ 1 tiếng nghỉ nếu ca làm việc > 5 tiếng)</p>
+            <p style="font-size:0.9em; margin-top:10px; color:#e74c3c;">(LƯU Ý: Đã bỏ tự động trừ 1 tiếng nghỉ trưa. Tổng giờ làm là giờ ra ca trừ giờ vào ca).</p>
         </div>
 
         <table class="calendar-table">
@@ -159,16 +159,13 @@
 
             let totalMinutes = minutesOut - minutesIn;
             
-            // Xử lý ca qua đêm (cơ bản)
+            // Xử lý ca qua đêm (cơ bản: nếu giờ ra nhỏ hơn giờ vào)
             if (totalMinutes < 0) {
                 totalMinutes += 24 * 60; 
             }
             
-            // Giả định: Trừ 60 phút (1 giờ) nghỉ trưa nếu làm việc thực tế > 5 giờ (300 phút)
+            // ************ ĐÃ BỎ LOGIC TRỪ 1 TIẾNG ************
             const hoursWorked = totalMinutes / 60;
-            if (hoursWorked > 5) {
-                return hoursWorked - 1; // Trừ 1 tiếng nghỉ
-            }
 
             return hoursWorked;
         }
