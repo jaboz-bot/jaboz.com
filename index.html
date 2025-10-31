@@ -90,8 +90,8 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Thêm shadow cho nút */
         }
         .settings-link:hover {
-             transform: translateY(-2px);
-             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+              transform: translateY(-2px);
+              box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         }
     </style>
 </head>
@@ -106,12 +106,12 @@
             </a>
             
             <div id="gameLink" class="app-item game-link">
-                🎮 Chơi Game              
+                🎮 Chơi Game             
             </div>
             
-            <a href="tv/tv.html" class="app-item movie-link">
+            <div id="movieLink" class="app-item movie-link">
                 🎬 TV Online
-            </a>
+            </div>
             
         </div>
     </div>
@@ -124,16 +124,20 @@
 
 <script>
     // === Logic Chuyển Hướng Game ===
-    // 1. Lấy phần tử nút Game
     const gameLink = document.getElementById('gameLink');
-    // 2. Định nghĩa hàm chuyển hướng
     function redirectToGame() {
-        // Sử dụng window.location.href để chuyển hướng
-        // Đường link này sẽ KHÔNG HIỂN THỊ trong mã nguồn HTML mà chỉ nằm trong JS
         window.location.href = 'https://gamesnacks.com/';
     }
-    // 3. Gắn sự kiện click
     gameLink.addEventListener('click', redirectToGame);
+
+    // === THÊM LOGIC Chuyển Hướng TV Online ===
+    const movieLink = document.getElementById('movieLink');
+    function redirectToMovie() {
+        // Đường link mới bạn cung cấp
+        window.location.href = 'https://vieon.global/truyen-hinh-truc-tuyen/?srsltid=AfmBOoqK3d4MuzUPs9fBsY0b_4LRLoU2Ryy_KM5muFGL3BfharKJpZyy';
+    }
+    movieLink.addEventListener('click', redirectToMovie);
+
 
     // === Logic PWA (Giữ nguyên) ===
     let deferredPrompt = null;
