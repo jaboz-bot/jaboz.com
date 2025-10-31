@@ -9,40 +9,49 @@
         
         /* KHẮC PHỤC CĂN GIỮA MODAL: Đảm bảo HTML và BODY chiếm toàn bộ chiều cao màn hình */
         html, body {
-            height: 100%; /* Dòng QUAN TRỌNG đã được thêm */
-            margin: 0;
-        }
+    height: 100%;
+    margin: 0;
+}
 
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            background-color: #f4f7f6;
-            height: 100vh; /* Giữ lại 100vh để tương thích tốt hơn */
-        }
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f7f6;
+    min-height: 100vh; /* thay cho height:100vh */
+    display: flex;
+    justify-content: center;
+}
 
-        .container {
-            max-width: 900px;
-            margin: 0 auto; 
-            padding: 10px;
-            background: #ffffff;
-            border-radius: 0;
-            box-shadow: none;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            /* **QUAN TRỌNG CHO VUỐT** */
-            touch-action: pan-y; 
-            user-select: none;
-        }
-        
-        @media (min-width: 768px) {
-            .container {
-                padding: 30px;
-                border-radius: 10px;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-                height: auto;
-            }
-        }
+.container {
+    max-width: 900px;
+    width: 95%; /* đảm bảo co dãn */
+    margin: 20px auto;
+    padding: 20px;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    min-height: 600px; /* tránh quá thấp trên PC */
+}
+
+.calendar-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.day-cell {
+    min-height: 80px; /* đủ lớn trên PC */
+}
+
+@media (max-width: 767px) {
+    .container {
+        padding: 10px;
+        min-height: auto;
+    }
+    .day-cell {
+        min-height: 50px; 
+    }
+}
+
 
         /* Bố cục chính của Header */
         .header-controls {
