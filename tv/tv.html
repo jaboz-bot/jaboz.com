@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-key="title">Bảng Chấm Công Theo Tháng</title>
+    <title data-key="title">Bảng Chấm Công </title>
     <style>
         /* === CSS Styling Đã Cập Nhật === */
         body {
@@ -50,38 +50,6 @@
             }
         }
         
-        /* Cập nhật vị trí nút Đăng nhập/Lưu */
-        .top-left-control {
-            order: -2; /* Đặt lên trên */
-            width: 100%;
-            text-align: left;
-            margin-bottom: 10px;
-        }
-
-        @media (min-width: 600px) {
-            .top-left-control {
-                order: -2;
-                width: auto;
-                margin-bottom: 0;
-            }
-        }
-        
-        #loginSaveButton {
-            padding: 8px 15px;
-            border: none;
-            border-radius: 5px;
-            background-color: #2ecc71; /* Màu xanh lá cây nổi bật */
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        #loginSaveButton:hover {
-            background-color: #27ae60;
-        }
-
-
         .controls {
             display: flex;
             gap: 15px;
@@ -109,7 +77,7 @@
             color: #2c3e50;
             margin: 10px 0 20px 0;
             font-size: 1.5em;
-            flex-grow: 1; /* Cho phép tiêu đề chiếm không gian */
+            flex-grow: 1; 
         }
 
         /* Lịch */
@@ -296,10 +264,6 @@
     <div class="container">
         
         <div class="header-controls">
-            <div class="top-left-control">
-                <button id="loginSaveButton" data-key="btn_login_save" onclick="loginAndSave()">💾 Lưu Dữ Liệu</button>
-            </div>
-
             <h1 data-key="h1_title">🗓️ Bảng Chấm Công Tháng <span id="currentMonthYear"></span></h1>
             
             <div class="controls">
@@ -318,7 +282,7 @@
             <div class="rate-input-group">
                 <span data-key="label_rate">💰 Lương/giờ:</span>
             
-                <input type="number" id="hourlyRate" min="10000" onchange="updateSummary()" style="width:80px;" placeholder="">
+                <input type="number" id="hourlyRate" min="10000" oninput="updateSummary()" style="width:80px;" placeholder="">
                 <span id="currencyUnit" class="currency-unit">VND</span>
             </div>
             <p id="note" class="note" data-key="note_calc"></p> 
@@ -392,9 +356,11 @@
         let currentCurrency = 'VND'; 
         
         const STORAGE_KEY_RATE = 'hourlyRate';
-        const STORAGE_KEY_DATA = 'timeData';
+        // Lưu trữ dữ liệu chấm công theo THÁNG/NĂM
+        const CURRENT_MONTH_KEY = `${CURRENT_YEAR}-${CURRENT_MONTH + 1}`;
+        const STORAGE_KEY_DATA = `timeData-${CURRENT_MONTH_KEY}`;
         
-        // --- Dữ liệu Dịch thuật Đã Cập Nhật (Thêm btn_login_save) ---
+        // --- Dữ liệu Dịch thuật Đã Cập Nhật ---
         const translations = {
             'vi': {
                 title: 'Bảng Chấm Công Theo Tháng',
@@ -414,7 +380,6 @@
                 modal_title_prefix: 'Nhập Giờ Công - Ngày',
                 btn_cancel: 'Hủy',
                 btn_save: 'Chọn',
-                btn_login_save: '💾 Lưu Dữ Liệu'
             },
             'en': {
                 title: 'Monthly Timesheet',
@@ -434,7 +399,6 @@
                 modal_title_prefix: 'Enter Timesheet - Day',
                 btn_cancel: 'Cancel',
                 btn_save: 'Save',
-                btn_login_save: '💾 Save Data'
             },
             'ko': {
                 title: '월간 근무 시간표',
@@ -454,7 +418,6 @@
                 modal_title_prefix: '근무 시간 입력 - 날짜',
                 btn_cancel: '취소',
                 btn_save: '선택',
-                btn_login_save: '💾 데이터 저장'
             }
         };
         
@@ -477,7 +440,41 @@
             return totalMinutes / 60;
         }
 
-        // --- Hàm Cập Nhật Tổng Kết ---
+        // --- Hàm Lưu Dữ Liệu Tự Động ---
+        function saveDataToLocalStorage() {
+            try {
+                // Lưu dữ liệu chấm công cho tháng hiện tại
+                localStorage.setItem(STORAGE_KEY_DATA, JSON.stringify(timeData));
+                // Lưu Lương/giờ (thường là cố định, không theo tháng)
+                localStorage.setItem(STORAGE_KEY_RATE, HOURLY_RATE_INPUT.value);
+                // console.log(`Data for ${CURRENT_MONTH_KEY} saved automatically.`);
+            } catch (e) {
+                console.error("Could not save data to localStorage", e);
+            }
+        }
+
+        // --- Hàm Tải Dữ Liệu Tự Động ---
+        function loadDataFromLocalStorage() {
+            try {
+                // Tải dữ liệu chấm công cho tháng hiện tại
+                const savedData = localStorage.getItem(STORAGE_KEY_DATA);
+                if (savedData) {
+                    timeData = JSON.parse(savedData);
+                }
+
+                // Tải Lương/giờ
+                const savedRate = localStorage.getItem(STORAGE_KEY_RATE);
+                if (savedRate) {
+                    HOURLY_RATE_INPUT.value = savedRate;
+                }
+            } catch (e) {
+                console.error("Could not load data from localStorage", e);
+                timeData = {}; 
+                HOURLY_RATE_INPUT.value = '';
+            }
+        }
+
+        // --- Hàm Cập Nhật Tổng Kết (Đã bao gồm Lưu) ---
         function updateSummary() {
             let totalHours = 0;
             const hourlyRate = parseFloat(HOURLY_RATE_INPUT.value) || 0;
@@ -517,7 +514,8 @@
                         workDisplay.textContent = formattedAmount;
                         workDisplay.style.color = '#e74c3c';
                     } else {
-                        workDisplay.textContent = hours > 0 ? hours.toFixed(2) + 'h' : '...';
+                        // Hiển thị giờ làm nếu không có lương/giờ
+                        workDisplay.textContent = hours > 0 ? hours.toFixed(2) + t.hour_suffix.substring(0, 1) : '...';
                         workDisplay.style.color = '#95a5a6';
                     }
                 }
@@ -534,7 +532,7 @@
                 minimumFractionDigits: (currency === 'VND' || currency === 'KRW') ? 0 : 2
             });
 
-            // Lưu dữ liệu vào localStorage mỗi khi có cập nhật
+            // Tự động lưu dữ liệu ngay sau khi cập nhật giao diện
             saveDataToLocalStorage();
         }
         
@@ -555,10 +553,8 @@
                         return;
                     }
                     if (element.tagName === 'H1') {
-                        // Cập nhật H1 và đảm bảo span ngày tháng vẫn còn
                         element.innerHTML = `${t.h1_title} <span id="currentMonthYear">${t.month_names[CURRENT_MONTH]}, ${CURRENT_YEAR}</span>`;
                     } else if (key.startsWith('modal_title_prefix')) {
-                        // Cập nhật tiêu đề modal và đảm bảo số ngày vẫn còn
                         const day = currentDayInModal || '';
                         element.innerHTML = `${t.modal_title_prefix} - Ngày <span id="modalDayNumber">${day}</span>`;
                     } else {
@@ -568,7 +564,6 @@
             });
             
             document.title = t.title;
-            // Đảm bảo cập nhật lại span ngày tháng sau khi cập nhật H1
             document.getElementById('currentMonthYear').textContent = `${t.month_names[CURRENT_MONTH]}, ${CURRENT_YEAR}`;
             
             // 3. Render lại lịch và cập nhật tổng kết
@@ -645,7 +640,6 @@
         }
 
         function closeModal(event) {
-            // Đóng Modal nếu click vào nền xám hoặc nút hủy
             if (!event || event.target.id === 'timeModal' || (event.target.tagName === 'BUTTON' && event.target.classList.contains('cancel'))) {
                 TIME_MODAL.style.display = 'none';
                 currentDayInModal = null;
@@ -661,52 +655,12 @@
             // Lưu dữ liệu vào biến timeData
             timeData[currentDayInModal] = { in: timeIn, out: timeOut };
             
-            // Ẩn Modal và cập nhật tổng kết
+            // Ẩn Modal và gọi updateSummary (Hàm này đã tự động bao gồm lưu vào localStorage)
             TIME_MODAL.style.display = 'none';
             currentDayInModal = null;
-            updateSummary();
-            saveDataToLocalStorage(); // Lưu vào localStorage sau khi thay đổi
+            updateSummary(); 
         }
-
-        // --- Chức năng Đăng nhập/Lưu (Sử dụng localStorage để mô phỏng) ---
         
-        function saveDataToLocalStorage() {
-            try {
-                // Lưu dữ liệu chấm công
-                localStorage.setItem(STORAGE_KEY_DATA, JSON.stringify(timeData));
-                // Lưu Lương/giờ
-                localStorage.setItem(STORAGE_KEY_RATE, HOURLY_RATE_INPUT.value);
-            } catch (e) {
-                console.error("Could not save data to localStorage", e);
-            }
-        }
-
-        function loadDataFromLocalStorage() {
-            try {
-                // Tải dữ liệu chấm công
-                const savedData = localStorage.getItem(STORAGE_KEY_DATA);
-                if (savedData) {
-                    timeData = JSON.parse(savedData);
-                }
-
-                // Tải Lương/giờ
-                const savedRate = localStorage.getItem(STORAGE_KEY_RATE);
-                if (savedRate) {
-                    HOURLY_RATE_INPUT.value = savedRate;
-                }
-            } catch (e) {
-                console.error("Could not load data from localStorage", e);
-                timeData = {}; // Đảm bảo khởi tạo nếu lỗi
-                HOURLY_RATE_INPUT.value = '';
-            }
-        }
-
-        function loginAndSave() {
-            // **Mô phỏng** hành động "Đăng nhập" để người dùng cảm thấy dữ liệu đã được lưu
-            saveDataToLocalStorage(); 
-            alert(translations[LANGUAGE_SELECT.value].btn_login_save + " thành công!"); // Thông báo cho người dùng
-        }
-
         // --- Chạy khi tải trang ---
         window.onload = function() {
             // 1. Tải dữ liệu đã lưu
