@@ -146,10 +146,10 @@
             user-select: none;
         }
         
-        /* ĐÃ CẬP NHẬT: Tăng kích thước số ngày */
+        /* Tăng kích thước số ngày */
         .day-number {
             font-weight: bold;
-            font-size: 1.1em; /* Tăng từ 1em lên 1.1em */
+            font-size: 1.1em; 
             display: block;
             position: absolute;
             top: 2px;
@@ -182,13 +182,13 @@
             text-align: center;
         }
 
-        /* ĐÃ CẬP NHẬT: Đổi màu Giờ Làm sang Xanh lá cây đậm */
+        /* Giờ Làm */
         .work-hours-in-cell {
-            color: #27ae60; /* MÀU XANH LÁ CÂY ĐẬM MỚI */
+            color: #27ae60; 
             font-size: 0.9em; 
         }
         
-        /* ĐÃ CẬP NHẬT: Tăng kích thước Số Tiền */
+        /* Số Tiền */
         .work-amount-in-cell {
             color: #e74c3c; /* Màu đỏ cho số tiền */
             font-size: 1em; 
@@ -225,7 +225,7 @@
             font-weight: bold;
         }
         
-        /* === MODAL/POPUP CHO NHẬP THỜI GIAN === */
+        /* === MODAL/POPUP CHO NHẬP THỜI GIAN ĐÃ CHỈNH CÂN ĐỐI === */
         .modal {
             position: fixed;
             z-index: 1000;
@@ -251,13 +251,20 @@
             display: flex;
             flex-direction: column;
             gap: 15px;
+            /* CĂN CHỈNH MỚI: Đảm bảo các phần tử con căng hết chiều rộng */
+            align-items: stretch;
         }
         
         .modal-content h2 {
-            margin: 0 0 10px 0;
+            margin: 0 0 10px 0; 
             color: #3498db;
             text-align: center;
         }
+        /* CĂN CHỈNH MỚI: Bỏ margin dưới để h2 sát hơn */
+        .modal-content h2 {
+            margin-bottom: 5px; 
+        }
+
 
         .time-input-group {
             display: flex;
@@ -371,7 +378,7 @@
     
     <div id="timeModal" class="modal" onclick="closeModal(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
-            <h2 data-key="modal_title_prefix">Nhập Giờ Công Ngày<span id="modalDayNumber"></span></h2>
+            <h2 data-key="modal_title_prefix">Nhập Giờ Công <span id="modalDayNumber"></span></h2> 
             
             <div class="time-input-group">
                 <label data-key="in" for="modalTimeIn">Vào:</label>
@@ -647,7 +654,8 @@
                 const key = element.getAttribute('data-key');
                 if (t[key] !== undefined) {
                     if (key.startsWith('modal_title_prefix')) {
-                        const day = currentDayInModal ? `  <span id="modalDayNumber">${currentDayInModal}</span>` : '';
+                        // Căn chỉnh để giữ khoảng trắng tối thiểu giữa tiêu đề và số ngày
+                        const day = currentDayInModal ? ` <span id="modalDayNumber">${currentDayInModal}</span>` : '';
                         element.innerHTML = `${t.modal_title_prefix}${day}`;
                     } else if (key !== 'h1_month_title' && 
                                key !== 'summary_total_hours_prefix_month' && 
@@ -722,7 +730,8 @@
             const lang = LANGUAGE_SELECT.value;
             const t = translations[lang];
 
-            document.querySelector('.modal-content h2').innerHTML = `${t.modal_title_prefix} - Ngày <span id="modalDayNumber">${day}</span>`;
+            // Cập nhật tiêu đề modal một cách rõ ràng
+            document.querySelector('.modal-content h2').innerHTML = `${t.modal_title_prefix} <span id="modalDayNumber">${day}</span>`;
             
             MODAL_TIME_IN.value = timeData[day]?.in || '09:00';
             MODAL_TIME_OUT.value = timeData[day]?.out || '18:00';
