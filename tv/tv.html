@@ -5,11 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-key="title">Bảng Chấm Công Theo Tháng</title>
     <style>
-        /* === CSS Styling === */
+        /* === CSS Styling Đã Cập Nhật === */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             background-color: #f4f7f6;
+            /* Thiết lập body và html cao 100% để container có thể mở rộng */
+            height: 100vh;
         }
 
         .container {
@@ -19,6 +21,10 @@
             background: #ffffff;
             border-radius: 0;
             box-shadow: none;
+            /* Tối ưu hóa kích thước trên mobile */
+            height: 100%; /* Chiếm toàn bộ chiều cao màn hình trên mobile */
+            display: flex;
+            flex-direction: column;
         }
         
         @media (min-width: 768px) {
@@ -26,6 +32,7 @@
                 padding: 30px;
                 border-radius: 10px;
                 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                height: auto; /* Trở lại chiều cao tự động trên desktop */
             }
         }
 
@@ -86,11 +93,13 @@
             width: 100%;
             table-layout: fixed; 
             border-collapse: collapse;
+            /* Đảm bảo bảng chiếm hết không gian còn lại trên mobile */
+            flex-grow: 1; 
         }
 
         .calendar-table th, .calendar-table td {
             border: 1px solid #bdc3c7;
-            padding: 0; /* Đặt padding = 0 */
+            padding: 0; 
             text-align: center;
             font-size: 0.7em;
         }
@@ -105,10 +114,13 @@
         .day-cell {
             vertical-align: top;
             width: 14.28%; 
-            height: 60px; /* Chiều cao tối giản */
+            /* Chiếm phần còn lại của chiều cao tbody, làm cho các ô giãn ra */
+            height: auto; 
+            min-height: 50px; /* Chiều cao tối thiểu cho ô dễ chạm */
             background-color: #fcfcfc;
-            position: relative; /* Quan trọng để căn chỉnh nội dung */
-            cursor: pointer; /* Hiệu ứng có thể nhấp */
+            position: relative; 
+            cursor: pointer; 
+            user-select: none; /* Ngăn chặn chọn văn bản */
         }
         
         /* Số ngày ở góc trên trái */
@@ -122,57 +134,22 @@
             color: #2980b9;
         }
         
-        /* Hiển thị giờ làm/tiền (Vị trí trung tâm) */
+        /* Hiển thị tiền (Vị trí trung tâm) */
         .work-display {
             font-size: 0.9em;
             font-weight: bold;
-            color: #27ae60;
-            margin-top: 25px; /* Đẩy xuống giữa */
-            display: block;
-        }
-        
-        /* Nội dung chi tiết (Mặc định ẩn) */
-        .detail-content {
+            color: #e74c3c;
+            /* Căn giữa tuyệt đối trong ô */
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(255, 255, 255, 0.95);
-            display: none; /* Ẩn mặc định */
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 5px;
-            box-sizing: border-box;
-            border: 2px solid #3498db;
-            z-index: 10;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%; /* Để văn bản không bị tràn */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         
-        /* Hiển thị chi tiết khi ô được chọn */
-        .day-cell.active .detail-content {
-            display: flex;
-        }
-        
-        /* Ẩn giờ làm khi đang hiển thị chi tiết */
-        .day-cell.active .work-display {
-            display: none;
-        }
-        
-        /* --- Tùy chỉnh input trong chế độ chi tiết --- */
-        .detail-content label {
-            font-size: 0.8em;
-            font-weight: normal;
-        }
-        
-        .detail-content input[type="time"] {
-            width: 90%;
-            padding: 1px;
-            margin: 1px 0 5px 0;
-            font-size: 0.8em;
-            text-align: center;
-        }
-
         /* --- Input Rate --- */
         .rate-input-group {
             display: flex;
@@ -184,11 +161,13 @@
         
         /* --- Summary --- */
         .summary {
-            margin-top: 20px;
-            padding: 15px;
+            margin-top: 10px;
+            padding: 10px;
             border-top: 3px double #3498db;
             background-color: #eaf6fd;
             border-radius: 5px;
+            /* Giữ nguyên chiều cao, không mở rộng */
+            flex-shrink: 0; 
         }
 
         .summary p {
@@ -201,6 +180,88 @@
             font-size: 1.6em;
             color: #e74c3c;
             font-weight: bold;
+        }
+        
+        /* === MODAL/POPUP CHO NHẬP THỜI GIAN === */
+        .modal {
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6); /* Nền mờ */
+            display: none; /* Mặc định ẩn */
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            width: 90%; /* Rộng hơn trên mobile */
+            max-width: 400px; /* Giới hạn trên desktop */
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .modal-content h2 {
+            margin: 0 0 10px 0;
+            color: #3498db;
+            text-align: center;
+        }
+
+        .time-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .time-input-group label {
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 1em;
+        }
+        
+        .modal-content input[type="time"] {
+            padding: 10px;
+            border: 1px solid #bdc3c7;
+            border-radius: 5px;
+            font-size: 1.2em;
+            text-align: center;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .modal-actions button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            flex: 1;
+            margin: 0 5px;
+        }
+
+        .modal-actions button.cancel {
+            background-color: #ecf0f1;
+            color: #2c3e50;
+        }
+
+        .modal-actions button.save {
+            background-color: #3498db;
+            color: white;
         }
     </style>
 </head>
@@ -232,8 +293,8 @@
         
         <div class="calendar-header">
             <div class="rate-input-group">
-                 <span data-key="label_rate">💰 Lương/giờ:</span>
-                 <input type="number" id="hourlyRate" value="50000" min="1000" onchange="updateSummary()" style="width:80px;">
+                <span data-key="label_rate">💰 Lương/giờ:</span>
+                <input type="number" id="hourlyRate" value="50000" min="1000" onchange="updateSummary()" style="width:80px;">
             </div>
             <p id="note" class="note" data-key="note_calc"></p> 
         </div>
@@ -260,6 +321,27 @@
             <div id="totalAmount" class="total-amount">0 VND</div>
         </div>
     </div>
+    
+    <div id="timeModal" class="modal" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h2 data-key="modal_title_prefix">Nhập Giờ Công - Ngày <span id="modalDayNumber"></span></h2>
+            
+            <div class="time-input-group">
+                <label data-key="in" for="modalTimeIn">Vào:</label>
+                <input type="time" id="modalTimeIn" value="09:00">
+            </div>
+            
+            <div class="time-input-group">
+                <label data-key="out" for="modalTimeOut">Ra:</label>
+                <input type="time" id="modalTimeOut" value="18:00">
+            </div>
+            
+            <div class="modal-actions">
+                <button class="cancel" onclick="closeModal()" data-key="btn_cancel">Hủy</button>
+                <button class="save" onclick="saveModalData()" data-key="btn_save">Chọn</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         // === JavaScript Logic ===
@@ -275,11 +357,15 @@
         const MONTH_YEAR_SPAN = document.getElementById('currentMonthYear');
         const CURRENCY_SELECT = document.getElementById('currencySelect');
         const LANGUAGE_SELECT = document.getElementById('languageSelect');
+        const TIME_MODAL = document.getElementById('timeModal');
+        const MODAL_DAY_NUMBER = document.getElementById('modalDayNumber');
+        const MODAL_TIME_IN = document.getElementById('modalTimeIn');
+        const MODAL_TIME_OUT = document.getElementById('modalTimeOut');
         
-        // Dữ liệu Lưu trữ Giờ (để giữ lại khi chuyển ngôn ngữ/render lại)
         let timeData = {}; 
+        let currentDayInModal = null; // Lưu trữ ngày đang được chỉnh sửa
         
-        // --- Dữ liệu Dịch thuật ---
+        // --- Dữ liệu Dịch thuật Đã Cập Nhật ---
         const translations = {
             'vi': {
                 title: 'Bảng Chấm Công Theo Tháng',
@@ -294,7 +380,10 @@
                 summary_hours_suffix: 'giờ',
                 summary_total_income: '💵 TỔNG THU NHẬP DỰ KIẾN:',
                 month_names: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
-                              "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"]
+                              "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"],
+                modal_title_prefix: 'Nhập Giờ Công - Ngày',
+                btn_cancel: 'Hủy',
+                btn_save: 'Chọn'
             },
             'en': {
                 title: 'Monthly Timesheet',
@@ -309,7 +398,10 @@
                 summary_hours_suffix: 'hours',
                 summary_total_income: '💵 ESTIMATED TOTAL INCOME:',
                 month_names: ["January", "February", "March", "April", "May", "June",
-                              "July", "August", "September", "October", "November", "December"]
+                              "July", "August", "September", "October", "November", "December"],
+                modal_title_prefix: 'Enter Timesheet - Day',
+                btn_cancel: 'Cancel',
+                btn_save: 'Save'
             },
             'ko': {
                 title: '월간 근무 시간표',
@@ -324,11 +416,14 @@
                 summary_hours_suffix: '시간',
                 summary_total_income: '💵 예상 총 수입:',
                 month_names: ["1월", "2월", "3월", "4월", "5월", "6월",
-                              "7월", "8월", "9월", "10월", "11월", "12월"]
+                              "7월", "8월", "9월", "10월", "11월", "12월"],
+                modal_title_prefix: '근무 시간 입력 - 날짜',
+                btn_cancel: '취소',
+                btn_save: '선택'
             }
         };
         
-        // --- 1. Hàm Tính Toán Giờ Làm (Không trừ 1 tiếng) ---
+        // --- Hàm Tính Toán Giờ Làm ---
         function calculateWorkHours(timeIn, timeOut) {
             if (!timeIn || !timeOut) return 0;
             
@@ -347,7 +442,7 @@
             return totalMinutes / 60;
         }
 
-        // --- 2. Hàm Cập Nhật Tổng Kết (Hỗ trợ tiền tệ và lưu trữ data) ---
+        // --- Hàm Cập Nhật Tổng Kết (Hỗ trợ tiền tệ và lưu trữ data) ---
         function updateSummary() {
             let totalHours = 0;
             const hourlyRate = parseFloat(HOURLY_RATE_INPUT.value) || 0;
@@ -355,27 +450,20 @@
             const lang = LANGUAGE_SELECT.value;
             const t = translations[lang];
 
-            // 1. Lặp qua tất cả các ngày
             CALENDAR_BODY.querySelectorAll('.day-cell').forEach(cell => {
                 const day = cell.querySelector('.day-number').textContent;
                 
-                // Lấy giá trị từ input trong detail-content
-                const timeInInput = cell.querySelector('input[data-type="in"]');
-                const timeOutInput = cell.querySelector('input[data-type="out"]');
+                // Lấy giá trị từ data đã lưu
+                const timeIn = timeData[day]?.in || '';
+                const timeOut = timeData[day]?.out || '';
                 
-                const timeIn = timeInInput ? timeInInput.value : timeData[day]?.in || '';
-                const timeOut = timeOutInput ? timeOutInput.value : timeData[day]?.out || '';
-                
-                // Lưu trữ data (để giữ lại khi chuyển ngôn ngữ/render)
-                timeData[day] = { in: timeIn, out: timeOut };
-
                 let hours = 0;
                 if (timeIn && timeOut) {
                     hours = calculateWorkHours(timeIn, timeOut);
                 }
                 totalHours += hours;
                 
-                // 2. Cập nhật hiển thị trong ô
+                // Cập nhật hiển thị tiền trong ô
                 const workDisplay = cell.querySelector('.work-display');
                 if (workDisplay) {
                     if (hours > 0) {
@@ -391,9 +479,8 @@
                             minimumFractionDigits: (currency === 'VND' || currency === 'KRW') ? 0 : 2
                         });
                         
-                        // Hiển thị tiền thay vì giờ (Giao diện tối giản)
                         workDisplay.textContent = formattedAmount;
-                        workDisplay.style.color = '#e74c3c'; // Màu đỏ cho tiền
+                        workDisplay.style.color = '#e74c3c';
                     } else {
                         workDisplay.textContent = '...';
                         workDisplay.style.color = '#95a5a6';
@@ -401,7 +488,7 @@
                 }
             });
             
-            // 3. Cập nhật Tổng Kết Cuối Tháng
+            // Cập nhật Tổng Kết Cuối Tháng
             const totalAmountFinal = totalHours * hourlyRate;
             TOTAL_HOURS_SPAN.textContent = totalHours.toFixed(2);
             document.querySelector('[data-key="summary_hours_suffix"]').textContent = t.summary_hours_suffix;
@@ -415,47 +502,46 @@
                 currency: currency, 
                 minimumFractionDigits: (currency === 'VND' || currency === 'KRW') ? 0 : 2
             });
-            
-             // Đảm bảo input trong detail-content luôn giữ giá trị
-             CALENDAR_BODY.querySelectorAll('.day-cell').forEach(cell => {
-                const day = cell.querySelector('.day-number').textContent;
-                const timeInInput = cell.querySelector('input[data-type="in"]');
-                const timeOutInput = cell.querySelector('input[data-type="out"]');
-                if (timeInInput && timeData[day]) timeInInput.value = timeData[day].in;
-                if (timeOutInput && timeData[day]) timeOutInput.value = timeData[day].out;
-             });
         }
         
-        // --- 3. Hàm Đặt Ngôn Ngữ ---
+        // --- Hàm Đặt Ngôn Ngữ ---
         function setLanguage() {
             const lang = LANGUAGE_SELECT.value;
             const t = translations[lang];
 
-            // Cập nhật các chuỗi văn bản tĩnh
             document.querySelectorAll('[data-key]').forEach(element => {
                 const key = element.getAttribute('data-key');
                 if (t[key] !== undefined) {
-                    element.textContent = t[key];
+                    // Xử lý trường hợp có thẻ con (như h1)
+                    if (element.id === 'modalDayNumber' || element.id === 'currentMonthYear') {
+                        // Bỏ qua các span này, chỉ cập nhật phần prefix/suffix
+                        return;
+                    }
+                    if (element.tagName === 'H1') {
+                        element.innerHTML = `${t.h1_title} <span id="currentMonthYear"></span>`;
+                    } else if (element.tagName === 'SPAN' && element.closest('.calendar-header') && element.id === '') {
+                        element.textContent = t.label_rate;
+                    } else if (key.startsWith('modal_title_prefix')) {
+                        element.innerHTML = `${t.modal_title_prefix} - Ngày <span id="modalDayNumber">${currentDayInModal || ''}</span>`;
+                    } else {
+                        element.textContent = t[key];
+                    }
                 }
             });
             
             document.title = t.title;
             MONTH_YEAR_SPAN.textContent = `${t.month_names[CURRENT_MONTH]}, ${CURRENT_YEAR}`;
             
-            // Render lại lịch để cập nhật các nhãn Vào/Ra trong detail-content
+            // Render lại lịch (cần thiết khi thay đổi ngôn ngữ, mặc dù chi tiết giờ không còn trong ô)
             renderCalendar(); 
             
-            // Sau khi render xong, chạy updateSummary để cập nhật tiền/giờ
             updateSummary();
         }
 
-        // --- 4. Hàm Tạo Lịch (Kết hợp data đã lưu) ---
+        // --- Hàm Tạo Lịch ---
         function renderCalendar() {
             CALENDAR_BODY.innerHTML = ''; 
             
-            const lang = LANGUAGE_SELECT.value;
-            const t = translations[lang];
-
             const date = new Date(CURRENT_YEAR, CURRENT_MONTH, 1);
             let firstDayOfWeek = date.getDay(); 
 
@@ -476,36 +562,16 @@
                 cell.className = 'day-cell';
                 
                 const currentDay = day.toString();
-                const storedIn = timeData[currentDay]?.in || '';
-                const storedOut = timeData[currentDay]?.out || '';
                 
                 const dayContent = `
                     <span class="day-number">${currentDay}</span>
                     <span class="work-display">...</span>
-                    <div class="detail-content" onclick="event.stopPropagation()">
-                        <label>${t.in}</label>
-                        <input type="time" data-day="${currentDay}" data-type="in" value="${storedIn}" onchange="updateSummary()">
-                        <label>${t.out}</label>
-                        <input type="time" data-day="${currentDay}" data-type="out" value="${storedOut}" onchange="updateSummary()">
-                    </div>
                 `;
                 cell.innerHTML = dayContent;
                 
-                // Gắn sự kiện click (hoặc tap trên mobile)
+                // Gắn sự kiện mở Modal/Popup
                 cell.onclick = function() {
-                    // Đóng tất cả ô chi tiết khác
-                    document.querySelectorAll('.day-cell.active').forEach(c => {
-                        if (c !== cell) {
-                            c.classList.remove('active');
-                        }
-                    });
-                    // Mở hoặc đóng ô hiện tại
-                    cell.classList.toggle('active');
-                    
-                    // Nếu mở, focus vào input đầu tiên
-                    if (cell.classList.contains('active')) {
-                         cell.querySelector('input[data-type="in"]').focus();
-                    }
+                    openModal(currentDay);
                 };
                 
                 day++;
@@ -516,21 +582,63 @@
                 row.insertCell().innerHTML = '';
             }
             
+            // Quan trọng: Gọi updateSummary để điền dữ liệu đã lưu và tính toán
             updateSummary(); 
         }
 
-        // Đóng ô chi tiết khi click bên ngoài lịch
-        document.addEventListener('click', function(event) {
-            if (!event.target.closest('.day-cell')) {
-                 document.querySelectorAll('.day-cell.active').forEach(c => {
-                    c.classList.remove('active');
-                });
-            }
-        });
+        // --- Xử lý Modal ---
 
+        function openModal(day) {
+            currentDayInModal = day;
+            const lang = LANGUAGE_SELECT.value;
+            const t = translations[lang];
+
+            // 1. Cập nhật tiêu đề Modal
+            document.querySelector('[data-key="modal_title_prefix"]').innerHTML = `${t.modal_title_prefix} - Ngày <span id="modalDayNumber">${day}</span>`;
+            
+            // 2. Tải dữ liệu đã lưu vào input
+            MODAL_TIME_IN.value = timeData[day]?.in || '09:00';
+            MODAL_TIME_OUT.value = timeData[day]?.out || '18:00';
+            
+            // 3. Hiển thị Modal
+            TIME_MODAL.style.display = 'flex';
+            
+            // 4. Focus vào input đầu tiên
+            MODAL_TIME_IN.focus();
+        }
+
+        function closeModal(event) {
+            // Đóng Modal nếu click vào nền xám
+            if (!event || event.target.id === 'timeModal' || event.target.classList.contains('cancel')) {
+                TIME_MODAL.style.display = 'none';
+                currentDayInModal = null;
+            }
+        }
+
+        function saveModalData() {
+            if (!currentDayInModal) return;
+            
+            const timeIn = MODAL_TIME_IN.value;
+            const timeOut = MODAL_TIME_OUT.value;
+            
+            // Lưu dữ liệu vào biến timeData
+            timeData[currentDayInModal] = { in: timeIn, out: timeOut };
+            
+            // Ẩn Modal và cập nhật tổng kết
+            TIME_MODAL.style.display = 'none';
+            currentDayInModal = null;
+            updateSummary();
+        }
+        
         // --- Chạy khi tải trang ---
         window.onload = function() {
-             setLanguage(); // Sẽ gọi renderCalendar và updateSummary
+            // Tải dữ liệu đã lưu nếu có (ví dụ: từ localStorage)
+            // if (localStorage.getItem('timeData')) {
+            //     timeData = JSON.parse(localStorage.getItem('timeData'));
+            // }
+
+            // Đặt ngôn ngữ mặc định (sẽ gọi renderCalendar và updateSummary)
+            setLanguage(); 
         };
     </script>
 </body>
