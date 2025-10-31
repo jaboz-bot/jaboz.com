@@ -1,245 +1,103 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TV Trực Tuyến</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            /* Giữ background đẹp mắt */
-            background: radial-gradient(circle at center, #222 0%, #000 100%);
-            margin: 0;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center; /* Căn giữa dọc mặc định cho màn hình lớn */
-            flex-direction: column;
-            color: white;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        h1 {
-            margin-bottom: 20px;
-            font-size: 2.5rem;
-        }
-
-        /* --- PHẦN ĐIỀU CHỈNH CHO ĐIỆN THOẠI (Mobile First) --- */
-        @media (max-width: 768px) {
-            body {
-                justify-content: flex-start; /* Đẩy nội dung lên sát cạnh trên */
-                padding-top: 10px; /* Giảm padding trên cùng */
-                padding-left: 10px;
-                padding-right: 10px;
-            }
-            h1 {
-                margin-top: 10px;
-                margin-bottom: 15px;
-                font-size: 2rem;
-            }
-            .controls {
-                gap: 10px; /* Giảm khoảng cách giữa các nút */
-                margin-top: 15px;
-            }
-            button {
-                padding: 12px 18px; /* Giảm kích thước nút cho mobile */
-                font-size: 16px;
-            }
-        }
-        /* -------------------------------------------------------- */
-
-
-        .tv-frame {
-            /* Đã loại bỏ toàn bộ viền, nền, và bóng đổ của khung TV */
-            background: none;
-            border: none;
-            border-radius: 0;
-            padding: 0;
-            box-shadow: none;
-            
-            position: relative;
-            width: 900px;
-            max-width: 95vw;
-            max-height: 95vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .tv-screen {
-            background: black;
-            /* Đã loại bỏ viền 5px inset */
-            border: none;
-            border-radius: 10px; /* Giữ bo tròn nhẹ góc video */
-            overflow: hidden;
-            position: relative;
-            width: 100%;
-            padding-bottom: 56.25%;
-            height: 0;
-            /* Đã loại bỏ bóng đổ bên trong */
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.8); /* Thêm bóng đổ nhẹ ra ngoài để nổi bật màn hình */
-        }
-
-        .tv-screen iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
-            border-radius: 5px;
-        }
-
-        .controls {
-            display: flex;
-            justify-content: center;
-            gap: 25px; /* Tăng khoảng cách giữa các nút */
-            margin-top: 30px; /* Tăng khoảng cách với TV */
-        }
-
-        button {
-            border: none;
-            color: white;
-            padding: 15px 30px; /* Tăng padding để nút to hơn */
-            font-size: 20px; /* Tăng font-size */
-            border-radius: 10px; /* Bo tròn góc hơn một chút */
-            cursor: pointer;
-            transition: transform 0.2s ease-out, box-shadow 0.2s ease-out, background-color 0.2s ease-in-out; /* Thêm transition cho màu nền */
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4); /* Bóng đổ mạnh hơn */
-            font-weight: 600; /* In đậm chữ */
-            letter-spacing: 0.5px; /* Tăng khoảng cách chữ */
-        }
-
-        button:hover {
-            transform: translateY(-3px); /* Nhấc lên nhiều hơn khi hover */
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5); /* Bóng đổ mạnh hơn khi hover */
-        }
-
-        button:active {
-            transform: translateY(0px); /* Về vị trí ban đầu hoặc lún nhẹ xuống */
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3); /* Bóng đổ nhẹ hơn khi click */
-        }
-
-        /* Màu sắc cho các nút */
-        .bg-blue-600 { background-color: #2196F3; }
-        .hover\:bg-blue-800:hover { background-color: #1565C0; }
-        .bg-green-600 { background-color: #4CAF50; }
-        .hover\:bg-green-800:hover { background-color: #2E7D32; }
-
-    </style>
+<meta charset="utf-8">
+<title>TV YouTube Vô Hạn</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  body{margin:0;font-family:sans-serif;background:#000;color:#eee;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh}
+  #player{width:90vw;height:60vh;background:#111;margin-bottom:10px}
+  button{background:#222;color:#eee;border:0;padding:10px 18px;border-radius:8px;cursor:pointer;margin:0 5px}
+  button:hover{background:#333}
+  #status{font-size:14px;color:#aaa;margin-top:8px}
+</style>
 </head>
 <body>
-
-<h1>📺 Video Trực Tuyến</h1>
-
-<div class="tv-frame">
-    <div class="channel-label" id="channelLabel">Kênh 1 (Tài liệu)</div>
-    <div class="tv-screen">
-        <iframe 
-            id="tvVideo"
-            src="" 
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen>
-        </iframe>
-    </div>
-    <div class="controls">
-        <button onclick="prevChannel()" class="bg-blue-600 hover:bg-blue-800">⬅ Kênh Trước</button>
-        <button onclick="toggleFullscreen()" class="bg-green-600 hover:bg-green-800">⬜ Toàn Màn Hình</button>
-        <button onclick="nextChannel()" class="bg-blue-600 hover:bg-blue-800">Kênh Tiếp ➡</button>
-    </div>
-</div>
+  <div id="player"></div>
+  <div>
+    <button id="nextBtn">⏭️ Kênh mới</button>
+    <button id="toggleAuto">🔁 Tự động: BẬT</button>
+  </div>
+  <div id="status">Đang tải video đầu tiên...</div>
 
 <script>
-    const player = document.getElementById('tvVideo');
-    const label = document.getElementById('channelLabel');
+const API_KEY = "AIzaSyDwN50y0-_Huo2hfpQCnFIqlDrOPSvi3Eo";
 
-    const channels = [
-        { name: "Kênh 1", videoId: "NV-NXEQLDZI" },
-        { name: "Kênh 2", videoId: "W1s0v7JuY-o" },
-        { name: "Kênh 3", videoId: "4nQ2LT04reQ" },
-        { name: "Kênh 4", videoId: "dC3d4gXzyuE" },
-        { name: "Kênh 5", videoId: "1Uc0EKky6rc" },
-        { name: "Kênh 6", videoId: "bAP7-1JLoLI" },
-        { name: "Kênh 7", videoId: "amzgpxDsJjQ" },
-        { name: "Kênh 8", videoId: "4HMSwxMlHg8" },
-        { name: "Kênh 9", videoId: "lzwTC1bVWXc" },
-        { name: "Kênh 10", videoId: "u0Zj7owiPAM" },
-        { name: "Kênh 11", videoId: "o9c3OJC8eWc" },
-        { name: "Kênh 12", videoId: "e5WvpJda0HU" },
-        { name: "Kênh 13", videoId: "NjTMNxaVZNY" },
-        { name: "Kênh 14", videoId: "_eB-7OyJTZg" }
-    ];
+// Mảng từ khóa để random tìm video
+const KEYWORDS = [
+  "music", "news", "movie", "funny", "animals", "sports",
+  "live", "technology", "travel", "kpop", "documentary",
+  "food", "vlog", "game", "space", "robot", "nature", "meme"
+];
 
-    let current = 0;
-    let labelTimeout = null;
+let player, autoPlay = true, viewed = 0;
 
-    function loadChannel(index) {
-        clearTimeout(labelTimeout);
+function randomKeyword() {
+  return KEYWORDS[Math.floor(Math.random() * KEYWORDS.length)];
+}
 
-        const ch = channels[index];
-        const fullUrl = `https://www.youtube.com/embed/${ch.videoId}?autoplay=1&vq=hd1080&rel=0&cc_load_policy=1&cc_lang_pref=vi`;
-        
-        player.src = fullUrl;
-        label.textContent = ch.name;
+// Gọi YouTube Data API để lấy video ngẫu nhiên
+async function getRandomVideoId() {
+  const q = randomKeyword();
+  const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoEmbeddable=true&maxResults=10&order=viewCount&q=${encodeURIComponent(q)}&key=${API_KEY}`;
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    if (!data.items || data.items.length === 0) throw new Error("Không tìm thấy video");
+    const v = data.items[Math.floor(Math.random() * data.items.length)];
+    return v.id.videoId;
+  } catch (err) {
+    console.error("Lỗi tải video:", err);
+    return null;
+  }
+}
 
-        label.style.opacity = '1';
-
-        labelTimeout = setTimeout(() => {
-            label.style.opacity = '0';
-        }, 2000);
-    }
-
-    function nextChannel() {
-        current = (current + 1) % channels.length;
-        loadChannel(current);
-    }
-
-    function prevChannel() {
-        current = (current - 1 + channels.length) % channels.length;
-        loadChannel(current);
-    }
-
-    function toggleFullscreen() {
-        if (!document.fullscreenElement) {
-            if (player.requestFullscreen) {
-                player.requestFullscreen();
-            } else if (player.mozRequestFullScreen) { /* Firefox */
-                player.mozRequestFullScreen();
-            } else if (player.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
-                player.webkitRequestFullscreen();
-            } else if (player.msRequestFullscreen) { /* IE/Edge */
-                player.msRequestFullscreen();
-            }
-
-            if (screen.orientation && screen.orientation.lock) {
-                screen.orientation.lock('landscape').catch(err => {
-                    console.error("Screen orientation lock failed:", err);
-                });
-            }
-
-        } else {
-            if (document.exitFullscreen) {
-                document.exitFullscreen();
-            } else if (document.mozCancelFullScreen) { /* Firefox */
-                document.mozCancelFullScreen();
-            } else if (document.webkitExitFullscreen) { /* Chrome, Safari & Opera */
-                document.webkitExitFullscreen();
-            } else if (player.msExitFullscreen) { /* IE/Edge */
-                player.msExitFullscreen();
-            }
-            
-            if (screen.orientation && screen.orientation.unlock) {
-                screen.orientation.unlock();
-            }
+async function loadRandomVideo() {
+  const vid = await getRandomVideoId();
+  if (!vid) {
+    document.getElementById("status").textContent = "Không tải được video. Thử lại...";
+    setTimeout(loadRandomVideo, 2000);
+    return;
+  }
+  viewed++;
+  document.getElementById("status").textContent = `Đang xem video ${viewed} | ID: ${vid}`;
+  if (player && player.loadVideoById) {
+    player.loadVideoById(vid);
+  } else {
+    player = new YT.Player("player", {
+      videoId: vid,
+      playerVars: {autoplay:1,controls:1,rel:0,modestbranding:1},
+      events: {
+        onStateChange: (ev) => {
+          if (ev.data === YT.PlayerState.ENDED && autoPlay) {
+            setTimeout(loadRandomVideo, 1000);
+          }
+        },
+        onError: () => {
+          setTimeout(loadRandomVideo, 1000);
         }
-    }
+      }
+    });
+  }
+}
 
-    window.onload = function() {
-        loadChannel(current);
-    };
+// Nút bấm
+document.getElementById("nextBtn").onclick = loadRandomVideo;
+document.getElementById("toggleAuto").onclick = () => {
+  autoPlay = !autoPlay;
+  document.getElementById("toggleAuto").textContent = `🔁 Tự động: ${autoPlay ? "BẬT" : "TẮT"}`;
+};
 
+// Gọi API script YouTube
+(function(){
+  const tag = document.createElement("script");
+  tag.src = "https://www.youtube.com/iframe_api";
+  const first = document.getElementsByTagName("script")[0];
+  first.parentNode.insertBefore(tag, first);
+})();
+function onYouTubeIframeAPIReady(){
+  loadRandomVideo();
+}
 </script>
 </body>
 </html>
