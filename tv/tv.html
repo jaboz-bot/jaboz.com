@@ -5,12 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-key="title">Bảng Chấm Công Theo Tháng</title>
     <style>
-        /* === CSS Styling Đã Cập Nhật Lại (Fix Desktop Layout) === */
+        /* === CSS Styling Đã Cập Nhật (Fix Desktop Layout & Hiệu ứng mới) === */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             background-color: #f4f7f6;
-            /* Thiết lập chiều cao tối thiểu cho mobile */
             min-height: 100vh; 
         }
 
@@ -21,7 +20,6 @@
             background: #ffffff;
             border-radius: 0;
             box-shadow: none;
-            /* Chiếm toàn bộ chiều cao màn hình trên mobile */
             height: 100vh; 
             display: flex;
             flex-direction: column;
@@ -33,7 +31,7 @@
                 padding: 30px;
                 border-radius: 10px;
                 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-                height: auto; /* *** QUAN TRỌNG: Loại bỏ chiều cao cố định trên desktop *** */
+                height: auto; 
             }
         }
 
@@ -94,22 +92,35 @@
             width: 100%;
             table-layout: fixed; 
             border-collapse: collapse;
-            /* Đảm bảo bảng chiếm hết không gian còn lại trên mobile */
             flex-grow: 1; 
-            height: 1px; /* Chiều cao nhỏ nhất để flex-grow hoạt động tốt hơn */
+            height: 1px; 
+            /* Yêu cầu 3: Bỏ đường kẻ ngang (giữ lại đường kẻ dọc) */
+            border: 2px solid #bdc3c7; /* Đường viền ngoài */
         }
 
         .calendar-table th, .calendar-table td {
-            border: 1px solid #bdc3c7;
+            /* Yêu cầu 3: Bỏ đường kẻ ngang và chỉ giữ đường kẻ dọc */
+            border-top: none !important;
+            border-bottom: none !important;
+            border-left: 1px solid #bdc3c7; 
+            border-right: 1px solid #bdc3c7; 
             padding: 0; 
             text-align: center;
             font-size: 0.7em;
+        }
+        
+        .calendar-table th:first-child, .calendar-table td:first-child {
+            border-left: none; /* Bỏ đường kẻ dọc đầu tiên */
+        }
+        .calendar-table th:last-child, .calendar-table td:last-child {
+            border-right: none; /* Bỏ đường kẻ dọc cuối cùng */
         }
 
         .calendar-table th {
             background-color: #ecf0f1;
             color: #2c3e50;
-            padding: 5px 0;
+            padding: 10px 0; /* Giãn rộng tiêu đề */
+            border-bottom: 2px solid #bdc3c7 !important; /* Thêm đường kẻ dưới tiêu đề */
         }
         
         /* --- TỐI GIẢN HÓA GIAO DIỆN CƠ BẢN --- */
@@ -117,11 +128,17 @@
             vertical-align: top;
             width: 14.28%; 
             height: auto; 
-            min-height: 50px; 
+            min-height: 65px; /* Giãn rộng ô hơn (Yêu cầu 3) */
             background-color: #fcfcfc;
             position: relative; 
             cursor: pointer; 
             user-select: none; 
+            border-top: 1px solid #bdc3c7; /* Thêm lại đường kẻ ngang cho từng hàng */
+        }
+        
+        /* Bỏ đường kẻ ngang đầu tiên của nội dung bảng */
+        .calendar-table tbody tr:first-child .day-cell {
+            border-top: none;
         }
         
         /* Số ngày ở góc trên trái */
@@ -140,7 +157,6 @@
             font-size: 0.9em;
             font-weight: bold;
             color: #e74c3c;
-            /* Căn giữa tuyệt đối trong ô */
             position: absolute;
             top: 50%;
             left: 50%;
@@ -149,16 +165,28 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            line-height: 1; /* Đảm bảo căn chỉnh vertical */
+            line-height: 1; 
         }
         
-        /* --- Input Rate --- */
+        /* --- Input Rate (Yêu cầu 1) --- */
         .rate-input-group {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 5px;
             font-size: 0.9em;
+        }
+
+        #hourlyRate {
+            padding: 5px;
+            text-align: right;
+        }
+        
+        .currency-unit {
+            font-weight: bold;
+            color: #3498db;
+            min-width: 40px;
+            text-align: left;
         }
         
         /* --- Summary --- */
@@ -183,7 +211,7 @@
             font-weight: bold;
         }
         
-        /* === MODAL/POPUP CHO NHẬP THỜI GIAN === */
+        /* === MODAL/POPUP CHO NHẬP THỜI GIAN (Yêu cầu 4) === */
         .modal {
             position: fixed;
             z-index: 1000;
@@ -192,18 +220,26 @@
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color: rgba(0,0,0,0.6); 
+            background-color: rgba(0,0,0,0.7); /* Nền tối hơn để nổi bật */
             display: none; 
             justify-content: center;
-            align-items: center;
-            padding: 20px;
+            /* Thay đổi: Đưa Modal lên cao hơn (center-aligned on desktop, top-aligned on mobile) */
+            align-items: flex-start; 
+            padding-top: 5vh; /* Đẩy xuống một chút từ trên cùng */
+        }
+        
+        @media (min-width: 600px) {
+            .modal {
+                align-items: center; /* Vẫn căn giữa trên desktop */
+                padding-top: 0;
+            }
         }
 
         .modal-content {
             background-color: #fefefe;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
             width: 90%; 
             max-width: 400px; 
             display: flex;
@@ -261,7 +297,7 @@
         }
 
         .modal-actions button.save {
-            background-color: #3498db;
+            background-color: #2ecc71; /* Màu xanh lá cây nổi bật hơn */
             color: white;
         }
     </style>
@@ -295,7 +331,8 @@
         <div class="calendar-header">
             <div class="rate-input-group">
                 <span data-key="label_rate">💰 Lương/giờ:</span>
-                <input type="number" id="hourlyRate" value="50000" min="1000" onchange="updateSummary()" style="width:80px;">
+                <input type="number" id="hourlyRate" value="" placeholder="Ví dụ: 50000" min="1000" onchange="updateSummary()" style="width:80px;">
+                <span id="rateCurrencyUnit" class="currency-unit">VND</span>
             </div>
             <p id="note" class="note" data-key="note_calc"></p> 
         </div>
@@ -358,15 +395,16 @@
         const MONTH_YEAR_SPAN = document.getElementById('currentMonthYear');
         const CURRENCY_SELECT = document.getElementById('currencySelect');
         const LANGUAGE_SELECT = document.getElementById('languageSelect');
+        const RATE_CURRENCY_UNIT_SPAN = document.getElementById('rateCurrencyUnit'); // Yêu cầu 1
         const TIME_MODAL = document.getElementById('timeModal');
         const MODAL_DAY_NUMBER = document.getElementById('modalDayNumber');
         const MODAL_TIME_IN = document.getElementById('modalTimeIn');
         const MODAL_TIME_OUT = document.getElementById('modalTimeOut');
         
         let timeData = {}; 
-        let currentDayInModal = null; // Lưu trữ ngày đang được chỉnh sửa
+        let currentDayInModal = null; 
         
-        // --- Dữ liệu Dịch thuật Đã Cập Nhật ---
+        // --- Dữ liệu Dịch thuật ---
         const translations = {
             'vi': {
                 title: 'Bảng Chấm Công Theo Tháng',
@@ -384,7 +422,8 @@
                               "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"],
                 modal_title_prefix: 'Nhập Giờ Công - Ngày',
                 btn_cancel: 'Hủy',
-                btn_save: 'Chọn'
+                btn_save: 'Chọn',
+                rate_placeholder: 'Ví dụ: 50000' // Yêu cầu 1: Placeholder
             },
             'en': {
                 title: 'Monthly Timesheet',
@@ -402,7 +441,8 @@
                               "July", "August", "September", "October", "November", "December"],
                 modal_title_prefix: 'Enter Timesheet - Day',
                 btn_cancel: 'Cancel',
-                btn_save: 'Save'
+                btn_save: 'Save',
+                rate_placeholder: 'Ex: 20'
             },
             'ko': {
                 title: '월간 근무 시간표',
@@ -420,7 +460,8 @@
                               "7월", "8월", "9월", "10월", "11월", "12월"],
                 modal_title_prefix: '근무 시간 입력 - 날짜',
                 btn_cancel: '취소',
-                btn_save: '선택'
+                btn_save: '선택',
+                rate_placeholder: '예: 10000'
             }
         };
         
@@ -443,18 +484,21 @@
             return totalMinutes / 60;
         }
 
-        // --- Hàm Cập Nhật Tổng Kết (Hỗ trợ tiền tệ và lưu trữ data) ---
+        // --- Hàm Cập Nhật Tổng Kết ---
         function updateSummary() {
             let totalHours = 0;
-            const hourlyRate = parseFloat(HOURLY_RATE_INPUT.value) || 0;
+            // Dùng value || 0, nếu value rỗng (do placeholder) sẽ lấy 0
+            const hourlyRate = parseFloat(HOURLY_RATE_INPUT.value) || 0; 
             const currency = CURRENCY_SELECT.value;
             const lang = LANGUAGE_SELECT.value;
             const t = translations[lang];
+            
+            // Yêu cầu 1: Cập nhật đơn vị tiền tệ sau ô nhập
+            RATE_CURRENCY_UNIT_SPAN.textContent = currency;
 
             CALENDAR_BODY.querySelectorAll('.day-cell').forEach(cell => {
                 const day = cell.querySelector('.day-number').textContent;
                 
-                // Lấy giá trị từ data đã lưu
                 const timeIn = timeData[day]?.in || '';
                 const timeOut = timeData[day]?.out || '';
                 
@@ -467,7 +511,7 @@
                 // Cập nhật hiển thị tiền trong ô
                 const workDisplay = cell.querySelector('.work-display');
                 if (workDisplay) {
-                    if (hours > 0) {
+                    if (hours > 0 && hourlyRate > 0) {
                         const totalAmount = hours * hourlyRate;
                         
                         let locale = 'en-US';
@@ -483,8 +527,8 @@
                         workDisplay.textContent = formattedAmount;
                         workDisplay.style.color = '#e74c3c';
                     } else {
-                        workDisplay.textContent = '...';
-                        workDisplay.style.color = '#95a5a6';
+                         // Yêu cầu 2: Bỏ dấu 3 chấm, để trống nếu chưa có giờ làm
+                        workDisplay.textContent = ''; 
                     }
                 }
             });
@@ -513,17 +557,9 @@
             document.querySelectorAll('[data-key]').forEach(element => {
                 const key = element.getAttribute('data-key');
                 if (t[key] !== undefined) {
-                    // Xử lý trường hợp có thẻ con (như h1)
-                    if (element.id === 'modalDayNumber' || element.id === 'currentMonthYear') {
-                        // Bỏ qua các span này, chỉ cập nhật phần prefix/suffix
-                        return;
-                    }
                     if (element.tagName === 'H1') {
                         element.innerHTML = `${t.h1_title} <span id="currentMonthYear"></span>`;
-                    } else if (element.tagName === 'SPAN' && element.closest('.calendar-header') && element.id === '') {
-                        element.textContent = t.label_rate;
                     } else if (key.startsWith('modal_title_prefix')) {
-                        // Cập nhật lại tiêu đề modal
                         const modalTitle = document.querySelector('[data-key="modal_title_prefix"]');
                         modalTitle.innerHTML = `${t.modal_title_prefix} - Ngày <span id="modalDayNumber">${currentDayInModal || ''}</span>`;
                         return;
@@ -535,6 +571,9 @@
             
             document.title = t.title;
             MONTH_YEAR_SPAN.textContent = `${t.month_names[CURRENT_MONTH]}, ${CURRENT_YEAR}`;
+            
+            // Yêu cầu 1: Cập nhật placeholder
+            HOURLY_RATE_INPUT.setAttribute('placeholder', t.rate_placeholder);
             
             renderCalendar(); 
             
@@ -568,7 +607,7 @@
                 
                 const dayContent = `
                     <span class="day-number">${currentDay}</span>
-                    <span class="work-display">...</span>
+                    <span class="work-display"></span>
                 `;
                 cell.innerHTML = dayContent;
                 
@@ -598,7 +637,7 @@
             // 1. Cập nhật tiêu đề Modal
             document.querySelector('[data-key="modal_title_prefix"]').innerHTML = `${t.modal_title_prefix} - Ngày <span id="modalDayNumber">${day}</span>`;
             
-            // 2. Tải dữ liệu đã lưu vào input
+            // 2. Tải dữ liệu đã lưu vào input (hoặc giá trị mặc định nếu chưa có)
             MODAL_TIME_IN.value = timeData[day]?.in || '09:00';
             MODAL_TIME_OUT.value = timeData[day]?.out || '18:00';
             
@@ -610,7 +649,6 @@
         }
 
         function closeModal(event) {
-            // Đóng Modal nếu click vào nền xám hoặc nút Hủy
             if (!event || event.target.id === 'timeModal' || event.target.classList.contains('cancel')) {
                 TIME_MODAL.style.display = 'none';
                 currentDayInModal = null;
@@ -623,10 +661,8 @@
             const timeIn = MODAL_TIME_IN.value;
             const timeOut = MODAL_TIME_OUT.value;
             
-            // Lưu dữ liệu vào biến timeData
             timeData[currentDayInModal] = { in: timeIn, out: timeOut };
             
-            // Ẩn Modal và cập nhật tổng kết
             TIME_MODAL.style.display = 'none';
             currentDayInModal = null;
             updateSummary();
@@ -635,6 +671,8 @@
         // --- Chạy khi tải trang ---
         window.onload = function() {
             setLanguage(); 
+            // Đảm bảo đơn vị tiền tệ được hiển thị ngay cả khi input lương rỗng
+            RATE_CURRENCY_UNIT_SPAN.textContent = CURRENCY_SELECT.value;
         };
     </script>
 </body>
