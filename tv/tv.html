@@ -243,33 +243,36 @@ body {
         
         /* === MODAL/POPUP CHO NHẬP THỜI GIAN ĐÃ CHỈNH CÂN ĐỐI VÀ CĂN GIỮA TUYỆT ĐỐI === */
         .modal {
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%; /* Thuộc tính này chỉ hoạt động khi html và body có height: 100% */
-            overflow: auto;
-            background-color: rgba(0,0,0,0.6);
-            display: none;
-            justify-content: center; /* Căn ngang */
-            align-items: center; /* Căn dọc */
-            padding: 20px;
-        }
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.6);
+    display: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0; /* bỏ padding ở modal */
+    box-sizing: border-box;
+}
 
-        .modal-content {
-            background-color: #fefefe;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            width: 90%;
-            max-width: 400px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            /* CĂN CHỈNH MỚI: Đảm bảo các phần tử con căng hết chiều rộng */
-            align-items: stretch;
-        }
+.modal-content {
+    background-color: #fefefe;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    width: 90%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
+    box-sizing: border-box; /* bắt buộc */
+}
+
         
         .modal-content h2 {
             margin: 0 0 5px 0; /* Đã chỉnh margin dưới */
