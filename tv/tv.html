@@ -225,7 +225,7 @@
             font-weight: bold;
         }
         
-        /* === MODAL/POPUP CHO NHẬP THỜI GIAN ĐÃ CHỈNH CÂN ĐỐI === */
+        /* === MODAL/POPUP CHO NHẬP THỜI GIAN ĐÃ CHỈNH CÂN ĐỐI VÀ CĂN GIỮA TUYỆT ĐỐI === */
         .modal {
             position: fixed;
             z-index: 1000;
@@ -236,8 +236,8 @@
             overflow: auto;
             background-color: rgba(0,0,0,0.6);
             display: none;
-            justify-content: center;
-            align-items: center;
+            justify-content: center; /* Căn ngang */
+            align-items: center; /* Căn dọc */
             padding: 20px;
         }
 
@@ -290,18 +290,23 @@
         }
 
         .modal-actions button {
-            padding: 10px 20px;
+            padding: 10px 10px;
             border: none;
             border-radius: 5px;
             font-size: 1em;
             cursor: pointer;
-            flex: 1;
+            flex: 1; /* Chia đều không gian cho các nút */
             margin: 0 5px;
         }
 
         .modal-actions button.cancel {
             background-color: #ecf0f1;
             color: #2c3e50;
+        }
+
+        .modal-actions button.delete { /* Thêm style cho nút xóa */
+            background-color: #f39c12; /* Màu cam */
+            color: white;
         }
 
         .modal-actions button.save {
@@ -371,7 +376,7 @@
         </div>
     </div>
     
-    <div id="timeModal" class="modal" onclick="closeModal(event)">
+    <div id="timeModal" class="modal" onclick="closeModal(event)" style="display: none;">
         <div class="modal-content" onclick="event.stopPropagation()">
             <h2 data-key="modal_title_prefix">Nhập Giờ Công <span id="modalDayNumber"></span></h2> 
             
@@ -387,7 +392,7 @@
             
             <div class="modal-actions">
                 <button class="cancel" onclick="closeModal()" data-key="btn_cancel">Hủy</button>
-                <button class="save" onclick="saveModalData()" data-key="btn_save">Chọn</button>
+                <button class="delete" onclick="deleteModalData()" data-key="btn_delete">Xóa</button> <button class="save" onclick="saveModalData()" data-key="btn_save">Chọn</button>
             </div>
         </div>
     </div>
@@ -447,6 +452,7 @@
                                 "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"],
                 modal_title_prefix: 'Nhập Giờ Công',
                 btn_cancel: 'Hủy',
+                btn_delete: 'Xóa', // KEY MỚI
                 btn_save: 'Chọn',
             },
             'en': {
@@ -466,6 +472,7 @@
                                 "July", "August", "September", "October", "November", "December"],
                 modal_title_prefix: 'Enter Timesheet - Day',
                 btn_cancel: 'Cancel',
+                btn_delete: 'Delete', // KEY MỚI
                 btn_save: 'Save',
             },
             'ko': {
@@ -485,6 +492,7 @@
                                 "7월", "8월", "9월", "10월", "11월", "12월"],
                 modal_title_prefix: '근무 시간 입력 - 날짜',
                 btn_cancel: '취소',
+                btn_delete: '삭제', // KEY MỚI
                 btn_save: '선택',
             }
         };
@@ -728,8 +736,10 @@
             // Cập nhật tiêu đề modal một cách rõ ràng
             document.querySelector('.modal-content h2').innerHTML = `${t.modal_title_prefix} <span id="modalDayNumber">${day}</span>`;
             
-            MODAL_TIME_IN.value = timeData[day]?.in || '09:00';
-            MODAL_TIME_OUT.value = timeData[day]?.out || '18:00';
+            // Đặt giá trị mặc định cho ô nhập
+            const data = timeData[day];
+            MODAL_TIME_IN.value = data?.in || '09:00';
+            MODAL_TIME_OUT.value = data?.out || '18:00';
             
             TIME_MODAL.style.display = 'flex';
             MODAL_TIME_IN.focus();
@@ -741,6 +751,19 @@
                 currentDayInModal = null;
             }
         }
+        
+        // HÀM MỚI: XÓA DỮ LIỆU NGÀY CÔNG
+        function deleteModalData() {
+            if (!currentDayInModal) return;
+            
+            // XÓA DỮ LIỆU CỦA NGÀY HIỆN TẠI KHỎI BIẾN timeData
+            delete timeData[currentDayInModal];
+            
+            TIME_MODAL.style.display = 'none';
+            currentDayInModal = null;
+            updateSummary(); // Cập nhật lại giao diện, tổng kết và lưu LocalStorage
+        }
+
 
         function saveModalData() {
             if (!currentDayInModal) return;
