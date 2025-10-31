@@ -3,66 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-key="title">Bảng Chấm Công Theo Tháng</title>
+    <title data-key="title">Bảng Chấm Công Theo Tháng - Trường Giang</title>
     <style>
         /* === CSS Styling === */
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
+            margin: 0; /* Bỏ margin mặc định của body */
             background-color: #f4f7f6;
         }
 
         .container {
             max-width: 900px;
-            margin: auto;
+            /* Thay đổi margin để căn giữa và có đệm ở mọi kích thước */
+            margin: 0 auto; 
+            padding: 10px; /* Giảm padding tổng thể cho mobile */
             background: #ffffff;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 0; /* Bỏ border-radius trên mobile */
+            box-shadow: none; /* Bỏ shadow trên mobile */
+        }
+        
+        /* Cải thiện giao diện cho màn hình lớn */
+        @media (min-width: 768px) {
+            .container {
+                padding: 30px;
+                border-radius: 10px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            }
         }
 
         .header-controls {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
+            flex-direction: column; /* Sắp xếp dọc trên mobile */
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: center; /* Căn giữa các controls */
         }
 
+        @media (min-width: 600px) {
+            .header-controls {
+                flex-direction: row; /* Trở về sắp xếp ngang trên desktop */
+                justify-content: space-between;
+                align-items: flex-end; /* Căn dưới (để h1 ở trên) */
+            }
+        }
+        
         .controls {
             display: flex;
             gap: 15px;
+            order: -1; /* Đẩy controls lên trên cùng bên phải trên mobile */
+            width: 100%;
+            justify-content: flex-end;
+        }
+        
+        @media (min-width: 600px) {
+            .controls {
+                order: 0;
+                width: auto;
+            }
         }
 
         .control-group label {
             font-weight: bold;
             color: #555;
             margin-right: 5px;
+            font-size: 0.9em;
         }
         
         h1 {
             text-align: center;
             color: #2c3e50;
-            margin-bottom: 25px;
+            margin: 10px 0 20px 0;
+            font-size: 1.5em; /* Thu nhỏ font H1 trên mobile */
         }
 
         /* Lịch */
         .calendar-header {
             text-align: center;
-            font-size: 1.5em;
-            margin-bottom: 20px;
+            font-size: 1.2em; /* Thu nhỏ font */
+            margin-bottom: 15px;
             color: #3498db;
         }
 
         .calendar-table {
             width: 100%;
+            /* Bổ sung table-layout fixed để các cột có kích thước đồng đều */
+            table-layout: fixed; 
             border-collapse: collapse;
         }
 
         .calendar-table th, .calendar-table td {
             border: 1px solid #bdc3c7;
-            padding: 8px;
+            padding: 3px; /* Giảm padding cho mobile */
             text-align: center;
+            font-size: 0.7em; /* Thu nhỏ font chữ trong ô */
         }
+        
+        @media (min-width: 600px) {
+             .calendar-table td {
+                font-size: 0.8em;
+                padding: 5px;
+             }
+        }
+
 
         .calendar-table th {
             background-color: #ecf0f1;
@@ -72,59 +114,73 @@
         .day-cell {
             vertical-align: top;
             width: 14.28%; 
-            height: 120px; 
+            height: 90px; /* Giảm chiều cao cố định cho ô ngày trên mobile */
             background-color: #fcfcfc;
+        }
+        
+        @media (min-width: 600px) {
+             .day-cell {
+                height: 120px;
+             }
         }
 
         .day-number {
             font-weight: bold;
             display: block;
             text-align: left;
-            padding: 5px 5px 0 5px;
+            padding: 3px 3px 0 3px; /* Giảm padding */
             color: #2980b9;
         }
         
         /* Hiển thị cuối tháng */
         .summary {
-            margin-top: 30px;
-            padding: 20px;
+            margin-top: 20px;
+            padding: 15px; /* Giảm padding */
             border-top: 3px double #3498db;
             background-color: #eaf6fd;
             border-radius: 5px;
         }
 
         .summary p {
-            font-size: 1.1em;
-            margin: 10px 0;
+            font-size: 1em; /* Giảm font */
+            margin: 8px 0;
             font-weight: 500;
         }
 
         .total-amount {
-            font-size: 1.8em;
+            font-size: 1.6em; /* Giảm font */
             color: #e74c3c;
             font-weight: bold;
         }
 
         /* Input Styling */
         input[type="time"], select {
-            width: 90%;
-            padding: 2px;
-            margin: 2px 0;
+            width: 100%; /* Đảm bảo input chiếm 100% không gian */
+            padding: 1px;
+            margin: 1px 0;
             border: 1px solid #ccc;
             border-radius: 3px;
             box-sizing: border-box;
-            font-size: 0.8em;
+            font-size: 0.7em; /* Thu nhỏ font input */
+            text-align: center;
         }
         
+        @media (min-width: 600px) {
+            input[type="time"] {
+                width: 90%;
+                font-size: 0.8em;
+            }
+        }
+
         .work-hours {
-            font-size: 0.9em;
+            font-size: 0.8em; /* Thu nhỏ font */
             font-weight: bold;
             color: #27ae60;
-            margin-top: 5px;
+            margin-top: 2px;
         }
         
         .note {
-            font-size: 0.9em; 
+            font-size: 0.8em; /* Thu nhỏ font ghi chú */
             margin-top: 10px; 
             color: #e74c3c;
         }
@@ -134,6 +190,7 @@
             align-items: center;
             justify-content: center;
             gap: 5px;
+            font-size: 0.9em;
         }
     </style>
 </head>
@@ -141,7 +198,9 @@
     <div class="container">
         
         <div class="header-controls">
-            <div></div> <div class="controls">
+            <h1 data-key="h1_title">🗓️ Bảng Chấm Công Tháng <span id="currentMonthYear"></span></h1>
+            
+            <div class="controls">
                 <div class="control-group">
                     <label data-key="label_lang" for="languageSelect">Ngôn ngữ:</label>
                     <select id="languageSelect" onchange="setLanguage()">
@@ -161,14 +220,13 @@
             </div>
         </div>
 
-        <h1 data-key="h1_title">🗓️ Bảng Chấm Công Tháng <span id="currentMonthYear"></span></h1>
         
         <div class="calendar-header">
             <div class="rate-input-group">
                  <span data-key="label_rate">💰 Lương/giờ:</span>
-                 <input type="number" id="hourlyRate" value="50000" min="1000" onchange="updateSummary()" style="width:100px;">
+                 <input type="number" id="hourlyRate" value="50000" min="1000" onchange="updateSummary()" style="width:80px;">
             </div>
-            
+            <p id="note" class="note" data-key="note_calc"></p> 
         </div>
 
         <table class="calendar-table">
@@ -209,7 +267,7 @@
         const CURRENCY_SELECT = document.getElementById('currencySelect');
         const LANGUAGE_SELECT = document.getElementById('languageSelect');
         
-        // --- Dữ liệu Dịch thuật ---
+        // --- Dữ liệu Dịch thuật (Đã làm trống ghi chú theo yêu cầu) ---
         const translations = {
             'vi': {
                 title: 'Bảng Chấm Công Theo Tháng - Trường Giang',
@@ -217,7 +275,7 @@
                 label_currency: 'Tiền tệ:',
                 h1_title: '🗓️ Bảng Chấm Công Tháng',
                 label_rate: '💰 Lương/giờ:',
-                note_calc: '(LƯU Ý: Đã bỏ tự động trừ 1 tiếng nghỉ trưa. Tổng giờ làm là giờ ra ca trừ giờ vào ca).',
+                note_calc: '', // Đã bỏ nội dung ghi chú
                 th_sun: 'CN', th_mon: 'T2', th_tue: 'T3', th_wed: 'T4', th_thu: 'T5', th_fri: 'T6', th_sat: 'T7',
                 in: 'Vào:', out: 'Ra:', hour_suffix: 'giờ',
                 summary_total_hours_prefix: '✅ Tổng giờ làm việc trong tháng:',
@@ -232,7 +290,7 @@
                 label_currency: 'Currency:',
                 h1_title: '🗓️ Monthly Timesheet for',
                 label_rate: '💰 Hourly Rate:',
-                note_calc: '(NOTE: Automatic 1-hour break deduction has been removed. Total hours are calculated from clock-in to clock-out time).',
+                note_calc: '', // Đã bỏ nội dung ghi chú
                 th_sun: 'Sun', th_mon: 'Mon', th_tue: 'Tue', th_wed: 'Wed', th_thu: 'Thu', th_fri: 'Fri', th_sat: 'Sat',
                 in: 'In:', out: 'Out:', hour_suffix: 'hours',
                 summary_total_hours_prefix: '✅ Total work hours this month:',
@@ -247,7 +305,7 @@
                 label_currency: '통화:',
                 h1_title: '🗓️ 월간 근무 시간표',
                 label_rate: '💰 시간당 임금:',
-                note_calc: '(참고: 자동 1시간 휴게 시간 공제가 제거되었습니다. 총 근무 시간은 출퇴근 시간으로 계산됩니다).',
+                note_calc: '', // Đã bỏ nội dung ghi chú
                 th_sun: '일', th_mon: '월', th_tue: '화', th_wed: '수', th_thu: '목', th_fri: '금', th_sat: '토',
                 in: '출근:', out: '퇴근:', hour_suffix: '시간',
                 summary_total_hours_prefix: '✅ 이번 달 총 근무 시간:',
@@ -332,7 +390,7 @@
             // 1. Cập nhật các chuỗi văn bản tĩnh
             document.querySelectorAll('[data-key]').forEach(element => {
                 const key = element.getAttribute('data-key');
-                if (t[key]) {
+                if (t[key] !== undefined) {
                     element.textContent = t[key];
                 }
             });
@@ -344,11 +402,18 @@
             // 3. Cập nhật nội dung trong các ô ngày
             CALENDAR_BODY.querySelectorAll('.day-cell').forEach(cell => {
                 const day = cell.querySelector('.day-number').textContent;
+                
+                // Lấy giá trị input cũ để giữ lại khi chuyển ngôn ngữ
+                const oldIn = cell.querySelector('input[data-type="in"]').value;
+                const oldOut = cell.querySelector('input[data-type="out"]').value;
+                const oldHours = cell.querySelector('.work-hours').textContent;
+
+
                 cell.innerHTML = `
                     <span class="day-number">${day}</span>
-                    ${t.in} <input type="time" data-day="${day}" data-type="in" onchange="updateSummary()">
-                    ${t.out} <input type="time" data-day="${day}" data-type="out" onchange="updateSummary()">
-                    <div class="work-hours" id="hours-${day}">0.00 ${t.hour_suffix}</div>
+                    ${t.in} <input type="time" data-day="${day}" data-type="in" value="${oldIn}" onchange="updateSummary()">
+                    ${t.out} <input type="time" data-day="${day}" data-type="out" value="${oldOut}" onchange="updateSummary()">
+                    <div class="work-hours" id="hours-${day}">${oldHours.replace(/[\w\s]+$/, t.hour_suffix)}</div>
                 `;
             });
 
@@ -359,7 +424,7 @@
 
         // --- 4. Hàm Tạo Lịch ---
         function renderCalendar() {
-            CALENDAR_BODY.innerHTML = ''; // Xóa nội dung cũ
+            CALENDAR_BODY.innerHTML = ''; 
             
             const lang = LANGUAGE_SELECT.value;
             const t = translations[lang];
