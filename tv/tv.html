@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-key="title">Bảng Chấm Công Theo Tháng</title>
     <style>
-        /* === CSS Styling Đã Cập Nhật === */
+        /* === CSS Styling Đã Cập Nhật Lại (Fix Desktop Layout) === */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             background-color: #f4f7f6;
-            /* Thiết lập body và html cao 100% để container có thể mở rộng */
-            height: 100vh;
+            /* Thiết lập chiều cao tối thiểu cho mobile */
+            min-height: 100vh; 
         }
 
         .container {
@@ -21,10 +21,11 @@
             background: #ffffff;
             border-radius: 0;
             box-shadow: none;
-            /* Tối ưu hóa kích thước trên mobile */
-            height: 100%; /* Chiếm toàn bộ chiều cao màn hình trên mobile */
+            /* Chiếm toàn bộ chiều cao màn hình trên mobile */
+            height: 100vh; 
             display: flex;
             flex-direction: column;
+            box-sizing: border-box; 
         }
         
         @media (min-width: 768px) {
@@ -32,7 +33,7 @@
                 padding: 30px;
                 border-radius: 10px;
                 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-                height: auto; /* Trở lại chiều cao tự động trên desktop */
+                height: auto; /* *** QUAN TRỌNG: Loại bỏ chiều cao cố định trên desktop *** */
             }
         }
 
@@ -95,6 +96,7 @@
             border-collapse: collapse;
             /* Đảm bảo bảng chiếm hết không gian còn lại trên mobile */
             flex-grow: 1; 
+            height: 1px; /* Chiều cao nhỏ nhất để flex-grow hoạt động tốt hơn */
         }
 
         .calendar-table th, .calendar-table td {
@@ -114,13 +116,12 @@
         .day-cell {
             vertical-align: top;
             width: 14.28%; 
-            /* Chiếm phần còn lại của chiều cao tbody, làm cho các ô giãn ra */
             height: auto; 
-            min-height: 50px; /* Chiều cao tối thiểu cho ô dễ chạm */
+            min-height: 50px; 
             background-color: #fcfcfc;
             position: relative; 
             cursor: pointer; 
-            user-select: none; /* Ngăn chặn chọn văn bản */
+            user-select: none; 
         }
         
         /* Số ngày ở góc trên trái */
@@ -144,10 +145,11 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 90%; /* Để văn bản không bị tràn */
+            width: 90%; 
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            line-height: 1; /* Đảm bảo căn chỉnh vertical */
         }
         
         /* --- Input Rate --- */
@@ -166,7 +168,6 @@
             border-top: 3px double #3498db;
             background-color: #eaf6fd;
             border-radius: 5px;
-            /* Giữ nguyên chiều cao, không mở rộng */
             flex-shrink: 0; 
         }
 
@@ -191,8 +192,8 @@
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color: rgba(0,0,0,0.6); /* Nền mờ */
-            display: none; /* Mặc định ẩn */
+            background-color: rgba(0,0,0,0.6); 
+            display: none; 
             justify-content: center;
             align-items: center;
             padding: 20px;
@@ -203,8 +204,8 @@
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            width: 90%; /* Rộng hơn trên mobile */
-            max-width: 400px; /* Giới hạn trên desktop */
+            width: 90%; 
+            max-width: 400px; 
             display: flex;
             flex-direction: column;
             gap: 15px;
@@ -522,7 +523,10 @@
                     } else if (element.tagName === 'SPAN' && element.closest('.calendar-header') && element.id === '') {
                         element.textContent = t.label_rate;
                     } else if (key.startsWith('modal_title_prefix')) {
-                        element.innerHTML = `${t.modal_title_prefix} - Ngày <span id="modalDayNumber">${currentDayInModal || ''}</span>`;
+                        // Cập nhật lại tiêu đề modal
+                        const modalTitle = document.querySelector('[data-key="modal_title_prefix"]');
+                        modalTitle.innerHTML = `${t.modal_title_prefix} - Ngày <span id="modalDayNumber">${currentDayInModal || ''}</span>`;
+                        return;
                     } else {
                         element.textContent = t[key];
                     }
@@ -532,7 +536,6 @@
             document.title = t.title;
             MONTH_YEAR_SPAN.textContent = `${t.month_names[CURRENT_MONTH]}, ${CURRENT_YEAR}`;
             
-            // Render lại lịch (cần thiết khi thay đổi ngôn ngữ, mặc dù chi tiết giờ không còn trong ô)
             renderCalendar(); 
             
             updateSummary();
@@ -582,7 +585,6 @@
                 row.insertCell().innerHTML = '';
             }
             
-            // Quan trọng: Gọi updateSummary để điền dữ liệu đã lưu và tính toán
             updateSummary(); 
         }
 
@@ -608,7 +610,7 @@
         }
 
         function closeModal(event) {
-            // Đóng Modal nếu click vào nền xám
+            // Đóng Modal nếu click vào nền xám hoặc nút Hủy
             if (!event || event.target.id === 'timeModal' || event.target.classList.contains('cancel')) {
                 TIME_MODAL.style.display = 'none';
                 currentDayInModal = null;
@@ -632,12 +634,6 @@
         
         // --- Chạy khi tải trang ---
         window.onload = function() {
-            // Tải dữ liệu đã lưu nếu có (ví dụ: từ localStorage)
-            // if (localStorage.getItem('timeData')) {
-            //     timeData = JSON.parse(localStorage.getItem('timeData'));
-            // }
-
-            // Đặt ngôn ngữ mặc định (sẽ gọi renderCalendar và updateSummary)
             setLanguage(); 
         };
     </script>
