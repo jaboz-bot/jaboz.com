@@ -129,11 +129,7 @@
             background-color: #fcebeb; /* Màu nền đỏ nhạt cho ô có ngày */
         }
         
-        /* CSS MỚI: Màu nền tối cho ô không có ngày
-           Sử dụng !important để đảm bảo nó ghi đè lên các màu nền khác, 
-           trừ khi có màu cụ thể hơn được gán (như background-color của .day-cell).
-           Tuy nhiên, vì .day-cell có màu nền trắng nên ô trống (không có .day-cell)
-           sẽ bị màu tối này chi phối */
+        /* CSS MỚI: Màu nền tối cho ô không có ngày */
         .calendar-table td:empty {
             background-color: #e0e0e0 !important; /* Màu xám tối ưu tiên */
             cursor: default;
@@ -163,19 +159,41 @@
         
         /* Work display (Vị trí trung tâm) */
         .work-display {
-            font-size: 0.9em;
+            /* THAY ĐỔI QUAN TRỌNG: Sử dụng Flexbox để xếp 2 dòng */
+            display: flex;
+            flex-direction: column; 
+            justify-content: center;
+            align-items: center;
+
             font-weight: bold;
-            color: #e74c3c;
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 90%;
+            width: 95%; /* Cho phép nội dung hiển thị rộng hơn */
+            padding: 2px 0;
+        }
+        
+        .work-display span {
+            font-size: 0.8em;
+            line-height: 1.1;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            width: 100%;
+        }
+
+        /* Dòng Giờ Làm */
+        .work-hours-in-cell {
+            color: #2980b9; /* Màu xanh dương cho giờ làm */
         }
         
+        /* Dòng Số Tiền */
+        .work-amount-in-cell {
+            color: #e74c3c; /* Màu đỏ cho số tiền */
+            font-size: 0.9em; /* Làm số tiền to hơn một chút */
+        }
+
         /* --- Input Rate --- */
         .rate-input-group {
             display: flex;
@@ -546,23 +564,33 @@
                 }
                 totalHours += hours;
                 
-                // Cập nhật hiển thị tiền/giờ trong ô
+                // Lấy các thẻ span để cập nhật giờ và tiền
                 const workDisplay = cell.querySelector('.work-display');
-                if (workDisplay) {
-                    if (hours > 0 && hourlyRate > 0) {
-                        const totalAmount = hours * hourlyRate;
+                const hoursSpan = cell.querySelector('.work-hours-in-cell');
+                const amountSpan = cell.querySelector('.work-amount-in-cell');
+
+                if (workDisplay && hoursSpan && amountSpan) {
+                    if (hours > 0) {
+                        const formattedHours = hours.toFixed(2) + t.hour_suffix.substring(0, 1);
+                        hoursSpan.textContent = formattedHours;
                         
-                        const formattedAmount = totalAmount.toLocaleString(locale, { 
-                            style: 'currency', 
-                            currency: currency, 
-                            minimumFractionDigits: (currency === 'VND' || currency === 'KRW') ? 0 : 2
-                        });
-                        
-                        workDisplay.textContent = formattedAmount;
-                        workDisplay.style.color = '#e74c3c';
+                        if (hourlyRate > 0) {
+                            const totalAmount = hours * hourlyRate;
+                            
+                            const formattedAmount = totalAmount.toLocaleString(locale, { 
+                                style: 'currency', 
+                                currency: currency, 
+                                minimumFractionDigits: (currency === 'VND' || currency === 'KRW') ? 0 : 2
+                            });
+                            
+                            amountSpan.textContent = formattedAmount;
+                        } else {
+                            amountSpan.textContent = ''; // Không có lương/giờ thì không hiện tiền
+                        }
                     } else {
-                        workDisplay.textContent = hours > 0 ? hours.toFixed(2) + t.hour_suffix.substring(0, 1) : ''; 
-                        workDisplay.style.color = '#95a5a6';
+                        // Nếu không có giờ làm, xóa cả giờ và tiền
+                        hoursSpan.textContent = '';
+                        amountSpan.textContent = '';
                     }
                 }
             });
@@ -663,9 +691,13 @@
                 
                 const currentDay = day.toString();
                 
+                // CẬP NHẬT: Chia thành 2 thẻ span riêng biệt trong work-display
                 const dayContent = `
                     <span class="day-number">${currentDay}</span>
-                    <span class="work-display"></span> 
+                    <div class="work-display">
+                        <span class="work-hours-in-cell"></span>
+                        <span class="work-amount-in-cell"></span>
+                    </div>
                 `;
                 cell.innerHTML = dayContent;
                 
