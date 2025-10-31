@@ -280,7 +280,8 @@
         <div class="calendar-header">
             <div class="rate-input-group">
                 <span data-key="label_rate">💰 Lương/giờ:</span>
-                <input type="number" id="hourlyRate" value="50000" min="1000" onchange="updateSummary()" style="width:80px;">
+         
+                <input type="number" id="hourlyRate" min="10000" onchange="updateSummary()" style="width:80px;" placeholder="">
                 <span id="currencyUnit" class="currency-unit">VND</span>
             </div>
             <p id="note" class="note" data-key="note_calc"></p> 
