@@ -1,103 +1,273 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="utf-8">
-<title>TV YouTube Vô Hạn</title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<style>
-  body{margin:0;font-family:sans-serif;background:#000;color:#eee;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh}
-  #player{width:90vw;height:60vh;background:#111;margin-bottom:10px}
-  button{background:#222;color:#eee;border:0;padding:10px 18px;border-radius:8px;cursor:pointer;margin:0 5px}
-  button:hover{background:#333}
-  #status{font-size:14px;color:#aaa;margin-top:8px}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bảng Chấm Công Theo Tháng - Trường Giang</title>
+    <style>
+        /* === CSS Styling === */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f7f6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 25px;
+        }
+
+        /* Lịch */
+        .calendar-header {
+            text-align: center;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: #3498db;
+        }
+
+        .calendar-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .calendar-table th, .calendar-table td {
+            border: 1px solid #bdc3c7;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .calendar-table th {
+            background-color: #ecf0f1;
+            color: #2c3e50;
+        }
+
+        .day-cell {
+            vertical-align: top;
+            width: 14.28%; /* 100% / 7 ngày */
+            height: 120px; /* Chiều cao cố định cho ô ngày */
+            background-color: #fcfcfc;
+        }
+
+        .day-number {
+            font-weight: bold;
+            display: block;
+            text-align: left;
+            padding: 5px 5px 0 5px;
+            color: #2980b9;
+        }
+        
+        /* Hiển thị cuối tháng */
+        .summary {
+            margin-top: 30px;
+            padding: 20px;
+            border-top: 3px double #3498db;
+            background-color: #eaf6fd;
+            border-radius: 5px;
+        }
+
+        .summary p {
+            font-size: 1.1em;
+            margin: 10px 0;
+            font-weight: 500;
+        }
+
+        .total-amount {
+            font-size: 1.8em;
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        /* Input Styling */
+        input[type="time"] {
+            width: 90%;
+            padding: 2px;
+            margin: 2px 0;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            box-sizing: border-box;
+            font-size: 0.8em;
+        }
+        
+        .work-hours {
+            font-size: 0.9em;
+            font-weight: bold;
+            color: #27ae60;
+            margin-top: 5px;
+        }
+    </style>
 </head>
 <body>
-  <div id="player"></div>
-  <div>
-    <button id="nextBtn">⏭️ Kênh mới</button>
-    <button id="toggleAuto">🔁 Tự động: BẬT</button>
-  </div>
-  <div id="status">Đang tải video đầu tiên...</div>
+    <div class="container">
+        <h1>🗓️ Bảng Chấm Công Tháng <span id="currentMonthYear"></span></h1>
+        
+        <div class="calendar-header">
+            <label for="hourlyRate">💰 Lương/giờ (VNĐ):</label>
+            <input type="number" id="hourlyRate" value="50000" min="1000" onchange="renderCalendar()">
+            <p style="font-size:0.9em; margin-top:10px;">(Tự động trừ 1 tiếng nghỉ nếu ca làm việc > 5 tiếng)</p>
+        </div>
 
-<script>
-const API_KEY = "AIzaSyDwN50y0-_Huo2hfpQCnFIqlDrOPSvi3Eo";
+        <table class="calendar-table">
+            <thead>
+                <tr>
+                    <th>CN</th><th>T2</th><th>T3</th><th>T4</th><th>T5</th><th>T6</th><th>T7</th>
+                </tr>
+            </thead>
+            <tbody id="calendarBody">
+                </tbody>
+        </table>
 
-// Mảng từ khóa để random tìm video
-const KEYWORDS = [
-  "music", "news", "movie", "funny", "animals", "sports",
-  "live", "technology", "travel", "kpop", "documentary",
-  "food", "vlog", "game", "space", "robot", "nature", "meme"
-];
+        <div class="summary">
+            <p>✅ Tổng giờ làm việc trong tháng: <span id="totalHours" class="work-hours">0.00</span> giờ</p>
+            <p>💵 TỔNG THU NHẬP DỰ KIẾN:</p>
+            <div id="totalAmount" class="total-amount">0 VNĐ</div>
+        </div>
+    </div>
 
-let player, autoPlay = true, viewed = 0;
+    <script>
+        // === JavaScript Logic ===
 
-function randomKeyword() {
-  return KEYWORDS[Math.floor(Math.random() * KEYWORDS.length)];
-}
+        const TODAY = new Date();
+        const CURRENT_YEAR = TODAY.getFullYear();
+        const CURRENT_MONTH = TODAY.getMonth(); // 0-11
+        
+        const CALENDAR_BODY = document.getElementById('calendarBody');
+        const TOTAL_HOURS_SPAN = document.getElementById('totalHours');
+        const TOTAL_AMOUNT_DIV = document.getElementById('totalAmount');
+        const HOURLY_RATE_INPUT = document.getElementById('hourlyRate');
+        const MONTH_YEAR_SPAN = document.getElementById('currentMonthYear');
+        
+        // --- 1. Hàm Tính Toán Giờ Làm ---
+        function calculateWorkHours(timeIn, timeOut) {
+            if (!timeIn || !timeOut) return 0;
+            
+            // Chuyển "HH:MM" thành số phút
+            const [hIn, mIn] = timeIn.split(':').map(Number);
+            const [hOut, mOut] = timeOut.split(':').map(Number);
 
-// Gọi YouTube Data API để lấy video ngẫu nhiên
-async function getRandomVideoId() {
-  const q = randomKeyword();
-  const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoEmbeddable=true&maxResults=10&order=viewCount&q=${encodeURIComponent(q)}&key=${API_KEY}`;
-  try {
-    const res = await fetch(url);
-    const data = await res.json();
-    if (!data.items || data.items.length === 0) throw new Error("Không tìm thấy video");
-    const v = data.items[Math.floor(Math.random() * data.items.length)];
-    return v.id.videoId;
-  } catch (err) {
-    console.error("Lỗi tải video:", err);
-    return null;
-  }
-}
+            const minutesIn = hIn * 60 + mIn;
+            const minutesOut = hOut * 60 + mOut;
 
-async function loadRandomVideo() {
-  const vid = await getRandomVideoId();
-  if (!vid) {
-    document.getElementById("status").textContent = "Không tải được video. Thử lại...";
-    setTimeout(loadRandomVideo, 2000);
-    return;
-  }
-  viewed++;
-  document.getElementById("status").textContent = `Đang xem video ${viewed} | ID: ${vid}`;
-  if (player && player.loadVideoById) {
-    player.loadVideoById(vid);
-  } else {
-    player = new YT.Player("player", {
-      videoId: vid,
-      playerVars: {autoplay:1,controls:1,rel:0,modestbranding:1},
-      events: {
-        onStateChange: (ev) => {
-          if (ev.data === YT.PlayerState.ENDED && autoPlay) {
-            setTimeout(loadRandomVideo, 1000);
-          }
-        },
-        onError: () => {
-          setTimeout(loadRandomVideo, 1000);
+            let totalMinutes = minutesOut - minutesIn;
+            
+            // Xử lý ca qua đêm (cơ bản)
+            if (totalMinutes < 0) {
+                totalMinutes += 24 * 60; 
+            }
+            
+            // Giả định: Trừ 60 phút (1 giờ) nghỉ trưa nếu làm việc thực tế > 5 giờ (300 phút)
+            const hoursWorked = totalMinutes / 60;
+            if (hoursWorked > 5) {
+                return hoursWorked - 1; // Trừ 1 tiếng nghỉ
+            }
+
+            return hoursWorked;
         }
-      }
-    });
-  }
-}
 
-// Nút bấm
-document.getElementById("nextBtn").onclick = loadRandomVideo;
-document.getElementById("toggleAuto").onclick = () => {
-  autoPlay = !autoPlay;
-  document.getElementById("toggleAuto").textContent = `🔁 Tự động: ${autoPlay ? "BẬT" : "TẮT"}`;
-};
+        // --- 2. Hàm Cập Nhật Tổng Kết ---
+        function updateSummary() {
+            let totalHours = 0;
+            const hourlyRate = parseFloat(HOURLY_RATE_INPUT.value) || 0;
+            
+            // Lặp qua tất cả input giờ vào/ra
+            CALENDAR_BODY.querySelectorAll('input[type="time"]').forEach(input => {
+                const day = input.dataset.day;
+                const type = input.dataset.type; // 'in' hoặc 'out'
+                
+                // Lấy giá trị của cặp input
+                const timeIn = document.querySelector(`input[data-day="${day}"][data-type="in"]`).value;
+                const timeOut = document.querySelector(`input[data-day="${day}"][data-type="out"]`).value;
 
-// Gọi API script YouTube
-(function(){
-  const tag = document.createElement("script");
-  tag.src = "https://www.youtube.com/iframe_api";
-  const first = document.getElementsByTagName("script")[0];
-  first.parentNode.insertBefore(tag, first);
-})();
-function onYouTubeIframeAPIReady(){
-  loadRandomVideo();
-}
-</script>
+                // Chỉ tính toán khi nó là input 'out' để tránh tính 2 lần
+                if (type === 'out' && timeIn && timeOut) {
+                    const hours = calculateWorkHours(timeIn, timeOut);
+                    totalHours += hours;
+                    
+                    // Cập nhật hiển thị giờ làm cho ngày đó
+                    const dayHoursSpan = document.getElementById(`hours-${day}`);
+                    if (dayHoursSpan) {
+                        dayHoursSpan.textContent = `${hours.toFixed(2)} giờ`;
+                    }
+                }
+            });
+            
+            // Tính toán số tiền
+            const totalAmount = totalHours * hourlyRate;
+
+            // Cập nhật hiển thị
+            TOTAL_HOURS_SPAN.textContent = totalHours.toFixed(2);
+            TOTAL_AMOUNT_DIV.textContent = totalAmount.toLocaleString('vi-VN', { 
+                style: 'currency', 
+                currency: 'VND', 
+                minimumFractionDigits: 0 
+            });
+        }
+
+        // --- 3. Hàm Tạo Lịch ---
+        function renderCalendar() {
+            CALENDAR_BODY.innerHTML = ''; // Xóa nội dung cũ
+            
+            const monthNames = ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
+                                "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"];
+            
+            MONTH_YEAR_SPAN.textContent = `${monthNames[CURRENT_MONTH]}, ${CURRENT_YEAR}`;
+
+            const date = new Date(CURRENT_YEAR, CURRENT_MONTH, 1);
+            
+            // Ngày đầu tiên trong tuần (0=CN, 1=T2,...)
+            let firstDayOfWeek = date.getDay(); 
+
+            let row = CALENDAR_BODY.insertRow();
+            
+            // Điền các ô trống trước ngày 1
+            for (let i = 0; i < firstDayOfWeek; i++) {
+                row.insertCell().innerHTML = '';
+            }
+
+            let day = 1;
+            
+            // Lặp qua các ngày trong tháng
+            while (date.getMonth() === CURRENT_MONTH) {
+                if (row.cells.length === 7) {
+                    row = CALENDAR_BODY.insertRow();
+                }
+
+                const cell = row.insertCell();
+                cell.className = 'day-cell';
+                
+                const dayContent = `
+                    <span class="day-number">${day}</span>
+                    Vào: <input type="time" data-day="${day}" data-type="in" onchange="updateSummary()">
+                    Ra: <input type="time" data-day="${day}" data-type="out" onchange="updateSummary()">
+                    <div class="work-hours" id="hours-${day}">0.00 giờ</div>
+                `;
+                cell.innerHTML = dayContent;
+                
+                // Chuẩn bị cho ngày tiếp theo
+                day++;
+                date.setDate(day);
+            }
+            
+            // Điền các ô trống sau ngày cuối cùng
+            while (row.cells.length < 7) {
+                row.insertCell().innerHTML = '';
+            }
+            
+            // Cập nhật tổng kết sau khi tạo lịch xong
+            updateSummary(); 
+        }
+
+        // --- Chạy khi tải trang ---
+        window.onload = renderCalendar;
+    </script>
 </body>
 </html>
