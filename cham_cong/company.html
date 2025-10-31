@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nhập Công Ty / Cửa Hàng</title>
+<style>
+    body { display: flex; justify-content: center; align-items: center; height: 100vh; font-family: Arial; background:#f0f0f0; }
+    .form-container { background:white; padding:30px; border-radius:10px; box-shadow:0 3px 10px rgba(0,0,0,0.2); text-align:center; }
+    input { padding:10px; width:250px; margin-bottom:10px; font-size:1em; }
+    button { padding:10px 20px; font-size:1em; cursor:pointer; }
+</style>
+</head>
+<body>
+    <div class="form-container">
+        <h2>Nhập Tên Công Ty / Cửa Hàng</h2>
+        <input type="text" id="companyName" placeholder="Tên công ty..." />
+        <br/>
+        <button onclick="saveCompany()">Tiếp tục</button>
+    </div>
+
+<script>
+function saveCompany() {
+    const name = document.getElementById('companyName').value.trim();
+    if (!name) {
+        alert("Vui lòng nhập tên công ty/cửa hàng!");
+        return;
+    }
+    // Lưu vào localStorage
+    localStorage.setItem('companyName', name);
+    // Chuyển sang trang bảng chấm công
+    window.location.href = 'cham_cong.html';
+}
+</script>
+</body>
+</html>
