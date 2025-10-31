@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-key="title">Bảng Chấm Công </title>
+    <title data-key="title">Bảng Chấm Công Theo ThángTháng</title>
     <style>
         /* === CSS Styling Đã Cập Nhật === */
         body {
@@ -264,7 +264,7 @@
     <div class="container">
         
         <div class="header-controls">
-            <h1 data-key="h1_title">🗓️ Bảng Chấm Công Tháng <span id="currentMonthYear"></span></h1>
+            <h1 data-key="h1_title">🗓️ Bảng Chấm Công <span id="currentMonthYear"></span></h1>
             
             <div class="controls">
                 <div class="control-group">
@@ -282,7 +282,7 @@
             <div class="rate-input-group">
                 <span data-key="label_rate">💰 Lương/giờ:</span>
             
-                <input type="number" id="hourlyRate" min="10000" oninput="updateSummary()" style="width:80px;" placeholder="">
+                <input type="number" id="hourlyRate" min="1000" oninput="updateSummary()" style="width:80px;" placeholder="">
                 <span id="currencyUnit" class="currency-unit">VND</span>
             </div>
             <p id="note" class="note" data-key="note_calc"></p> 
@@ -313,7 +313,7 @@
     
     <div id="timeModal" class="modal" onclick="closeModal(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
-            <h2 data-key="modal_title_prefix">Nhập Giờ Công - Ngày <span id="modalDayNumber"></span></h2>
+            <h2 data-key="modal_title_prefix">Nhập Giờ Công <span id="modalDayNumber"></span></h2>
             
             <div class="time-input-group">
                 <label data-key="in" for="modalTimeIn">Vào:</label>
@@ -367,7 +367,7 @@
                 label_lang: 'Ngôn ngữ:',
                 currencyCode: 'VND', 
                 currencyLocale: 'vi-VN', 
-                h1_title: '🗓️ Bảng Chấm Công Tháng',
+                h1_title: '🗓️ Bảng Chấm Công ',
                 label_rate: '💰 Lương/giờ:',
                 note_calc: '',
                 th_sun: 'CN', th_mon: 'T2', th_tue: 'T3', th_wed: 'T4', th_thu: 'T5', th_fri: 'T6', th_sat: 'T7',
@@ -377,7 +377,7 @@
                 summary_total_income: '💵 TỔNG THU NHẬP DỰ KIẾN:',
                 month_names: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
                                 "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"],
-                modal_title_prefix: 'Nhập Giờ Công - Ngày',
+                modal_title_prefix: 'Nhập Giờ Công ',
                 btn_cancel: 'Hủy',
                 btn_save: 'Chọn',
             },
