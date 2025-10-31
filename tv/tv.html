@@ -371,7 +371,7 @@
     
     <div id="timeModal" class="modal" onclick="closeModal(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
-            <h2 data-key="modal_title_prefix">Nhập Giờ Công <span id="modalDayNumber"></span></h2>
+            <h2 data-key="modal_title_prefix">Nhập Giờ Công Ngày<span id="modalDayNumber"></span></h2>
             
             <div class="time-input-group">
                 <label data-key="in" for="modalTimeIn">Vào:</label>
@@ -647,7 +647,7 @@
                 const key = element.getAttribute('data-key');
                 if (t[key] !== undefined) {
                     if (key.startsWith('modal_title_prefix')) {
-                        const day = currentDayInModal ? ` - Ngày <span id="modalDayNumber">${currentDayInModal}</span>` : '';
+                        const day = currentDayInModal ? `  <span id="modalDayNumber">${currentDayInModal}</span>` : '';
                         element.innerHTML = `${t.modal_title_prefix}${day}`;
                     } else if (key !== 'h1_month_title' && 
                                key !== 'summary_total_hours_prefix_month' && 
