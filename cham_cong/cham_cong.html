@@ -241,7 +241,7 @@ body {
             font-weight: bold;
         }
 
-        #totalHours, #hoursSuffix {
+        #totalHours {
     color: green;
     font-weight: bold;
 }
@@ -349,13 +349,6 @@ body {
     </style>
 </head>
 <body>
-
-    <div id="companyDisplay" style="text-align:center; font-size:1.4em; font-weight:bold; margin-bottom:10px;">
-    Công ty/Cửa hàng: ...
-
-    </div>
-
-    
     <div class="container" id="timesheetContainer">
         
         <div class="header-controls">
@@ -408,14 +401,7 @@ body {
         </table>
 
         <div class="summary">
-            <p>
-    <span id="summaryHoursPrefix" data-key="summary_total_hours_prefix_month">
-        ✅ Tổng giờ làm việc trong tháng:
-    </span> 
-    <span id="totalHours" class="work-hours">0.00</span>
-    <span id="hoursSuffix" data-key="summary_hours_suffix">giờ</span>
-</p>
-
+            <p><span id="summaryHoursPrefix" data-key="summary_total_hours_prefix_month">✅ Tổng giờ làm việc trong tháng:</span> <span id="totalHours" class="work-hours">0.00</span> <span data-key="summary_hours_suffix">giờ</span></p>
             
             <p><span id="summaryIncomePrefix" data-key="summary_total_income_month">💵 TỔNG THU NHẬP DỰ KIẾN:</span></p>
             
@@ -848,9 +834,6 @@ body {
 
         // --- Chạy khi tải trang ---
         window.onload = function() {
-            // Lấy tên công ty từ localStorage
-        const companyName = localStorage.getItem('companyName') || "Chưa nhập tên công ty";
-        document.getElementById('companyDisplay').textContent = `Công ty/Cửa hàng: ${companyName}`;
             TIMESHEET_CONTAINER.addEventListener('touchstart', handleTouchStart, false);
             TIMESHEET_CONTAINER.addEventListener('touchend', handleTouchEnd, false);
 
