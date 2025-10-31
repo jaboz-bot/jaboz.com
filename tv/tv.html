@@ -285,7 +285,8 @@
 
         .modal-actions {
             display: flex;
-            justify-content: space-between;
+            /* Tăng khoảng cách giữa các nút */
+            justify-content: space-between; 
             margin-top: 10px;
         }
 
@@ -296,8 +297,16 @@
             font-size: 1em;
             cursor: pointer;
             flex: 1; /* Chia đều không gian cho các nút */
-            margin: 0 5px;
+            margin: 0 5px; /* Thêm khoảng cách ngang giữa các nút */
         }
+        /* Đảm bảo nút đầu tiên và cuối cùng không có margin bên ngoài */
+        .modal-actions button:first-child {
+            margin-left: 0;
+        }
+        .modal-actions button:last-child {
+            margin-right: 0;
+        }
+
 
         .modal-actions button.cancel {
             background-color: #ecf0f1;
@@ -392,7 +401,8 @@
             
             <div class="modal-actions">
                 <button class="cancel" onclick="closeModal()" data-key="btn_cancel">Hủy</button>
-                <button class="delete" onclick="deleteModalData()" data-key="btn_delete">Xóa</button> <button class="save" onclick="saveModalData()" data-key="btn_save">Chọn</button>
+                <button class="delete" onclick="deleteModalData()" data-key="btn_delete">Xóa</button>
+                <button class="save" onclick="saveModalData()" data-key="btn_save">Chọn</button>
             </div>
         </div>
     </div>
@@ -406,7 +416,7 @@
 
         // Biến toàn cục cho thao tác vuốt
         let touchStartX = 0;
-        const SWIPE_THRESHOLD = 100; // ĐÃ CHỈNH SỬA: Tăng từ 50 lên 75 để giảm độ nhạy
+        const SWIPE_THRESHOLD = 100; // ĐÃ CHỈNH SỬA: Giữ ngưỡng 100
         
         // DOM Elements
         const TIMESHEET_CONTAINER = document.getElementById('timesheetContainer');
@@ -452,7 +462,7 @@
                                 "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"],
                 modal_title_prefix: 'Nhập Giờ Công',
                 btn_cancel: 'Hủy',
-                btn_delete: 'Xóa', // KEY MỚI
+                btn_delete: 'Xóa', 
                 btn_save: 'Chọn',
             },
             'en': {
@@ -472,7 +482,7 @@
                                 "July", "August", "September", "October", "November", "December"],
                 modal_title_prefix: 'Enter Timesheet - Day',
                 btn_cancel: 'Cancel',
-                btn_delete: 'Delete', // KEY MỚI
+                btn_delete: 'Delete', 
                 btn_save: 'Save',
             },
             'ko': {
@@ -492,7 +502,7 @@
                                 "7월", "8월", "9월", "10월", "11월", "12월"],
                 modal_title_prefix: '근무 시간 입력 - 날짜',
                 btn_cancel: '취소',
-                btn_delete: '삭제', // KEY MỚI
+                btn_delete: '삭제', 
                 btn_save: '선택',
             }
         };
