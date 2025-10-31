@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bảng Chấm Công Theo Tháng - Trường Giang</title>
+    <title data-key="title">Bảng Chấm Công Theo Tháng - Trường Giang</title>
     <style>
         /* === CSS Styling === */
         body {
@@ -21,6 +21,24 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
+        .header-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+        }
+
+        .control-group label {
+            font-weight: bold;
+            color: #555;
+            margin-right: 5px;
+        }
+        
         h1 {
             text-align: center;
             color: #2c3e50;
@@ -53,8 +71,8 @@
 
         .day-cell {
             vertical-align: top;
-            width: 14.28%; /* 100% / 7 ngày */
-            height: 120px; /* Chiều cao cố định cho ô ngày */
+            width: 14.28%; 
+            height: 120px; 
             background-color: #fcfcfc;
         }
 
@@ -88,7 +106,7 @@
         }
 
         /* Input Styling */
-        input[type="time"] {
+        input[type="time"], select {
             width: 90%;
             padding: 2px;
             margin: 2px 0;
@@ -104,22 +122,65 @@
             color: #27ae60;
             margin-top: 5px;
         }
+        
+        .note {
+            font-size: 0.9em; 
+            margin-top: 10px; 
+            color: #e74c3c;
+        }
+        
+        .rate-input-group {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🗓️ Bảng Chấm Công Tháng <span id="currentMonthYear"></span></h1>
+        
+        <div class="header-controls">
+            <div></div> <div class="controls">
+                <div class="control-group">
+                    <label data-key="label_lang" for="languageSelect">Ngôn ngữ:</label>
+                    <select id="languageSelect" onchange="setLanguage()">
+                        <option value="vi">Tiếng Việt</option>
+                        <option value="en">English</option>
+                        <option value="ko">한국어</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label data-key="label_currency" for="currencySelect">Tiền tệ:</label>
+                    <select id="currencySelect" onchange="updateSummary()">
+                        <option value="VND">VND</option>
+                        <option value="USD">USD</option>
+                        <option value="KRW">KRW (Won)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <h1 data-key="h1_title">🗓️ Bảng Chấm Công Tháng <span id="currentMonthYear"></span></h1>
         
         <div class="calendar-header">
-            <label for="hourlyRate">💰 Lương/giờ (VNĐ):</label>
-            <input type="number" id="hourlyRate" value="50000" min="1000" onchange="renderCalendar()">
-            <p style="font-size:0.9em; margin-top:10px; color:#e74c3c;">(LƯU Ý: Đã bỏ tự động trừ 1 tiếng nghỉ trưa. Tổng giờ làm là giờ ra ca trừ giờ vào ca).</p>
+            <div class="rate-input-group">
+                 <span data-key="label_rate">💰 Lương/giờ:</span>
+                 <input type="number" id="hourlyRate" value="50000" min="1000" onchange="updateSummary()" style="width:100px;">
+            </div>
+            <p id="note" class="note" data-key="note_calc">(LƯU Ý: Đã bỏ tự động trừ 1 tiếng nghỉ trưa. Tổng giờ làm là giờ ra ca trừ giờ vào ca).</p>
         </div>
 
         <table class="calendar-table">
             <thead>
-                <tr>
-                    <th>CN</th><th>T2</th><th>T3</th><th>T4</th><th>T5</th><th>T6</th><th>T7</th>
+                <tr id="tableHeaders">
+                    <th data-key="th_sun">CN</th>
+                    <th data-key="th_mon">T2</th>
+                    <th data-key="th_tue">T3</th>
+                    <th data-key="th_wed">T4</th>
+                    <th data-key="th_thu">T5</th>
+                    <th data-key="th_fri">T6</th>
+                    <th data-key="th_sat">T7</th>
                 </tr>
             </thead>
             <tbody id="calendarBody">
@@ -127,9 +188,9 @@
         </table>
 
         <div class="summary">
-            <p>✅ Tổng giờ làm việc trong tháng: <span id="totalHours" class="work-hours">0.00</span> giờ</p>
-            <p>💵 TỔNG THU NHẬP DỰ KIẾN:</p>
-            <div id="totalAmount" class="total-amount">0 VNĐ</div>
+            <p><span data-key="summary_total_hours_prefix">✅ Tổng giờ làm việc trong tháng:</span> <span id="totalHours" class="work-hours">0.00</span> <span data-key="summary_hours_suffix">giờ</span></p>
+            <p data-key="summary_total_income">💵 TỔNG THU NHẬP DỰ KIẾN:</p>
+            <div id="totalAmount" class="total-amount">0 VND</div>
         </div>
     </div>
 
@@ -145,17 +206,67 @@
         const TOTAL_AMOUNT_DIV = document.getElementById('totalAmount');
         const HOURLY_RATE_INPUT = document.getElementById('hourlyRate');
         const MONTH_YEAR_SPAN = document.getElementById('currentMonthYear');
+        const CURRENCY_SELECT = document.getElementById('currencySelect');
+        const LANGUAGE_SELECT = document.getElementById('languageSelect');
         
-        // --- 1. Hàm Tính Toán Giờ Làm ---
+        // --- Dữ liệu Dịch thuật ---
+        const translations = {
+            'vi': {
+                title: 'Bảng Chấm Công Theo Tháng - Trường Giang',
+                label_lang: 'Ngôn ngữ:',
+                label_currency: 'Tiền tệ:',
+                h1_title: '🗓️ Bảng Chấm Công Tháng',
+                label_rate: '💰 Lương/giờ:',
+                note_calc: '(LƯU Ý: Đã bỏ tự động trừ 1 tiếng nghỉ trưa. Tổng giờ làm là giờ ra ca trừ giờ vào ca).',
+                th_sun: 'CN', th_mon: 'T2', th_tue: 'T3', th_wed: 'T4', th_thu: 'T5', th_fri: 'T6', th_sat: 'T7',
+                in: 'Vào:', out: 'Ra:', hour_suffix: 'giờ',
+                summary_total_hours_prefix: '✅ Tổng giờ làm việc trong tháng:',
+                summary_hours_suffix: 'giờ',
+                summary_total_income: '💵 TỔNG THU NHẬP DỰ KIẾN:',
+                month_names: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
+                              "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"]
+            },
+            'en': {
+                title: 'Monthly Timesheet - Truong Giang',
+                label_lang: 'Language:',
+                label_currency: 'Currency:',
+                h1_title: '🗓️ Monthly Timesheet for',
+                label_rate: '💰 Hourly Rate:',
+                note_calc: '(NOTE: Automatic 1-hour break deduction has been removed. Total hours are calculated from clock-in to clock-out time).',
+                th_sun: 'Sun', th_mon: 'Mon', th_tue: 'Tue', th_wed: 'Wed', th_thu: 'Thu', th_fri: 'Fri', th_sat: 'Sat',
+                in: 'In:', out: 'Out:', hour_suffix: 'hours',
+                summary_total_hours_prefix: '✅ Total work hours this month:',
+                summary_hours_suffix: 'hours',
+                summary_total_income: '💵 ESTIMATED TOTAL INCOME:',
+                month_names: ["January", "February", "March", "April", "May", "June",
+                              "July", "August", "September", "October", "November", "December"]
+            },
+            'ko': {
+                title: '월간 근무 시간표 - 쯔엉장',
+                label_lang: '언어:',
+                label_currency: '통화:',
+                h1_title: '🗓️ 월간 근무 시간표',
+                label_rate: '💰 시간당 임금:',
+                note_calc: '(참고: 자동 1시간 휴게 시간 공제가 제거되었습니다. 총 근무 시간은 출퇴근 시간으로 계산됩니다).',
+                th_sun: '일', th_mon: '월', th_tue: '화', th_wed: '수', th_thu: '목', th_fri: '금', th_sat: '토',
+                in: '출근:', out: '퇴근:', hour_suffix: '시간',
+                summary_total_hours_prefix: '✅ 이번 달 총 근무 시간:',
+                summary_hours_suffix: '시간',
+                summary_total_income: '💵 예상 총 수입:',
+                month_names: ["1월", "2월", "3월", "4월", "5월", "6월",
+                              "7월", "8월", "9월", "10월", "11월", "12월"]
+            }
+        };
+
+        // --- 1. Hàm Tính Toán Giờ Làm (Không trừ 1 tiếng) ---
         function calculateWorkHours(timeIn, timeOut) {
             if (!timeIn || !timeOut) return 0;
             
-            // Chuyển "HH:MM" thành số phút
             const [hIn, mIn] = timeIn.split(':').map(Number);
             const [hOut, mOut] = timeOut.split(':').map(Number);
 
             const minutesIn = hIn * 60 + mIn;
-            const minutesOut = hOut * 60 + mOut;
+            let minutesOut = hOut * 60 + mOut;
 
             let totalMinutes = minutesOut - minutesIn;
             
@@ -164,75 +275,108 @@
                 totalMinutes += 24 * 60; 
             }
             
-            // ************ ĐÃ BỎ LOGIC TRỪ 1 TIẾNG ************
-            const hoursWorked = totalMinutes / 60;
-
-            return hoursWorked;
+            return totalMinutes / 60; // Trả về giờ dưới dạng số thập phân
         }
 
-        // --- 2. Hàm Cập Nhật Tổng Kết ---
+        // --- 2. Hàm Cập Nhật Tổng Kết (Có hỗ trợ tiền tệ) ---
         function updateSummary() {
             let totalHours = 0;
             const hourlyRate = parseFloat(HOURLY_RATE_INPUT.value) || 0;
-            
-            // Lặp qua tất cả input giờ vào/ra
+            const currency = CURRENCY_SELECT.value;
+            const lang = LANGUAGE_SELECT.value;
+            const currentTranslation = translations[lang];
+
+            // 1. Tính tổng giờ
             CALENDAR_BODY.querySelectorAll('input[type="time"]').forEach(input => {
                 const day = input.dataset.day;
-                const type = input.dataset.type; // 'in' hoặc 'out'
+                const type = input.dataset.type;
                 
-                // Lấy giá trị của cặp input
                 const timeIn = document.querySelector(`input[data-day="${day}"][data-type="in"]`).value;
                 const timeOut = document.querySelector(`input[data-day="${day}"][data-type="out"]`).value;
 
-                // Chỉ tính toán khi nó là input 'out' để tránh tính 2 lần
                 if (type === 'out' && timeIn && timeOut) {
                     const hours = calculateWorkHours(timeIn, timeOut);
                     totalHours += hours;
                     
-                    // Cập nhật hiển thị giờ làm cho ngày đó
                     const dayHoursSpan = document.getElementById(`hours-${day}`);
                     if (dayHoursSpan) {
-                        dayHoursSpan.textContent = `${hours.toFixed(2)} giờ`;
+                        dayHoursSpan.textContent = `${hours.toFixed(2)} ${currentTranslation.hour_suffix}`;
                     }
                 }
             });
             
-            // Tính toán số tiền
+            // 2. Tính toán số tiền
             const totalAmount = totalHours * hourlyRate;
 
-            // Cập nhật hiển thị
+            // 3. Cập nhật hiển thị Tổng Giờ
             TOTAL_HOURS_SPAN.textContent = totalHours.toFixed(2);
-            TOTAL_AMOUNT_DIV.textContent = totalAmount.toLocaleString('vi-VN', { 
+            document.querySelector('[data-key="summary_hours_suffix"]').textContent = currentTranslation.summary_hours_suffix;
+
+            // 4. Cập nhật hiển thị Tổng Tiền theo định dạng tiền tệ
+            let locale = 'en-US'; // Mặc định là Anh Mỹ cho USD
+            if (currency === 'VND') locale = 'vi-VN';
+            if (currency === 'KRW') locale = 'ko-KR';
+
+            TOTAL_AMOUNT_DIV.textContent = totalAmount.toLocaleString(locale, { 
                 style: 'currency', 
-                currency: 'VND', 
-                minimumFractionDigits: 0 
+                currency: currency, 
+                minimumFractionDigits: (currency === 'VND' || currency === 'KRW') ? 0 : 2
             });
         }
+        
+        // --- 3. Hàm Đặt Ngôn Ngữ ---
+        function setLanguage() {
+            const lang = LANGUAGE_SELECT.value;
+            const t = translations[lang];
 
-        // --- 3. Hàm Tạo Lịch ---
+            // 1. Cập nhật các chuỗi văn bản tĩnh
+            document.querySelectorAll('[data-key]').forEach(element => {
+                const key = element.getAttribute('data-key');
+                if (t[key]) {
+                    element.textContent = t[key];
+                }
+            });
+            
+            // 2. Cập nhật tiêu đề và tháng năm
+            document.title = t.title;
+            MONTH_YEAR_SPAN.textContent = `${t.month_names[CURRENT_MONTH]}, ${CURRENT_YEAR}`;
+            
+            // 3. Cập nhật nội dung trong các ô ngày
+            CALENDAR_BODY.querySelectorAll('.day-cell').forEach(cell => {
+                const day = cell.querySelector('.day-number').textContent;
+                cell.innerHTML = `
+                    <span class="day-number">${day}</span>
+                    ${t.in} <input type="time" data-day="${day}" data-type="in" onchange="updateSummary()">
+                    ${t.out} <input type="time" data-day="${day}" data-type="out" onchange="updateSummary()">
+                    <div class="work-hours" id="hours-${day}">0.00 ${t.hour_suffix}</div>
+                `;
+            });
+
+            // 4. Chạy lại updateSummary để cập nhật tiền tệ và giờ làm trong ô
+            updateSummary(); 
+        }
+
+
+        // --- 4. Hàm Tạo Lịch ---
         function renderCalendar() {
             CALENDAR_BODY.innerHTML = ''; // Xóa nội dung cũ
             
-            const monthNames = ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
-                                "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"];
-            
-            MONTH_YEAR_SPAN.textContent = `${monthNames[CURRENT_MONTH]}, ${CURRENT_YEAR}`;
+            const lang = LANGUAGE_SELECT.value;
+            const t = translations[lang];
+
+            MONTH_YEAR_SPAN.textContent = `${t.month_names[CURRENT_MONTH]}, ${CURRENT_YEAR}`;
 
             const date = new Date(CURRENT_YEAR, CURRENT_MONTH, 1);
-            
-            // Ngày đầu tiên trong tuần (0=CN, 1=T2,...)
             let firstDayOfWeek = date.getDay(); 
 
             let row = CALENDAR_BODY.insertRow();
             
-            // Điền các ô trống trước ngày 1
             for (let i = 0; i < firstDayOfWeek; i++) {
                 row.insertCell().innerHTML = '';
             }
 
             let day = 1;
             
-            // Lặp qua các ngày trong tháng
             while (date.getMonth() === CURRENT_MONTH) {
                 if (row.cells.length === 7) {
                     row = CALENDAR_BODY.insertRow();
@@ -243,28 +387,29 @@
                 
                 const dayContent = `
                     <span class="day-number">${day}</span>
-                    Vào: <input type="time" data-day="${day}" data-type="in" onchange="updateSummary()">
-                    Ra: <input type="time" data-day="${day}" data-type="out" onchange="updateSummary()">
-                    <div class="work-hours" id="hours-${day}">0.00 giờ</div>
+                    ${t.in} <input type="time" data-day="${day}" data-type="in" onchange="updateSummary()">
+                    ${t.out} <input type="time" data-day="${day}" data-type="out" onchange="updateSummary()">
+                    <div class="work-hours" id="hours-${day}">0.00 ${t.hour_suffix}</div>
                 `;
                 cell.innerHTML = dayContent;
                 
-                // Chuẩn bị cho ngày tiếp theo
                 day++;
                 date.setDate(day);
             }
             
-            // Điền các ô trống sau ngày cuối cùng
             while (row.cells.length < 7) {
                 row.insertCell().innerHTML = '';
             }
             
-            // Cập nhật tổng kết sau khi tạo lịch xong
             updateSummary(); 
         }
 
         // --- Chạy khi tải trang ---
-        window.onload = renderCalendar;
+        window.onload = function() {
+             // Đặt ngôn ngữ mặc định (vi) và tạo lịch
+             setLanguage();
+             renderCalendar();
+        };
     </script>
 </body>
 </html>
