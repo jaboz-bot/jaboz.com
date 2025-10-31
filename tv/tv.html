@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-key="title">Bảng Chấm Công Theo Tháng</title>
     <style>
-        /* === CSS Styling Đã Cập Nhật === */
+        /* === CSS Styling === */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -256,15 +256,10 @@
         }
         
         .modal-content h2 {
-            margin: 0 0 10px 0; 
+            margin: 0 0 5px 0; /* Đã chỉnh margin dưới */
             color: #3498db;
             text-align: center;
         }
-        /* CĂN CHỈNH MỚI: Bỏ margin dưới để h2 sát hơn */
-        .modal-content h2 {
-            margin-bottom: 5px; 
-        }
-
 
         .time-input-group {
             display: flex;
@@ -406,7 +401,7 @@
 
         // Biến toàn cục cho thao tác vuốt
         let touchStartX = 0;
-        const SWIPE_THRESHOLD = 50; 
+        const SWIPE_THRESHOLD = 75; // ĐÃ CHỈNH SỬA: Tăng từ 50 lên 75 để giảm độ nhạy
         
         // DOM Elements
         const TIMESHEET_CONTAINER = document.getElementById('timesheetContainer');
@@ -770,7 +765,8 @@
             const touchEndX = event.changedTouches[0].clientX;
             const deltaX = touchEndX - touchStartX;
             
-            if (deltaX > SWIPE_THRESHOLD) {
+            // ĐÃ CHỈNH SỬA: Sử dụng ngưỡng 75
+            if (deltaX > SWIPE_THRESHOLD) { 
                 changeMonth(-1);
             } else if (deltaX < -SWIPE_THRESHOLD) {
                 changeMonth(1);
