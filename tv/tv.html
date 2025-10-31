@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-key="title">Bảng Chấm Công Theo ThángTháng</title>
+    <title data-key="title">Bảng Chấm Công Theo Tháng</title>
     <style>
         /* === CSS Styling Đã Cập Nhật === */
         body {
@@ -23,6 +23,9 @@
             height: 100%;
             display: flex;
             flex-direction: column;
+            /* **QUAN TRỌNG CHO VUỐT** */
+            touch-action: pan-y; /* Cho phép cuộn dọc nhưng bắt vuốt ngang */
+            user-select: none; /* Ngăn chặn việc chọn text khi vuốt */
         }
         
         @media (min-width: 768px) {
@@ -78,6 +81,12 @@
             margin: 10px 0 20px 0;
             font-size: 1.5em;
             flex-grow: 1; 
+        }
+
+        h1 .nav-arrow {
+            cursor: pointer;
+            padding: 0 5px;
+            user-select: none;
         }
 
         /* Lịch */
@@ -261,10 +270,14 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container" id="timesheetContainer">
         
         <div class="header-controls">
-            <h1 data-key="h1_title">🗓️ Bảng Chấm Công <span id="currentMonthYear"></span></h1>
+            <h1 data-key="h1_title">
+                <span class="nav-arrow" onclick="changeMonth(-1)">◀️</span>
+                🗓️ Bảng Chấm Công <span id="currentMonthYear"></span>
+                <span class="nav-arrow" onclick="changeMonth(1)">▶️</span>
+            </h1>
             
             <div class="controls">
                 <div class="control-group">
@@ -335,10 +348,16 @@
     <script>
         // === JavaScript Logic ===
 
-        const TODAY = new Date();
-        const CURRENT_YEAR = TODAY.getFullYear();
-        const CURRENT_MONTH = TODAY.getMonth(); // 0-11
+        // Biến toàn cục để quản lý tháng/năm hiện tại
+        let currentMonth = new Date().getMonth(); // 0-11
+        let currentYear = new Date().getFullYear();
+
+        // Biến toàn cục cho thao tác vuốt
+        let touchStartX = 0;
+        const SWIPE_THRESHOLD = 50; // Khoảng cách vuốt tối thiểu (pixels)
         
+        // DOM Elements
+        const TIMESHEET_CONTAINER = document.getElementById('timesheetContainer');
         const CALENDAR_BODY = document.getElementById('calendarBody');
         const TOTAL_HOURS_SPAN = document.getElementById('totalHours');
         const TOTAL_AMOUNT_DIV = document.getElementById('totalAmount');
@@ -347,20 +366,19 @@
         const LANGUAGE_SELECT = document.getElementById('languageSelect');
         const CURRENCY_UNIT_SPAN = document.getElementById('currencyUnit');
         const TIME_MODAL = document.getElementById('timeModal');
-        const MODAL_DAY_NUMBER = document.getElementById('modalDayNumber');
         const MODAL_TIME_IN = document.getElementById('modalTimeIn');
         const MODAL_TIME_OUT = document.getElementById('modalTimeOut');
         
         let timeData = {}; 
-        let currentDayInModal = null; // Lưu trữ ngày đang được chỉnh sửa
-        let currentCurrency = 'VND'; 
+        let currentDayInModal = null; 
         
-        const STORAGE_KEY_RATE = 'hourlyRate';
-        // Lưu trữ dữ liệu chấm công theo THÁNG/NĂM
-        const CURRENT_MONTH_KEY = `${CURRENT_YEAR}-${CURRENT_MONTH + 1}`;
-        const STORAGE_KEY_DATA = `timeData-${CURRENT_MONTH_KEY}`;
-        
-        // --- Dữ liệu Dịch thuật Đã Cập Nhật ---
+        // Khóa lưu trữ sẽ thay đổi theo tháng/năm hiện tại
+        const getStorageKeys = () => ({
+            rate: 'hourlyRate',
+            data: `timeData-${currentYear}-${currentMonth + 1}`
+        });
+
+        // --- Dữ liệu Dịch thuật (Không đổi) ---
         const translations = {
             'vi': {
                 title: 'Bảng Chấm Công Theo Tháng',
@@ -377,7 +395,7 @@
                 summary_total_income: '💵 TỔNG THU NHẬP DỰ KIẾN:',
                 month_names: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
                                 "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"],
-                modal_title_prefix: 'Nhập Giờ Công ',
+                modal_title_prefix: 'Nhập Giờ Công',
                 btn_cancel: 'Hủy',
                 btn_save: 'Chọn',
             },
@@ -421,33 +439,26 @@
             }
         };
         
-        // --- Hàm Tính Toán Giờ Làm ---
+        // --- Hàm Tính Toán Giờ Làm (Không đổi) ---
         function calculateWorkHours(timeIn, timeOut) {
             if (!timeIn || !timeOut) return 0;
-            
             const [hIn, mIn] = timeIn.split(':').map(Number);
             const [hOut, mOut] = timeOut.split(':').map(Number);
-
             const minutesIn = hIn * 60 + mIn;
             let minutesOut = hOut * 60 + mOut;
-
             let totalMinutes = minutesOut - minutesIn;
-            
             if (totalMinutes < 0) {
                 totalMinutes += 24 * 60; 
             }
-            
             return totalMinutes / 60;
         }
 
         // --- Hàm Lưu Dữ Liệu Tự Động ---
         function saveDataToLocalStorage() {
             try {
-                // Lưu dữ liệu chấm công cho tháng hiện tại
-                localStorage.setItem(STORAGE_KEY_DATA, JSON.stringify(timeData));
-                // Lưu Lương/giờ (thường là cố định, không theo tháng)
-                localStorage.setItem(STORAGE_KEY_RATE, HOURLY_RATE_INPUT.value);
-                // console.log(`Data for ${CURRENT_MONTH_KEY} saved automatically.`);
+                const keys = getStorageKeys();
+                localStorage.setItem(keys.data, JSON.stringify(timeData));
+                localStorage.setItem(keys.rate, HOURLY_RATE_INPUT.value);
             } catch (e) {
                 console.error("Could not save data to localStorage", e);
             }
@@ -456,21 +467,23 @@
         // --- Hàm Tải Dữ Liệu Tự Động ---
         function loadDataFromLocalStorage() {
             try {
-                // Tải dữ liệu chấm công cho tháng hiện tại
-                const savedData = localStorage.getItem(STORAGE_KEY_DATA);
-                if (savedData) {
-                    timeData = JSON.parse(savedData);
-                }
-
-                // Tải Lương/giờ
-                const savedRate = localStorage.getItem(STORAGE_KEY_RATE);
+                const keys = getStorageKeys();
+                // Tải Rate
+                const savedRate = localStorage.getItem(keys.rate);
                 if (savedRate) {
                     HOURLY_RATE_INPUT.value = savedRate;
+                }
+
+                // Tải dữ liệu chấm công cho tháng hiện tại
+                const savedData = localStorage.getItem(keys.data);
+                if (savedData) {
+                    timeData = JSON.parse(savedData);
+                } else {
+                    timeData = {}; // Reset data nếu chuyển sang tháng mới
                 }
             } catch (e) {
                 console.error("Could not load data from localStorage", e);
                 timeData = {}; 
-                HOURLY_RATE_INPUT.value = '';
             }
         }
 
@@ -486,7 +499,7 @@
 
             CALENDAR_BODY.querySelectorAll('.day-cell').forEach(cell => {
                 const dayElement = cell.querySelector('.day-number');
-                if (!dayElement) return; // Bỏ qua ô trống
+                if (!dayElement) return;
 
                 const day = dayElement.textContent;
                 
@@ -536,27 +549,41 @@
             saveDataToLocalStorage();
         }
         
+        // --- Hàm Đổi Tháng/Năm (MỚI) ---
+        function changeMonth(delta) {
+            currentMonth += delta;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            } else if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            
+            // 1. Tải dữ liệu của tháng mới
+            loadDataFromLocalStorage(); 
+            
+            // 2. Render lại lịch và cập nhật ngôn ngữ (đảm bảo hiển thị tên tháng đúng)
+            setLanguage();
+        }
+
         // --- Hàm Đặt Ngôn Ngữ ---
         function setLanguage() {
             const lang = LANGUAGE_SELECT.value;
             const t = translations[lang];
             
-            // 1. Cập nhật mã tiền tệ và đơn vị hiển thị
-            currentCurrency = t.currencyCode;
+            let currentCurrency = t.currencyCode;
             CURRENCY_UNIT_SPAN.textContent = currentCurrency;
             
-            // 2. Cập nhật các text khác
             document.querySelectorAll('[data-key]').forEach(element => {
                 const key = element.getAttribute('data-key');
                 if (t[key] !== undefined) {
-                    if (element.id === 'modalDayNumber' || element.id === 'currentMonthYear') {
-                        return;
-                    }
                     if (element.tagName === 'H1') {
-                        element.innerHTML = `${t.h1_title} <span id="currentMonthYear">${t.month_names[CURRENT_MONTH]}, ${CURRENT_YEAR}</span>`;
+                         // Cập nhật H1 và thêm lại mũi tên điều hướng
+                        element.innerHTML = `<span class="nav-arrow" onclick="changeMonth(-1)">◀️</span> ${t.h1_title} <span id="currentMonthYear"></span> <span class="nav-arrow" onclick="changeMonth(1)">▶️</span>`;
                     } else if (key.startsWith('modal_title_prefix')) {
-                        const day = currentDayInModal || '';
-                        element.innerHTML = `${t.modal_title_prefix} - Ngày <span id="modalDayNumber">${day}</span>`;
+                        const day = currentDayInModal ? ` - Ngày <span id="modalDayNumber">${currentDayInModal}</span>` : '';
+                        element.innerHTML = `${t.modal_title_prefix}${day}`;
                     } else {
                         element.textContent = t[key];
                     }
@@ -564,17 +591,17 @@
             });
             
             document.title = t.title;
-            document.getElementById('currentMonthYear').textContent = `${t.month_names[CURRENT_MONTH]}, ${CURRENT_YEAR}`;
+            // Hiển thị tháng/năm hiện tại
+            document.getElementById('currentMonthYear').textContent = `${t.month_names[currentMonth]}, ${currentYear}`;
             
-            // 3. Render lại lịch và cập nhật tổng kết
             renderCalendar(); 
         }
 
-        // --- Hàm Tạo Lịch ---
+        // --- Hàm Tạo Lịch (Đã cập nhật) ---
         function renderCalendar() {
             CALENDAR_BODY.innerHTML = ''; 
             
-            const date = new Date(CURRENT_YEAR, CURRENT_MONTH, 1);
+            const date = new Date(currentYear, currentMonth, 1);
             let firstDayOfWeek = date.getDay(); 
 
             let row = CALENDAR_BODY.insertRow();
@@ -585,7 +612,7 @@
 
             let day = 1;
             
-            while (date.getMonth() === CURRENT_MONTH) {
+            while (date.getMonth() === currentMonth) {
                 if (row.cells.length === 7) {
                     row = CALENDAR_BODY.insertRow();
                 }
@@ -614,28 +641,21 @@
                 row.insertCell().innerHTML = '';
             }
             
-            // Quan trọng: Gọi updateSummary để điền dữ liệu đã lưu và tính toán
             updateSummary(); 
         }
 
-        // --- Xử lý Modal ---
-
+        // --- Xử lý Modal (Không đổi) ---
         function openModal(day) {
             currentDayInModal = day;
             const lang = LANGUAGE_SELECT.value;
             const t = translations[lang];
 
-            // 1. Cập nhật tiêu đề Modal
             document.querySelector('.modal-content h2').innerHTML = `${t.modal_title_prefix} - Ngày <span id="modalDayNumber">${day}</span>`;
             
-            // 2. Tải dữ liệu đã lưu vào input
             MODAL_TIME_IN.value = timeData[day]?.in || '09:00';
             MODAL_TIME_OUT.value = timeData[day]?.out || '18:00';
             
-            // 3. Hiển thị Modal
             TIME_MODAL.style.display = 'flex';
-            
-            // 4. Focus vào input đầu tiên
             MODAL_TIME_IN.focus();
         }
 
@@ -652,21 +672,47 @@
             const timeIn = MODAL_TIME_IN.value;
             const timeOut = MODAL_TIME_OUT.value;
             
-            // Lưu dữ liệu vào biến timeData
             timeData[currentDayInModal] = { in: timeIn, out: timeOut };
             
-            // Ẩn Modal và gọi updateSummary (Hàm này đã tự động bao gồm lưu vào localStorage)
             TIME_MODAL.style.display = 'none';
             currentDayInModal = null;
             updateSummary(); 
         }
-        
+
+        // --- Xử lý Vuốt (Swipe) (MỚI) ---
+        function handleTouchStart(event) {
+            // Chỉ lấy tọa độ X của lần chạm đầu tiên
+            touchStartX = event.touches[0].clientX;
+        }
+
+        function handleTouchEnd(event) {
+            if (touchStartX === 0) return;
+
+            // Lấy tọa độ X cuối cùng khi nhấc tay lên
+            const touchEndX = event.changedTouches[0].clientX;
+            const deltaX = touchEndX - touchStartX;
+            
+            // Xử lý vuốt
+            if (deltaX > SWIPE_THRESHOLD) {
+                // Vuốt sang phải: Quay lại tháng trước (delta = -1)
+                changeMonth(-1);
+            } else if (deltaX < -SWIPE_THRESHOLD) {
+                // Vuốt sang trái: Tiến đến tháng sau (delta = 1)
+                changeMonth(1);
+            }
+
+            // Đặt lại touchStartX
+            touchStartX = 0;
+        }
+
         // --- Chạy khi tải trang ---
         window.onload = function() {
-            // 1. Tải dữ liệu đã lưu
-            loadDataFromLocalStorage();
+            // **Gắn các sự kiện vuốt**
+            TIMESHEET_CONTAINER.addEventListener('touchstart', handleTouchStart, false);
+            TIMESHEET_CONTAINER.addEventListener('touchend', handleTouchEnd, false);
 
-            // 2. Đặt ngôn ngữ mặc định (sẽ gọi renderCalendar và updateSummary)
+            // Tải dữ liệu, đặt ngôn ngữ và render lịch
+            loadDataFromLocalStorage();
             setLanguage(); 
         };
     </script>
