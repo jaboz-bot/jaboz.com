@@ -341,592 +341,118 @@
 
 
     <script>
-        // === JavaScript Logic (Minimal Changes) ===
+(() => {
+const $ = id => document.getElementById(id),
+      qs = sel => document.querySelector(sel),
+      qsa = sel => document.querySelectorAll(sel);
+let m = new Date().getMonth(), y = new Date().getFullYear(),
+    d = {}, w = [], eid = null, cday = null, touchX = 0;
+
+const KEY = { RATE:'rate', LANG:'lang', WORK:'workplaces' },
+t = {
+vi:{title:'Bảng Chấm Công Theo Tháng',currencyCode:'VND',currencyLocale:'vi-VN',
+month:["Tháng 1","Tháng 2","Tháng 3","Tháng 4","Tháng 5","Tháng 6","Tháng 7","Tháng 8","Tháng 9","Tháng 10","Tháng 11","Tháng 12"],
+th:['CN','T2','T3','T4','T5','T6','T7'],in:'Vào:',out:'Ra:',hour:'giờ',sumh:'✅ Tổng giờ làm việc trong ',sumt:'💵 TỔNG THU NHẬP DỰ KIẾN ',add:'➕ Thêm Nơi Làm Việc',edit:'Sửa',no:'Chưa có nơi làm việc nào được thêm.',still:'Đang làm',sdel:'Xóa Cửa Hàng',screate:'Tạo',supdate:'Lưu',sn:'Tên Cửa Hàng/Công Ty:',sa:'Địa Chỉ:',sf:'Từ Ngày:',st:'Đến Ngày:'},
+en:{title:'Monthly Timesheet',currencyCode:'USD',currencyLocale:'en-US',
+month:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+th:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],in:'In:',out:'Out:',hour:'h',sumh:'✅ Total work hours for ',sumt:'💵 ESTIMATED TOTAL INCOME for ',add:'➕ Add Workplace',edit:'Edit',no:'No workplaces added yet.',still:'Still Working',sdel:'Delete Workplace',screate:'Create',supdate:'Save',sn:'Shop/Company:',sa:'Address:',sf:'From:',st:'To:'},
+ko:{title:'월간 근무 시간표',currencyCode:'KRW',currencyLocale:'ko-KR',
+month:["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"],
+th:['일','월','화','수','목','금','토'],in:'출근:',out:'퇴근:',hour:'시간',sumh:'✅ 총 근무 시간 ',sumt:'💵 예상 총 수입 ',add:'➕ 근무지 추가',edit:'수정',no:'추가된 근무지가 없습니다.',still:'근무 중',sdel:'근무지 삭제',screate:'생성',supdate:'저장',sn:'상점/회사 이름:',sa:'주소:',sf:'시작일:',st:'종료일:'}
+};
+
+const S=()=>`time-${y}-${m+1}`,G=_=>JSON.parse(localStorage.getItem(_)||'[]'),
+set=_=>localStorage.setItem(_,JSON.stringify(_=='work'?w:_=='rate'?$('hourlyRate').value:_=='lang'?$('languageSelect').value:d));
+
+function calc(i,o){if(!i||!o)return 0;let[hi,mi]=i.split(':').map(Number),[ho,mo]=o.split(':').map(Number);
+let m1=hi*60+mi,m2=ho*60+mo;if(m2<m1)m2+=1440;return (m2-m1)/60;}
+
+function renderWork(){
+const T=t[$('languageSelect').value],L=$('workplaceList');L.innerHTML='';
+if(!w.length)return L.innerHTML=`<p>${T.no}</p>`;
+w.forEach(v=>{
+let e=v.still?`<span style="color:#27ae60;">(${T.still})</span>`:`<span>${v.end||''}</span>`;
+let div=document.createElement('div');div.className='workplace-item';
+div.innerHTML=`<div class="workplace-info"><span class="name">${v.shop}</span><span class="address">${v.addr}</span><span>${T.sf} ${v.start} - ${T.st} ${e}</span></div><button>${T.edit}</button>`;
+div.querySelector('button').onclick=_=>openWork('edit',v.id);L.append(div);
+});
+}
+
+function openWork(mode,id){
+const M=$('workplaceModal'),T=t[$('languageSelect').value];M.style.display='flex';eid=id;
+$('workplaceDeleteButton').style.display=mode=='edit'?'inline-block':'none';
+if(mode=='edit'){let v=w.find(x=>x.id==id);
+$('shopName').value=v.shop;$('address').value=v.addr;$('startDate').value=v.start;$('endDate').value=v.end||'';$('stillWorking').checked=v.still;
+toggleEnd(v.still);}else{$('shopName').value=$('address').value=$('startDate').value=$('endDate').value='';$('stillWorking').checked=true;toggleEnd(true);}
+$('workplaceSaveButton').textContent=mode=='edit'?T.supdate:T.screate;qs('#workplaceModal h2').textContent=mode=='edit'?T.edit+' nơi làm việc':T.add;
+}
+function closeWork(){eid=null;$('workplaceModal').style.display='none';}
+function toggleEnd(b){$('endDateDiv').style.display=b?'none':'block';}
+function saveWork(){
+let s=$('shopName').value.trim(),a=$('address').value.trim(),st=$('startDate').value,en=$('endDate').value,still=$('stillWorking').checked;
+if(!s||!a||!st)return alert('Điền đầy đủ thông tin!');
+if(!still&&!en)return alert('Chọn ngày kết thúc hoặc Đang làm.');
+let obj={shop:s,addr:a,start:st,end:still?null:en,still,id:eid||Date.now()};
+if(eid){let i=w.findIndex(x=>x.id==eid);if(i!=-1)w[i]=obj;}else w.push(obj);
+set('work');renderWork();closeWork();
+}
+function delWork(){if(!eid)return;if(confirm('Xóa nơi làm việc này?')){w=w.filter(x=>x.id!=eid);set('work');renderWork();closeWork();}}
+
+function openDay(dy){cday=dy;let T=t[$('languageSelect').value];$('timeModal').style.display='flex';
+$('modalTimeIn').value=d[dy]?.in||'09:00';$('modalTimeOut').value=d[dy]?.out||'18:00';qs('#timeModal h2').textContent=T.title+' '+dy;}
+function closeDay(){$('timeModal').style.display='none';cday=null;}
+function saveDay(){d[cday]={in:$('modalTimeIn').value,out:$('modalTimeOut').value};closeDay();sum();}
+function delDay(){delete d[cday];closeDay();sum();}
+
+function sum(){
+let T=t[$('languageSelect').value],rate=parseFloat($('hourlyRate').value)||0,total=0;
+qsa('.day-cell').forEach(c=>{
+let day=c.querySelector('.day-number');if(!day)return;
+let {in:i,out:o}=d[day.textContent]||{},h=calc(i,o);
+total+=h;c.querySelector('.work-hours-in-cell').textContent=h?`${h.toFixed(1)}${T.hour[0]}`:'';c.querySelector('.work-amount-in-cell').textContent=h&&rate?(h*rate).toLocaleString(T.currencyLocale,{style:'currency',currency:T.currencyCode}):'';});
+$('totalHours').textContent=total.toFixed(2);
+$('summaryHoursPrefix').textContent=T.sumh+T.month[m]+':';
+$('summaryIncomePrefix').textContent=T.sumt+T.month[m]+':';
+$('totalAmount').textContent=(total*rate).toLocaleString(T.currencyLocale,{style:'currency',currency:T.currencyCode});
+['rate','lang'].forEach(set);set('work');localStorage.setItem(S(),JSON.stringify(d));
+}
+
+function cal(){
+$('calendarBody').innerHTML='';let T=t[$('languageSelect').value],dt=new Date(y,m,1),r=$('calendarBody').insertRow();
+for(let i=0;i<dt.getDay();i++)r.insertCell();
+for(let day=1;dt.getMonth()==m;day++,dt.setDate(day)){
+if(r.cells.length==7)r=$('calendarBody').insertRow();
+let c=r.insertCell();c.className='day-cell';c.innerHTML=`<span class="day-number">${day}</span><div class="work-display"><span class="work-hours-in-cell"></span><span class="work-amount-in-cell"></span></div>`;
+c.onclick=_=>openDay(day);}
+while(r.cells.length<7)r.insertCell();sum();
+}
+
+function lang(){
+let v=$('languageSelect').value,T=t[v];
+document.title=T.title;qs('#currentMonthYear').textContent=T.month[m];qs('#currencyUnit').textContent=T.currencyCode;
+qsa('#tableHeaders th').forEach((th,i)=>th.textContent=T.th[i]);
+$('btnAddWorkplace').textContent=T.add;renderWork();cal();
+}
+
+function change(n){m+=n;if(m>11){m=0;y++}else if(m<0){m=11;y--;}load();lang();}
+
+function load(){
+$('hourlyRate').value=localStorage.getItem(KEY.RATE)||'';$('languageSelect').value=localStorage.getItem(KEY.LANG)||'vi';
+d=JSON.parse(localStorage.getItem(S())||'{}');w=G(KEY.WORK);
+}
+
+window.onload=()=>{
+$('prevMonthArrow').onclick=_=>change(-1);$('nextMonthArrow').onclick=_=>change(1);
+$('timeModalCancel').onclick=closeDay;$('timeModalDelete').onclick=delDay;$('timeModalSave').onclick=saveDay;
+$('workplaceModalCancel').onclick=closeWork;$('workplaceSaveButton').onclick=saveWork;$('workplaceDeleteButton').onclick=delWork;
+$('btnAddWorkplace').onclick=_=>openWork('create');$('stillWorking').onchange=e=>toggleEnd(e.target.checked);
+$('hourlyRate').oninput=sum;$('languageSelect').onchange=lang;
+$('timesheetContainer').addEventListener('touchstart',e=>touchX=e.touches[0].clientX);
+$('timesheetContainer').addEventListener('touchend',e=>{let dx=e.changedTouches[0].clientX-touchX;if(Math.abs(dx)>80)change(dx>0?-1:1);});
+load();lang();
+};
+})();
+</script>
 
-        let currentMonth = new Date().getMonth(); 
-        let currentYear = new Date().getFullYear();
-        let timeData = {};
-        let currentDayInModal = null;
-        let workplaces = [];
-        let editingWorkplaceId = null;
-
-        const SWIPE_THRESHOLD = 100;
-        let touchStartX = 0;
-
-        // DOM Elements
-        const DOM = {
-            container: document.getElementById('timesheetContainer'),
-            calendarBody: document.getElementById('calendarBody'),
-            hourlyRate: document.getElementById('hourlyRate'),
-            languageSelect: document.getElementById('languageSelect'),
-            yearDisplay: document.getElementById('yearDisplay'),
-            workplaceList: document.getElementById('workplaceList'),
-            timeModal: document.getElementById('timeModal'),
-            workplaceModal: document.getElementById('workplaceModal'),
-            
-            // Time Modal
-            modalTimeIn: document.getElementById('modalTimeIn'),
-            modalTimeOut: document.getElementById('modalTimeOut'),
-            timeModalCancel: document.getElementById('timeModalCancel'),
-            timeModalDelete: document.getElementById('timeModalDelete'),
-            timeModalSave: document.getElementById('timeModalSave'),
-
-            // Workplace Modal
-            shopName: document.getElementById('shopName'),
-            address: document.getElementById('address'),
-            startDate: document.getElementById('startDate'),
-            endDate: document.getElementById('endDate'),
-            stillWorking: document.getElementById('stillWorking'),
-            endDateDiv: document.getElementById('endDateDiv'),
-            workplaceSaveButton: document.getElementById('workplaceSaveButton'),
-            workplaceDeleteButton: document.getElementById('workplaceDeleteButton'),
-            workplaceModalTitle: document.getElementById('workplaceModalTitle'),
-            workplaceModalCancel: document.getElementById('workplaceModalCancel'),
-            btnAddWorkplace: document.getElementById('btnAddWorkplace'),
-            
-            // Navigation
-            prevMonthArrow: document.getElementById('prevMonthArrow'),
-            nextMonthArrow: document.getElementById('nextMonthArrow'),
-        };
-
-        // Storage Keys
-        const STORAGE_KEY = {
-            RATE: 'hourlyRate',
-            LANGUAGE: 'appLanguage',
-            WORKPLACES: 'workplacesData'
-        };
-
-        const getTimesheetKey = () => `timeData-${currentYear}-${currentMonth + 1}`;
-
-        // --- Dịch thuật (Translations) ---
-        const translations = {
-            'vi': { /* ... Dữ liệu dịch thuật Tiếng Việt như cũ ... */
-                title: 'Bảng Chấm Công Theo Tháng',
-                label_lang: 'Ngôn ngữ:',
-                currencyCode: 'VND',
-                currencyLocale: 'vi-VN',
-                h1_month_title: '',
-                label_rate: '💰 Lương/giờ:',
-                note_calc: '',
-                th_sun: 'CN', th_mon: 'T2', th_tue: 'T3', th_wed: 'T4', th_thu: 'T5', th_fri: 'T6', th_sat: 'T7',
-                in: 'Vào:', out: 'Ra:', hour_suffix: 'giờ',
-                summary_total_hours_prefix_month: '✅ Tổng giờ làm việc trong ',
-                summary_hours_suffix: 'giờ',
-                summary_total_income_month: '💵 TỔNG THU NHẬP DỰ KIẾN ',
-                month_names: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
-                                     "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"],
-                modal_title_prefix: 'Nhập Giờ Công',
-                btn_cancel: 'Hủy',
-                btn_delete: 'Xóa',
-                btn_save: 'Chọn',
-                btn_add_workplace: '➕ Thêm Nơi Làm Việc',
-                modal_workplace_title_create: 'Thêm Nơi Làm Việc Mới',
-                modal_workplace_title_edit: 'Chỉnh Sửa Nơi Làm Việc',
-                label_shop_name: 'Tên Cửa Hàng/Công Ty:',
-                label_address: 'Địa Chỉ:',
-                label_work_period: 'Thời Gian Làm Việc:',
-                label_from_date: 'Từ Ngày:',
-                label_to_date: 'Đến Ngày:',
-                label_still_working: 'Đang làm:',
-                btn_create_workplace: 'Tạo',
-                btn_update_workplace: 'Lưu',
-                btn_delete_workplace: 'Xóa Cửa Hàng',
-                h3_workplaces: 'Nơi Làm Việc Hiện Tại:',
-                p_no_workplaces: 'Chưa có nơi làm việc nào được thêm.',
-                p_still_working: 'Đang làm',
-            },
-            'en': { /* ... Dữ liệu dịch thuật English như cũ ... */
-                title: 'Monthly Timesheet',
-                label_lang: 'Language:',
-                currencyCode: 'USD',
-                currencyLocale: 'en-US',
-                h1_month_title: '',
-                label_rate: '💰 Hourly Rate:',
-                note_calc: '',
-                th_sun: 'Sun', th_mon: 'Mon', th_tue: 'Tue', th_wed: 'Wed', th_thu: 'Thu', th_fri: 'Fri', th_sat: 'Sat',
-                in: 'In:', out: 'Out:', hour_suffix: 'hours',
-                summary_total_hours_prefix_month: '✅ Total work hours for ',
-                summary_hours_suffix: 'hours',
-                summary_total_income_month: '💵 ESTIMATED TOTAL INCOME for ',
-                month_names: ["January", "February", "March", "April", "May", "June",
-                                     "July", "August", "September", "October", "November", "December"],
-                modal_title_prefix: 'Enter Timesheet - Day',
-                btn_cancel: 'Cancel',
-                btn_delete: 'Delete',
-                btn_save: 'Save',
-                btn_add_workplace: '➕ Add Workplace',
-                modal_workplace_title_create: 'Add New Workplace',
-                modal_workplace_title_edit: 'Edit Workplace',
-                label_shop_name: 'Shop/Company Name:',
-                label_address: 'Address:',
-                label_work_period: 'Work Period:',
-                label_from_date: 'Start Date:',
-                label_to_date: 'End Date:',
-                label_still_working: 'Working:',
-                btn_create_workplace: 'Create',
-                btn_update_workplace: 'Save',
-                btn_delete_workplace: 'Delete Workplace',
-                h3_workplaces: 'Current Workplaces:',
-                p_no_workplaces: 'No workplaces added yet.',
-                p_still_working: 'Still Working',
-            },
-            'ko': { /* ... Dữ liệu dịch thuật Korean như cũ ... */
-                title: '월간 근무 시간표',
-                label_lang: '언어:',
-                currencyCode: 'KRW',
-                currencyLocale: 'ko-KR',
-                h1_month_title: '',
-                label_rate: '💰 시간당 임금:',
-                note_calc: '',
-                th_sun: '일', th_mon: '월', th_tue: '화', th_wed: '수', th_thu: '목', th_fri: '금', th_sat: '토',
-                in: '출근:', out: '퇴근:', hour_suffix: '시간',
-                summary_total_hours_prefix_month: '✅ 총 근무 시간 ',
-                summary_hours_suffix: '시간',
-                summary_total_income_month: '💵 예상 총 수입 ',
-                month_names: ["1월", "2월", "3월", "4월", "5월", "6월",
-                                     "7월", "8월", "9월", "10월", "11월", "12월"],
-                modal_title_prefix: '근무 시간 입력 - 날짜',
-                btn_cancel: '취소',
-                btn_delete: '삭제',
-                btn_save: '선택',
-                btn_add_workplace: '➕ 근무지 추가',
-                modal_workplace_title_create: '새 근무지 추가',
-                modal_workplace_title_edit: '근무지 수정',
-                label_shop_name: '상점/회사 이름:',
-                label_address: '주소:',
-                label_work_period: '근무 기간:',
-                label_from_date: '시작일:',
-                label_to_date: '종료일:',
-                label_still_working: '근무 중:',
-                btn_create_workplace: '생성',
-                btn_update_workplace: '저장',
-                btn_delete_workplace: '근무지 삭제',
-                h3_workplaces: '현재 근무지:',
-                p_no_workplaces: '추가된 근무지가 없습니다.',
-                p_still_working: '근무 중',
-            }
-        };
-        const getT = () => translations[DOM.languageSelect.value];
-
-        // --- Logic Nơi Làm Việc (Workplace Logic) ---
-        function generateUniqueId() {
-            return Date.now().toString(36) + Math.random().toString(36).substring(2);
-        }
-
-        function toggleEndDate(isStillWorking) {
-            DOM.endDateDiv.style.display = isStillWorking ? 'none' : 'block';
-            DOM.endDate.required = !isStillWorking;
-        }
-
-        function renderWorkplaces() {
-            const t = getT();
-            DOM.workplaceList.innerHTML = '';
-
-            if (workplaces.length === 0) {
-                DOM.workplaceList.innerHTML = `<p data-key="p_no_workplaces">${t.p_no_workplaces}</p>`;
-                return;
-            }
-
-            workplaces.forEach(wp => {
-                const endDateText = wp.stillWorking ?
-                                    `<span style="color:#27ae60;">(${t.p_still_working})</span>` :
-                                    `<span style="color:#2c3e50;">${wp.endDate}</span>`;
-                const item = document.createElement('div');
-                item.className = 'workplace-item';
-                item.innerHTML = `
-                    <div class="workplace-info">
-                        <span class="name">${wp.shopName}</span>
-                        <span class="address">${wp.address}</span>
-                        <span class="period">${t.label_from_date}: ${wp.startDate} - ${t.label_to_date}: ${endDateText}</span>
-                    </div>
-                    <button class="edit-btn" data-id="${wp.id}">${t.btn_update_workplace === 'Lưu' ? 'Sửa' : t.btn_update_workplace === 'Save' ? 'Edit' : '수정'}</button>
-                `;
-                DOM.workplaceList.appendChild(item);
-                item.querySelector('.edit-btn').addEventListener('click', () => openWorkplaceModal('edit', wp.id));
-            });
-        }
-
-        function openWorkplaceModal(mode, id = null) {
-            const t = getT();
-            DOM.workplaceModal.style.display = 'flex';
-            editingWorkplaceId = id;
-            
-            if (mode === 'create') {
-                DOM.workplaceModalTitle.textContent = t.modal_workplace_title_create;
-                DOM.workplaceSaveButton.textContent = t.btn_create_workplace;
-                DOM.workplaceDeleteButton.style.display = 'none';
-
-                DOM.shopName.value = '';
-                DOM.address.value = '';
-                DOM.startDate.value = '';
-                DOM.endDate.value = '';
-                DOM.stillWorking.checked = true;
-                toggleEndDate(true);
-
-            } else if (mode === 'edit' && id) {
-                const wp = workplaces.find(w => w.id === id);
-                if (!wp) return;
-
-                DOM.workplaceModalTitle.textContent = t.modal_workplace_title_edit;
-                DOM.workplaceSaveButton.textContent = t.btn_update_workplace;
-                DOM.workplaceDeleteButton.style.display = 'inline-block';
-
-                DOM.shopName.value = wp.shopName;
-                DOM.address.value = wp.address;
-                DOM.startDate.value = wp.startDate;
-                DOM.endDate.value = wp.endDate || '';
-                DOM.stillWorking.checked = wp.stillWorking;
-                toggleEndDate(wp.stillWorking);
-            }
-        }
-
-        function closeWorkplaceModal() {
-            DOM.workplaceModal.style.display = 'none';
-            editingWorkplaceId = null;
-        }
-
-        function saveWorkplace() {
-            const shopName = DOM.shopName.value.trim();
-            const address = DOM.address.value.trim();
-            const startDate = DOM.startDate.value;
-            const endDate = DOM.endDate.value;
-            const stillWorking = DOM.stillWorking.checked;
-
-            if (!shopName || !address || !startDate) {
-                alert('Vui lòng điền đầy đủ Tên Cửa Hàng, Địa Chỉ và Ngày Bắt Đầu!');
-                return;
-            }
-            if (!stillWorking && !endDate) {
-                alert('Vui lòng chọn Ngày Kết Thúc hoặc chọn "Đang làm".');
-                return;
-            }
-
-            const newWorkplace = {
-                shopName,
-                address,
-                startDate,
-                endDate: stillWorking ? null : endDate,
-                stillWorking
-            };
-
-            if (editingWorkplaceId) {
-                const index = workplaces.findIndex(w => w.id === editingWorkplaceId);
-                if (index !== -1) {
-                    workplaces[index] = { ...workplaces[index], ...newWorkplace };
-                }
-            } else {
-                newWorkplace.id = generateUniqueId();
-                workplaces.push(newWorkplace);
-            }
-
-            saveDataToLocalStorage();
-            renderWorkplaces();
-            closeWorkplaceModal();
-        }
-
-        function deleteWorkplace() {
-            if (!editingWorkplaceId) return;
-
-            if (confirm('Bạn có chắc chắn muốn xóa nơi làm việc này không?')) {
-                workplaces = workplaces.filter(w => w.id !== editingWorkplaceId);
-
-                saveDataToLocalStorage();
-                renderWorkplaces();
-                closeWorkplaceModal();
-            }
-        }
-
-        // --- Logic Tính Toán và Lưu Trữ (Calculation & Storage Logic) ---
-        function calculateWorkHours(timeIn, timeOut) {
-            if (!timeIn || !timeOut) return 0;
-            const [hIn, mIn] = timeIn.split(':').map(Number);
-            const [hOut, mOut] = timeOut.split(':').map(Number);
-            const minutesIn = hIn * 60 + mIn;
-            let minutesOut = hOut * 60 + mOut;
-            let totalMinutes = minutesOut - minutesIn;
-            if (totalMinutes < 0) {
-                totalMinutes += 24 * 60;
-            }
-            return totalMinutes / 60;
-        }
-
-        function saveDataToLocalStorage() {
-            try {
-                localStorage.setItem(getTimesheetKey(), JSON.stringify(timeData));
-                localStorage.setItem(STORAGE_KEY.RATE, DOM.hourlyRate.value);
-                localStorage.setItem(STORAGE_KEY.LANGUAGE, DOM.languageSelect.value);
-                localStorage.setItem(STORAGE_KEY.WORKPLACES, JSON.stringify(workplaces));
-            } catch (e) {
-                console.error("Could not save data to localStorage", e);
-            }
-        }
-
-        function loadDataFromLocalStorage() {
-            try {
-                const savedRate = localStorage.getItem(STORAGE_KEY.RATE);
-                if (savedRate) {
-                    DOM.hourlyRate.value = savedRate;
-                }
-
-                const savedData = localStorage.getItem(getTimesheetKey());
-                timeData = savedData ? JSON.parse(savedData) : {};
-
-                const savedWorkplaces = localStorage.getItem(STORAGE_KEY.WORKPLACES);
-                workplaces = savedWorkplaces ? JSON.parse(savedWorkplaces) : [];
-
-                const savedLang = localStorage.getItem(STORAGE_KEY.LANGUAGE);
-                if (savedLang) {
-                    DOM.languageSelect.value = savedLang;
-                } else {
-                    DOM.languageSelect.value = 'vi';
-                }
-            } catch (e) {
-                console.error("Could not load data from localStorage", e);
-                timeData = {};
-                workplaces = [];
-            }
-        }
-
-        function updateSummary() {
-            let totalHours = 0;
-            const hourlyRate = parseFloat(DOM.hourlyRate.value) || 0;
-            const t = getT();
-            const currency = t.currencyCode;
-            const locale = t.currencyLocale;
-            const currentMonthName = t.month_names[currentMonth];
-
-            DOM.calendarBody.querySelectorAll('.day-cell').forEach(cell => {
-                const dayElement = cell.querySelector('.day-number');
-                if (!dayElement) return;
-
-                const day = dayElement.textContent;
-                const timeIn = timeData[day]?.in || '';
-                const timeOut = timeData[day]?.out || '';
-                let hours = 0;
-
-                if (timeIn && timeOut) {
-                    hours = calculateWorkHours(timeIn, timeOut);
-                }
-                totalHours += hours;
-
-                const hoursSpan = cell.querySelector('.work-hours-in-cell');
-                const amountSpan = cell.querySelector('.work-amount-in-cell');
-
-                if (hours > 0) {
-                    hoursSpan.textContent = hours.toFixed(2) + t.hour_suffix.substring(0, 1);
-
-                    if (hourlyRate > 0) {
-                        const totalAmount = hours * hourlyRate;
-                        amountSpan.textContent = totalAmount.toLocaleString(locale, {
-                            style: 'currency',
-                            currency: currency,
-                            minimumFractionDigits: (currency === 'VND' || currency === 'KRW') ? 0 : 2
-                        });
-                    } else {
-                        amountSpan.textContent = '';
-                    }
-                } else {
-                    hoursSpan.textContent = '';
-                    amountSpan.textContent = '';
-                }
-            });
-
-            // Update Final Summary
-            const totalAmountFinal = totalHours * hourlyRate;
-            document.getElementById('totalHours').textContent = totalHours.toFixed(2);
-            document.querySelector('[data-key="summary_hours_suffix"]').textContent = t.summary_hours_suffix;
-
-            document.getElementById('summaryHoursPrefix').textContent = `${t.summary_total_hours_prefix_month} ${currentMonthName}:`;
-            document.getElementById('summaryIncomePrefix').textContent = `${t.summary_total_income_month} ${currentMonthName}:`;
-
-            document.getElementById('totalAmount').textContent = totalAmountFinal.toLocaleString(locale, {
-                style: 'currency',
-                currency: currency,
-                minimumFractionDigits: (currency === 'VND' || currency === 'KRW') ? 0 : 2
-            });
-
-            saveDataToLocalStorage();
-        }
-
-        // --- Logic Lịch và Ngôn ngữ (Calendar & Language Logic) ---
-        function changeMonth(delta) {
-            currentMonth += delta;
-            if (currentMonth > 11) {
-                currentMonth = 0;
-                currentYear++;
-            } else if (currentMonth < 0) {
-                currentMonth = 11;
-                currentYear--;
-            }
-            loadDataFromLocalStorage();
-            setLanguage();
-        }
-
-        function setLanguage(selectedLang) {
-            const lang = selectedLang || DOM.languageSelect.value;
-            const t = translations[lang];
-
-            document.getElementById('currencyUnit').textContent = t.currencyCode;
-            DOM.yearDisplay.textContent = currentYear;
-
-            document.querySelectorAll('[data-key]').forEach(element => {
-                const key = element.getAttribute('data-key');
-                if (t[key] !== undefined) {
-                    if (key.startsWith('modal_title_prefix')) {
-                        const day = currentDayInModal ? ` <span id="modalDayNumber">${currentDayInModal}</span>` : '';
-                        element.innerHTML = `${t.modal_title_prefix}${day}`;
-                    } else if (key === 'btn_create_workplace') {
-                        element.textContent = editingWorkplaceId ? t.btn_update_workplace : t.btn_create_workplace;
-                    }
-                    else if (key !== 'h1_month_title' &&
-                                 key !== 'summary_total_hours_prefix_month' &&
-                                 key !== 'summary_total_income_month') {
-                        element.textContent = t[key];
-                    }
-                }
-            });
-
-            document.title = t.title;
-            document.getElementById('currentMonthYear').textContent = `${t.month_names[currentMonth]}`;
-
-            saveDataToLocalStorage();
-            renderCalendar();
-            renderWorkplaces();
-        }
-
-        function renderCalendar() {
-            DOM.calendarBody.innerHTML = '';
-
-            const date = new Date(currentYear, currentMonth, 1);
-            let firstDayOfWeek = date.getDay();
-            let row = DOM.calendarBody.insertRow();
-
-            for (let i = 0; i < firstDayOfWeek; i++) {
-                row.insertCell().innerHTML = '';
-            }
-
-            let day = 1;
-
-            while (date.getMonth() === currentMonth) {
-                if (row.cells.length === 7) {
-                    row = DOM.calendarBody.insertRow();
-                }
-
-                const cell = row.insertCell();
-                cell.className = 'day-cell';
-                const currentDay = day.toString();
-
-                cell.innerHTML = `
-                    <span class="day-number">${currentDay}</span>
-                    <div class="work-display">
-                        <span class="work-hours-in-cell"></span>
-                        <span class="work-amount-in-cell"></span>
-                    </div>
-                `;
-
-                cell.addEventListener('click', () => openModal(currentDay));
-
-                day++;
-                date.setDate(day);
-            }
-
-            while (row.cells.length < 7) {
-                row.insertCell().innerHTML = '';
-            }
-
-            updateSummary();
-        }
-
-        // --- Logic Modal Giờ Công (Time Modal Logic) ---
-        function openModal(day) {
-            currentDayInModal = day;
-            const t = getT();
-            document.querySelector('#timeModal h2').innerHTML = `${t.modal_title_prefix} <span id="modalDayNumber">${day}</span>`;
-
-            const data = timeData[day];
-            DOM.modalTimeIn.value = data?.in || '09:00';
-            DOM.modalTimeOut.value = data?.out || '18:00';
-
-            DOM.timeModal.style.display = 'flex';
-            DOM.modalTimeIn.focus();
-        }
-
-        function closeModal() {
-            DOM.timeModal.style.display = 'none';
-            currentDayInModal = null;
-        }
-
-        function deleteModalData() {
-            if (!currentDayInModal) return;
-            delete timeData[currentDayInModal];
-            closeModal();
-            updateSummary();
-        }
-
-        function saveModalData() {
-            if (!currentDayInModal) return;
-
-            const timeIn = DOM.modalTimeIn.value;
-            const timeOut = DOM.modalTimeOut.value;
-
-            timeData[currentDayInModal] = { in: timeIn, out: timeOut };
-            closeModal();
-            updateSummary();
-        }
-
-        // --- Logic Vuốt (Swipe Logic) ---
-        function handleTouchStart(event) {
-            touchStartX = event.touches[0].clientX;
-        }
-
-        function handleTouchEnd(event) {
-            if (touchStartX === 0) return;
-
-            const touchEndX = event.changedTouches[0].clientX;
-            const deltaX = touchEndX - touchStartX;
-
-            if (deltaX > SWIPE_THRESHOLD) {
-                changeMonth(-1);
-            } else if (deltaX < -SWIPE_THRESHOLD) {
-                changeMonth(1);
-            }
-
-            touchStartX = 0;
-        }
-
-        // --- Khởi tạo (Initialization) ---
-        window.onload = function() {
-            // Event Listeners for Navigations
-            DOM.prevMonthArrow.addEventListener('click', () => changeMonth(-1));
-            DOM.nextMonthArrow.addEventListener('click', () => changeMonth(1));
-
-            // Event Listeners for Time Modal
-            DOM.timeModalCancel.addEventListener('click', closeModal);
-            DOM.timeModalDelete.addEventListener('click', deleteModalData);
-            DOM.timeModalSave.addEventListener('click', saveModalData);
-            DOM.timeModal.addEventListener('click', (e) => e.target.id === 'timeModal' ? closeModal() : null);
-            document.querySelector('#timeModal .modal-content').addEventListener('click', (e) => e.stopPropagation());
-            
-            // Event Listeners for Workplace Modal
-            DOM.btnAddWorkplace.addEventListener('click', () => openWorkplaceModal('create'));
-            DOM.workplaceModalCancel.addEventListener('click', closeWorkplaceModal);
-            DOM.workplaceSaveButton.addEventListener('click', saveWorkplace);
-            DOM.workplaceDeleteButton.addEventListener('click', deleteWorkplace);
-            DOM.stillWorking.addEventListener('change', (e) => toggleEndDate(e.target.checked));
-            DOM.workplaceModal.addEventListener('click', (e) => e.target.id === 'workplaceModal' ? closeWorkplaceModal() : null);
-            document.querySelector('#workplaceModal .modal-content').addEventListener('click', (e) => e.stopPropagation());
-
-            // Event Listeners for Input & Language
-            DOM.hourlyRate.addEventListener('input', updateSummary);
-            DOM.languageSelect.addEventListener('change', () => setLanguage(DOM.languageSelect.value));
-
-            // Event Listeners for Swipe
-            DOM.container.addEventListener('touchstart', handleTouchStart, false);
-            DOM.container.addEventListener('touchend', handleTouchEnd, false);
-
-            loadDataFromLocalStorage();
-            setLanguage();
-        };
-    </script>
 </body>
 </html>
