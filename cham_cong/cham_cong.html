@@ -32,7 +32,7 @@
         }
         .workplace-button {
             padding: 8px 15px; background-color: #3498db; color: white; border: none;
-            border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.9em; margin-right: 15px;
+            border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.9em; /* margin-right: 15px; */
         }
         .workplace-button:hover {
             background-color: #2980b9;
@@ -211,9 +211,12 @@
 
         <div class="header-controls">
             <div class="top-row">
-                <div id="yearDisplay" class="year-display"></div>
+                <h1 data-key="h1_month_year_display" id="monthYearDisplay" class="year-display"></h1>
 
                 <div class="controls">
+                    <span class="nav-arrow" id="prevMonthArrow">◀️</span>
+                    <span class="nav-arrow" id="nextMonthArrow">▶️</span>
+                    
                     <button class="workplace-button" id="btnAddWorkplace" data-key="btn_add_workplace">Thêm Nơi Làm Việc</button>
 
                     <div class="control-group">
@@ -226,13 +229,7 @@
                     </div>
                 </div>
             </div>
-
-            <h1 data-key="h1_month_title">
-                <span class="nav-arrow" id="prevMonthArrow">◀️</span>
-                <span id="currentMonthYear"></span>
-                <span class="nav-arrow" id="nextMonthArrow">▶️</span>
-            </h1>
-        </div>
+            </div>
 
         <div class="workplace-header">
             <h3 data-key="h3_workplaces">Nơi Làm Việc Hiện Tại:</h3>
@@ -359,7 +356,8 @@
             calendarBody: document.getElementById('calendarBody'),
             hourlyRate: document.getElementById('hourlyRate'),
             languageSelect: document.getElementById('languageSelect'),
-            yearDisplay: document.getElementById('yearDisplay'),
+            // Đã đổi yearDisplay thành monthYearDisplay để hiển thị MM/YYYY
+            monthYearDisplay: document.getElementById('monthYearDisplay'), 
             workplaceList: document.getElementById('workplaceList'),
             timeModal: document.getElementById('timeModal'),
             workplaceModal: document.getElementById('workplaceModal'),
@@ -767,7 +765,12 @@
             const t = translations[lang];
 
             document.getElementById('currencyUnit').textContent = t.currencyCode;
-            DOM.yearDisplay.textContent = currentYear;
+            
+            // CẬP NHẬT: Hiển thị tháng/năm theo định dạng MM/YYYY ở góc trái
+            const monthText = (currentMonth + 1).toString().padStart(2, '0');
+            const monthYearText = `${monthText}/${currentYear}`;
+            DOM.monthYearDisplay.textContent = monthYearText; 
+            // -------------------------------------------------------------
 
             document.querySelectorAll('[data-key]').forEach(element => {
                 const key = element.getAttribute('data-key');
@@ -778,6 +781,7 @@
                     } else if (key === 'btn_create_workplace') {
                         element.textContent = editingWorkplaceId ? t.btn_update_workplace : t.btn_create_workplace;
                     }
+                    // Bỏ qua các key không cần cập nhật
                     else if (key !== 'h1_month_title' &&
                                  key !== 'summary_total_hours_prefix_month' &&
                                  key !== 'summary_total_income_month') {
@@ -787,7 +791,6 @@
             });
 
             document.title = t.title;
-            document.getElementById('currentMonthYear').textContent = `${t.month_names[currentMonth]}`;
 
             saveDataToLocalStorage();
             renderCalendar();
