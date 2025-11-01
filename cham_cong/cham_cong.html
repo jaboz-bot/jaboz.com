@@ -21,22 +21,9 @@
         .top-row {
             display: flex; justify-content: space-between; align-items: center; width: 100%;
         }
-        
-        /* NEW STYLE for Date & Navigation Group */
-        .date-nav-group {
-            display: flex; align-items: center; gap: 5px; order: 1;
-        }
-        .date-nav-group .nav-arrow {
-            cursor: pointer; padding: 0 5px; user-select: none;
-            font-size: 1.4em; /* Kích thước phù hợp với mũi tên */
-        }
-        
         .year-display {
-             /* Applies to #monthYearDisplay */
             font-size: 1.4em; font-weight: bold; color: #27ae60; padding: 5px;
         }
-        /* END NEW STYLE */
-
         .controls {
             display: flex; gap: 15px; justify-content: flex-end; align-items: center;
         }
@@ -50,7 +37,12 @@
         .workplace-button:hover {
             background-color: #2980b9;
         }
-        /* H1 is now removed/redundant, styles below are for the calendar itself */
+        h1 {
+            text-align: center; color: #2c3e50; margin: 0; font-size: 1.5em; width: 100%; order: 2;
+        }
+        h1 .nav-arrow {
+            cursor: pointer; padding: 0 5px; user-select: none;
+        }
         .calendar-header {
             text-align: center; font-size: 1.2em; margin-bottom: 15px; color: #3498db;
         }
@@ -198,7 +190,7 @@
         .date-input-row > div {
             flex: 1;
         }
-        #endDateDiv {
+        #workplaceModal #endDateDiv {
             flex: 1;
         }
         .toggle-switch-group {
@@ -219,12 +211,8 @@
 
         <div class="header-controls">
             <div class="top-row">
-                
-                <div class="date-nav-group">
-                    <span class="nav-arrow" id="prevMonthArrow">◀️</span>
-                    <span id="monthYearDisplay" class="year-display"></span>
-                    <span class="nav-arrow" id="nextMonthArrow">▶️</span>
-                </div>
+                <div id="yearDisplay" class="year-display"></div>
+
                 <div class="controls">
                     <button class="workplace-button" id="btnAddWorkplace" data-key="btn_add_workplace">Thêm Nơi Làm Việc</button>
 
@@ -238,8 +226,13 @@
                     </div>
                 </div>
             </div>
-            
-            </div>
+
+            <h1 data-key="h1_month_title">
+                <span class="nav-arrow" id="prevMonthArrow">◀️</span>
+                <span id="currentMonthYear"></span>
+                <span class="nav-arrow" id="nextMonthArrow">▶️</span>
+            </h1>
+        </div>
 
         <div class="workplace-header">
             <h3 data-key="h3_workplaces">Nơi Làm Việc Hiện Tại:</h3>
@@ -366,9 +359,10 @@
             calendarBody: document.getElementById('calendarBody'),
             hourlyRate: document.getElementById('hourlyRate'),
             languageSelect: document.getElementById('languageSelect'),
-            // Đã thay đổi: yearDisplay thành monthYearDisplay
-            monthYearDisplay: document.getElementById('monthYearDisplay'), 
+            yearDisplay: document.getElementById('yearDisplay'),
             workplaceList: document.getElementById('workplaceList'),
+            timeModal: document.getElementById('timeModal'),
+            workplaceModal: document.getElementById('workplaceModal'),
             
             // Time Modal
             modalTimeIn: document.getElementById('modalTimeIn'),
@@ -773,10 +767,7 @@
             const t = translations[lang];
 
             document.getElementById('currencyUnit').textContent = t.currencyCode;
-            
-            // Cập nhật: Hiển thị MM/YYYY lên góc trái
-            const displayMonth = (currentMonth + 1).toString().padStart(2, '0');
-            DOM.monthYearDisplay.textContent = `${displayMonth}/${currentYear}`;
+            DOM.yearDisplay.textContent = currentYear;
 
             document.querySelectorAll('[data-key]').forEach(element => {
                 const key = element.getAttribute('data-key');
@@ -796,8 +787,7 @@
             });
 
             document.title = t.title;
-            // Xóa dòng cập nhật tên tháng cũ ở h1
-            // document.getElementById('currentMonthYear').textContent = `${t.month_names[currentMonth]}`;
+            document.getElementById('currentMonthYear').textContent = `${t.month_names[currentMonth]}`;
 
             saveDataToLocalStorage();
             renderCalendar();
