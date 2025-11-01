@@ -39,13 +39,7 @@
         .control-group label {
             font-weight: bold; color: #555; font-size: 0.9em;
         }
-        .workplace-button {
-            padding: 8px 15px; background-color: #3498db; color: white; border: none;
-            border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.9em; /* margin-right: 15px; */
-        }
-        .workplace-button:hover {
-            background-color: #2980b9;
-        }
+        /* Đã bỏ .workplace-button */
         h1 {
             text-align: center; color: #2c3e50; margin: 0; font-size: 1.5em; width: 100%; order: 2;
         }
@@ -112,34 +106,9 @@
         #totalHours {
             color: green; font-weight: bold;
         }
-        .workplace-list {
-            margin-top: 10px; padding: 10px; border: 1px solid #bdc3c7; border-radius: 5px;
-            max-height: 200px; overflow-y: auto;
-        }
-        .workplace-item {
-            display: flex; justify-content: space-between; align-items: center; padding: 8px 0;
-            border-bottom: 1px dotted #ccc; font-size: 0.9em;
-        }
-        .workplace-item:last-child {
-            border-bottom: none;
-        }
-        .workplace-info span {
-            display: block; line-height: 1.2;
-        }
-        .workplace-info .name {
-            font-weight: bold; color: #2c3e50;
-        }
-        .workplace-info .address {
-            color: #555; font-size: 0.9em;
-        }
-        .workplace-item button {
-            padding: 5px 10px; font-size: 0.8em; background-color: #e74c3c; color: white;
-            border: none; border-radius: 3px; cursor: pointer;
-        }
-        .workplace-item button:hover {
-            background-color: #c0392b;
-        }
-        /* --- MODAL STYLES --- */
+        /* Đã loại bỏ styles liên quan đến nơi làm việc */
+        
+        /* --- MODAL STYLES (Chỉ giữ lại Time Modal) --- */
         .modal {
             position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto;
             background-color: rgba(0,0,0,0.6); display: none; justify-content: center;
@@ -187,24 +156,8 @@
         .modal-actions button.save {
             background-color: #3498db; color: white;
         }
-        #workplaceDeleteButton {
-            background-color: #e74c3c;
-        }
-        .date-range-group {
-            display: flex; flex-direction: column; gap: 10px;
-        }
-        .date-input-row {
-            display: flex; gap: 10px; align-items: center;
-        }
-        .date-input-row > div {
-            flex: 1;
-        }
-        #workplaceModal #endDateDiv {
-            flex: 1;
-        }
-        .toggle-switch-group {
-            display: flex; align-items: center; gap: 10px;
-        }
+        /* Đã loại bỏ styles liên quan đến nơi làm việc modal */
+
         @media (max-width: 767px) {
             .container {
                 padding: 10px; min-height: auto;
@@ -226,8 +179,6 @@
                     <span class="nav-arrow" id="prevMonthArrow">◀️</span>
                     <span class="nav-arrow" id="nextMonthArrow">▶️</span>
                     
-                    <button class="workplace-button" id="btnAddWorkplace" data-key="btn_add_workplace">Thêm Nơi Làm Việc</button>
-
                     <div class="control-group">
                         <label data-key="label_lang" for="languageSelect">Ngôn ngữ:</label>
                         <select id="languageSelect">
@@ -239,13 +190,6 @@
                 </div>
             </div>
             </div>
-
-        <div class="workplace-header">
-            <h3 data-key="h3_workplaces">Nơi Làm Việc Hiện Tại:</h3>
-            <div id="workplaceList" class="workplace-list">
-                <p data-key="p_no_workplaces">Chưa có nơi làm việc nào được thêm.</p>
-            </div>
-        </div>
 
         <div class="calendar-header">
             <div class="rate-input-group">
@@ -304,48 +248,6 @@
         </div>
     </div>
 
-    <div id="workplaceModal" class="modal">
-        <div class="modal-content">
-            <h2 id="workplaceModalTitle" data-key="modal_workplace_title_create">Thêm Nơi Làm Việc Mới</h2>
-
-            <div class="text-input-group">
-                <label data-key="label_shop_name" for="shopName">Tên Cửa Hàng/Công Ty:</label>
-                <input type="text" id="shopName" placeholder="Ví dụ: Coffee A">
-            </div>
-
-            <div class="text-input-group">
-                <label data-key="label_address" for="address">Địa Chỉ:</label>
-                <input type="text" id="address" placeholder="Ví dụ: 123 Đường B">
-            </div>
-
-            <div class="date-range-group">
-                <label data-key="label_work_period">Thời Gian Làm Việc:</label>
-                <div class="date-input-row">
-                    <div class="text-input-group">
-                        <label data-key="label_from_date" for="startDate">Từ Ngày:</label>
-                        <input type="date" id="startDate">
-                    </div>
-                    <div class="text-input-group" id="endDateDiv">
-                        <label data-key="label_to_date" for="endDate">Đến Ngày:</label>
-                        <input type="date" id="endDate">
-                    </div>
-                    <div class="toggle-switch-group">
-                         <label data-key="label_still_working" for="stillWorking">Đang làm:</label>
-                        <input type="checkbox" id="stillWorking" checked>
-                    </div>
-                </div>
-            </div>
-
-
-            <div class="modal-actions">
-                <button class="cancel" id="workplaceModalCancel" data-key="btn_cancel">Hủy</button>
-                <button class="delete" id="workplaceDeleteButton" data-key="btn_delete_workplace" style="display:none;">Xóa Cửa Hàng</button>
-                <button class="save" id="workplaceSaveButton" data-key="btn_create_workplace">Tạo</button>
-            </div>
-        </div>
-    </div>
-
-
     <script>
         // === JavaScript Logic (Minimal Changes) ===
 
@@ -353,8 +255,7 @@
         let currentYear = new Date().getFullYear();
         let timeData = {};
         let currentDayInModal = null;
-        let workplaces = [];
-        let editingWorkplaceId = null;
+        // Đã bỏ biến 'workplaces' và 'editingWorkplaceId'
 
         const SWIPE_THRESHOLD = 100;
         let touchStartX = 0;
@@ -367,9 +268,9 @@
             languageSelect: document.getElementById('languageSelect'),
             // Đã đổi yearDisplay thành monthYearDisplay để hiển thị MM/YYYY
             monthYearDisplay: document.getElementById('monthYearDisplay'), 
-            workplaceList: document.getElementById('workplaceList'),
+            // Đã bỏ workplaceList
             timeModal: document.getElementById('timeModal'),
-            workplaceModal: document.getElementById('workplaceModal'),
+            // Đã bỏ workplaceModal
             
             // Time Modal
             modalTimeIn: document.getElementById('modalTimeIn'),
@@ -378,18 +279,7 @@
             timeModalDelete: document.getElementById('timeModalDelete'),
             timeModalSave: document.getElementById('timeModalSave'),
 
-            // Workplace Modal
-            shopName: document.getElementById('shopName'),
-            address: document.getElementById('address'),
-            startDate: document.getElementById('startDate'),
-            endDate: document.getElementById('endDate'),
-            stillWorking: document.getElementById('stillWorking'),
-            endDateDiv: document.getElementById('endDateDiv'),
-            workplaceSaveButton: document.getElementById('workplaceSaveButton'),
-            workplaceDeleteButton: document.getElementById('workplaceDeleteButton'),
-            workplaceModalTitle: document.getElementById('workplaceModalTitle'),
-            workplaceModalCancel: document.getElementById('workplaceModalCancel'),
-            btnAddWorkplace: document.getElementById('btnAddWorkplace'),
+            // Đã bỏ các element liên quan đến Workplace Modal
             
             // Navigation
             prevMonthArrow: document.getElementById('prevMonthArrow'),
@@ -400,7 +290,7 @@
         const STORAGE_KEY = {
             RATE: 'hourlyRate',
             LANGUAGE: 'appLanguage',
-            WORKPLACES: 'workplacesData'
+            // Đã bỏ WORKPLACES
         };
 
         const getTimesheetKey = () => `timeData-${currentYear}-${currentMonth + 1}`;
@@ -426,21 +316,7 @@
                 btn_cancel: 'Hủy',
                 btn_delete: 'Xóa',
                 btn_save: 'Chọn',
-                btn_add_workplace: '➕ Thêm Nơi Làm Việc',
-                modal_workplace_title_create: 'Thêm Nơi Làm Việc Mới',
-                modal_workplace_title_edit: 'Chỉnh Sửa Nơi Làm Việc',
-                label_shop_name: 'Tên Cửa Hàng/Công Ty:',
-                label_address: 'Địa Chỉ:',
-                label_work_period: 'Thời Gian Làm Việc:',
-                label_from_date: 'Từ Ngày:',
-                label_to_date: 'Đến Ngày:',
-                label_still_working: 'Đang làm:',
-                btn_create_workplace: 'Tạo',
-                btn_update_workplace: 'Lưu',
-                btn_delete_workplace: 'Xóa Cửa Hàng',
-                h3_workplaces: 'Nơi Làm Việc Hiện Tại:',
-                p_no_workplaces: 'Chưa có nơi làm việc nào được thêm.',
-                p_still_working: 'Đang làm',
+                // Đã bỏ các key liên quan đến nơi làm việc
             },
             'en': { /* ... Dữ liệu dịch thuật English như cũ ... */
                 title: 'Monthly Timesheet',
@@ -461,21 +337,7 @@
                 btn_cancel: 'Cancel',
                 btn_delete: 'Delete',
                 btn_save: 'Save',
-                btn_add_workplace: '➕ Add Workplace',
-                modal_workplace_title_create: 'Add New Workplace',
-                modal_workplace_title_edit: 'Edit Workplace',
-                label_shop_name: 'Shop/Company Name:',
-                label_address: 'Address:',
-                label_work_period: 'Work Period:',
-                label_from_date: 'Start Date:',
-                label_to_date: 'End Date:',
-                label_still_working: 'Working:',
-                btn_create_workplace: 'Create',
-                btn_update_workplace: 'Save',
-                btn_delete_workplace: 'Delete Workplace',
-                h3_workplaces: 'Current Workplaces:',
-                p_no_workplaces: 'No workplaces added yet.',
-                p_still_working: 'Still Working',
+                // Đã bỏ các key liên quan đến nơi làm việc
             },
             'ko': { /* ... Dữ liệu dịch thuật Korean như cũ ... */
                 title: '월간 근무 시간표',
@@ -496,152 +358,13 @@
                 btn_cancel: '취소',
                 btn_delete: '삭제',
                 btn_save: '선택',
-                btn_add_workplace: '➕ 근무지 추가',
-                modal_workplace_title_create: '새 근무지 추가',
-                modal_workplace_title_edit: '근무지 수정',
-                label_shop_name: '상점/회사 이름:',
-                label_address: '주소:',
-                label_work_period: '근무 기간:',
-                label_from_date: '시작일:',
-                label_to_date: '종료일:',
-                label_still_working: '근무 중:',
-                btn_create_workplace: '생성',
-                btn_update_workplace: '저장',
-                btn_delete_workplace: '근무지 삭제',
-                h3_workplaces: '현재 근무지:',
-                p_no_workplaces: '추가된 근무지가 없습니다.',
-                p_still_working: '근무 중',
+                // Đã bỏ các key liên quan đến nơi làm việc
             }
         };
         const getT = () => translations[DOM.languageSelect.value];
 
-        // --- Logic Nơi Làm Việc (Workplace Logic) ---
-        function generateUniqueId() {
-            return Date.now().toString(36) + Math.random().toString(36).substring(2);
-        }
-
-        function toggleEndDate(isStillWorking) {
-            DOM.endDateDiv.style.display = isStillWorking ? 'none' : 'block';
-            DOM.endDate.required = !isStillWorking;
-        }
-
-        function renderWorkplaces() {
-            const t = getT();
-            DOM.workplaceList.innerHTML = '';
-
-            if (workplaces.length === 0) {
-                DOM.workplaceList.innerHTML = `<p data-key="p_no_workplaces">${t.p_no_workplaces}</p>`;
-                return;
-            }
-
-            workplaces.forEach(wp => {
-                const endDateText = wp.stillWorking ?
-                                    `<span style="color:#27ae60;">(${t.p_still_working})</span>` :
-                                    `<span style="color:#2c3e50;">${wp.endDate}</span>`;
-                const item = document.createElement('div');
-                item.className = 'workplace-item';
-                item.innerHTML = `
-                    <div class="workplace-info">
-                        <span class="name">${wp.shopName}</span>
-                        <span class="address">${wp.address}</span>
-                        <span class="period">${t.label_from_date}: ${wp.startDate} - ${t.label_to_date}: ${endDateText}</span>
-                    </div>
-                    <button class="edit-btn" data-id="${wp.id}">${t.btn_update_workplace === 'Lưu' ? 'Sửa' : t.btn_update_workplace === 'Save' ? 'Edit' : '수정'}</button>
-                `;
-                DOM.workplaceList.appendChild(item);
-                item.querySelector('.edit-btn').addEventListener('click', () => openWorkplaceModal('edit', wp.id));
-            });
-        }
-
-        function openWorkplaceModal(mode, id = null) {
-            const t = getT();
-            DOM.workplaceModal.style.display = 'flex';
-            editingWorkplaceId = id;
-            
-            if (mode === 'create') {
-                DOM.workplaceModalTitle.textContent = t.modal_workplace_title_create;
-                DOM.workplaceSaveButton.textContent = t.btn_create_workplace;
-                DOM.workplaceDeleteButton.style.display = 'none';
-
-                DOM.shopName.value = '';
-                DOM.address.value = '';
-                DOM.startDate.value = '';
-                DOM.endDate.value = '';
-                DOM.stillWorking.checked = true;
-                toggleEndDate(true);
-
-            } else if (mode === 'edit' && id) {
-                const wp = workplaces.find(w => w.id === id);
-                if (!wp) return;
-
-                DOM.workplaceModalTitle.textContent = t.modal_workplace_title_edit;
-                DOM.workplaceSaveButton.textContent = t.btn_update_workplace;
-                DOM.workplaceDeleteButton.style.display = 'inline-block';
-
-                DOM.shopName.value = wp.shopName;
-                DOM.address.value = wp.address;
-                DOM.startDate.value = wp.startDate;
-                DOM.endDate.value = wp.endDate || '';
-                DOM.stillWorking.checked = wp.stillWorking;
-                toggleEndDate(wp.stillWorking);
-            }
-        }
-
-        function closeWorkplaceModal() {
-            DOM.workplaceModal.style.display = 'none';
-            editingWorkplaceId = null;
-        }
-
-        function saveWorkplace() {
-            const shopName = DOM.shopName.value.trim();
-            const address = DOM.address.value.trim();
-            const startDate = DOM.startDate.value;
-            const endDate = DOM.endDate.value;
-            const stillWorking = DOM.stillWorking.checked;
-
-            if (!shopName || !address || !startDate) {
-                alert('Vui lòng điền đầy đủ Tên Cửa Hàng, Địa Chỉ và Ngày Bắt Đầu!');
-                return;
-            }
-            if (!stillWorking && !endDate) {
-                alert('Vui lòng chọn Ngày Kết Thúc hoặc chọn "Đang làm".');
-                return;
-            }
-
-            const newWorkplace = {
-                shopName,
-                address,
-                startDate,
-                endDate: stillWorking ? null : endDate,
-                stillWorking
-            };
-
-            if (editingWorkplaceId) {
-                const index = workplaces.findIndex(w => w.id === editingWorkplaceId);
-                if (index !== -1) {
-                    workplaces[index] = { ...workplaces[index], ...newWorkplace };
-                }
-            } else {
-                newWorkplace.id = generateUniqueId();
-                workplaces.push(newWorkplace);
-            }
-
-            saveDataToLocalStorage();
-            renderWorkplaces();
-            closeWorkplaceModal();
-        }
-
-        function deleteWorkplace() {
-            if (!editingWorkplaceId) return;
-
-            if (confirm('Bạn có chắc chắn muốn xóa nơi làm việc này không?')) {
-                workplaces = workplaces.filter(w => w.id !== editingWorkplaceId);
-
-                saveDataToLocalStorage();
-                renderWorkplaces();
-                closeWorkplaceModal();
-            }
-        }
+        // --- Đã bỏ Logic Nơi Làm Việc (Workplace Logic) ---
+        // Đã xóa: generateUniqueId, toggleEndDate, renderWorkplaces, openWorkplaceModal, closeWorkplaceModal, saveWorkplace, deleteWorkplace.
 
         // --- Logic Tính Toán và Lưu Trữ (Calculation & Storage Logic) ---
         function calculateWorkHours(timeIn, timeOut) {
@@ -662,7 +385,7 @@
                 localStorage.setItem(getTimesheetKey(), JSON.stringify(timeData));
                 localStorage.setItem(STORAGE_KEY.RATE, DOM.hourlyRate.value);
                 localStorage.setItem(STORAGE_KEY.LANGUAGE, DOM.languageSelect.value);
-                localStorage.setItem(STORAGE_KEY.WORKPLACES, JSON.stringify(workplaces));
+                // Đã bỏ: localStorage.setItem(STORAGE_KEY.WORKPLACES, JSON.stringify(workplaces));
             } catch (e) {
                 console.error("Could not save data to localStorage", e);
             }
@@ -678,8 +401,8 @@
                 const savedData = localStorage.getItem(getTimesheetKey());
                 timeData = savedData ? JSON.parse(savedData) : {};
 
-                const savedWorkplaces = localStorage.getItem(STORAGE_KEY.WORKPLACES);
-                workplaces = savedWorkplaces ? JSON.parse(savedWorkplaces) : [];
+                // Đã bỏ: const savedWorkplaces = localStorage.getItem(STORAGE_KEY.WORKPLACES);
+                // Đã bỏ: workplaces = savedWorkplaces ? JSON.parse(savedWorkplaces) : [];
 
                 const savedLang = localStorage.getItem(STORAGE_KEY.LANGUAGE);
                 if (savedLang) {
@@ -690,7 +413,7 @@
             } catch (e) {
                 console.error("Could not load data from localStorage", e);
                 timeData = {};
-                workplaces = [];
+                // Đã bỏ: workplaces = [];
             }
         }
 
@@ -787,9 +510,8 @@
                     if (key.startsWith('modal_title_prefix')) {
                         const day = currentDayInModal ? ` <span id="modalDayNumber">${currentDayInModal}</span>` : '';
                         element.innerHTML = `${t.modal_title_prefix}${day}`;
-                    } else if (key === 'btn_create_workplace') {
-                        element.textContent = editingWorkplaceId ? t.btn_update_workplace : t.btn_create_workplace;
-                    }
+                    } 
+                    // Đã bỏ: else if (key === 'btn_create_workplace') { ... }
                     // Bỏ qua các key không cần cập nhật
                     else if (key !== 'h1_month_title' &&
                                  key !== 'summary_total_hours_prefix_month' &&
@@ -803,7 +525,7 @@
 
             saveDataToLocalStorage();
             renderCalendar();
-            renderWorkplaces();
+            // Đã bỏ: renderWorkplaces();
         }
 
         function renderCalendar() {
@@ -919,14 +641,7 @@
             DOM.timeModal.addEventListener('click', (e) => e.target.id === 'timeModal' ? closeModal() : null);
             document.querySelector('#timeModal .modal-content').addEventListener('click', (e) => e.stopPropagation());
             
-            // Event Listeners for Workplace Modal
-            DOM.btnAddWorkplace.addEventListener('click', () => openWorkplaceModal('create'));
-            DOM.workplaceModalCancel.addEventListener('click', closeWorkplaceModal);
-            DOM.workplaceSaveButton.addEventListener('click', saveWorkplace);
-            DOM.workplaceDeleteButton.addEventListener('click', deleteWorkplace);
-            DOM.stillWorking.addEventListener('change', (e) => toggleEndDate(e.target.checked));
-            DOM.workplaceModal.addEventListener('click', (e) => e.target.id === 'workplaceModal' ? closeWorkplaceModal() : null);
-            document.querySelector('#workplaceModal .modal-content').addEventListener('click', (e) => e.stopPropagation());
+            // Đã bỏ Event Listeners for Workplace Modal
 
             // Event Listeners for Input & Language
             DOM.hourlyRate.addEventListener('input', updateSummary);
