@@ -12,17 +12,13 @@
             background-color: #f4f7f6; min-height: 100vh; display: flex; justify-content: center;
         }
         .container {
-            /* Giữ nguyên ràng buộc chiều ngang (max-width) */
             max-width: 900px; 
             width: 95%; 
             margin: 20px auto; 
             padding: 20px; 
             background: #fff;
-            
-            /* Chiều dọc tự do, không còn ràng buộc chiều cao tối thiểu */
             display: flex; 
             flex-direction: column; 
-            /* Đã xóa min-height: 600px; */
         }
         .header-controls {
             display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; flex-shrink: 0;
@@ -30,18 +26,35 @@
         .top-row {
             display: flex; justify-content: space-between; align-items: center; width: 100%;
         }
+
+        /* --- CẬP NHẬT CSS ĐỂ HIỂN THỊ THÁNG/NĂM GÓC TRÁI --- */
+        /* Nhóm navigator mới */
+        .month-navigator {
+            display: flex;
+            align-items: center;
+            gap: 5px; 
+        }
+        /* Đảm bảo h1 chỉ chiếm không gian cần thiết */
         .year-display {
             font-size: 1.4em; font-weight: bold; color: #27ae60; padding: 5px;
+            order: unset !important; /* Đảm bảo không bị CSS h1 bên dưới ghi đè */
         }
+        /* Đảm bảo h1 chung không đẩy ra giữa/toàn bộ chiều ngang */
+        h1 {
+            text-align: left; /* Đổi từ center */
+            color: #2c3e50; 
+            margin: 0; 
+            font-size: 1.5em; 
+            width: auto; /* Đổi từ 100% */
+            order: unset !important; /* Xóa order: 2 */
+        }
+        /* -------------------------------------------------- */
+
         .controls {
             display: flex; gap: 15px; justify-content: flex-end; align-items: center;
         }
         .control-group label {
             font-weight: bold; color: #555; font-size: 0.9em;
-        }
-        /* Đã bỏ .workplace-button */
-        h1 {
-            text-align: center; color: #2c3e50; margin: 0; font-size: 1.5em; width: 100%; order: 2;
         }
         h1 .nav-arrow {
             cursor: pointer; padding: 0 5px; user-select: none;
@@ -106,9 +119,8 @@
         #totalHours {
             color: green; font-weight: bold;
         }
-        /* Đã loại bỏ styles liên quan đến nơi làm việc */
         
-        /* --- MODAL STYLES (Chỉ giữ lại Time Modal) --- */
+        /* --- MODAL STYLES (Time Modal) --- */
         .modal {
             position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto;
             background-color: rgba(0,0,0,0.6); display: none; justify-content: center;
@@ -156,7 +168,6 @@
         .modal-actions button.save {
             background-color: #3498db; color: white;
         }
-        /* Đã loại bỏ styles liên quan đến nơi làm việc modal */
 
         @media (max-width: 767px) {
             .container {
@@ -173,12 +184,13 @@
 
         <div class="header-controls">
             <div class="top-row">
-                <h1 data-key="h1_month_year_display" id="monthYearDisplay" class="year-display"></h1>
-
-                <div class="controls">
+                
+                <div class="month-navigator">
                     <span class="nav-arrow" id="prevMonthArrow">◀️</span>
+                    <h1 data-key="h1_month_year_display" id="monthYearDisplay" class="year-display"></h1>
                     <span class="nav-arrow" id="nextMonthArrow">▶️</span>
-                    
+                </div>
+                <div class="controls">
                     <div class="control-group">
                         <label data-key="label_lang" for="languageSelect">Ngôn ngữ:</label>
                         <select id="languageSelect">
@@ -189,7 +201,7 @@
                     </div>
                 </div>
             </div>
-            </div>
+        </div>
 
         <div class="calendar-header">
             <div class="rate-input-group">
@@ -255,8 +267,7 @@
         let currentYear = new Date().getFullYear();
         let timeData = {};
         let currentDayInModal = null;
-        // Đã bỏ biến 'workplaces' và 'editingWorkplaceId'
-
+        
         const SWIPE_THRESHOLD = 100;
         let touchStartX = 0;
 
@@ -266,11 +277,8 @@
             calendarBody: document.getElementById('calendarBody'),
             hourlyRate: document.getElementById('hourlyRate'),
             languageSelect: document.getElementById('languageSelect'),
-            // Đã đổi yearDisplay thành monthYearDisplay để hiển thị MM/YYYY
             monthYearDisplay: document.getElementById('monthYearDisplay'), 
-            // Đã bỏ workplaceList
             timeModal: document.getElementById('timeModal'),
-            // Đã bỏ workplaceModal
             
             // Time Modal
             modalTimeIn: document.getElementById('modalTimeIn'),
@@ -279,8 +287,6 @@
             timeModalDelete: document.getElementById('timeModalDelete'),
             timeModalSave: document.getElementById('timeModalSave'),
 
-            // Đã bỏ các element liên quan đến Workplace Modal
-            
             // Navigation
             prevMonthArrow: document.getElementById('prevMonthArrow'),
             nextMonthArrow: document.getElementById('nextMonthArrow'),
@@ -290,7 +296,6 @@
         const STORAGE_KEY = {
             RATE: 'hourlyRate',
             LANGUAGE: 'appLanguage',
-            // Đã bỏ WORKPLACES
         };
 
         const getTimesheetKey = () => `timeData-${currentYear}-${currentMonth + 1}`;
@@ -311,12 +316,11 @@
                 summary_hours_suffix: 'giờ',
                 summary_total_income_month: '💵 TỔNG THU NHẬP DỰ KIẾN ',
                 month_names: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
-                                     "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"],
+                                         "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"],
                 modal_title_prefix: 'Nhập Giờ Công',
                 btn_cancel: 'Hủy',
                 btn_delete: 'Xóa',
                 btn_save: 'Chọn',
-                // Đã bỏ các key liên quan đến nơi làm việc
             },
             'en': { /* ... Dữ liệu dịch thuật English như cũ ... */
                 title: 'Monthly Timesheet',
@@ -332,12 +336,11 @@
                 summary_hours_suffix: 'hours',
                 summary_total_income_month: '💵 ESTIMATED TOTAL INCOME for ',
                 month_names: ["January", "February", "March", "April", "May", "June",
-                                     "July", "August", "September", "October", "November", "December"],
+                                         "July", "August", "September", "October", "November", "December"],
                 modal_title_prefix: 'Enter Timesheet - Day',
                 btn_cancel: 'Cancel',
                 btn_delete: 'Delete',
                 btn_save: 'Save',
-                // Đã bỏ các key liên quan đến nơi làm việc
             },
             'ko': { /* ... Dữ liệu dịch thuật Korean như cũ ... */
                 title: '월간 근무 시간표',
@@ -353,18 +356,14 @@
                 summary_hours_suffix: '시간',
                 summary_total_income_month: '💵 예상 총 수입 ',
                 month_names: ["1월", "2월", "3월", "4월", "5월", "6월",
-                                     "7월", "8월", "9월", "10월", "11월", "12월"],
+                                         "7월", "8월", "9월", "10월", "11월", "12월"],
                 modal_title_prefix: '근무 시간 입력 - 날짜',
                 btn_cancel: '취소',
                 btn_delete: '삭제',
                 btn_save: '선택',
-                // Đã bỏ các key liên quan đến nơi làm việc
             }
         };
         const getT = () => translations[DOM.languageSelect.value];
-
-        // --- Đã bỏ Logic Nơi Làm Việc (Workplace Logic) ---
-        // Đã xóa: generateUniqueId, toggleEndDate, renderWorkplaces, openWorkplaceModal, closeWorkplaceModal, saveWorkplace, deleteWorkplace.
 
         // --- Logic Tính Toán và Lưu Trữ (Calculation & Storage Logic) ---
         function calculateWorkHours(timeIn, timeOut) {
@@ -385,7 +384,6 @@
                 localStorage.setItem(getTimesheetKey(), JSON.stringify(timeData));
                 localStorage.setItem(STORAGE_KEY.RATE, DOM.hourlyRate.value);
                 localStorage.setItem(STORAGE_KEY.LANGUAGE, DOM.languageSelect.value);
-                // Đã bỏ: localStorage.setItem(STORAGE_KEY.WORKPLACES, JSON.stringify(workplaces));
             } catch (e) {
                 console.error("Could not save data to localStorage", e);
             }
@@ -401,9 +399,6 @@
                 const savedData = localStorage.getItem(getTimesheetKey());
                 timeData = savedData ? JSON.parse(savedData) : {};
 
-                // Đã bỏ: const savedWorkplaces = localStorage.getItem(STORAGE_KEY.WORKPLACES);
-                // Đã bỏ: workplaces = savedWorkplaces ? JSON.parse(savedWorkplaces) : [];
-
                 const savedLang = localStorage.getItem(STORAGE_KEY.LANGUAGE);
                 if (savedLang) {
                     DOM.languageSelect.value = savedLang;
@@ -413,7 +408,6 @@
             } catch (e) {
                 console.error("Could not load data from localStorage", e);
                 timeData = {};
-                // Đã bỏ: workplaces = [];
             }
         }
 
@@ -498,7 +492,7 @@
 
             document.getElementById('currencyUnit').textContent = t.currencyCode;
             
-            // CẬP NHẬT: Hiển thị tháng/năm theo định dạng MM/YYYY ở góc trái
+            // CẬP NHẬT JAVASCRIPT: Hiển thị tháng/năm theo định dạng MM/YYYY
             const monthText = (currentMonth + 1).toString().padStart(2, '0');
             const monthYearText = `${monthText}/${currentYear}`;
             DOM.monthYearDisplay.textContent = monthYearText; 
@@ -510,9 +504,7 @@
                     if (key.startsWith('modal_title_prefix')) {
                         const day = currentDayInModal ? ` <span id="modalDayNumber">${currentDayInModal}</span>` : '';
                         element.innerHTML = `${t.modal_title_prefix}${day}`;
-                    } 
-                    // Đã bỏ: else if (key === 'btn_create_workplace') { ... }
-                    // Bỏ qua các key không cần cập nhật
+                    }
                     else if (key !== 'h1_month_title' &&
                                  key !== 'summary_total_hours_prefix_month' &&
                                  key !== 'summary_total_income_month') {
@@ -525,7 +517,6 @@
 
             saveDataToLocalStorage();
             renderCalendar();
-            // Đã bỏ: renderWorkplaces();
         }
 
         function renderCalendar() {
@@ -641,8 +632,6 @@
             DOM.timeModal.addEventListener('click', (e) => e.target.id === 'timeModal' ? closeModal() : null);
             document.querySelector('#timeModal .modal-content').addEventListener('click', (e) => e.stopPropagation());
             
-            // Đã bỏ Event Listeners for Workplace Modal
-
             // Event Listeners for Input & Language
             DOM.hourlyRate.addEventListener('input', updateSummary);
             DOM.languageSelect.addEventListener('change', () => setLanguage(DOM.languageSelect.value));
