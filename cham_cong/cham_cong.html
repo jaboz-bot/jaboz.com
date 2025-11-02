@@ -58,10 +58,31 @@
         }
         .calendar-header {
             text-align: center; font-size: 1.2em; margin-bottom: 15px; color: #3498db;
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; /* căn giữa các phần tử bên trong */
+            gap: 10px;
         }
         .rate-input-group {
             display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 0.9em;
         }
+        /* Style cho nút Thêm Nơi Làm Việc */
+        #addWorkplaceButton {
+            padding: 8px 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1em;
+            transition: background-color 0.3s;
+        }
+        #addWorkplaceButton:hover {
+            background-color: #2980b9;
+        }
+
+
         .calendar-table {
             width: 100%; table-layout: fixed; border-collapse: collapse; flex-grow: 1;
         }
@@ -117,7 +138,7 @@
             color: green; font-weight: bold;
         }
         
-        /* --- MODAL STYLES (Time Modal) --- */
+        /* --- MODAL STYLES (Chung cho cả 2 Modal) --- */
         .modal {
             position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto;
             background-color: rgba(0,0,0,0.6); display: none; justify-content: center;
@@ -166,6 +187,19 @@
             background-color: #3498db; color: white;
         }
 
+        /* Thêm style cho checkbox "Đang Làm" */
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 10px;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin: 0;
+        }
+
         @media (max-width: 767px) {
             .container {
                 padding: 10px; min-height: auto;
@@ -202,6 +236,8 @@
         </div>
 
         <div class="calendar-header">
+            <button id="addWorkplaceButton" data-key="btn_add_workplace">➕ Thêm Nơi Làm Việc</button>
+
             <div class="rate-input-group">
                 <span data-key="label_rate">💰 Lương/giờ:</span>
 
@@ -258,6 +294,44 @@
         </div>
     </div>
 
+    <div id="workplaceModal" class="modal">
+        <div class="modal-content">
+            <h2 data-key="modal_workplace_title">Thêm Nơi Làm Việc</h2>
+
+            <div class="text-input-group">
+                <label data-key="label_workplace_name" for="workplaceName">Tên Cửa Hàng/Công Ty:</label>
+                <input type="text" id="workplaceName" placeholder="Nhập tên">
+            </div>
+
+            <div class="text-input-group">
+                <label data-key="label_workplace_address" for="workplaceAddress">Địa Chỉ:</label>
+                <input type="text" id="workplaceAddress" placeholder="Nhập địa chỉ (tùy chọn)">
+            </div>
+            
+            <div class="time-input-group">
+                <label data-key="label_start_date" for="workplaceStartDate">Ngày Bắt Đầu:</label>
+                <input type="date" id="workplaceStartDate">
+            </div>
+
+            <div class="time-input-group">
+                <label data-key="label_end_date" for="workplaceEndDate">Ngày Kết Thúc:</label>
+                <input type="date" id="workplaceEndDate">
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="workplaceCurrentStatus">
+                <label data-key="label_current_status" for="workplaceCurrentStatus">Đang Làm (Nếu đang làm, bỏ trống Ngày Kết Thúc)</label>
+            </div>
+
+
+            <div class="modal-actions">
+                <button class="cancel" id="workplaceModalCancel" data-key="btn_cancel">Hủy</button>
+                <button class="save" id="workplaceModalSave" data-key="btn_save">Lưu</button>
+            </div>
+        </div>
+    </div>
+
+
     <script>
         // === JavaScript Logic (Minimal Changes) ===
 
@@ -265,6 +339,7 @@
         let currentYear = new Date().getFullYear();
         let timeData = {};
         let currentDayInModal = null;
+        let workplaceData = []; // Mảng mới để lưu thông tin nơi làm việc
         
         const SWIPE_THRESHOLD = 100;
         let touchStartX = 0;
@@ -277,6 +352,8 @@
             languageSelect: document.getElementById('languageSelect'),
             monthYearDisplay: document.getElementById('monthYearDisplay'), 
             timeModal: document.getElementById('timeModal'),
+            workplaceModal: document.getElementById('workplaceModal'), // Modal mới
+            addWorkplaceButton: document.getElementById('addWorkplaceButton'), // Nút mới
             
             // Time Modal
             modalTimeIn: document.getElementById('modalTimeIn'),
@@ -284,6 +361,15 @@
             timeModalCancel: document.getElementById('timeModalCancel'),
             timeModalDelete: document.getElementById('timeModalDelete'),
             timeModalSave: document.getElementById('timeModalSave'),
+
+            // Workplace Modal Inputs
+            workplaceName: document.getElementById('workplaceName'),
+            workplaceAddress: document.getElementById('workplaceAddress'),
+            workplaceStartDate: document.getElementById('workplaceStartDate'),
+            workplaceEndDate: document.getElementById('workplaceEndDate'),
+            workplaceCurrentStatus: document.getElementById('workplaceCurrentStatus'),
+            workplaceModalCancel: document.getElementById('workplaceModalCancel'),
+            workplaceModalSave: document.getElementById('workplaceModalSave'),
 
             // Navigation
             prevMonthArrow: document.getElementById('prevMonthArrow'),
@@ -294,13 +380,14 @@
         const STORAGE_KEY = {
             RATE: 'hourlyRate',
             LANGUAGE: 'appLanguage',
+            WORKPLACES: 'workplaceData', // Key mới
         };
 
         const getTimesheetKey = () => `timeData-${currentYear}-${currentMonth + 1}`;
 
         // --- Dịch thuật (Translations) ---
         const translations = {
-            'vi': { /* ... Dữ liệu dịch thuật Tiếng Việt như cũ ... */
+            'vi': { 
                 title: 'Bảng Chấm Công Theo Tháng',
                 label_lang: 'Ngôn ngữ:',
                 currencyCode: 'VND',
@@ -319,8 +406,16 @@
                 btn_cancel: 'Hủy',
                 btn_delete: 'Xóa',
                 btn_save: 'Chọn',
+                // Dịch cho phần Nơi làm việc mới
+                btn_add_workplace: '➕ Thêm Nơi Làm Việc',
+                modal_workplace_title: 'Thêm Nơi Làm Việc',
+                label_workplace_name: 'Tên Cửa Hàng/Công Ty:',
+                label_workplace_address: 'Địa Chỉ:',
+                label_start_date: 'Ngày Bắt Đầu:',
+                label_end_date: 'Ngày Kết Thúc:',
+                label_current_status: 'Đang Làm',
             },
-            'en': { /* ... Dữ liệu dịch thuật English như cũ ... */
+            'en': { 
                 title: 'Monthly Timesheet',
                 label_lang: 'Language:',
                 currencyCode: 'USD',
@@ -339,8 +434,16 @@
                 btn_cancel: 'Cancel',
                 btn_delete: 'Delete',
                 btn_save: 'Save',
+                // Dịch cho phần Nơi làm việc mới
+                btn_add_workplace: '➕ Add Workplace',
+                modal_workplace_title: 'Add Workplace',
+                label_workplace_name: 'Store/Company Name:',
+                label_workplace_address: 'Address:',
+                label_start_date: 'Start Date:',
+                label_end_date: 'End Date:',
+                label_current_status: 'Currently Working',
             },
-            'ko': { /* ... Dữ liệu dịch thuật Korean như cũ ... */
+            'ko': { 
                 title: '월간 근무 시간표',
                 label_lang: '언어:',
                 currencyCode: 'KRW',
@@ -359,12 +462,21 @@
                 btn_cancel: '취소',
                 btn_delete: '삭제',
                 btn_save: '선택',
+                // Dịch cho phần Nơi làm việc mới
+                btn_add_workplace: '➕ 근무지 추가',
+                modal_workplace_title: '근무지 추가',
+                label_workplace_name: '상점/회사 이름:',
+                label_workplace_address: '주소:',
+                label_start_date: '시작일:',
+                label_end_date: '종료일:',
+                label_current_status: '재직 중',
             }
         };
         const getT = () => translations[DOM.languageSelect.value];
 
         // --- Logic Tính Toán và Lưu Trữ (Calculation & Storage Logic) ---
         function calculateWorkHours(timeIn, timeOut) {
+            // ... (Hàm tính giờ làm vẫn giữ nguyên)
             if (!timeIn || !timeOut) return 0;
             const [hIn, mIn] = timeIn.split(':').map(Number);
             const [hOut, mOut] = timeOut.split(':').map(Number);
@@ -382,6 +494,8 @@
                 localStorage.setItem(getTimesheetKey(), JSON.stringify(timeData));
                 localStorage.setItem(STORAGE_KEY.RATE, DOM.hourlyRate.value);
                 localStorage.setItem(STORAGE_KEY.LANGUAGE, DOM.languageSelect.value);
+                // LƯU DỮ LIỆU NƠI LÀM VIỆC
+                localStorage.setItem(STORAGE_KEY.WORKPLACES, JSON.stringify(workplaceData)); 
             } catch (e) {
                 console.error("Could not save data to localStorage", e);
             }
@@ -401,15 +515,21 @@
                 if (savedLang) {
                     DOM.languageSelect.value = savedLang;
                 } else {
-                    // CẬP NHẬT JAVASCRIPT: Đặt mặc định là 'ko' nếu chưa có lưu trữ
                     DOM.languageSelect.value = 'ko';
                 }
+
+                // TẢI DỮ LIỆU NƠI LÀM VIỆC
+                const savedWorkplaces = localStorage.getItem(STORAGE_KEY.WORKPLACES);
+                workplaceData = savedWorkplaces ? JSON.parse(savedWorkplaces) : [];
+
             } catch (e) {
                 console.error("Could not load data from localStorage", e);
                 timeData = {};
+                workplaceData = [];
             }
         }
-
+        
+        // ... (Hàm updateSummary, changeMonth, renderCalendar vẫn giữ nguyên)
         function updateSummary() {
             let totalHours = 0;
             const hourlyRate = parseFloat(DOM.hourlyRate.value) || 0;
@@ -471,7 +591,6 @@
             saveDataToLocalStorage();
         }
 
-        // --- Logic Lịch và Ngôn ngữ (Calendar & Language Logic) ---
         function changeMonth(delta) {
             currentMonth += delta;
             if (currentMonth > 11) {
@@ -491,7 +610,6 @@
 
             document.getElementById('currencyUnit').textContent = t.currencyCode;
             
-            // Hiển thị tháng/năm theo định dạng MM/YYYY
             const monthText = (currentMonth + 1).toString().padStart(2, '0');
             const monthYearText = `${monthText}/${currentYear}`;
             DOM.monthYearDisplay.textContent = monthYearText; 
@@ -506,6 +624,10 @@
                     else if (key !== 'h1_month_title' &&
                                  key !== 'summary_total_hours_prefix_month' &&
                                  key !== 'summary_total_income_month') {
+                        element.textContent = t[key];
+                    }
+                    else if (key === 'label_current_status') {
+                        // Cần xử lý riêng do có chú thích thêm trong HTML
                         element.textContent = t[key];
                     }
                 }
@@ -559,6 +681,70 @@
 
             updateSummary();
         }
+
+        // --- Logic Modal Nơi Làm Việc (Workplace Modal Logic) ---
+
+        function openWorkplaceModal() {
+            // Xóa các giá trị cũ
+            DOM.workplaceName.value = '';
+            DOM.workplaceAddress.value = '';
+            DOM.workplaceStartDate.value = '';
+            DOM.workplaceEndDate.value = '';
+            DOM.workplaceCurrentStatus.checked = false;
+
+            // Ẩn/Hiện Ngày Kết Thúc tùy theo trạng thái
+            DOM.workplaceEndDate.disabled = false;
+            
+            DOM.workplaceModal.style.display = 'flex';
+            DOM.workplaceName.focus();
+        }
+
+        function closeWorkplaceModal() {
+            DOM.workplaceModal.style.display = 'none';
+        }
+
+        function saveWorkplaceData() {
+            const name = DOM.workplaceName.value.trim();
+            const address = DOM.workplaceAddress.value.trim();
+            const startDate = DOM.workplaceStartDate.value;
+            const endDate = DOM.workplaceEndDate.value;
+            const isCurrent = DOM.workplaceCurrentStatus.checked;
+
+            if (!name || !startDate) {
+                alert("Vui lòng nhập Tên Cửa Hàng và Ngày Bắt Đầu.");
+                return;
+            }
+
+            const newWorkplace = {
+                id: Date.now(), // ID duy nhất
+                name: name,
+                address: address,
+                startDate: startDate,
+                endDate: isCurrent ? 'Đang Làm' : endDate, // Lưu 'Đang Làm' nếu checkbox được chọn
+                isCurrent: isCurrent
+            };
+            
+            // Hiện tại chỉ thêm vào mảng. Về sau có thể thêm logic kiểm tra trùng lặp
+            workplaceData.push(newWorkplace);
+            
+            closeWorkplaceModal();
+            saveDataToLocalStorage();
+            console.log("Dữ liệu nơi làm việc đã lưu:", workplaceData);
+            alert("Đã lưu thông tin nơi làm việc thành công!");
+        }
+
+        // --- Event Listener cho Checkbox "Đang Làm" ---
+        DOM.workplaceCurrentStatus.addEventListener('change', function() {
+            if (this.checked) {
+                // Nếu "Đang Làm" được chọn, vô hiệu hóa và xóa giá trị Ngày Kết Thúc
+                DOM.workplaceEndDate.value = '';
+                DOM.workplaceEndDate.disabled = true;
+            } else {
+                // Nếu không, kích hoạt lại Ngày Kết Thúc
+                DOM.workplaceEndDate.disabled = false;
+            }
+        });
+
 
         // --- Logic Modal Giờ Công (Time Modal Logic) ---
         function openModal(day) {
@@ -633,6 +819,14 @@
             // Event Listeners for Input & Language
             DOM.hourlyRate.addEventListener('input', updateSummary);
             DOM.languageSelect.addEventListener('change', () => setLanguage(DOM.languageSelect.value));
+
+            // Event Listeners for Workplace Modal
+            DOM.addWorkplaceButton.addEventListener('click', openWorkplaceModal);
+            DOM.workplaceModalCancel.addEventListener('click', closeWorkplaceModal);
+            DOM.workplaceModalSave.addEventListener('click', saveWorkplaceData);
+            DOM.workplaceModal.addEventListener('click', (e) => e.target.id === 'workplaceModal' ? closeWorkplaceModal() : null);
+            document.querySelector('#workplaceModal .modal-content').addEventListener('click', (e) => e.stopPropagation());
+
 
             // Event Listeners for Swipe
             DOM.container.addEventListener('touchstart', handleTouchStart, false);
