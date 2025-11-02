@@ -18,9 +18,7 @@
             padding: 20px; 
             background: #fff;
             display: flex; 
-            flex-direction: column;
-            /* Giữ chiều cao linh hoạt để cuộn theo nội dung, nhưng giới hạn tối đa nếu cần */
-            max-height: 90vh; 
+            flex-direction: column; 
         }
         .header-controls {
             display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; flex-shrink: 0;
@@ -64,23 +62,14 @@
         .rate-input-group {
             display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 0.9em;
         }
-        
-        /* --- VÙNG CHỨA BẢNG ĐƯỢC THIẾT KẾ ĐỂ CUỘN --- */
-        .calendar-wrapper {
-            flex-grow: 1; /* Cho phép phần này chiếm không gian còn lại */
-            overflow-y: auto; /* Kích hoạt cuộn dọc khi nội dung vượt quá chiều cao */
-            min-height: 200px; /* Chiều cao tối thiểu để có thể cuộn */
-            margin-bottom: 10px; /* Khoảng cách với phần Summary */
-        }
-
         .calendar-table {
-            width: 100%; table-layout: fixed; border-collapse: collapse; 
+            width: 100%; table-layout: fixed; border-collapse: collapse; flex-grow: 1;
         }
         .calendar-table th, .calendar-table td {
             border: 1px solid #bdc3c7; padding: 0; text-align: center; font-size: 0.7em;
         }
         .calendar-table th {
-            background-color: #ecf0f1; color: #2c3e50; padding: 5px 0; position: sticky; top: 0; z-index: 10; /* Giữ header bảng cố định khi cuộn */
+            background-color: #ecf0f1; color: #2c3e50; padding: 5px 0;
         }
         .calendar-table th:first-child {
             color: #e74c3c;
@@ -114,8 +103,6 @@
         .work-amount-in-cell {
             color: #e74c3c; font-size: 1em;
         }
-        /* ----------------------------------------------------- */
-        
         .summary {
             margin-top: 10px; padding: 10px; border-top: 3px double #3498db; background-color: #eaf6fd;
             border-radius: 5px; flex-shrink: 0;
@@ -223,24 +210,23 @@
             </div>
             <p id="note" class="note" data-key="note_calc"></p>
         </div>
-        
-        <div class="calendar-wrapper">
-            <table class="calendar-table">
-                <thead>
-                    <tr id="tableHeaders">
-                        <th data-key="th_sun">CN</th>
-                        <th data-key="th_mon">T2</th>
-                        <th data-key="th_tue">T3</th>
-                        <th data-key="th_wed">T4</th>
-                        <th data-key="th_thu">T5</th>
-                        <th data-key="th_fri">T6</th>
-                        <th data-key="th_sat">T7</th>
-                    </tr>
-                </thead>
-                <tbody id="calendarBody">
-                </tbody>
-            </table>
-        </div>
+
+        <table class="calendar-table">
+            <thead>
+                <tr id="tableHeaders">
+                    <th data-key="th_sun">CN</th>
+                    <th data-key="th_mon">T2</th>
+                    <th data-key="th_tue">T3</th>
+                    <th data-key="th_wed">T4</th>
+                    <th data-key="th_thu">T5</th>
+                    <th data-key="th_fri">T6</th>
+                    <th data-key="th_sat">T7</th>
+                </tr>
+            </thead>
+            <tbody id="calendarBody">
+            </tbody>
+        </table>
+
         <div class="summary">
             <p><span id="summaryHoursPrefix" data-key="summary_total_hours_prefix_month">✅ Tổng giờ làm việc trong tháng:</span> <span id="totalHours" class="work-hours">0.00</span> <span data-key="summary_hours_suffix">giờ</span></p>
 
@@ -290,6 +276,7 @@
             hourlyRate: document.getElementById('hourlyRate'),
             languageSelect: document.getElementById('languageSelect'),
             monthYearDisplay: document.getElementById('monthYearDisplay'), 
+            timeModal: document.getElementById('timeModal'),
             
             // Time Modal
             modalTimeIn: document.getElementById('modalTimeIn'),
@@ -313,7 +300,7 @@
 
         // --- Dịch thuật (Translations) ---
         const translations = {
-            'vi': { 
+            'vi': { /* ... Dữ liệu dịch thuật Tiếng Việt như cũ ... */
                 title: 'Bảng Chấm Công Theo Tháng',
                 label_lang: 'Ngôn ngữ:',
                 currencyCode: 'VND',
@@ -327,13 +314,13 @@
                 summary_hours_suffix: 'giờ',
                 summary_total_income_month: '💵 TỔNG THU NHẬP DỰ KIẾN ',
                 month_names: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
-                               "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"],
+                                         "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"],
                 modal_title_prefix: 'Nhập Giờ Công',
                 btn_cancel: 'Hủy',
                 btn_delete: 'Xóa',
                 btn_save: 'Chọn',
             },
-            'en': { 
+            'en': { /* ... Dữ liệu dịch thuật English như cũ ... */
                 title: 'Monthly Timesheet',
                 label_lang: 'Language:',
                 currencyCode: 'USD',
@@ -347,13 +334,13 @@
                 summary_hours_suffix: 'hours',
                 summary_total_income_month: '💵 ESTIMATED TOTAL INCOME for ',
                 month_names: ["January", "February", "March", "April", "May", "June",
-                               "July", "August", "September", "October", "November", "December"],
+                                         "July", "August", "September", "October", "November", "December"],
                 modal_title_prefix: 'Enter Timesheet - Day',
                 btn_cancel: 'Cancel',
                 btn_delete: 'Delete',
                 btn_save: 'Save',
             },
-            'ko': { 
+            'ko': { /* ... Dữ liệu dịch thuật Korean như cũ ... */
                 title: '월간 근무 시간표',
                 label_lang: '언어:',
                 currencyCode: 'KRW',
@@ -367,7 +354,7 @@
                 summary_hours_suffix: '시간',
                 summary_total_income_month: '💵 예상 총 수입 ',
                 month_names: ["1월", "2월", "3월", "4월", "5월", "6월",
-                               "7월", "8월", "9월", "10월", "11월", "12월"],
+                                         "7월", "8월", "9월", "10월", "11월", "12월"],
                 modal_title_prefix: '근무 시간 입력 - 날짜',
                 btn_cancel: '취소',
                 btn_delete: '삭제',
@@ -414,6 +401,7 @@
                 if (savedLang) {
                     DOM.languageSelect.value = savedLang;
                 } else {
+                    // CẬP NHẬT JAVASCRIPT: Đặt mặc định là 'ko' nếu chưa có lưu trữ
                     DOM.languageSelect.value = 'ko';
                 }
             } catch (e) {
@@ -516,8 +504,8 @@
                         element.innerHTML = `${t.modal_title_prefix}${day}`;
                     }
                     else if (key !== 'h1_month_title' &&
-                                     key !== 'summary_total_hours_prefix_month' &&
-                                     key !== 'summary_total_income_month') {
+                                 key !== 'summary_total_hours_prefix_month' &&
+                                 key !== 'summary_total_income_month') {
                         element.textContent = t[key];
                     }
                 }
