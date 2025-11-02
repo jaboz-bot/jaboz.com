@@ -6,12 +6,10 @@
     <title data-key="title">Bảng Chấm Công Theo Tháng</title>
     <style>
         html, body {
-            margin: 0; font-family: Arial, sans-serif;
-            /* height: 100%; ĐÃ BỊ XÓA Ở ĐÂY */
+            height: 100%; margin: 0; font-family: Arial, sans-serif;
         }
         body {
-            background-color: #f4f7f6; 
-            /* BỎ display: flex; và justify-content: center; */
+            background-color: #f4f7f6; min-height: 100vh; display: flex; justify-content: center;
         }
         .container {
             max-width: 900px; 
@@ -20,15 +18,175 @@
             padding: 20px; 
             background: #fff;
             display: flex; 
-            flex-direction: column; 
+            flex-direction: column;
+            /* Giữ chiều cao linh hoạt để cuộn theo nội dung, nhưng giới hạn tối đa nếu cần */
+            max-height: 90vh; 
         }
-        /* ... (CSS còn lại giữ nguyên) ... */
+        .header-controls {
+            display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; flex-shrink: 0;
+        }
+        .top-row {
+            display: flex; justify-content: space-between; align-items: center; width: 100%;
+        }
+
+        /* --- CẬP NHẬT CSS ĐỂ HIỂN THỊ THÁNG/NĂM GÓC TRÁI --- */
+        .month-navigator {
+            display: flex;
+            align-items: center;
+            gap: 5px; 
+        }
+        .year-display {
+            font-size: 1.4em; font-weight: bold; color: #27ae60; padding: 5px;
+            order: unset !important;
+        }
+        h1 {
+            text-align: left;
+            color: #2c3e50; 
+            margin: 0; 
+            font-size: 1.5em; 
+            width: auto;
+            order: unset !important;
+        }
+        /* -------------------------------------------------- */
+
+        .controls {
+            display: flex; gap: 15px; justify-content: flex-end; align-items: center;
+        }
+        .control-group label {
+            font-weight: bold; color: #555; font-size: 0.9em;
+        }
+        h1 .nav-arrow {
+            cursor: pointer; padding: 0 5px; user-select: none;
+        }
+        .calendar-header {
+            text-align: center; font-size: 1.2em; margin-bottom: 15px; color: #3498db;
+        }
+        .rate-input-group {
+            display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 0.9em;
+        }
         
-        .calendar-table {
-            width: 100%; table-layout: fixed; border-collapse: collapse;
-            /* flex-grow: 1; ĐÃ BỊ XÓA Ở ĐÂY */
+        /* --- VÙNG CHỨA BẢNG ĐƯỢC THIẾT KẾ ĐỂ CUỘN --- */
+        .calendar-wrapper {
+            flex-grow: 1; /* Cho phép phần này chiếm không gian còn lại */
+            overflow-y: auto; /* Kích hoạt cuộn dọc khi nội dung vượt quá chiều cao */
+            min-height: 200px; /* Chiều cao tối thiểu để có thể cuộn */
+            margin-bottom: 10px; /* Khoảng cách với phần Summary */
         }
-        /* ... (CSS còn lại giữ nguyên) ... */
+
+        .calendar-table {
+            width: 100%; table-layout: fixed; border-collapse: collapse; 
+        }
+        .calendar-table th, .calendar-table td {
+            border: 1px solid #bdc3c7; padding: 0; text-align: center; font-size: 0.7em;
+        }
+        .calendar-table th {
+            background-color: #ecf0f1; color: #2c3e50; padding: 5px 0; position: sticky; top: 0; z-index: 10; /* Giữ header bảng cố định khi cuộn */
+        }
+        .calendar-table th:first-child {
+            color: #e74c3c;
+        }
+        .calendar-table tr td:first-child {
+            background-color: #fcebeb;
+        }
+        .calendar-table td:empty {
+            background-color: #e0e0e0 !important; cursor: default;
+        }
+        .day-cell {
+            vertical-align: top; width: 14.28%; min-height: 50px; background-color: #fcfcfc;
+            position: relative; cursor: pointer; user-select: none;
+        }
+        .day-number {
+            font-weight: bold; font-size: 1.1em; display: block; position: absolute;
+            top: 2px; left: 5px; color: #2980b9;
+        }
+        .work-display {
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            font-weight: bold; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 95%; padding: 2px 0;
+        }
+        .work-display span {
+            line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            width: 100%; text-align: center;
+        }
+        .work-hours-in-cell {
+            color: #27ae60; font-size: 0.9em;
+        }
+        .work-amount-in-cell {
+            color: #e74c3c; font-size: 1em;
+        }
+        /* ----------------------------------------------------- */
+        
+        .summary {
+            margin-top: 10px; padding: 10px; border-top: 3px double #3498db; background-color: #eaf6fd;
+            border-radius: 5px; flex-shrink: 0;
+        }
+        .summary p {
+            font-size: 1em; margin: 8px 0; font-weight: 500;
+        }
+        .total-amount {
+            font-size: 1.6em; color: #e74c3c; font-weight: bold;
+        }
+        #totalHours {
+            color: green; font-weight: bold;
+        }
+        
+        /* --- MODAL STYLES (Time Modal) --- */
+        .modal {
+            position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto;
+            background-color: rgba(0,0,0,0.6); display: none; justify-content: center;
+            align-items: center; box-sizing: border-box;
+        }
+        .modal-content {
+            background-color: #fefefe; padding: 20px; border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3); width: 90%; max-width: 400px;
+            display: flex; flex-direction: column; gap: 15px; align-items: stretch; box-sizing: border-box;
+        }
+        .modal-content h2 {
+            margin: 0 0 5px 0; color: #3498db; text-align: center;
+        }
+        .time-input-group, .text-input-group {
+            display: flex; flex-direction: column; gap: 5px;
+        }
+        .time-input-group label, .text-input-group label {
+            font-weight: bold; color: #2c3e50; font-size: 1em;
+        }
+        .modal-content input[type="time"],
+        .modal-content input[type="text"],
+        .modal-content input[type="date"] {
+            padding: 10px; border: 1px solid #bdc3c7; border-radius: 5px; font-size: 1.2em;
+            text-align: center; width: 100%; box-sizing: border-box;
+        }
+        .modal-actions {
+            display: flex; justify-content: space-between; margin-top: 10px;
+        }
+        .modal-actions button {
+            padding: 10px 10px; border: none; border-radius: 5px; font-size: 1em; cursor: pointer;
+            flex: 1; margin: 0 5px;
+        }
+        .modal-actions button:first-child {
+            margin-left: 0;
+        }
+        .modal-actions button:last-child {
+            margin-right: 0;
+        }
+        .modal-actions button.cancel {
+            background-color: #ecf0f1; color: #2c3e50;
+        }
+        .modal-actions button.delete {
+            background-color: #f39c12; color: white;
+        }
+        .modal-actions button.save {
+            background-color: #3498db; color: white;
+        }
+
+        @media (max-width: 767px) {
+            .container {
+                padding: 10px; min-height: auto;
+            }
+            .day-cell {
+                min-height: 50px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -65,23 +223,24 @@
             </div>
             <p id="note" class="note" data-key="note_calc"></p>
         </div>
-
-        <table class="calendar-table">
-            <thead>
-                <tr id="tableHeaders">
-                    <th data-key="th_sun">CN</th>
-                    <th data-key="th_mon">T2</th>
-                    <th data-key="th_tue">T3</th>
-                    <th data-key="th_wed">T4</th>
-                    <th data-key="th_thu">T5</th>
-                    <th data-key="th_fri">T6</th>
-                    <th data-key="th_sat">T7</th>
-                </tr>
-            </thead>
-            <tbody id="calendarBody">
-            </tbody>
-        </table>
-
+        
+        <div class="calendar-wrapper">
+            <table class="calendar-table">
+                <thead>
+                    <tr id="tableHeaders">
+                        <th data-key="th_sun">CN</th>
+                        <th data-key="th_mon">T2</th>
+                        <th data-key="th_tue">T3</th>
+                        <th data-key="th_wed">T4</th>
+                        <th data-key="th_thu">T5</th>
+                        <th data-key="th_fri">T6</th>
+                        <th data-key="th_sat">T7</th>
+                    </tr>
+                </thead>
+                <tbody id="calendarBody">
+                </tbody>
+            </table>
+        </div>
         <div class="summary">
             <p><span id="summaryHoursPrefix" data-key="summary_total_hours_prefix_month">✅ Tổng giờ làm việc trong tháng:</span> <span id="totalHours" class="work-hours">0.00</span> <span data-key="summary_hours_suffix">giờ</span></p>
 
@@ -90,7 +249,7 @@
             <div id="totalAmount" class="total-amount">0 VND</div>
         </div>
     </div>
-    <div style="padding: 20px; text-align: center; color: #888;">-- Hết Nội Dung Chính --</div> 
+
     <div id="timeModal" class="modal">
         <div class="modal-content">
             <h2 data-key="modal_title_prefix">Nhập Giờ Công <span id="modalDayNumber"></span></h2>
@@ -153,13 +312,69 @@
         const getTimesheetKey = () => `timeData-${currentYear}-${currentMonth + 1}`;
 
         // --- Dịch thuật (Translations) ---
-        // (Giữ nguyên khối translations như bạn cung cấp)
         const translations = {
-            'vi': { title: 'Bảng Chấm Công Theo Tháng', label_lang: 'Ngôn ngữ:', currencyCode: 'VND', currencyLocale: 'vi-VN', h1_month_title: '', label_rate: '💰 Lương/giờ:', note_calc: '', th_sun: 'CN', th_mon: 'T2', th_tue: 'T3', th_wed: 'T4', th_thu: 'T5', th_fri: 'T6', th_sat: 'T7', in: 'Vào:', out: 'Ra:', hour_suffix: 'giờ', summary_total_hours_prefix_month: '✅ Tổng giờ làm việc trong', summary_hours_suffix: 'giờ', summary_total_income_month: '💵 TỔNG THU NHẬP DỰ KIẾN', month_names: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"], modal_title_prefix: 'Nhập Giờ Công', btn_cancel: 'Hủy', btn_delete: 'Xóa', btn_save: 'Chọn', },
-            'en': { title: 'Monthly Timesheet', label_lang: 'Language:', currencyCode: 'USD', currencyLocale: 'en-US', h1_month_title: '', label_rate: '💰 Hourly Rate:', note_calc: '', th_sun: 'Sun', th_mon: 'Mon', th_tue: 'Tue', th_wed: 'Wed', th_thu: 'Thu', th_fri: 'Fri', th_sat: 'Sat', in: 'In:', out: 'Out:', hour_suffix: 'hours', summary_total_hours_prefix_month: '✅ Total work hours for', summary_hours_suffix: 'hours', summary_total_income_month: '💵 ESTIMATED TOTAL INCOME for', month_names: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"], modal_title_prefix: 'Enter Timesheet - Day', btn_cancel: 'Cancel', btn_delete: 'Delete', btn_save: 'Save', },
-            'ko': { title: '월간 근무 시간표', label_lang: '언어:', currencyCode: 'KRW', currencyLocale: 'ko-KR', h1_month_title: '', label_rate: '💰 시간당 임금:', note_calc: '', th_sun: '일', th_mon: '월', th_tue: '화', th_wed: '수', th_thu: '목', th_fri: '금', th_sat: '토', in: '출근:', out: '퇴근:', hour_suffix: '시간', summary_total_hours_prefix_month: '✅ 총 근무 시간', summary_hours_suffix: '시간', summary_total_income_month: '💵 예상 총 수입', month_names: ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"], modal_title_prefix: '근무 시간 입력 - 날짜', btn_cancel: '취소', btn_delete: '삭제', btn_save: '선택', }
-        };
-        const getT = () => translations[DOM.languageSelect.value];
+            'vi': { 
+                title: 'Bảng Chấm Công Theo Tháng',
+                label_lang: 'Ngôn ngữ:',
+                currencyCode: 'VND',
+                currencyLocale: 'vi-VN',
+                h1_month_title: '',
+                label_rate: '💰 Lương/giờ:',
+                note_calc: '',
+                th_sun: 'CN', th_mon: 'T2', th_tue: 'T3', th_wed: 'T4', th_thu: 'T5', th_fri: 'T6', th_sat: 'T7',
+                in: 'Vào:', out: 'Ra:', hour_suffix: 'giờ',
+                summary_total_hours_prefix_month: '✅ Tổng giờ làm việc trong ',
+                summary_hours_suffix: 'giờ',
+                summary_total_income_month: '💵 TỔNG THU NHẬP DỰ KIẾN ',
+                month_names: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
+                               "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"],
+                modal_title_prefix: 'Nhập Giờ Công',
+                btn_cancel: 'Hủy',
+                btn_delete: 'Xóa',
+                btn_save: 'Chọn',
+            },
+            'en': { 
+                title: 'Monthly Timesheet',
+                label_lang: 'Language:',
+                currencyCode: 'USD',
+                currencyLocale: 'en-US',
+                h1_month_title: '',
+                label_rate: '💰 Hourly Rate:',
+                note_calc: '',
+                th_sun: 'Sun', th_mon: 'Mon', th_tue: 'Tue', th_wed: 'Wed', th_thu: 'Thu', th_fri: 'Fri', th_sat: 'Sat',
+                in: 'In:', out: 'Out:', hour_suffix: 'hours',
+                summary_total_hours_prefix_month: '✅ Total work hours for ',
+                summary_hours_suffix: 'hours',
+                summary_total_income_month: '💵 ESTIMATED TOTAL INCOME for ',
+                month_names: ["January", "February", "March", "April", "May", "June",
+                               "July", "August", "September", "October", "November", "December"],
+                modal_title_prefix: 'Enter Timesheet - Day',
+                btn_cancel: 'Cancel',
+                btn_delete: 'Delete',
+                btn_save: 'Save',
+            },
+            'ko': { 
+                title: '월간 근무 시간표',
+                label_lang: '언어:',
+                currencyCode: 'KRW',
+                currencyLocale: 'ko-KR',
+                h1_month_title: '',
+                label_rate: '💰 시간당 임금:',
+                note_calc: '',
+                th_sun: '일', th_mon: '월', th_tue: '화', th_wed: '수', th_thu: '목', th_fri: '금', th_sat: '토',
+                in: '출근:', out: '퇴근:', hour_suffix: '시간',
+                summary_total_hours_prefix_month: '✅ 총 근무 시간 ',
+                summary_hours_suffix: '시간',
+                summary_total_income_month: '💵 예상 총 수입 ',
+                month_names: ["1월", "2월", "3월", "4월", "5월", "6월",
+                               "7월", "8월", "9월", "10월", "11월", "12월"],
+                modal_title_prefix: '근무 시간 입력 - 날짜',
+                btn_cancel: '취소',
+                btn_delete: '삭제',
+                btn_save: '선택',
+            }
+        };
+        const getT = () => translations[DOM.languageSelect.value];
 
         // --- Logic Tính Toán và Lưu Trữ (Calculation & Storage Logic) ---
         function calculateWorkHours(timeIn, timeOut) {
@@ -199,7 +414,6 @@
                 if (savedLang) {
                     DOM.languageSelect.value = savedLang;
                 } else {
-                    // CẬP NHẬT JAVASCRIPT: Đặt mặc định là 'ko' nếu chưa có lưu trữ
                     DOM.languageSelect.value = 'ko';
                 }
             } catch (e) {
@@ -302,8 +516,8 @@
                         element.innerHTML = `${t.modal_title_prefix}${day}`;
                     }
                     else if (key !== 'h1_month_title' &&
-                             key !== 'summary_total_hours_prefix_month' &&
-                             key !== 'summary_total_income_month') {
+                                     key !== 'summary_total_hours_prefix_month' &&
+                                     key !== 'summary_total_income_month') {
                         element.textContent = t[key];
                     }
                 }
