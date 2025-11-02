@@ -5,27 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-key="title">Bảng Chấm Công Theo Tháng</title>
     <style>
-        html, body {
-            height: auto; /* Đã sửa: Thay vì 100%, để auto để nội dung không bị ép */
+        /* === SỬA LỖI THANH TRƯỢT === */
+        html {
+            height: 100%; /* Đảm bảo HTML có chiều cao để body bám vào */
             margin: 0;
             font-family: Arial, sans-serif;
         }
         body {
             background-color: #f4f7f6;
-            min-height: 100vh; /* Giữ lại để đảm bảo có nền */
-            display: flex;
-            justify-content: center;
+            min-height: 100vh; 
+            margin: 0;
+            padding: 20px 0; /* Tạo khoảng trống trên/dưới cho container */
+            /* LOẠI BỎ display: flex; justify-content: center; khỏi body */
         }
         .container {
             max-width: 900px; 
             width: 95%; 
-            margin: 20px auto; 
+            margin: 0 auto; /* Chỉ căn giữa theo chiều ngang */
             padding: 20px; 
             background: #fff;
             display: flex; 
-            flex-direction: column; /* Giữ lại flex-direction column */
-            /* flex-grow: 1; Không cần thiết nếu không có container mẹ lớn hơn */
+            flex-direction: column; 
+            box-shadow: 0 0 10px rgba(0,0,0,0.1); /* Thêm bóng đổ nhẹ cho đẹp */
         }
+        /* ============================ */
+        
         .header-controls {
             display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; flex-shrink: 0;
         }
@@ -33,7 +37,6 @@
             display: flex; justify-content: space-between; align-items: center; width: 100%;
         }
 
-        /* --- CẬP NHẬT CSS ĐỂ HIỂN THỊ THÁNG/NĂM GÓC TRÁI --- */
         .month-navigator {
             display: flex;
             align-items: center;
@@ -51,7 +54,6 @@
             width: auto;
             order: unset !important;
         }
-        /* -------------------------------------------------- */
 
         .controls {
             display: flex; gap: 15px; justify-content: flex-end; align-items: center;
@@ -109,21 +111,11 @@
         .work-amount-in-cell {
             color: #e74c3c; font-size: 1em;
         }
-        
-        /* --- LOẠI BỎ PHẦN SUMMARY --- */
+        /* Giữ lại khối Summary ẩn để JS vẫn có thể tham chiếu các ID tính toán */
         .summary {
-            display: none; /* Ẩn hoàn toàn phần summary */
+            display: none; 
         }
-        /* -------------------------- */
-
-        .total-amount {
-            font-size: 1.6em; color: #e74c3c; font-weight: bold;
-        }
-        #totalHours {
-            color: green; font-weight: bold;
-        }
-        
-        /* --- MODAL STYLES (Time Modal) --- */
+        /* Giữ lại các style Modal */
         .modal {
             position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto;
             background-color: rgba(0,0,0,0.6); display: none; justify-content: center;
@@ -156,12 +148,6 @@
             padding: 10px 10px; border: none; border-radius: 5px; font-size: 1em; cursor: pointer;
             flex: 1; margin: 0 5px;
         }
-        .modal-actions button:first-child {
-            margin-left: 0;
-        }
-        .modal-actions button:last-child {
-            margin-right: 0;
-        }
         .modal-actions button.cancel {
             background-color: #ecf0f1; color: #2c3e50;
         }
@@ -175,10 +161,6 @@
         @media (max-width: 767px) {
             .container {
                 padding: 10px;
-                min-height: auto; /* Đã sửa */
-            }
-            .day-cell {
-                min-height: 50px;
             }
         }
     </style>
@@ -236,6 +218,12 @@
 
         </div>
 
+    <div class="summary" style="display: none;">
+        <p><span id="summaryHoursPrefix" data-key="summary_total_hours_prefix_month"></span> <span id="totalHours" class="work-hours">0.00</span> <span data-key="summary_hours_suffix"></span></p>
+        <p><span id="summaryIncomePrefix" data-key="summary_total_income_month"></span></p>
+        <div id="totalAmount" class="total-amount">0 VND</div>
+    </div>
+
     <div id="timeModal" class="modal">
         <div class="modal-content">
             <h2 data-key="modal_title_prefix">Nhập Giờ Công <span id="modalDayNumber"></span></h2>
@@ -259,7 +247,7 @@
     </div>
 
     <script>
-        // === JavaScript Logic (Modified) ===
+        // === JavaScript Logic (Minimal Changes) ===
 
         let currentMonth = new Date().getMonth(); 
         let currentYear = new Date().getFullYear();
@@ -288,6 +276,13 @@
             // Navigation
             prevMonthArrow: document.getElementById('prevMonthArrow'),
             nextMonthArrow: document.getElementById('nextMonthArrow'),
+            
+            // Summary (Giữ lại để JS không bị lỗi)
+            totalHours: document.getElementById('totalHours'),
+            totalAmount: document.getElementById('totalAmount'),
+            summaryHoursPrefix: document.getElementById('summaryHoursPrefix'),
+            summaryIncomePrefix: document.getElementById('summaryIncomePrefix'),
+            summaryHoursSuffix: document.querySelector('[data-key="summary_hours_suffix"]'),
         };
 
         // Storage Keys
@@ -401,6 +396,7 @@
                 if (savedLang) {
                     DOM.languageSelect.value = savedLang;
                 } else {
+                    // CẬP NHẬT JAVASCRIPT: Đặt mặc định là 'ko' nếu chưa có lưu trữ
                     DOM.languageSelect.value = 'ko';
                 }
             } catch (e) {
@@ -453,20 +449,20 @@
                 }
             });
 
-            // *** CẬP NHẬT ĐỂ LOẠI BỎ HIỂN THỊ TỔNG KẾT ***
-            // Các dòng dưới đây bị thay đổi/loại bỏ để không hiển thị tổng kết
-            // Nếu bạn muốn tính toán để sử dụng ở nơi khác, bạn có thể giữ lại `totalHours`
-            // và `saveDataToLocalStorage()` vẫn sẽ lưu `timeData`
-            
-            // Ví dụ: Cập nhật chỉ để lưu trữ và không hiển thị ra ngoài DOM
-            // (Phần hiển thị dưới đây đã được loại bỏ khỏi HTML, nên các cập nhật DOM sau đây sẽ bị bỏ qua hoặc cần thêm vào nơi khác)
-            
-            // document.getElementById('totalHours').textContent = totalHours.toFixed(2);
-            // document.querySelector('[data-key="summary_hours_suffix"]').textContent = t.summary_hours_suffix;
-            // document.getElementById('summaryHoursPrefix').textContent = `${t.summary_total_hours_prefix_month} ${currentMonthName}:`;
-            // document.getElementById('summaryIncomePrefix').textContent = `${t.summary_total_income_month} ${currentMonthName}:`;
-            // document.getElementById('totalAmount').textContent = totalAmountFinal.toLocaleString(locale, { ... });
-            
+            // Update Final Summary (Dù đã ẩn nhưng vẫn cần cập nhật giá trị trong DOM để JS không bị lỗi)
+            const totalAmountFinal = totalHours * hourlyRate;
+            DOM.totalHours.textContent = totalHours.toFixed(2);
+            DOM.summaryHoursSuffix.textContent = t.summary_hours_suffix;
+
+            DOM.summaryHoursPrefix.textContent = `${t.summary_total_hours_prefix_month} ${currentMonthName}:`;
+            DOM.summaryIncomePrefix.textContent = `${t.summary_total_income_month} ${currentMonthName}:`;
+
+            DOM.totalAmount.textContent = totalAmountFinal.toLocaleString(locale, {
+                style: 'currency',
+                currency: currency,
+                minimumFractionDigits: (currency === 'VND' || currency === 'KRW') ? 0 : 2
+            });
+
             saveDataToLocalStorage();
         }
 
@@ -523,9 +519,6 @@
             let firstDayOfWeek = date.getDay();
             let row = DOM.calendarBody.insertRow();
 
-            // Chủ nhật (0) trong JS tương đương với CN (thẻ đầu tiên) nếu múi giờ khớp.
-            // Nếu múi giờ của bạn bắt đầu từ Thứ Hai, bạn có thể cần điều chỉnh firstDayOfWeek.
-            // Giả sử: 0=CN, 1=T2, ..., 6=T7 (Giống cấu trúc CSS: CN, T2, T3, T4, T5, T6, T7)
             for (let i = 0; i < firstDayOfWeek; i++) {
                 row.insertCell().innerHTML = '';
             }
@@ -559,7 +552,7 @@
                 row.insertCell().innerHTML = '';
             }
 
-            updateSummary(); // Vẫn gọi để cập nhật dữ liệu giờ làm trên từng ô
+            updateSummary();
         }
 
         // --- Logic Modal Giờ Công (Time Modal Logic) ---
