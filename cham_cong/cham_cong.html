@@ -60,12 +60,13 @@
             text-align: center; font-size: 1.2em; margin-bottom: 15px; color: #3498db;
             display: flex; 
             flex-direction: column; 
-            align-items: center; /* căn giữa các phần tử bên trong */
+            align-items: center; 
             gap: 10px;
         }
         .rate-input-group {
             display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 0.9em;
         }
+
         /* Style cho nút Thêm Nơi Làm Việc */
         #addWorkplaceButton {
             padding: 8px 15px;
@@ -82,6 +83,60 @@
             background-color: #2980b9;
         }
 
+        /* -------------------------------------------------- */
+        /* --- STYLE CHO CAROUSEL NƠI LÀM VIỆC MỚI --- */
+        #workplaceCarousel {
+            width: 100%;
+            overflow-x: hidden; /* Ẩn phần tử bị tràn ra khỏi khung */
+            scroll-snap-type: x mandatory; /* Bắt buộc cuộn dừng tại từng item */
+            -webkit-overflow-scrolling: touch; /* Tăng trải nghiệm cuộn trên iOS */
+            display: flex;
+            gap: 10px; /* Khoảng cách giữa các item */
+            margin-bottom: 15px;
+            padding: 5px 0;
+            border-bottom: 1px dashed #ccc;
+        }
+        .workplace-item-wrapper {
+            flex: 0 0 100%; /* Đảm bảo mỗi item chiếm trọn 100% chiều rộng của carousel */
+            scroll-snap-align: start;
+            padding: 0 5px; /* Để tạo khoảng đệm nhỏ */
+            box-sizing: border-box;
+        }
+        .workplace-item {
+            background-color: #eaf6fd;
+            border: 1px solid #3498db;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: left;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .workplace-item h3 {
+            margin: 0 0 5px 0;
+            font-size: 1.1em;
+            color: #2c3e50;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .workplace-item p {
+            margin: 3px 0;
+            font-size: 0.9em;
+            color: #555;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .status-tag {
+            display: inline-block;
+            padding: 2px 6px;
+            background-color: #2ecc71;
+            color: white;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+        /* -------------------------------------------------- */
 
         .calendar-table {
             width: 100%; table-layout: fixed; border-collapse: collapse; flex-grow: 1;
@@ -237,7 +292,10 @@
 
         <div class="calendar-header">
             <button id="addWorkplaceButton" data-key="btn_add_workplace">➕ Thêm Nơi Làm Việc</button>
-
+            
+            <div id="workplaceCarousel">
+                <p id="noWorkplaceMessage" style="text-align:center; width:100%; color:#777; font-size:0.9em;">Chưa có nơi làm việc nào được thêm.</p>
+            </div>
             <div class="rate-input-group">
                 <span data-key="label_rate">💰 Lương/giờ:</span>
 
@@ -333,7 +391,7 @@
 
 
     <script>
-        // === JavaScript Logic (Minimal Changes) ===
+        // === JavaScript Logic ===
 
         let currentMonth = new Date().getMonth(); 
         let currentYear = new Date().getFullYear();
@@ -352,8 +410,10 @@
             languageSelect: document.getElementById('languageSelect'),
             monthYearDisplay: document.getElementById('monthYearDisplay'), 
             timeModal: document.getElementById('timeModal'),
-            workplaceModal: document.getElementById('workplaceModal'), // Modal mới
-            addWorkplaceButton: document.getElementById('addWorkplaceButton'), // Nút mới
+            workplaceModal: document.getElementById('workplaceModal'), 
+            addWorkplaceButton: document.getElementById('addWorkplaceButton'), 
+            workplaceCarousel: document.getElementById('workplaceCarousel'), // Carousel mới
+            noWorkplaceMessage: document.getElementById('noWorkplaceMessage'), // Thông báo chưa có nơi làm việc
             
             // Time Modal
             modalTimeIn: document.getElementById('modalTimeIn'),
@@ -380,7 +440,7 @@
         const STORAGE_KEY = {
             RATE: 'hourlyRate',
             LANGUAGE: 'appLanguage',
-            WORKPLACES: 'workplaceData', // Key mới
+            WORKPLACES: 'workplaceData', 
         };
 
         const getTimesheetKey = () => `timeData-${currentYear}-${currentMonth + 1}`;
@@ -406,7 +466,6 @@
                 btn_cancel: 'Hủy',
                 btn_delete: 'Xóa',
                 btn_save: 'Chọn',
-                // Dịch cho phần Nơi làm việc mới
                 btn_add_workplace: '➕ Thêm Nơi Làm Việc',
                 modal_workplace_title: 'Thêm Nơi Làm Việc',
                 label_workplace_name: 'Tên Cửa Hàng/Công Ty:',
@@ -414,6 +473,7 @@
                 label_start_date: 'Ngày Bắt Đầu:',
                 label_end_date: 'Ngày Kết Thúc:',
                 label_current_status: 'Đang Làm',
+                status_working: 'Đang Làm',
             },
             'en': { 
                 title: 'Monthly Timesheet',
@@ -434,7 +494,6 @@
                 btn_cancel: 'Cancel',
                 btn_delete: 'Delete',
                 btn_save: 'Save',
-                // Dịch cho phần Nơi làm việc mới
                 btn_add_workplace: '➕ Add Workplace',
                 modal_workplace_title: 'Add Workplace',
                 label_workplace_name: 'Store/Company Name:',
@@ -442,6 +501,7 @@
                 label_start_date: 'Start Date:',
                 label_end_date: 'End Date:',
                 label_current_status: 'Currently Working',
+                status_working: 'Working',
             },
             'ko': { 
                 title: '월간 근무 시간표',
@@ -462,7 +522,6 @@
                 btn_cancel: '취소',
                 btn_delete: '삭제',
                 btn_save: '선택',
-                // Dịch cho phần Nơi làm việc mới
                 btn_add_workplace: '➕ 근무지 추가',
                 modal_workplace_title: '근무지 추가',
                 label_workplace_name: '상점/회사 이름:',
@@ -470,13 +529,13 @@
                 label_start_date: '시작일:',
                 label_end_date: '종료일:',
                 label_current_status: '재직 중',
+                status_working: '재직 중',
             }
         };
         const getT = () => translations[DOM.languageSelect.value];
 
         // --- Logic Tính Toán và Lưu Trữ (Calculation & Storage Logic) ---
         function calculateWorkHours(timeIn, timeOut) {
-            // ... (Hàm tính giờ làm vẫn giữ nguyên)
             if (!timeIn || !timeOut) return 0;
             const [hIn, mIn] = timeIn.split(':').map(Number);
             const [hOut, mOut] = timeOut.split(':').map(Number);
@@ -494,7 +553,6 @@
                 localStorage.setItem(getTimesheetKey(), JSON.stringify(timeData));
                 localStorage.setItem(STORAGE_KEY.RATE, DOM.hourlyRate.value);
                 localStorage.setItem(STORAGE_KEY.LANGUAGE, DOM.languageSelect.value);
-                // LƯU DỮ LIỆU NƠI LÀM VIỆC
                 localStorage.setItem(STORAGE_KEY.WORKPLACES, JSON.stringify(workplaceData)); 
             } catch (e) {
                 console.error("Could not save data to localStorage", e);
@@ -518,7 +576,6 @@
                     DOM.languageSelect.value = 'ko';
                 }
 
-                // TẢI DỮ LIỆU NƠI LÀM VIỆC
                 const savedWorkplaces = localStorage.getItem(STORAGE_KEY.WORKPLACES);
                 workplaceData = savedWorkplaces ? JSON.parse(savedWorkplaces) : [];
 
@@ -529,8 +586,8 @@
             }
         }
         
-        // ... (Hàm updateSummary, changeMonth, renderCalendar vẫn giữ nguyên)
         function updateSummary() {
+            // ... (Hàm này vẫn giữ nguyên logic tính toán, chỉ gọi saveDataToLocalStorage ở cuối)
             let totalHours = 0;
             const hourlyRate = parseFloat(DOM.hourlyRate.value) || 0;
             const t = getT();
@@ -623,11 +680,11 @@
                     }
                     else if (key !== 'h1_month_title' &&
                                  key !== 'summary_total_hours_prefix_month' &&
-                                 key !== 'summary_total_income_month') {
+                                 key !== 'summary_total_income_month' &&
+                                 key !== 'status_working') {
                         element.textContent = t[key];
                     }
                     else if (key === 'label_current_status') {
-                        // Cần xử lý riêng do có chú thích thêm trong HTML
                         element.textContent = t[key];
                     }
                 }
@@ -637,9 +694,11 @@
 
             saveDataToLocalStorage();
             renderCalendar();
+            renderWorkplaces(); // Gọi hàm render sau khi thiết lập ngôn ngữ
         }
 
         function renderCalendar() {
+            // ... (Hàm này vẫn giữ nguyên)
             DOM.calendarBody.innerHTML = '';
 
             const date = new Date(currentYear, currentMonth, 1);
@@ -682,8 +741,49 @@
             updateSummary();
         }
 
-        // --- Logic Modal Nơi Làm Việc (Workplace Modal Logic) ---
+        // --- HÀM MỚI: Render Carousel Nơi Làm Việc ---
+        function renderWorkplaces() {
+            DOM.workplaceCarousel.innerHTML = '';
+            
+            if (workplaceData.length === 0) {
+                DOM.workplaceCarousel.innerHTML = `<p style="text-align:center; width:100%; color:#777; font-size:0.9em;">Chưa có nơi làm việc nào được thêm.</p>`;
+                return;
+            }
 
+            const t = getT();
+
+            workplaceData.forEach(workplace => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'workplace-item-wrapper';
+
+                const item = document.createElement('div');
+                item.className = 'workplace-item';
+                
+                let endDateDisplay = workplace.endDate;
+                let statusTag = '';
+
+                if (workplace.isCurrent) {
+                    endDateDisplay = t.status_working; // Hiển thị "Đang Làm" theo ngôn ngữ
+                    statusTag = `<span class="status-tag">${t.status_working}</span>`;
+                }
+
+                item.innerHTML = `
+                    <h3>${workplace.name} ${statusTag}</h3>
+                    <p>Địa chỉ: ${workplace.address || 'N/A'}</p>
+                    <p>Ngày Bắt Đầu: ${workplace.startDate} - Ngày Kết Thúc: ${endDateDisplay}</p>
+                `;
+                
+                // Thêm sự kiện click (Tương lai: mở modal chỉnh sửa)
+                // item.addEventListener('click', () => editWorkplace(workplace.id));
+
+                wrapper.appendChild(item);
+                DOM.workplaceCarousel.appendChild(wrapper);
+            });
+        }
+        // -----------------------------------------------------------------
+
+
+        // --- Logic Modal Nơi Làm Việc (Workplace Modal Logic) ---
         function openWorkplaceModal() {
             // Xóa các giá trị cũ
             DOM.workplaceName.value = '';
@@ -716,31 +816,28 @@
             }
 
             const newWorkplace = {
-                id: Date.now(), // ID duy nhất
+                id: Date.now(), 
                 name: name,
                 address: address,
                 startDate: startDate,
-                endDate: isCurrent ? 'Đang Làm' : endDate, // Lưu 'Đang Làm' nếu checkbox được chọn
+                endDate: isCurrent ? '' : endDate, // Nếu Đang Làm, set endDate là rỗng
                 isCurrent: isCurrent
             };
             
-            // Hiện tại chỉ thêm vào mảng. Về sau có thể thêm logic kiểm tra trùng lặp
             workplaceData.push(newWorkplace);
             
             closeWorkplaceModal();
             saveDataToLocalStorage();
-            console.log("Dữ liệu nơi làm việc đã lưu:", workplaceData);
+            renderWorkplaces(); // Cập nhật hiển thị carousel ngay lập tức
             alert("Đã lưu thông tin nơi làm việc thành công!");
         }
 
-        // --- Event Listener cho Checkbox "Đang Làm" ---
+        // Event Listener cho Checkbox "Đang Làm"
         DOM.workplaceCurrentStatus.addEventListener('change', function() {
             if (this.checked) {
-                // Nếu "Đang Làm" được chọn, vô hiệu hóa và xóa giá trị Ngày Kết Thúc
                 DOM.workplaceEndDate.value = '';
                 DOM.workplaceEndDate.disabled = true;
             } else {
-                // Nếu không, kích hoạt lại Ngày Kết Thúc
                 DOM.workplaceEndDate.disabled = false;
             }
         });
@@ -794,6 +891,15 @@
             const touchEndX = event.changedTouches[0].clientX;
             const deltaX = touchEndX - touchStartX;
 
+            // Kiểm tra xem sự kiện vuốt có xảy ra trên Carousel không
+            const targetElement = event.target.closest('#workplaceCarousel');
+            if (targetElement) {
+                // Nếu vuốt trên carousel, chỉ xử lý cuộn của carousel
+                touchStartX = 0;
+                return;
+            }
+            
+            // Xử lý vuốt chuyển tháng nếu không phải vuốt trên carousel
             if (deltaX > SWIPE_THRESHOLD) {
                 changeMonth(-1);
             } else if (deltaX < -SWIPE_THRESHOLD) {
@@ -828,10 +934,10 @@
             document.querySelector('#workplaceModal .modal-content').addEventListener('click', (e) => e.stopPropagation());
 
 
-            // Event Listeners for Swipe
+            // Event Listeners for Swipe (container)
             DOM.container.addEventListener('touchstart', handleTouchStart, false);
             DOM.container.addEventListener('touchend', handleTouchEnd, false);
-
+            
             loadDataFromLocalStorage();
             setLanguage();
         };
