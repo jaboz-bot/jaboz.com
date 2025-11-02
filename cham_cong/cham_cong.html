@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -28,25 +28,22 @@
         }
 
         /* --- CẬP NHẬT CSS ĐỂ HIỂN THỊ THÁNG/NĂM GÓC TRÁI --- */
-        /* Nhóm navigator mới */
         .month-navigator {
             display: flex;
             align-items: center;
             gap: 5px; 
         }
-        /* Đảm bảo h1 chỉ chiếm không gian cần thiết */
         .year-display {
             font-size: 1.4em; font-weight: bold; color: #27ae60; padding: 5px;
-            order: unset !important; /* Đảm bảo không bị CSS h1 bên dưới ghi đè */
+            order: unset !important;
         }
-        /* Đảm bảo h1 chung không đẩy ra giữa/toàn bộ chiều ngang */
         h1 {
-            text-align: left; /* Đổi từ center */
+            text-align: left;
             color: #2c3e50; 
             margin: 0; 
             font-size: 1.5em; 
-            width: auto; /* Đổi từ 100% */
-            order: unset !important; /* Xóa order: 2 */
+            width: auto;
+            order: unset !important;
         }
         /* -------------------------------------------------- */
 
@@ -190,13 +187,14 @@
                     <h1 data-key="h1_month_year_display" id="monthYearDisplay" class="year-display"></h1>
                     <span class="nav-arrow" id="nextMonthArrow">▶️</span>
                 </div>
+
                 <div class="controls">
                     <div class="control-group">
                         <label data-key="label_lang" for="languageSelect">Ngôn ngữ:</label>
                         <select id="languageSelect">
                             <option value="vi">Tiếng Việt</option>
                             <option value="en">English</option>
-                            <option value="ko">한국어</option>
+                            <option value="ko" selected>한국어</option>
                         </select>
                     </div>
                 </div>
@@ -403,7 +401,8 @@
                 if (savedLang) {
                     DOM.languageSelect.value = savedLang;
                 } else {
-                    DOM.languageSelect.value = 'vi';
+                    // CẬP NHẬT JAVASCRIPT: Đặt mặc định là 'ko' nếu chưa có lưu trữ
+                    DOM.languageSelect.value = 'ko';
                 }
             } catch (e) {
                 console.error("Could not load data from localStorage", e);
@@ -492,12 +491,11 @@
 
             document.getElementById('currencyUnit').textContent = t.currencyCode;
             
-            // CẬP NHẬT JAVASCRIPT: Hiển thị tháng/năm theo định dạng MM/YYYY
+            // Hiển thị tháng/năm theo định dạng MM/YYYY
             const monthText = (currentMonth + 1).toString().padStart(2, '0');
             const monthYearText = `${monthText}/${currentYear}`;
             DOM.monthYearDisplay.textContent = monthYearText; 
-            // -------------------------------------------------------------
-
+            
             document.querySelectorAll('[data-key]').forEach(element => {
                 const key = element.getAttribute('data-key');
                 if (t[key] !== undefined) {
