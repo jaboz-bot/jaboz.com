@@ -12,14 +12,17 @@
             background-color: #f4f7f6; min-height: 100vh; display: flex; justify-content: center;
         }
         .container {
-            max-width: 900px; 
-            width: 95%; 
-            margin: 20px auto; 
-            padding: 20px; 
-            background: #fff;
-            display: flex; 
-            flex-direction: column; 
-        }
+    max-width: 900px; 
+    width: 95%; 
+    margin: 20px auto; 
+    padding: 20px; 
+    background: #fff;
+    display: flex; 
+    flex-direction: column; 
+    max-height: 90vh;      /* Giới hạn chiều cao */
+    overflow-y: auto;      /* Cho phép cuộn dọc */
+}
+
         .header-controls {
             display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; flex-shrink: 0;
         }
