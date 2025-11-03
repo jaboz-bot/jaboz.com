@@ -34,9 +34,7 @@ th{background:#eaf2f8}
     padding-bottom: 15px;
     text-align: center;
 }
-#workplace-actions {
-    margin: 10px 0;
-}
+/* ĐÃ CẬP NHẬT: Loại bỏ #workplace-actions vì nút đã được chuyển ra ngoài */
 #addWorkplaceBtn {
     padding: 8px 15px;
     background: #2ecc71;
@@ -45,6 +43,10 @@ th{background:#eaf2f8}
     border-radius: 5px;
     cursor: pointer;
     font-weight: bold;
+    /* Đảm bảo nút nằm trên một dòng và căn giữa */
+    display: block; 
+    width: fit-content;
+    margin: 10px auto 15px; /* Tăng khoảng cách dưới nút một chút */
 }
 
 /* HIỆU ỨNG CUỘN NGANG */
@@ -116,16 +118,12 @@ th{background:#eaf2f8}
     </div>
     
     <div id="workplace-management">
+        <button id="addWorkplaceBtn">➕ Thêm Nơi Làm Việc</button>
         
         <div id="workplace-list-container">
             <div id="workplace-list"></div>
         </div>
-        
-        <div id="workplace-actions">
-            <button id="addWorkplaceBtn">➕ Thêm Nơi Làm Việc</button>
-        </div>
-        </div>
-
+    </div>
     <table>
         <thead>
             <tr><th>CN</th><th>T2</th><th>T3</th><th>T4</th><th>T5</th><th>T6</th><th>T7</th></tr>
@@ -175,7 +173,7 @@ th{background:#eaf2f8}
 // --- KHAI BÁO BIẾN ---
 let currentMonth = new Date().getMonth();
 let currentYear = new Date().getFullYear();
-let workData = JSON.parse(localStorage.getItem('workData') || '{}'); 
+let workData = JSON.parse(localStorage.getItem('workData') || '{}'); 
 const rateInput = document.getElementById('rate');
 
 // BIẾN CHO QUẢN LÝ DANH SÁCH NƠI LÀM VIỆC
@@ -193,195 +191,202 @@ const deleteWorkplaceBtn = document.getElementById('deleteWorkplaceBtn');
 const isCurrentWork = document.getElementById('isCurrentWork');
 const endDateInput = document.getElementById('endDateInput');
 
-let editingIndex = -1; 
+let editingIndex = -1; 
 
 // --- HÀM CHUNG ---
 function daysInMonth(y,m){return new Date(y,m+1,0).getDate();}
 
 function updateSummary(){
-    const rate=parseFloat(rateInput.value)||0;
-    let totalH=0; 
-    for(const k in workData) totalH+=workData[k].hours||0;
-    
-    document.getElementById('totalHours').textContent=totalH.toFixed(2);
-    document.getElementById('totalPay').textContent=(totalH*rate).toLocaleString('vi-VN');
-    localStorage.setItem('workData',JSON.stringify(workData));
+    const rate=parseFloat(rateInput.value)||0;
+    let totalH=0; 
+    for(const k in workData) totalH+=workData[k].hours||0;
+    
+    document.getElementById('totalHours').textContent=totalH.toFixed(2);
+    document.getElementById('totalPay').textContent=(totalH*rate).toLocaleString('vi-VN');
+    localStorage.setItem('workData',JSON.stringify(workData));
 }
 
 function renderCalendar(){
-    const tbl=document.getElementById('calendar');
-    tbl.innerHTML='';
-    const firstDay=new Date(currentYear,currentMonth,1).getDay();
-    const totalDays=daysInMonth(currentYear,currentMonth);
-    document.getElementById('monthYear').textContent=`${currentMonth+1}/${currentYear}`;
-    let day=1; 
-    for(let r=0;r<6;r++){
-        const tr=document.createElement('tr');
-        for(let c=0;c<7;c++){
-            const td=document.createElement('td');
-            if(r===0&&c<firstDay||day>totalDays){
-                td.innerHTML='';
-            } else {
-                const dkey=`${currentYear}-${currentMonth+1}-${day}`;
-                const info=workData[dkey]||{};
-                td.className='day'; 
-                td.innerHTML=`<span>${day}</span>${info.hours?`<div>${info.hours.toFixed(2)}h</div>`:''}`;
-                td.onclick=()=>openModal(dkey);
-                day++;
-            }
-            tr.appendChild(td);
-        } 
-        tbl.appendChild(tr);
-        if(day>totalDays)break;
-    }
-    updateSummary();
+    const tbl=document.getElementById('calendar');
+    tbl.innerHTML='';
+    const firstDay=new Date(currentYear,currentMonth,1).getDay();
+    const totalDays=daysInMonth(currentYear,currentMonth);
+    document.getElementById('monthYear').textContent=`${currentMonth+1}/${currentYear}`;
+    let day=1; 
+    for(let r=0;r<6;r++){
+        const tr=document.createElement('tr');
+        for(let c=0;c<7;c++){
+            const td=document.createElement('td');
+            if(r===0&&c<firstDay||day>totalDays){
+                td.innerHTML='';
+            } else {
+                const dkey=`${currentYear}-${currentMonth+1}-${day}`;
+                const info=workData[dkey]||{};
+                td.className='day'; 
+                td.innerHTML=`<span>${day}</span>${info.hours?`<div>${info.hours.toFixed(2)}h</div>`:''}`;
+                td.onclick=()=>openModal(dkey);
+                day++;
+            }
+            tr.appendChild(td);
+        } 
+        tbl.appendChild(tr);
+        if(day>totalDays)break;
+    }
+    updateSummary();
 }
 
 function openModal(key){
-    const m=document.getElementById('timeModal');m.style.display='flex';
-    const dateParts=key.split('-');document.getElementById('modalDate').textContent=`${dateParts[2]}/${dateParts[1]}`;
-    m.dataset.key=key;
-    const info=workData[key]||{};
-    document.getElementById('timeIn').value=info.in||'09:00';
-    document.getElementById('timeOut').value=info.out||'18:00';
+    const m=document.getElementById('timeModal');m.style.display='flex';
+    const dateParts=key.split('-');document.getElementById('modalDate').textContent=`${dateParts[2]}/${dateParts[1]}`;
+    m.dataset.key=key;
+    const info=workData[key]||{};
+    document.getElementById('timeIn').value=info.in||'09:00';
+    document.getElementById('timeOut').value=info.out||'18:00';
 }
 
 // --- LOGIC NƠI LÀM VIỆC (ĐÃ TỐI GIẢN TỐI ĐA) ---
 
 function saveWorkplaces() {
-    localStorage.setItem('workplaces', JSON.stringify(workplaces));
-    localStorage.setItem('currentWorkplaceIndex', currentWorkplaceIndex);
-    renderWorkplaceList();
-    // Bỏ gọi hàm updateCurrentWorkplaceDisplay();
+    localStorage.setItem('workplaces', JSON.stringify(workplaces));
+    localStorage.setItem('currentWorkplaceIndex', currentWorkplaceIndex);
+    renderWorkplaceList();
+    // Bỏ gọi hàm updateCurrentWorkplaceDisplay();
 }
 
 // Bỏ hàm updateCurrentWorkplaceDisplay()
 
 function renderWorkplaceList() {
-    workplaceList.innerHTML = '';
-    workplaces.forEach((wp, index) => {
-        const card = document.createElement('div');
-        card.className = `workplace-card ${index === currentWorkplaceIndex ? 'selected' : ''}`;
-        card.dataset.index = index;
-        const dateDisplay = wp.endDate === 'Đang làm' ? 'Đang làm' : `${wp.startDate} - ${wp.endDate}`;
-        card.innerHTML = `<span class="store-name">${wp.storeName}</span><span class="date-range">${dateDisplay}</span>`;
-        
-        let clickTimer = null;
-        card.onclick = () => {
-            if (clickTimer === null) {
-                clickTimer = setTimeout(() => {
-                    // Xử lý chạm 1 lần (Chọn)
-                    currentWorkplaceIndex = index;
-                    saveWorkplaces();
-                    clickTimer = null;
-                }, 300); 
-            } else {
-                // Xử lý chạm 2 lần (Sửa)
-                clearTimeout(clickTimer);
-                clickTimer = null;
-                openWorkplaceModal(index);
-            }
-        };
+    workplaceList.innerHTML = '';
+    workplaces.forEach((wp, index) => {
+        const card = document.createElement('div');
+        card.className = `workplace-card ${index === currentWorkplaceIndex ? 'selected' : ''}`;
+        card.dataset.index = index;
+        const dateDisplay = wp.endDate === 'Đang làm' ? 'Đang làm' : `${wp.startDate} - ${wp.endDate}`;
+        card.innerHTML = `<span class="store-name">${wp.storeName}</span><span class="date-range">${dateDisplay}</span>`;
+        
+        let clickTimer = null;
+        card.onclick = () => {
+            if (clickTimer === null) {
+                clickTimer = setTimeout(() => {
+                    // Xử lý chạm 1 lần (Chọn)
+                    currentWorkplaceIndex = index;
+                    saveWorkplaces();
+                    clickTimer = null;
+                }, 300); 
+            } else {
+                // Xử lý chạm 2 lần (Sửa)
+                clearTimeout(clickTimer);
+                clickTimer = null;
+                openWorkplaceModal(index);
+            }
+        };
 
-        workplaceList.appendChild(card);
-    });
+        workplaceList.appendChild(card);
+    });
 }
 
 function openWorkplaceModal(index = -1) {
-    workplaceModal.style.display = 'flex';
-    editingIndex = index;
-    
-    if (index !== -1) { 
-        const wp = workplaces[index];
-        document.getElementById('storeNameInput').value = wp.storeName;
-        document.getElementById('addressInput').value = wp.address;
-        document.getElementById('startDateInput').value = wp.startDate;
-        document.getElementById('endDateInput').value = wp.endDate === 'Đang làm' ? '' : wp.endDate;
-        document.getElementById('isCurrentWork').checked = wp.endDate === 'Đang làm';
-        document.getElementById('endDateInput').disabled = wp.endDate === 'Đang làm';
-        createWorkplaceBtn.textContent = 'Lưu Thay Đổi';
-        deleteWorkplaceBtn.style.display = 'inline-block';
-    } else { 
-        document.getElementById('storeNameInput').value = '';
-        document.getElementById('addressInput').value = '';
-        document.getElementById('startDateInput').value = '';
-        document.getElementById('endDateInput').value = '';
-        document.getElementById('isCurrentWork').checked = false;
-        document.getElementById('endDateInput').disabled = false;
-        createWorkplaceBtn.textContent = 'Tạo';
-        deleteWorkplaceBtn.style.display = 'none';
-    }
+    workplaceModal.style.display = 'flex';
+    editingIndex = index;
+    
+    if (index !== -1) { 
+        const wp = workplaces[index];
+        document.getElementById('storeNameInput').value = wp.storeName;
+        document.getElementById('addressInput').value = wp.address;
+        document.getElementById('startDateInput').value = wp.startDate;
+        document.getElementById('endDateInput').value = wp.endDate === 'Đang làm' ? '' : wp.endDate;
+        document.getElementById('isCurrentWork').checked = wp.endDate === 'Đang làm';
+        document.getElementById('endDateInput').disabled = wp.endDate === 'Đang làm';
+        createWorkplaceBtn.textContent = 'Lưu Thay Đổi';
+        deleteWorkplaceBtn.style.display = 'inline-block';
+    } else { 
+        document.getElementById('storeNameInput').value = '';
+        document.getElementById('addressInput').value = '';
+        document.getElementById('startDateInput').value = '';
+        document.getElementById('endDateInput').value = '';
+        document.getElementById('isCurrentWork').checked = false;
+        document.getElementById('endDateInput').disabled = false;
+        createWorkplaceBtn.textContent = 'Tạo';
+        deleteWorkplaceBtn.style.display = 'none';
+    }
 }
 
 // --- SỰ KIỆN NƠI LÀM VIỆC ---
 isCurrentWork.onchange = function() {
-    if (this.checked) {
-        endDateInput.value = '';
-        endDateInput.disabled = true;
-    } else {
-        endDateInput.disabled = false;
-    }
+    if (this.checked) {
+        endDateInput.value = '';
+        endDateInput.disabled = true;
+    } else {
+        endDateInput.disabled = false;
+    }
 };
 
 addWorkplaceBtn.onclick = () => openWorkplaceModal(-1);
 
 cancelWorkplaceBtn.onclick = () => {
-    workplaceModal.style.display = 'none';
+    workplaceModal.style.display = 'none';
 };
 
 deleteWorkplaceBtn.onclick = () => {
-    if (editingIndex !== -1 && confirm(`Bạn có chắc chắn muốn xóa "${workplaces[editingIndex].storeName}"?`)) {
-        workplaces.splice(editingIndex, 1);
-        
-        if (currentWorkplaceIndex === editingIndex) {
-            currentWorkplaceIndex = -1;
-        } else if (currentWorkplaceIndex > editingIndex) {
-            currentWorkplaceIndex--;
-        }
+    if (editingIndex !== -1 && confirm(`Bạn có chắc chắn muốn xóa "${workplaces[editingIndex].storeName}"?`)) {
+        workplaces.splice(editingIndex, 1);
+        
+        if (currentWorkplaceIndex === editingIndex) {
+            currentWorkplaceIndex = -1;
+        } else if (currentWorkplaceIndex > editingIndex) {
+            currentWorkplaceIndex--;
+        }
 
-        saveWorkplaces();
-        workplaceModal.style.display = 'none';
-    }
+        saveWorkplaces();
+        workplaceModal.style.display = 'none';
+    }
 };
 
 createWorkplaceBtn.onclick = () => {
-    const storeName = document.getElementById('storeNameInput').value;
-    const address = document.getElementById('addressInput').value;
-    const startDate = document.getElementById('startDateInput').value;
-    let endDate = endDateInput.value;
+    const storeName = document.getElementById('storeNameInput').value;
+    const address = document.getElementById('addressInput').value;
+    const startDate = document.getElementById('startDateInput').value;
+    let endDate = endDateInput.value;
 
-    if (document.getElementById('isCurrentWork').checked) {
-        endDate = 'Đang làm';
-    }
+    if (document.getElementById('isCurrentWork').checked) {
+        endDate = 'Đang làm';
+    }
 
-    if (!storeName || !startDate) {
-        alert('Vui lòng nhập Tên cửa hàng và Ngày bắt đầu.'); 
-        return;
-    }
+    if (!storeName || !startDate) {
+        alert('Vui lòng nhập Tên cửa hàng và Ngày bắt đầu.'); 
+        return;
+    }
 
-    const newWorkplace = { storeName, address, startDate, endDate };
+    const newWorkplace = { storeName, address, startDate, endDate };
 
-    if (editingIndex !== -1) {
-        workplaces[editingIndex] = newWorkplace;
-    } else {
-        workplaces.push(newWorkplace);
-        currentWorkplaceIndex = workplaces.length - 1; 
-    }
-    
-    saveWorkplaces();
-    workplaceModal.style.display = 'none';
+    if (editingIndex !== -1) {
+        workplaces[editingIndex] = newWorkplace;
+    } else {
+        workplaces.push(newWorkplace);
+        currentWorkplaceIndex = workplaces.length - 1; 
+    }
+    
+    saveWorkplaces();
+    workplaceModal.style.display = 'none';
 };
 
 // --- CÁC SỰ KIỆN KHÁC ---
 document.getElementById('saveTime').onclick=()=>{
-    const key=document.getElementById('timeModal').dataset.key;
-    const tin=document.getElementById('timeIn').value;
-    const tout=document.getElementById('timeOut').value;
-    const [hi,mi]=tin.split(':').map(Number);const [ho,mo]=tout.split(':').map(Number);
-    let hrs=(ho+mo/60)-(hi+mi/60);if(hrs<0)hrs+=24;
-    workData[key]={in:tin,out:tout,hours:hrs};
-    document.getElementById('timeModal').style.display='none';
-    renderCalendar();
+    const key=document.getElementById('timeModal').dataset.key;
+    const tin=document.getElementById('timeIn').value;
+    const tout=document.getElementById('timeOut').value;
+    const [hi,mi]=tin.split(':').map(Number);const [ho,mo]=tout.split(':').map(Number);
+    let hrs=(ho+mo/60)-(hi+mi/60);
+    
+    // Logic tính giờ làm việc qua đêm
+    if(hrs < 0) {
+        // Nếu giờ ra nhỏ hơn giờ vào, giả định là ca qua đêm (cộng thêm 24 giờ)
+        hrs += 24;
+    }
+    
+    workData[key]={in:tin,out:tout,hours:hrs};
+    document.getElementById('timeModal').style.display='none';
+    renderCalendar();
 };
 document.getElementById('cancelTime').onclick=()=>document.getElementById('timeModal').style.display='none';
 document.getElementById('prevMonth').onclick=()=>{currentMonth--;if(currentMonth<0){currentMonth=11;currentYear--;}renderCalendar();};
