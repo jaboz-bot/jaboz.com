@@ -23,7 +23,7 @@ th{background:#eaf2f8}
 /* CSS CHO MODAL CHUNG */
 .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);justify-content:center;align-items:center;z-index:1000;}
 .modal-content{background:#fff;padding:20px;border-radius:10px;width:90%;max-width:400px}
-.modal-content input[type="text"], .modal-content input[type="date"], .modal-content input[type="time"], .modal-content select{width:100%;padding:8px;margin:5px 0;border:1px solid #ccc;border-radius:5px;box-sizing:border-box;}
+.modal-content input[type="text"], .modal-content input[type="date"], .modal-content input[type="time"]{width:100%;padding:8px;margin:5px 0;border:1px solid #ccc;border-radius:5px;box-sizing:border-box;}
 .modal-content button{margin-top:10px;padding:8px 12px;border:none;border-radius:5px;cursor:pointer}
 .save{background:#3498db;color:#fff}
 .cancel{background:#ccc}
@@ -34,58 +34,26 @@ th{background:#eaf2f8}
     display: inline-block;
 }
 
-/* --- ĐIỀU CHỈNH GIAO DIỆN & LỖI MOBILE --- */
+/* --- CSS ĐÃ THÊM CHO YÊU CẦU MỚI --- */
 
-/* 1. Bôi đỏ cột Chủ Nhật */
-table th:first-child { background: #e74c3c; color: #fff; }
-table tr td:first-child { background-color: #fcecec; }
-table tr td:first-child span { color: #c0392b !important; }
-
-/* 2. Làm tối màu ô trống */
-table tr td:empty { background-color: #dddddd; cursor: default; }
-
-/* 3. TỐI ƯU HÓA HIỂN THỊ RATE SECTION (MỚI) */
-#rateSection {
-    display: flex;
-    align-items: center;
-    gap: 4px; 
+/* 1. Bôi đỏ cột Chủ Nhật (Cột đầu tiên) */
+table th:first-child {
+    background: #e74c3c; /* Màu đỏ đậm cho tiêu đề */
+    color: #fff;
+}
+table tr td:first-child {
+    background-color: #fcecec; /* Màu đỏ nhạt cho ô nội dung */
+}
+/* Đổi màu chữ số ngày của CN thành màu đỏ đậm */
+table tr td:first-child span {
+    color: #c0392b !important; 
 }
 
-/* Container chứa Input và đơn vị tiền tệ */
-#rateInputGroup {
-    display: flex;
-    align-items: center;
-    border: 1px solid #ccc; /* Áp dụng border cho toàn bộ nhóm */
-    border-radius: 5px;
-    padding-right: 4px; /* Khoảng cách cho text đơn vị */
-}
-
-/* Ô input Lương/giờ */
-#rate {
-    border: none; /* Bỏ border vì đã có cho cả nhóm */
-    width: 65px; 
-    padding: 8px;
-    box-sizing: border-box;
-    text-align: right;
-}
-
-/* Ô chọn tiền tệ (Giấu đi) */
-#currency {
-    display: none; 
-}
-
-/* Hiển thị đơn vị tiền tệ */
-#currencyDisplay {
-    font-size: 0.9em;
-    font-weight: bold;
-    color: #555;
-    margin-left: -5px; /* Kéo sát vào input */
-}
-
-/* Label */
-#rateLabel {
-    white-space: nowrap; 
-    margin-right: 4px; 
+/* 2. Làm tối màu ô trống (ô không có ngày tháng) */
+/* Thẻ td không có nội dung text hoặc span (ngày) */
+table tr td:empty {
+    background-color: #dddddd; /* Màu xám tối */
+    cursor: default;
 }
 </style>
 </head>
@@ -97,270 +65,120 @@ table tr td:empty { background-color: #dddddd; cursor: default; }
             <span id="monthYear"></span>
             <span class="arrow" id="nextMonth">▶</span>
         </div>
-        <div id="rateSection"></div>
+        <div>
+            💰 Lương/giờ: <input type="number" id="rate" value="100000" style="width:90px"> VND
+        </div>
     </div>
     
     <table>
         <thead>
-            <tr id="tableHeaders"></tr>
+            <tr><th>CN</th><th>T2</th><th>T3</th><th>T4</th><th>T5</th><th>T6</th><th>T7</th></tr>
         </thead>
         <tbody id="calendar"></tbody>
     </table>
 
     <div class="summary">
-        <span id="labelTotalHours"></span>: <span id="totalHours">0</span> <span id="unitHours"></span><br>
-        <span id="labelTotalPay"></span>: <span id="totalPay">0 VND</span>
+        ✅ Tổng giờ: <span id="totalHours">0</span> giờ<br>
+        💵 Thu nhập: <span id="totalPay">0</span> VND
     </div>
 </div>
 
 <div class="modal" id="timeModal">
     <div class="modal-content">
-        <h3 id="modalTitle"></h3>
-        <span id="modalDate"></span>
-        <label id="labelTimeIn"></label>
+        <h3>Nhập giờ công - <span id="modalDate"></span></h3>
+        <label>Vào:</label>
         <input type="time" id="timeIn" value="09:00">
-        <label id="labelTimeOut"></label>
+        <label>Ra:</label>
         <input type="time" id="timeOut" value="18:00">
-        <button class="save" id="saveTime"></button>
-        <button class="cancel" id="cancelTime"></button>
+        <button class="save" id="saveTime">Lưu</button>
+        <button class="cancel" id="cancelTime">Hủy</button>
     </div>
 </div>
 
 <script>
-// --- KHAI BÁO NGÔN NGỮ ---
-const LANG = {
-    'vi': {
-        currency: 'VND',
-        rateLabel: '💰 Lương/giờ:',
-        dayNames: ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'], 
-        totalHoursLabel: '✅ Tổng giờ',
-        totalPayLabel: '💵 Thu nhập',
-        hourUnit: 'giờ',
-        modalTitle: 'Nhập giờ công -',
-        timeInLabel: 'Vào:',
-        timeOutLabel: 'Ra:',
-        saveBtn: 'Lưu',
-        cancelBtn: 'Hủy',
-        locale: 'vi-VN'
-    },
-    'kr': {
-        currency: 'KRW',
-        rateLabel: '💰 시급:',
-        dayNames: ['일', '월', '화', '수', '목', '금', '토'], 
-        totalHoursLabel: '✅ 총 근무 시간',
-        totalPayLabel: '💵 총 수익',
-        hourUnit: '시간',
-        modalTitle: '근무 시간 입력 -',
-        timeInLabel: '출근:',
-        timeOutLabel: '퇴근:',
-        saveBtn: '저장',
-        cancelBtn: '취소',
-        locale: 'ko-KR'
-    }
-};
-
-// --- KHAI BÁO BIẾN & KHỞI TẠO DOM CHO RATE SECTION (ĐÃ THAY ĐỔI CẤU TRÚC) ---
-let currentLang = 'vi'; 
+// --- KHAI BÁO BIẾN ---
 let currentMonth = new Date().getMonth();
 let currentYear = new Date().getFullYear();
-let workData = JSON.parse(localStorage.getItem('workData') || '{}'); 
+let workData = JSON.parse(localStorage.getItem('workData') || '{}'); 
+const rateInput = document.getElementById('rate');
 
-// 1. Tạo các phần tử
-const rateInput = document.createElement('input');
-rateInput.type = 'text'; 
-rateInput.id = 'rate';
-rateInput.value = '100.000'; 
-
-const currencySelect = document.createElement('select'); // Vẫn cần để chuyển đổi ngôn ngữ/locale
-currencySelect.id = 'currency';
-currencySelect.innerHTML = '<option value="VND">VND</option><option value="KRW">KRW</option>';
-
-const currencyDisplay = document.createElement('span'); // Thẻ hiển thị đơn vị tiền tệ
-currencyDisplay.id = 'currencyDisplay';
-
-const rateLabelSpan = document.createElement('span');
-rateLabelSpan.id = 'rateLabel';
-
-const inputGroupDiv = document.createElement('div'); // Nhóm input và display
-inputGroupDiv.id = 'rateInputGroup';
-inputGroupDiv.appendChild(rateInput);
-inputGroupDiv.appendChild(currencyDisplay);
-
-// 2. Chèn vào rateSection
-const rateSection = document.getElementById('rateSection');
-rateSection.appendChild(rateLabelSpan);
-rateSection.appendChild(inputGroupDiv);
-rateSection.appendChild(currencySelect); // Thẻ select ẩn
-
-// --- HÀM XỬ LÝ ĐỊNH DẠNG SỐ TIỀN ---
-function formatCurrencyInput(value) {
-    let rawValue = value.replace(/[^0-9]/g, ''); 
-    if (rawValue === '') return '';
-    const number = parseInt(rawValue, 10);
-    return number.toLocaleString('vi-VN'); 
-}
-
-function getRateValue(value) {
-    return parseFloat(value.replace(/\./g, '')) || 0;
-}
-
-// --- HÀM CẬP NHẬT NGÔN NGỮ & SUMMARY ---
+// --- HÀM CHUNG ---
 function daysInMonth(y,m){return new Date(y,m+1,0).getDate();}
 
-function updateLanguage(langCode) {
-    currentLang = langCode;
-    const lang = LANG[langCode];
-    
-    // Cập nhật tất cả các chuỗi text tĩnh trên trang
-    document.getElementById('tableHeaders').innerHTML = lang.dayNames.map(day => `<th>${day}</th>`).join('');
-    document.getElementById('rateLabel').textContent = lang.rateLabel + ' ';
-    
-    // Cập nhật đơn vị tiền tệ hiển thị (MỚI)
-    document.getElementById('currencyDisplay').textContent = lang.currency;
-
-    document.getElementById('labelTotalHours').textContent = lang.totalHoursLabel;
-    document.getElementById('unitHours').textContent = lang.hourUnit;
-    document.getElementById('labelTotalPay').textContent = lang.totalPayLabel;
-    document.getElementById('modalTitle').textContent = lang.modalTitle;
-    document.getElementById('labelTimeIn').textContent = lang.timeInLabel;
-    document.getElementById('labelTimeOut').textContent = lang.timeOutLabel;
-    document.getElementById('saveTime').textContent = lang.saveBtn;
-    document.getElementById('cancelTime').textContent = lang.cancelBtn;
-
-    updateSummary();
-    renderCalendar(false); 
-}
-
 function updateSummary(){
-    const rate=getRateValue(rateInput.value); 
-    const selectedCurrency=currencySelect.value;
-    const lang = selectedCurrency === 'VND' ? LANG['vi'] : LANG['kr']; 
-    let totalH=0; 
-    
-    for(const k in workData) totalH+=workData[k].hours||0;
-    
-    let finalPay = totalH * rate;
-    
-    // Định dạng hiển thị tiền tệ
-    let displayPay = finalPay.toLocaleString(lang.locale, { maximumFractionDigits: 0 }) + ' ' + selectedCurrency;
-    
-    document.getElementById('totalHours').textContent=totalH.toFixed(2);
-    document.getElementById('unitHours').textContent = lang.hourUnit;
-    document.getElementById('totalPay').textContent=displayPay;
-
-    localStorage.setItem('workData',JSON.stringify(workData));
+    const rate=parseFloat(rateInput.value)||0;
+    let totalH=0; 
+    for(const k in workData) totalH+=workData[k].hours||0;
+    
+    document.getElementById('totalHours').textContent=totalH.toFixed(2);
+    document.getElementById('totalPay').textContent=(totalH*rate).toLocaleString('vi-VN');
+    localStorage.setItem('workData',JSON.stringify(workData));
 }
 
-function renderCalendar(shouldUpdateLang = true){
-    const tbl=document.getElementById('calendar');
-    tbl.innerHTML='';
-    const firstDay=new Date(currentYear,currentMonth,1).getDay();
-    const totalDays=daysInMonth(currentYear,currentMonth);
-    
-    const selectedCurrency = currencySelect.value;
-    const langCodeForDisplay = selectedCurrency === 'VND' ? 'vi' : 'kr';
-    const monthYearSeparator = langCodeForDisplay === 'vi' ? '/' : '.';
-    
-    document.getElementById('monthYear').textContent=`${currentMonth+1}${monthYearSeparator}${currentYear}`;
-    
-    if (shouldUpdateLang) {
-        updateLanguage(selectedCurrency === 'VND' ? 'vi' : 'kr');
-    }
-    
-    let day=1; 
-    for(let r=0;r<6;r++){
-        const tr=document.createElement('tr');
-        for(let c=0;c<7;c++){
-            const td=document.createElement('td');
-            if(r===0&&c<firstDay||day>totalDays){
-                td.innerHTML='';
-            } else {
-                const dkey=`${currentYear}-${currentMonth+1}-${day}`;
-                const info=workData[dkey]||{};
-                td.className='day'; 
-                td.innerHTML=`<span>${day}</span>${info.hours?`<div>${info.hours.toFixed(2)}h</div>`:''}`;
-                td.onclick=()=>openModal(dkey);
-                day++;
-            }
-            tr.appendChild(td);
-        } 
-        tbl.appendChild(tr);
-        if(day>totalDays)break;
-    }
-    updateSummary();
+function renderCalendar(){
+    const tbl=document.getElementById('calendar');
+    tbl.innerHTML='';
+    const firstDay=new Date(currentYear,currentMonth,1).getDay();
+    const totalDays=daysInMonth(currentYear,currentMonth);
+    document.getElementById('monthYear').textContent=`${currentMonth+1}/${currentYear}`;
+    let day=1; 
+    for(let r=0;r<6;r++){
+        const tr=document.createElement('tr');
+        for(let c=0;c<7;c++){
+            const td=document.createElement('td');
+            if(r===0&&c<firstDay||day>totalDays){
+                // Nếu là ô trống, để trống innerHTML
+                td.innerHTML='';
+            } else {
+                const dkey=`${currentYear}-${currentMonth+1}-${day}`;
+                const info=workData[dkey]||{};
+                td.className='day'; 
+                // Ô có nội dung ngày tháng sẽ có span, td:empty sẽ không áp dụng
+                td.innerHTML=`<span>${day}</span>${info.hours?`<div>${info.hours.toFixed(2)}h</div>`:''}`;
+                td.onclick=()=>openModal(dkey);
+                day++;
+            }
+            tr.appendChild(td);
+        } 
+        tbl.appendChild(tr);
+        if(day>totalDays)break;
+    }
+    updateSummary();
 }
 
 function openModal(key){
-    const m=document.getElementById('timeModal');m.style.display='flex';
-    const dateParts=key.split('-');
-    
-    const dateSeparator = currentLang === 'vi' ? '/' : '.';
-    document.getElementById('modalDate').textContent=`${dateParts[2]}${dateSeparator}${dateParts[1]}`;
-    
-    m.dataset.key=key;
-    const info=workData[key]||{};
-    document.getElementById('timeIn').value=info.in||'09:00';
-    document.getElementById('timeOut').value=info.out||'18:00';
+    const m=document.getElementById('timeModal');m.style.display='flex';
+    const dateParts=key.split('-');document.getElementById('modalDate').textContent=`${dateParts[2]}/${dateParts[1]}`;
+    m.dataset.key=key;
+    const info=workData[key]||{};
+    document.getElementById('timeIn').value=info.in||'09:00';
+    document.getElementById('timeOut').value=info.out||'18:00';
 }
 
-// --- CÁC SỰ KIỆN ---
+// --- CÁC SỰ KIỆN KHÁC ---
 document.getElementById('saveTime').onclick=()=>{
-    const key=document.getElementById('timeModal').dataset.key;
-    const [hi,mi]=document.getElementById('timeIn').value.split(':').map(Number);
-    const [ho,mo]=document.getElementById('timeOut').value.split(':').map(Number);
-    let hrs=(ho+mo/60)-(hi+mi/60);
-    
+    const key=document.getElementById('timeModal').dataset.key;
+    const tin=document.getElementById('timeIn').value;
+    const tout=document.getElementById('timeOut').value;
+    const [hi,mi]=tin.split(':').map(Number);const [ho,mo]=tout.split(':').map(Number);
+    let hrs=(ho+mo/60)-(hi+mi/60);
+    
+    // Logic tính giờ làm việc qua đêm
     if(hrs < 0) {
-        hrs += 24; 
+        hrs += 24;
     }
     
-    workData[key]={in:document.getElementById('timeIn').value,out:document.getElementById('timeOut').value,hours:hrs};
-    document.getElementById('timeModal').style.display='none';
-    renderCalendar();
+    workData[key]={in:tin,out:tout,hours:hrs};
+    document.getElementById('timeModal').style.display='none';
+    renderCalendar();
 };
-
 document.getElementById('cancelTime').onclick=()=>document.getElementById('timeModal').style.display='none';
 document.getElementById('prevMonth').onclick=()=>{currentMonth--;if(currentMonth<0){currentMonth=11;currentYear--;}renderCalendar();};
 document.getElementById('nextMonth').onclick=()=>{currentMonth++;if(currentMonth>11){currentMonth=0;currentYear++;}renderCalendar();};
-
-// Sự kiện cho input rate:
-rateInput.onchange = updateSummary;
-rateInput.onblur = () => {
-    if (currencySelect.value === 'VND') {
-        rateInput.value = formatCurrencyInput(rateInput.value);
-    }
-    updateSummary();
-};
-
-// Sự kiện cho currency select (Vẫn dùng nó để kích hoạt chuyển đổi ngôn ngữ)
-currencySelect.onchange=()=>{
-    const newCurrency = currencySelect.value;
-    const newLang = newCurrency === 'VND' ? 'vi' : 'kr';
-    
-    // Xử lý định dạng input khi chuyển đổi
-    if (newCurrency === 'KRW') {
-        rateInput.value = getRateValue(rateInput.value);
-    } else {
-        rateInput.value = formatCurrencyInput(String(getRateValue(rateInput.value)));
-    }
-    updateLanguage(newLang);
-    renderCalendar(false);
-}; 
+rateInput.onchange=updateSummary;
 
 // --- KHỞI TẠO ỨNG DỤNG ---
-
-// Kích hoạt tính năng chuyển đổi ngôn ngữ bằng cách click vào đơn vị hiển thị
-currencyDisplay.onclick = () => {
-    const current = currencySelect.value;
-    const next = current === 'VND' ? 'KRW' : 'VND';
-    currencySelect.value = next; // Thay đổi giá trị select (đang ẩn)
-    
-    // Kích hoạt sự kiện onchange để đổi ngôn ngữ và định dạng
-    currencySelect.onchange();
-};
-
-updateLanguage('vi'); 
-renderCalendar(false);
+renderCalendar();
 </script>
 </body>
 </html>
