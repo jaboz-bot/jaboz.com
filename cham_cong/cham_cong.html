@@ -215,7 +215,7 @@ table tr td:empty { background-color: #dddddd; cursor: default; }
     </div>
 
     <div class="summary">
-        ✅ <span data-i18n="total_hours_label">Tổng giờ công việc hiện tại:</span> <span id="totalHours">0</span> <span class="green-unit" data-i18n="unit_hours">giờ</span><br>
+        ✅ <span data-i18n="total_hours_label">Tổng giờ công việc hiện tại:</span> <span id="totalHours">0</span> <span class="green-unit" data-i18n="unit_hours">GIỜ</span><br>
         💵 <span data-i18n="estimated_pay_label">Thu nhập ước tính:</span> <span id="totalPay">0</span> <span class="red-unit" data-i18n="unit_vnd">VND</span>
     </div>
 </div>
@@ -629,6 +629,9 @@ function renderCalendar() {
         if (day > totalDays) break;
     }
     updateSummary();
+    const monthNum = currentMonth + 1;
+    document.querySelector('[data-i18n="total_hours_label"]').textContent = `Tổng GIỜ tháng ${monthNum}:`;
+    document.querySelector('[data-i18n="estimated_pay_label"]').textContent = `Thu nhập tháng ${monthNum}:`;
 }
 
 function openModal(key) {
