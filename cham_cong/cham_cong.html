@@ -582,7 +582,7 @@ function renderCalendar() {
 
     const firstDay = new Date(currentYear, currentMonth, 1).getDay();
     const totalDays = daysInMonth(currentYear, currentMonth);
-    document.getElementById('monthYear').textContent = `${getTranslation('months')[currentMonth]} ${currentYear}`;
+    document.getElementById('monthYear').textContent = `${pad(currentMonth + 1)}/${currentYear}`;
 
     let day = 1;
     const rate = parseFloat(rateInput.value) || 0;
@@ -624,9 +624,14 @@ function renderCalendar() {
 
     updateSummary();
 
-    const monthNum = currentMonth + 1;
-    document.querySelector('[data-i18n="total_hours_label"]').textContent = `Tổng giờ hiện tại tháng ${monthNum}:`;
-    document.querySelector('[data-i18n="estimated_pay_label"]').textContent = `Thu nhập ước tính tháng ${monthNum}:`;
+    const mm = pad(currentMonth + 1);
+if (currentLang === 'vi') {
+    document.querySelector('[data-i18n="total_hours_label"]').textContent = `Tổng giờ hiện tại tháng ${mm}:`;
+    document.querySelector('[data-i18n="estimated_pay_label"]').textContent = `Thu nhập ước tính tháng ${mm}:`;
+} else {
+    document.querySelector('[data-i18n="total_hours_label"]').textContent = `${mm}월 총 시간:`;
+    document.querySelector('[data-i18n="estimated_pay_label"]').textContent = `${mm}월 예상 수입:`;
+}
 }
 function openModal(key) {
     const m = document.getElementById('timeModal');
