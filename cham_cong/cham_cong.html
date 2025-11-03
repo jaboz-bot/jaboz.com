@@ -34,7 +34,8 @@ html,body{height:100%;margin:0;font-family:Arial,sans-serif;background:#f6f8f9}
 #jobCarousel {
     display: flex; /* Bật Flexbox cho cuộn ngang */
     overflow-x: auto; /* Cho phép cuộn ngang */
-    scroll-snap-type: x mandatory; /* Giúp căn chỉnh mượt mà khi cuộn */
+    scroll-snap-type: x mandatory; /* <<< ĐỘ HÚT NAM CHÂM: Ép buộc dừng ở ranh giới */
+    scroll-behavior: smooth; /* Cuộn mượt mà */
     -webkit-overflow-scrolling: touch; /* Tăng tốc cuộn trên iOS */
     margin-bottom: 15px;
     border: 1px solid #e0e0e0;
@@ -50,12 +51,8 @@ html,body{height:100%;margin:0;font-family:Arial,sans-serif;background:#f6f8f9}
     font-size: 0.9em;
     color: #333;
     cursor: pointer;
-    scroll-snap-align: start; /* Căn chỉnh mục khi cuộn */
-    border-right: 1px solid #ddd; /* Dấu hiệu phân cách nhẹ */
+    scroll-snap-align: start; /* <<< ĐỘ HÚT NAM CHÂM: Mục tiêu dừng */
     box-sizing: border-box;
-}
-.job-item:last-child {
-    border-right: none;
 }
 .job-item strong { 
     color: #2980b9; 
@@ -227,7 +224,7 @@ let editingJobId = null;
 
 const rateInput = document.getElementById('rate');
 const jobModal = document.getElementById('jobModal');
-const jobCarouselDiv = document.getElementById('jobCarousel'); // Đổi tên từ jobListDiv
+const jobCarouselDiv = document.getElementById('jobCarousel'); 
 
 
 // --- HÀM CHUNG ---
@@ -244,7 +241,7 @@ function renderJobList() {
     
     if (jobs.length === 0) {
         jobCarouselDiv.innerHTML = '<div style="color:#999;font-size:0.9em; min-width: 100%; text-align: center; padding: 15px;">Chưa có nơi làm việc nào được thêm.</div>';
-        jobCarouselDiv.style.border = '1px dashed #ccc'; // Thêm border cho đẹp
+        jobCarouselDiv.style.border = '1px dashed #ccc'; 
         jobCarouselDiv.style.boxShadow = 'none';
         jobCarouselDiv.style.background = 'none';
         return;
