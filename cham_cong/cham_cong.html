@@ -34,7 +34,7 @@ th{background:#eaf2f8}
     display: inline-block;
 }
 
-/* --- CSS ĐÃ THÊM CHO YÊU CẦU MỚI --- */
+/* --- CSS ĐÃ THÊM CHO YÊU CẦU CŨ VÀ MỚI --- */
 
 /* 1. Bôi đỏ cột Chủ Nhật (Cột đầu tiên) */
 table th:first-child {
@@ -55,6 +55,15 @@ table tr td:empty {
     background-color: #dddddd; /* Màu xám tối */
     cursor: default;
 }
+
+/* 3. Tùy biến khung nhập Lương/giờ */
+.header input#rate {
+    min-width: 70px; /* **ĐIỀU CHỈNH: Chiều rộng tối thiểu ngắn hơn** */
+    width: 70px; /* Đảm bảo trạng thái ban đầu là 70px */
+    transition: width 0.2s ease-in-out; /* Hiệu ứng chuyển đổi mượt mà */
+    text-align: right; /* Căn số sang phải cho đẹp */
+}
+
 </style>
 </head>
 <body>
@@ -66,7 +75,7 @@ table tr td:empty {
             <span class="arrow" id="nextMonth">▶</span>
         </div>
         <div>
-            💰 Lương/giờ: <input type="number" id="rate" value="100000" style="width:90px"> VND
+            💰 Lương/giờ: <input type="number" id="rate" value="100000"> VND
         </div>
     </div>
     
@@ -99,86 +108,112 @@ table tr td:empty {
 // --- KHAI BÁO BIẾN ---
 let currentMonth = new Date().getMonth();
 let currentYear = new Date().getFullYear();
-let workData = JSON.parse(localStorage.getItem('workData') || '{}'); 
+let workData = JSON.parse(localStorage.getItem('workData') || '{}'); 
 const rateInput = document.getElementById('rate');
 
 // --- HÀM CHUNG ---
 function daysInMonth(y,m){return new Date(y,m+1,0).getDate();}
 
+// HÀM MỚI: Tùy biến chiều rộng khung nhập Lương/giờ
+function adjustRateInputWidth() {
+    const val = String(rateInput.value).replace(/[^0-9]/g, '');
+    const length = val.length;
+
+    let newWidth = 70; // **ĐIỀU CHỈNH: Chiều rộng tối thiểu mới**
+    const pixelPerChar = 10; // Giảm tốc độ mở rộng để không quá nhanh
+
+    // Từ 4 chữ số trở lên, tăng 10px cho mỗi chữ số
+    if (length >= 4) {
+        newWidth = 70 + (length - 4) * pixelPerChar; 
+    }
+    // Giới hạn độ dài tối đa
+    if (length > 12) { 
+        newWidth = 70 + (12 - 4) * pixelPerChar;
+    }
+
+    // Áp dụng chiều rộng mới
+    rateInput.style.width = `${newWidth}px`;
+}
+
+
 function updateSummary(){
-    const rate=parseFloat(rateInput.value)||0;
-    let totalH=0; 
-    for(const k in workData) totalH+=workData[k].hours||0;
-    
-    document.getElementById('totalHours').textContent=totalH.toFixed(2);
-    document.getElementById('totalPay').textContent=(totalH*rate).toLocaleString('vi-VN');
-    localStorage.setItem('workData',JSON.stringify(workData));
+    const rate=parseFloat(rateInput.value)||0;
+    let totalH=0;  
+    for(const k in workData) totalH+=workData[k].hours||0;
+    
+    document.getElementById('totalHours').textContent=totalH.toFixed(2);
+    document.getElementById('totalPay').textContent=(totalH*rate).toLocaleString('vi-VN');
+    localStorage.setItem('workData',JSON.stringify(workData));
 }
 
 function renderCalendar(){
-    const tbl=document.getElementById('calendar');
-    tbl.innerHTML='';
-    const firstDay=new Date(currentYear,currentMonth,1).getDay();
-    const totalDays=daysInMonth(currentYear,currentMonth);
-    document.getElementById('monthYear').textContent=`${currentMonth+1}/${currentYear}`;
-    let day=1; 
-    for(let r=0;r<6;r++){
-        const tr=document.createElement('tr');
-        for(let c=0;c<7;c++){
-            const td=document.createElement('td');
-            if(r===0&&c<firstDay||day>totalDays){
-                // Nếu là ô trống, để trống innerHTML
-                td.innerHTML='';
-            } else {
-                const dkey=`${currentYear}-${currentMonth+1}-${day}`;
-                const info=workData[dkey]||{};
-                td.className='day'; 
+    const tbl=document.getElementById('calendar');
+    tbl.innerHTML='';
+    const firstDay=new Date(currentYear,currentMonth,1).getDay();
+    const totalDays=daysInMonth(currentYear,currentMonth);
+    document.getElementById('monthYear').textContent=`${currentMonth+1}/${currentYear}`;
+    let day=1; 
+    for(let r=0;r<6;r++){
+        const tr=document.createElement('tr');
+        for(let c=0;c<7;c++){
+            const td=document.createElement('td');
+            if(r===0&&c<firstDay||day>totalDays){
+                // Nếu là ô trống, để trống innerHTML
+                td.innerHTML='';
+            } else {
+                const dkey=`${currentYear}-${currentMonth+1}-${day}`;
+                const info=workData[dkey]||{};
+                td.className='day'; 
                 // Ô có nội dung ngày tháng sẽ có span, td:empty sẽ không áp dụng
-                td.innerHTML=`<span>${day}</span>${info.hours?`<div>${info.hours.toFixed(2)}h</div>`:''}`;
-                td.onclick=()=>openModal(dkey);
-                day++;
-            }
-            tr.appendChild(td);
-        } 
-        tbl.appendChild(tr);
-        if(day>totalDays)break;
-    }
-    updateSummary();
+                td.innerHTML=`<span>${day}</span>${info.hours?`<div>${info.hours.toFixed(2)}h</div>`:''}`;
+                td.onclick=()=>openModal(dkey);
+                day++;
+            }
+            tr.appendChild(td);
+        } 
+        tbl.appendChild(tr);
+        if(day>totalDays)break;
+    }
+    updateSummary();
 }
 
 function openModal(key){
-    const m=document.getElementById('timeModal');m.style.display='flex';
-    const dateParts=key.split('-');document.getElementById('modalDate').textContent=`${dateParts[2]}/${dateParts[1]}`;
-    m.dataset.key=key;
-    const info=workData[key]||{};
-    document.getElementById('timeIn').value=info.in||'09:00';
-    document.getElementById('timeOut').value=info.out||'18:00';
+    const m=document.getElementById('timeModal');m.style.display='flex';
+    const dateParts=key.split('-');document.getElementById('modalDate').textContent=`${dateParts[2]}/${dateParts[1]}`;
+    m.dataset.key=key;
+    const info=workData[key]||{};
+    document.getElementById('timeIn').value=info.in||'09:00';
+    document.getElementById('timeOut').value=info.out||'18:00';
 }
 
 // --- CÁC SỰ KIỆN KHÁC ---
 document.getElementById('saveTime').onclick=()=>{
-    const key=document.getElementById('timeModal').dataset.key;
-    const tin=document.getElementById('timeIn').value;
-    const tout=document.getElementById('timeOut').value;
-    const [hi,mi]=tin.split(':').map(Number);const [ho,mo]=tout.split(':').map(Number);
-    let hrs=(ho+mo/60)-(hi+mi/60);
-    
+    const key=document.getElementById('timeModal').dataset.key;
+    const tin=document.getElementById('timeIn').value;
+    const tout=document.getElementById('timeOut').value;
+    const [hi,mi]=tin.split(':').map(Number);const [ho,mo]=tout.split(':').map(Number);
+    let hrs=(ho+mo/60)-(hi+mi/60);
+    
     // Logic tính giờ làm việc qua đêm
     if(hrs < 0) {
         hrs += 24;
     }
     
-    workData[key]={in:tin,out:tout,hours:hrs};
-    document.getElementById('timeModal').style.display='none';
-    renderCalendar();
+    workData[key]={in:tin,out:tout,hours:hrs};
+    document.getElementById('timeModal').style.display='none';
+    renderCalendar();
 };
 document.getElementById('cancelTime').onclick=()=>document.getElementById('timeModal').style.display='none';
 document.getElementById('prevMonth').onclick=()=>{currentMonth--;if(currentMonth<0){currentMonth=11;currentYear--;}renderCalendar();};
 document.getElementById('nextMonth').onclick=()=>{currentMonth++;if(currentMonth>11){currentMonth=0;currentYear++;}renderCalendar();};
-rateInput.onchange=updateSummary;
+
+// Gán sự kiện cho input Lương/giờ
+rateInput.oninput = adjustRateInputWidth; // Thay đổi chiều rộng khi nhập
+rateInput.onchange = updateSummary; // Cập nhật tổng thu nhập khi giá trị thay đổi
 
 // --- KHỞI TẠO ỨNG DỤNG ---
 renderCalendar();
+adjustRateInputWidth(); // Thiết lập chiều rộng ban đầu
 </script>
 </body>
 </html>
