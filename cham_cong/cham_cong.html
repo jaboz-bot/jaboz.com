@@ -55,7 +55,7 @@ html,body{height:100%;margin:0;font-family:Arial,sans-serif;background:#f6f8f9}
     box-sizing: border-box;
 }
 .job-item.selected {
-    background-color: #d7e8f5; /* Màu nổi bật cho job đang được chọn */
+    background-color: #d7e8f5; 
     border: 1px solid #2980b9;
     border-radius: 5px;
 }
@@ -102,7 +102,7 @@ th{background:#eaf2f8}
 .modal-content button{margin-top:15px;padding:8px 12px;border:none;border-radius:5px;cursor:pointer}
 .save{background:#3498db;color:#fff}
 .cancel{background:#ccc}
-.delete{background:#e74c3c;color:#fff} /* Màu đỏ cho nút xóa */
+.delete{background:#e74c3c;color:#fff} 
 
 
 /* Modal Nơi làm việc mới */
@@ -115,7 +115,17 @@ th{background:#eaf2f8}
 /* *** PHẦN SỬA LỖI CÂN ĐỐI VÀ LÀM ĐẸP GIAO DIỆN NHẬP GIỜ *** */
 .time-input-group { display: flex; align-items: center; margin-bottom: 10px; }
 .time-input-group label { font-weight: bold; width: 40px; text-align: left; margin-right: 10px; }
-.time-input-group input[type="time"] { flex-grow: 1; padding: 8px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; width: auto; }
+
+/* CẬP NHẬT CSS: Áp dụng style cân bằng cho cả input type=time VÀ select */
+.time-input-group input[type="time"], 
+.time-input-group select { 
+    flex-grow: 1; 
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    width: auto; 
+}
 
 
 /* --- Tùy chỉnh Calendar và Input Lương/giờ --- */
@@ -163,10 +173,11 @@ table tr td:empty { background-color: #dddddd; cursor: default; }
     <div class="modal-content">
         <h3>Nhập giờ công - <span id="modalDate"></span></h3>
         
-        <div class="input-group">
-            <label for="jobSelect">Nơi làm việc:</label>
+        <div class="time-input-group">
+            <label for="jobSelect">Nơi:</label>
             <select id="jobSelect"></select>
         </div>
+        
         <div class="time-input-group">
             <label for="timeIn">Vào:</label>
             <input type="time" id="timeIn" value="09:00">
@@ -226,7 +237,6 @@ table tr td:empty { background-color: #dddddd; cursor: default; }
 // --- KHAI BÁO BIẾN ---
 let currentMonth = new Date().getMonth();
 let currentYear = new Date().getFullYear();
-// workData sẽ lưu { job_id: { in: '9:00', out: '18:00', hours: 9 } } cho mỗi ngày
 let workData = JSON.parse(localStorage.getItem('workData') || '{}'); 
 let appSettings = JSON.parse(localStorage.getItem('appSettings') || '{}'); 
 let jobs = JSON.parse(localStorage.getItem('jobs') || '[]'); 
@@ -235,7 +245,7 @@ let editingJobId = null;
 const rateInput = document.getElementById('rate');
 const jobModal = document.getElementById('jobModal');
 const jobCarouselDiv = document.getElementById('jobCarousel'); 
-const jobSelect = document.getElementById('jobSelect'); // Biến mới cho dropdown
+const jobSelect = document.getElementById('jobSelect'); 
 
 
 // --- HÀM CHUNG & QUẢN LÝ CÔNG VIỆC ---
@@ -244,36 +254,31 @@ function daysInMonth(y,m){return new Date(y,m+1,0).getDate();}
 function saveJobs() {
     localStorage.setItem('jobs', JSON.stringify(jobs));
     renderJobList();
-    renderJobSelectOptions(); // Cập nhật dropdown
+    renderJobSelectOptions(); 
 }
 
 // Lấy ID công việc đang được chọn (đang nằm ở vị trí cuộn ngang đầu tiên)
 function getCurrentJobId() {
     if (jobs.length === 0) return null;
     
-    // Lấy vị trí cuộn và chiều rộng của mục.
     const scrollPos = jobCarouselDiv.scrollLeft;
     const itemWidth = jobCarouselDiv.offsetWidth; 
     
-    // Tính toán mục đang ở vị trí đầu tiên
     const selectedIndex = Math.round(scrollPos / itemWidth);
     
-    // Cập nhật class 'selected' cho mục đang được chọn
     const items = jobCarouselDiv.querySelectorAll('.job-item');
     items.forEach((item, index) => {
         item.classList.toggle('selected', index === selectedIndex);
     });
     
-    // Trả về ID của mục đang được chọn
     return jobs[selectedIndex] ? jobs[selectedIndex].id : null;
 }
 
 // Xử lý sự kiện cuộn
 jobCarouselDiv.addEventListener('scroll', () => {
-    // Chờ 100ms sau khi cuộn dừng hẳn mới cập nhật
     clearTimeout(jobCarouselDiv.scrollTimeout);
     jobCarouselDiv.scrollTimeout = setTimeout(() => {
-        renderCalendar(); // Cập nhật lịch và tổng kết theo job mới
+        renderCalendar(); 
     }, 100); 
 });
 
@@ -312,11 +317,10 @@ function renderJobList() {
         item.onclick = () => openJobModalForEdit(job.id);
         jobCarouselDiv.appendChild(item);
     });
-    // Đánh dấu mục đang được chọn (lần đầu tiên hoặc sau khi cập nhật)
+    
     getCurrentJobId(); 
 }
 
-// Hàm format ngày (YYYY-MM-DD sang DD/MM/YYYY)
 function formatDate(dateString) {
     if (!dateString) return '';
     const parts = dateString.split('-');
@@ -326,7 +330,6 @@ function formatDate(dateString) {
 
 // --- LOGIC MODAL NHẬP GIỜ & LỊCH ---
 
-// Hàm MỚI: Cập nhật Dropdown chọn công việc
 function renderJobSelectOptions() {
     jobSelect.innerHTML = '';
     if (jobs.length === 0) {
@@ -344,9 +347,8 @@ function renderJobSelectOptions() {
 function updateSummary(){
     const rate = appSettings.rate || parseFloat(rateInput.value) || 0; 
     let totalH = 0;
-    const currentJobId = getCurrentJobId(); // Lấy ID công việc đang hiển thị
+    const currentJobId = getCurrentJobId(); 
     
-    // Tính tổng giờ chỉ cho công việc đang được chọn (nếu có)
     for(const k in workData) {
         if (workData[k] && workData[k][currentJobId]) {
             totalH += workData[k][currentJobId].hours || 0;
@@ -366,7 +368,7 @@ function renderCalendar(){
     document.getElementById('monthYear').textContent=`${currentMonth+1}/${currentYear}`;
     let day=1; 
 
-    const currentJobId = getCurrentJobId(); // Lấy ID công việc đang hiển thị
+    const currentJobId = getCurrentJobId(); 
 
     for(let r=0;r<6;r++){
         const tr=document.createElement('tr');
@@ -376,12 +378,10 @@ function renderCalendar(){
                 td.innerHTML='';
             } else {
                 const dkey=`${currentYear}-${currentMonth+1}-${day}`;
-                // Lấy thông tin giờ công chỉ cho Job ID hiện tại
                 const dayData = workData[dkey] || {};
                 const info = dayData[currentJobId] || {}; 
 
                 td.className='day'; 
-                // Hiển thị giờ công nếu có
                 td.innerHTML=`<span>${day}</span>${info.hours?`<div>${info.hours.toFixed(2)}h</div>`:''}`;
                 td.onclick=()=>openModal(dkey);
                 day++;
@@ -402,17 +402,23 @@ function openModal(key){
     document.getElementById('modalDate').textContent=`${dateParts[2]}/${dateParts[1]}`;
     m.dataset.key=key;
     
-    // Lấy thông tin giờ và Job ID đã lưu (nếu có)
     const dayData = workData[key] || {};
-    // Chọn Job ID đang hiển thị trên carousel làm mặc định
     const defaultJobId = getCurrentJobId();
-    const info = dayData[defaultJobId] || {};
+    let info = dayData[defaultJobId] || {};
 
     // 1. Cập nhật dropdown
     renderJobSelectOptions();
     if (defaultJobId) {
         jobSelect.value = defaultJobId;
     }
+    
+    // Nếu dropdown không có giá trị mặc định, thử lấy job đầu tiên trong ngày
+    if (!defaultJobId && Object.keys(dayData).length > 0) {
+        const firstJobId = Object.keys(dayData)[0];
+        jobSelect.value = firstJobId;
+        info = dayData[firstJobId];
+    }
+    
 
     // 2. Cập nhật giờ vào/ra
     document.getElementById('timeIn').value=info.in||'09:00';
@@ -431,7 +437,7 @@ function openModal(key){
 
 document.getElementById('saveTime').onclick=()=>{
     const key=document.getElementById('timeModal').dataset.key;
-    const selectedJobId = jobSelect.value; // Lấy Job ID từ dropdown
+    const selectedJobId = jobSelect.value; 
     
     if (!selectedJobId) {
         alert("Vui lòng thêm Nơi làm việc trước khi chấm công.");
@@ -444,12 +450,10 @@ document.getElementById('saveTime').onclick=()=>{
     let hrs=(ho+mo/60)-(hi+mi/60);
     if(hrs < 0) { hrs += 24; }
     
-    // Đảm bảo workData[key] là object (map Job ID)
     if (!workData[key]) {
         workData[key] = {};
     }
 
-    // Lưu giờ vào workData theo Job ID
     workData[key][selectedJobId] = { in:tin, out:tout, hours:hrs };
 
     document.getElementById('timeModal').style.display='none';
@@ -464,7 +468,6 @@ document.getElementById('deleteTime').onclick=()=>{
         if (workData[key] && workData[key][selectedJobId]) {
             delete workData[key][selectedJobId];
             
-            // Nếu không còn job nào trong ngày, xóa luôn key ngày đó
             if (Object.keys(workData[key]).length === 0) {
                 delete workData[key];
             }
@@ -502,6 +505,109 @@ rateInput.oninput = adjustRateInputWidth;
 rateInput.onchange = updateSettings; 
 
 document.getElementById('openJobModal').onclick = () => openJobModal();
+
+// --- LOGIC QUẢN LÝ CÔNG VIỆC (GIỮ NGUYÊN) ---
+function openJobModalForEdit(id) {
+    openJobModal(id);
+}
+// HÀM MỚI: Mở Modal nhập/sửa công việc
+function openJobModal(id = null) {
+    editingJobId = id;
+    const nameInput = document.getElementById('jobName');
+    const addressInput = document.getElementById('jobAddress');
+    const startInput = document.getElementById('jobStartDate');
+    const endInput = document.getElementById('jobEndDate');
+    const currentCheckbox = document.getElementById('jobIsCurrent');
+    const title = document.getElementById('jobModalTitle');
+    const deleteBtn = document.getElementById('deleteJob');
+
+    if (id !== null) {
+        const job = jobs.find(j => j.id === id);
+        if (!job) return;
+        
+        title.textContent = 'Sửa Nơi làm việc';
+        nameInput.value = job.name;
+        addressInput.value = job.address || '';
+        startInput.value = job.startDate;
+        endInput.value = job.endDate || '';
+        currentCheckbox.checked = job.isCurrent;
+        deleteBtn.style.display = 'inline-block';
+    } else {
+        title.textContent = 'Thêm Nơi làm việc mới';
+        nameInput.value = '';
+        addressInput.value = '';
+        startInput.value = new Date().toISOString().split('T')[0];
+        endInput.value = '';
+        currentCheckbox.checked = true;
+        deleteBtn.style.display = 'none';
+    }
+    
+    toggleEndDateInput(currentCheckbox.checked);
+    jobModal.style.display = 'flex';
+}
+
+// HÀM MỚI: Xử lý logic Đang làm / Ngày Kết thúc
+function toggleEndDateInput(isCurrent) {
+    const endInput = document.getElementById('jobEndDate');
+    endInput.disabled = isCurrent;
+    endInput.style.backgroundColor = isCurrent ? '#eee' : '#fff';
+    endInput.required = !isCurrent;
+}
+document.getElementById('jobIsCurrent').onchange = (e) => toggleEndDateInput(e.target.checked);
+
+
+// HÀM MỚI: Lưu công việc
+document.getElementById('saveJob').onclick = () => {
+    const name = document.getElementById('jobName').value.trim();
+    const address = document.getElementById('jobAddress').value.trim();
+    const startDate = document.getElementById('jobStartDate').value;
+    const isCurrent = document.getElementById('jobIsCurrent').checked;
+    let endDate = isCurrent ? null : document.getElementById('jobEndDate').value;
+
+    if (!name || !startDate) {
+        alert('Vui lòng nhập Tên Nơi làm việc và Ngày Bắt đầu.');
+        return;
+    }
+    if (!isCurrent && !endDate) {
+        alert('Vui lòng nhập Ngày Kết thúc hoặc chọn "Đang làm".');
+        return;
+    }
+
+    const jobObject = { 
+        name, 
+        address, 
+        startDate, 
+        endDate, 
+        isCurrent 
+    };
+
+    if (editingJobId) {
+        const index = jobs.findIndex(j => j.id === editingJobId);
+        if (index !== -1) {
+            jobs[index] = { id: editingJobId, ...jobObject };
+        }
+    } else {
+        const newId = Date.now();
+        jobs.push({ id: newId, ...jobObject });
+    }
+
+    jobModal.style.display = 'none';
+    saveJobs(); 
+};
+
+// HÀM MỚI: Hủy Modal công việc
+document.getElementById('cancelJob').onclick = () => {
+    jobModal.style.display = 'none';
+};
+
+// HÀM MỚI: Xóa công việc
+document.getElementById('deleteJob').onclick = () => {
+    if (editingJobId && confirm('Bạn có chắc chắn muốn xóa nơi làm việc này không?')) {
+        jobs = jobs.filter(j => j.id !== editingJobId);
+        jobModal.style.display = 'none';
+        saveJobs(); 
+    }
+};
 
 // --- KHỞI TẠO ỨNG DỤNG ---
 function initApp() {
