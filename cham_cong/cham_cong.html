@@ -612,7 +612,9 @@ function renderCalendar() {
                 const dayData = workData[dkey] || {};
 
                 // Hiển thị TỔNG giờ của ngày (mọi job)
-                const hours = Object.values(dayData).reduce((s, v) => s + (v?.hours || 0), 0);
+                const currentJobId = getCurrentJobId();
+                const info = currentJobId ? (dayData[currentJobId] || {}) : {};
+                const hours = info.hours || 0;
 
                 let contentHTML = `<span>${day}</span>`;
                 if (hours > 0) {
