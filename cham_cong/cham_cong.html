@@ -265,7 +265,7 @@ function openModal(key){
     document.getElementById('timeOut').value=info.out||'18:00';
 }
 
-// --- LOGIC NƠI LÀM VIỆC (TINH GIẢN) ---
+// --- LOGIC NƠI LÀM VIỆC (ĐÃ BỎ CHÚ THÍCH HIỆN TẠI) ---
 
 function saveWorkplaces() {
     localStorage.setItem('workplaces', JSON.stringify(workplaces));
@@ -277,11 +277,12 @@ function saveWorkplaces() {
 function updateCurrentWorkplaceDisplay() {
     // Ẩn/hiện khối hiển thị tên nơi làm việc
     if (currentWorkplaceIndex !== -1 && workplaces[currentWorkplaceIndex]) {
-        currentWorkplaceName.textContent = workplaces[currentWorkplaceIndex].storeName + (workplaces[currentWorkplaceIndex].endDate === 'Đang làm' ? ' (Hiện tại)' : '');
+        // *** ĐÃ SỬA: CHỈ HIỂN THỊ TÊN CỬA HÀNG, BỎ CHÚ THÍCH (HIỆN TẠI) ***
+        currentWorkplaceName.textContent = workplaces[currentWorkplaceIndex].storeName;
         currentWorkplaceDisplayBlock.style.display = 'block';
     } else {
         currentWorkplaceName.textContent = '';
-        currentWorkplaceDisplayBlock.style.display = 'none'; // Ẩn khi không có nơi làm việc nào được chọn
+        currentWorkplaceDisplayBlock.style.display = 'none'; 
     }
 }
 
@@ -289,6 +290,7 @@ function renderWorkplaceList() {
     workplaceList.innerHTML = '';
     workplaces.forEach((wp, index) => {
         const card = document.createElement('div');
+        // *** ĐÃ SỬA: THẺ CHỌN CHỈ HIỂN THỊ TÊN CỬA HÀNG, BỎ CHÚ THÍCH ***
         card.className = `workplace-card ${index === currentWorkplaceIndex ? 'selected' : ''}`;
         card.dataset.index = index;
         const dateDisplay = wp.endDate === 'Đang làm' ? 'Đang làm' : `${wp.startDate} - ${wp.endDate}`;
@@ -358,7 +360,6 @@ cancelWorkplaceBtn.onclick = () => {
 };
 
 deleteWorkplaceBtn.onclick = () => {
-    // Bỏ thông báo alert() khi xóa
     if (editingIndex !== -1 && confirm(`Bạn có chắc chắn muốn xóa "${workplaces[editingIndex].storeName}"?`)) {
         workplaces.splice(editingIndex, 1);
         
@@ -384,7 +385,6 @@ createWorkplaceBtn.onclick = () => {
     }
 
     if (!storeName || !startDate) {
-        // Giữ lại alert() này vì nó là guardrail ngăn người dùng lưu dữ liệu trống
         alert('Vui lòng nhập Tên cửa hàng và Ngày bắt đầu.'); 
         return;
     }
@@ -393,11 +393,9 @@ createWorkplaceBtn.onclick = () => {
 
     if (editingIndex !== -1) {
         workplaces[editingIndex] = newWorkplace;
-        // Bỏ alert() khi lưu thành công
     } else {
         workplaces.push(newWorkplace);
         currentWorkplaceIndex = workplaces.length - 1; 
-        // Bỏ alert() khi tạo thành công
     }
     
     saveWorkplaces();
