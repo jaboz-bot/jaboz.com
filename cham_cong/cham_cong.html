@@ -13,6 +13,7 @@ html,body{height:100%;margin:0;font-family:Arial,sans-serif;background:#f6f8f9}
 .arrow{cursor:pointer;user-select:none;font-size:1.3em}
 table{width:100%;border-collapse:collapse;margin-top:10px}
 th,td{border:1px solid #ccc;text-align:center;padding:5px;font-size:.85em}
+/* Cột tiêu đề mặc định */
 th{background:#eaf2f8}
 .day{position:relative;height:80px;vertical-align:top;cursor:pointer}
 .day span{position:absolute;top:3px;left:5px;font-weight:bold;color:#2980b9}
@@ -31,6 +32,28 @@ th{background:#eaf2f8}
 #timeModal .modal-content input[type="time"] {
     width: 48%;
     display: inline-block;
+}
+
+/* --- CSS ĐÃ THÊM CHO YÊU CẦU MỚI --- */
+
+/* 1. Bôi đỏ cột Chủ Nhật (Cột đầu tiên) */
+table th:first-child {
+    background: #e74c3c; /* Màu đỏ đậm cho tiêu đề */
+    color: #fff;
+}
+table tr td:first-child {
+    background-color: #fcecec; /* Màu đỏ nhạt cho ô nội dung */
+}
+/* Đổi màu chữ số ngày của CN thành màu đỏ đậm */
+table tr td:first-child span {
+    color: #c0392b !important; 
+}
+
+/* 2. Làm tối màu ô trống (ô không có ngày tháng) */
+/* Thẻ td không có nội dung text hoặc span (ngày) */
+table tr td:empty {
+    background-color: #dddddd; /* Màu xám tối */
+    cursor: default;
 }
 </style>
 </head>
@@ -76,11 +99,8 @@ th{background:#eaf2f8}
 // --- KHAI BÁO BIẾN ---
 let currentMonth = new Date().getMonth();
 let currentYear = new Date().getFullYear();
-// Biến workData được giữ lại để lưu dữ liệu chấm công
 let workData = JSON.parse(localStorage.getItem('workData') || '{}'); 
 const rateInput = document.getElementById('rate');
-
-// ĐÃ XÓA TẤT CẢ BIẾN LIÊN QUAN ĐẾN NƠI LÀM VIỆC
 
 // --- HÀM CHUNG ---
 function daysInMonth(y,m){return new Date(y,m+1,0).getDate();}
@@ -107,11 +127,13 @@ function renderCalendar(){
         for(let c=0;c<7;c++){
             const td=document.createElement('td');
             if(r===0&&c<firstDay||day>totalDays){
+                // Nếu là ô trống, để trống innerHTML
                 td.innerHTML='';
             } else {
                 const dkey=`${currentYear}-${currentMonth+1}-${day}`;
                 const info=workData[dkey]||{};
                 td.className='day'; 
+                // Ô có nội dung ngày tháng sẽ có span, td:empty sẽ không áp dụng
                 td.innerHTML=`<span>${day}</span>${info.hours?`<div>${info.hours.toFixed(2)}h</div>`:''}`;
                 td.onclick=()=>openModal(dkey);
                 day++;
@@ -132,8 +154,6 @@ function openModal(key){
     document.getElementById('timeIn').value=info.in||'09:00';
     document.getElementById('timeOut').value=info.out||'18:00';
 }
-
-// --- ĐÃ XÓA TẤT CẢ LOGIC NƠI LÀM VIỆC ---
 
 // --- CÁC SỰ KIỆN KHÁC ---
 document.getElementById('saveTime').onclick=()=>{
@@ -158,7 +178,6 @@ document.getElementById('nextMonth').onclick=()=>{currentMonth++;if(currentMonth
 rateInput.onchange=updateSummary;
 
 // --- KHỞI TẠO ỨNG DỤNG ---
-// ĐÃ XÓA renderWorkplaceList();
 renderCalendar();
 </script>
 </body>
