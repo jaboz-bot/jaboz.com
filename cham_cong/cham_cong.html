@@ -17,30 +17,43 @@ th{background:#eaf2f8}
 .day span{position:absolute;top:3px;left:5px;font-weight:bold;color:#2980b9}
 .day div{position:absolute;bottom:3px;left:0;width:100%;font-size:.8em;color:#27ae60}
 .summary{margin-top:20px;background:#ecf9ff;padding:10px;border-radius:5px}
-.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);justify-content:center;align-items:center}
+
+/* CSS cho Modal chung */
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);justify-content:center;align-items:center;z-index:1000;}
 .modal-content{background:#fff;padding:20px;border-radius:10px;width:90%;max-width:400px}
-.modal-content input{width:100%;padding:8px;margin:5px 0;border:1px solid #ccc;border-radius:5px}
+.modal-content input[type="text"], .modal-content input[type="date"]{width:100%;padding:8px;margin:5px 0;border:1px solid #ccc;border-radius:5px}
+.modal-content input[type="time"]{width:48%;padding:8px;margin:5px 0;border:1px solid #ccc;border-radius:5px}
 .modal-content button{margin-top:10px;padding:8px 12px;border:none;border-radius:5px;cursor:pointer}
 .save{background:#3498db;color:#fff}
 .cancel{background:#ccc}
 
-    #workplace {
-    text-align: center; /* Căn giữa nội dung */
-    margin: 10px 0; /* Tạo khoảng cách trên dưới */
-    font-size: 1.1em;
+/* CSS cho Nơi Làm Việc */
+#workplace-button-container {
+    text-align: center;
+    margin: 10px 0;
+}
+#addWorkplaceBtn {
+    padding: 8px 15px;
+    background: #2ecc71;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
     font-weight: bold;
-    color: #c0392b; /* Màu đỏ nổi bật */
+}
+.modal-content label {
+    display: block; /* Giúp các label hiển thị trên dòng mới */
+    margin-top: 8px;
+    font-weight: bold;
+    font-size: 0.9em;
+}
+/* Căn chỉnh cho Input giờ (trong timeModal) */
+#timeModal .modal-content input[type="time"] {
+    width: 48%;
 }
 
-#workplace-name {
-    padding: 5px;
-    border: 1px solid #c0392b;
-    border-radius: 5px;
-}
-    
 </style>
 </head>
-<body>
 <body>
 <div class="container">
     <div class="header">
@@ -54,8 +67,8 @@ th{background:#eaf2f8}
         </div>
     </div>
     
-    <div id="workplace">
-        📍 Nơi làm việc: <input type="text" id="workplace-name" value="Tên Công ty/Dự án" style="width:200px">
+    <div id="workplace-button-container">
+        <button id="addWorkplaceBtn">➕ Thêm Nơi Làm Việc</button>
     </div>
     <table>
         <thead>
@@ -65,10 +78,12 @@ th{background:#eaf2f8}
     </table>
 
     <div class="summary">
+        📍 **Nơi làm việc hiện tại:** <span id="current-workplace-display">Chưa chọn</span><br>
         ✅ Tổng giờ: <span id="totalHours">0</span> giờ<br>
         💵 Thu nhập: <span id="totalPay">0</span> VND
     </div>
 </div>
+
 <div class="modal" id="timeModal">
     <div class="modal-content">
         <h3>Nhập giờ công - <span id="modalDate"></span></h3>
@@ -81,42 +96,84 @@ th{background:#eaf2f8}
     </div>
 </div>
 
+<div class="modal" id="workplaceModal">
+    <div class="modal-content">
+        <h3>Quản Lý Nơi Làm Việc</h3>
+        <label>Tên cửa hàng:</label>
+        <input type="text" id="storeNameInput" placeholder="VD: Dự án A">
+        <label>Địa chỉ:</label>
+        <input type="text" id="addressInput" placeholder="Địa chỉ/Ghi chú">
+        <label>Ngày bắt đầu:</label>
+        <input type="date" id="startDateInput">
+        <label>Ngày kết thúc:</label>
+        <input type="date" id="endDateInput">
+        <label style="display: block; margin-top: 10px;">
+            <input type="checkbox" id="isCurrentWork"> Đang làm
+        </label>
+        <button class="save" id="createWorkplaceBtn">Tạo/Lưu</button>
+        <button class="cancel" id="cancelWorkplaceBtn" style="background:#f39c12">Hủy</button>
+        <button class="cancel" id="deleteWorkplaceBtn" style="background:#e74c3c; display:none;">Xóa</button>
+    </div>
+</div>
+
 <script>
 let currentMonth = new Date().getMonth();
 let currentYear = new Date().getFullYear();
 let workData = JSON.parse(localStorage.getItem('workData')||'{}');
 const rateInput=document.getElementById('rate');
 
+// CÁC BIẾN MỚI CHO NƠI LÀM VIỆC
+const workplaceModal = document.getElementById('workplaceModal');
+const addWorkplaceBtn = document.getElementById('addWorkplaceBtn');
+const cancelWorkplaceBtn = document.getElementById('cancelWorkplaceBtn');
+const createWorkplaceBtn = document.getElementById('createWorkplaceBtn');
+const deleteWorkplaceBtn = document.getElementById('deleteWorkplaceBtn');
+const isCurrentWork = document.getElementById('isCurrentWork');
+const endDateInput = document.getElementById('endDateInput');
+const workplaceNameInput = document.getElementById('storeNameInput'); // Dùng tạm input trong modal để lưu
+
+// HÀM XỬ LÝ CHUNG
 function daysInMonth(y,m){return new Date(y,m+1,0).getDate();}
+
+function updateSummary(){
+    const rate=parseFloat(rateInput.value)||0;
+    let totalH=0; 
+    for(const k in workData) totalH+=workData[k].hours||0;
+    
+    document.getElementById('totalHours').textContent=totalH.toFixed(2);
+    document.getElementById('totalPay').textContent=(totalH*rate).toLocaleString('vi-VN');
+    localStorage.setItem('workData',JSON.stringify(workData));
+}
+
 function renderCalendar(){
     const tbl=document.getElementById('calendar');
     tbl.innerHTML='';
     const firstDay=new Date(currentYear,currentMonth,1).getDay();
     const totalDays=daysInMonth(currentYear,currentMonth);
     document.getElementById('monthYear').textContent=`${currentMonth+1}/${currentYear}`;
-    let day=1; for(let r=0;r<6;r++){const tr=document.createElement('tr');
-        for(let c=0;c<7;c++){const td=document.createElement('td');
-            if(r===0&&c<firstDay||day>totalDays){td.innerHTML='';}
-            else{
+    let day=1; 
+    for(let r=0;r<6;r++){
+        const tr=document.createElement('tr');
+        for(let c=0;c<7;c++){
+            const td=document.createElement('td');
+            if(r===0&&c<firstDay||day>totalDays){
+                td.innerHTML='';
+            } else {
                 const dkey=`${currentYear}-${currentMonth+1}-${day}`;
                 const info=workData[dkey]||{};
-                td.className='day'; td.innerHTML=`<span>${day}</span>${info.hours?`<div>${info.hours.toFixed(2)}h</div>`:''}`;
+                td.className='day'; 
+                td.innerHTML=`<span>${day}</span>${info.hours?`<div>${info.hours.toFixed(2)}h</div>`:''}`;
                 td.onclick=()=>openModal(dkey);
                 day++;
             }
             tr.appendChild(td);
-        } tbl.appendChild(tr);
+        } 
+        tbl.appendChild(tr);
         if(day>totalDays)break;
     }
     updateSummary();
 }
-function updateSummary(){
-    const rate=parseFloat(rateInput.value)||0;
-    let totalH=0; for(const k in workData) totalH+=workData[k].hours||0;
-    document.getElementById('totalHours').textContent=totalH.toFixed(2);
-    document.getElementById('totalPay').textContent=(totalH*rate).toLocaleString('vi-VN');
-    localStorage.setItem('workData',JSON.stringify(workData));
-}
+
 function openModal(key){
     const m=document.getElementById('timeModal');m.style.display='flex';
     const dateParts=key.split('-');document.getElementById('modalDate').textContent=`${dateParts[2]}/${dateParts[1]}`;
@@ -125,6 +182,72 @@ function openModal(key){
     document.getElementById('timeIn').value=info.in||'09:00';
     document.getElementById('timeOut').value=info.out||'18:00';
 }
+
+// LOGIC NƠI LÀM VIỆC
+function loadWorkplace() {
+    const savedWorkplace = JSON.parse(localStorage.getItem('currentWorkplace'));
+    if (savedWorkplace) {
+        document.getElementById('current-workplace-display').textContent = savedWorkplace.storeName + (savedWorkplace.endDate === 'Đang làm' ? ' (Hiện tại)' : '');
+    }
+}
+
+// Xử lý Checkbox "Đang làm"
+isCurrentWork.onchange = function() {
+    if (this.checked) {
+        endDateInput.value = '';
+        endDateInput.disabled = true;
+    } else {
+        endDateInput.disabled = false;
+    }
+};
+
+// Xử lý nút Thêm Nơi Làm Việc
+addWorkplaceBtn.onclick = () => {
+    workplaceModal.style.display = 'flex';
+    // Reset form
+    document.getElementById('storeNameInput').value = '';
+    document.getElementById('addressInput').value = '';
+    document.getElementById('startDateInput').value = '';
+    endDateInput.value = '';
+    isCurrentWork.checked = false;
+    endDateInput.disabled = false;
+    createWorkplaceBtn.textContent = 'Tạo/Lưu';
+    deleteWorkplaceBtn.style.display = 'none';
+};
+
+// Xử lý nút Hủy
+cancelWorkplaceBtn.onclick = () => {
+    workplaceModal.style.display = 'none';
+};
+
+// Xử lý nút Tạo/Lưu
+createWorkplaceBtn.onclick = () => {
+    const storeName = document.getElementById('storeNameInput').value;
+    const address = document.getElementById('addressInput').value;
+    const startDate = document.getElementById('startDateInput').value;
+    let endDate = endDateInput.value;
+
+    if (isCurrentWork.checked) {
+        endDate = 'Đang làm';
+    }
+
+    if (!storeName || !startDate) {
+        alert('Vui lòng nhập Tên cửa hàng và Ngày bắt đầu.');
+        return;
+    }
+
+    // Lưu nơi làm việc được chọn là nơi làm việc hiện tại
+    const newWorkplace = { storeName, address, startDate, endDate };
+    localStorage.setItem('currentWorkplace', JSON.stringify(newWorkplace));
+    
+    // Cập nhật giao diện
+    loadWorkplace();
+    
+    alert(`Đã lưu nơi làm việc: ${storeName}`);
+    workplaceModal.style.display = 'none';
+};
+
+// CÁC SỰ KIỆN KHÁC
 document.getElementById('saveTime').onclick=()=>{
     const key=document.getElementById('timeModal').dataset.key;
     const tin=document.getElementById('timeIn').value;
@@ -139,6 +262,9 @@ document.getElementById('cancelTime').onclick=()=>document.getElementById('timeM
 document.getElementById('prevMonth').onclick=()=>{currentMonth--;if(currentMonth<0){currentMonth=11;currentYear--;}renderCalendar();};
 document.getElementById('nextMonth').onclick=()=>{currentMonth++;if(currentMonth>11){currentMonth=0;currentYear++;}renderCalendar();};
 rateInput.onchange=updateSummary;
+
+// KHỞI TẠO
+loadWorkplace();
 renderCalendar();
 </script>
 </body>
