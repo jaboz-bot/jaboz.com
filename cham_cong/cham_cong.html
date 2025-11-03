@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -31,154 +32,96 @@ html,body{height:100%;margin:0;font-family:Arial,sans-serif;background:#f6f8f9}
     box-shadow: 0 2px 5px rgba(0,0,0,.1);
     white-space: nowrap; 
 }
-.add-job-btn {
-    background: #2ecc71;
-    color: #fff;
-}
-.lang-toggle-btn {
-    background: #f1c40f; 
-    color: #333;
-    font-size: 0.9em;
-    padding: 8px 12px;
-}
+.add-job-btn { background:#2ecc71; color:#fff; }
+.lang-toggle-btn { background:#f1c40f; color:#333; font-size:.9em; padding:8px 12px; }
 
 /* CSS CHO CAROUSEL */
 #jobCarousel {
-    display: flex; 
-    overflow-x: auto; 
-    scroll-snap-type: x mandatory; 
-    scroll-behavior: smooth; 
-    -webkit-overflow-scrolling: touch; 
-    margin-bottom: 15px;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    padding: 10px;
-    background: #f7f7f7;
-    box-shadow: inset 0 0 5px rgba(0,0,0,.05);
+    display:flex;
+    overflow-x:auto;
+    scroll-snap-type:x mandatory;
+    scroll-behavior:smooth;
+    -webkit-overflow-scrolling:touch;
+    margin-bottom:15px;
+    border:1px solid #e0e0e0;
+    border-radius:8px;
+    padding:10px;
+    background:#f7f7f7;
+    box-shadow:inset 0 0 5px rgba(0,0,0,.05);
+    min-height:72px; /* đảm bảo luôn thấy khu vực */
 }
 .job-item {
-    min-width: 100%; 
-    flex-shrink: 0; 
-    padding: 5px;
-    font-size: 0.9em;
-    color: #333;
-    cursor: pointer;
-    scroll-snap-align: start; 
-    box-sizing: border-box;
+    min-width:100%;
+    flex-shrink:0;
+    padding:10px 12px;
+    font-size:.95em;
+    color:#333;
+    cursor:pointer;
+    scroll-snap-align:start;
+    box-sizing:border-box;
+    transition:background-color .15s ease;
 }
 .job-item.selected {
-    background-color: #d7e8f5; 
-    border: 1px solid #2980b9;
-    border-radius: 5px;
+    background-color:#d7e8f5;
+    border:1px solid #2980b9;
+    border-radius:5px;
 }
-.job-item strong { 
-    color: #2980b9; 
-    display: block;
-    font-size: 1.1em;
-}
-.job-item span { 
-    color: #7f8c8d; 
-    display: block;
-    margin-top: 3px;
-    font-size: 0.85em;
-}
-.job-item:hover { 
-    background-color: #eaf2f8; 
-}
-
+.job-item strong { color:#2980b9; display:block; font-size:1.15em; }
+.job-item span { color:#7f8c8d; display:block; margin-top:4px; font-size:.9em; }
+.job-item:hover { background-color:#eaf2f8; }
+.job-item.selected:hover { background-color:#d7e8f5; }
 
 /* CSS CHUNG BẢNG LỊCH */
 .header{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #3498db;padding-bottom:10px}
 .month-nav{display:flex;align-items:center;gap:8px;font-weight:bold;color:#27ae60}
 .arrow{cursor:pointer;user-select:none;font-size:1.3em}
-table{
-    width:100%;
-    border-collapse:collapse;
-    margin-top:10px;
-    table-layout: fixed; 
-}
+table{width:100%;border-collapse:collapse;margin-top:10px;table-layout:fixed}
 th,td{border:1px solid #ccc;text-align:center;padding:5px;font-size:.85em}
 th{background:#eaf2f8}
 
 /* Định dạng ô ngày */
-.day{position:relative;height:80px;vertical-align:top;cursor:pointer; padding-top: 20px;} 
+.day{position:relative;height:80px;vertical-align:top;cursor:pointer;padding-top:20px}
 .day span{position:absolute;top:3px;left:5px;font-weight:bold;color:#2980b9}
 
 /* CĂN GIỮA GIỜ CÔNG VÀ TIỀN */
-.day div {
-    /* Đảm bảo cả 2 DIV giờ và tiền đều căn giữa */
-    width: 100%; 
-    margin-top: 5px; 
-    text-align: center; 
-    line-height: 1.2;
-}
+.day div{width:100%;margin-top:5px;text-align:center;line-height:1.2}
 
 /* Định dạng Giờ Công */
-.day .hours-display {
-    font-weight: bold;
-    color: #2ecc71; /* Xanh lá cây */
-    font-size: 0.9em;
-}
+.day .hours-display{font-weight:bold;color:#2ecc71;font-size:.9em}
 
 /* Định dạng Số Tiền */
-.day .pay-display {
-    color: #e74c3c; /* MÀU ĐỎ */
-    font-size: 0.8em;
-    font-weight: normal;
-    margin-top: 2px;
-}
+.day .pay-display{color:#e74c3c;font-size:.8em;font-weight:normal;margin-top:2px}
 
 .summary{margin-top:20px;background:#ecf9ff;padding:10px;border-radius:5px}
 
 /* ĐIỀU CHỈNH TỔNG GIỜ CÔNG VÀ ĐƠN VỊ TÍNH */
-#totalHours {
-    font-weight: bold;
-    color: #2ecc71; 
-    font-size: 1.1em;
-}
-.summary .green-unit {
-    color: #2ecc71; /* XANH LÁ CÂY */
-    font-weight: bold;
-}
+#totalHours{font-weight:bold;color:#2ecc71;font-size:1.1em}
+.summary .green-unit{color:#2ecc71;font-weight:bold}
 
 /* ĐIỀU CHỈNH TỔNG THU NHẬP VÀ ĐƠN VỊ TÍNH */
-#totalPay {
-    font-weight: bold;
-    color: #e74c3c; 
-    font-size: 1.1em;
-}
-.summary .red-unit {
-    color: #e74c3c; /* MÀU ĐỎ */
-    font-weight: bold;
-}
+#totalPay{font-weight:bold;color:#e74c3c;font-size:1.1em}
+.summary .red-unit{color:#e74c3c;font-weight:bold}
 
 /* CSS CHO MODAL CHUNG (Không đổi) */
 .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);justify-content:center;align-items:center;z-index:1000;}
 .modal-content{background:#fff;padding:20px;border-radius:10px;width:90%;max-width:400px}
 .modal-content input[type="text"], .modal-content input[type="date"], .modal-content select{width:100%;padding:8px;margin:5px 0;border:1px solid #ccc;border-radius:5px;box-sizing:border-box;}
-
-/* Điều chỉnh cho 3 nút: Xóa nằm bên trái, Hủy và Lưu nằm bên phải */
-.button-group{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
+.button-group{display:flex;justify-content:space-between;align-items:center}
 .modal-content button{margin-top:15px;padding:8px 12px;border:none;border-radius:5px;cursor:pointer}
 .save{background:#3498db;color:#fff}
 .cancel{background:#ccc}
-.delete{background:#e74c3c;color:#fff} 
-
+.delete{background:#e74c3c;color:#fff}
 
 /* Tùy chỉnh Calendar và Input Lương/giờ */
-table th:first-child { background: #e74c3c; color: #fff; }
-table tr td:first-child { background-color: #fcecec; }
-table tr td:first-child span { color: #c0392b !important; }
-table tr td:empty { background-color: #dddddd; cursor: default; }
-.header input#rate { min-width: 70px; width: 70px; transition: width 0.2s ease-in-out; text-align: right; }
+table th:first-child{background:#e74c3c;color:#fff}
+table tr td:first-child{background-color:#fcecec}
+table tr td:first-child span{color:#c0392b !important}
+table tr td:empty{background-color:#dddddd;cursor:default}
+.header input#rate{min-width:70px;width:70px;transition:width .2s ease-in-out;text-align:right}
 
-.time-input-group { display: flex; align-items: center; margin-bottom: 10px; }
-.time-input-group label { font-weight: bold; width: 40px; text-align: left; margin-right: 10px; }
-.time-input-group input[type="time"] { flex-grow: 1; padding: 8px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; width: auto; }
+.time-input-group{display:flex;align-items:center;margin-bottom:10px}
+.time-input-group label{font-weight:bold;width:40px;text-align:left;margin-right:10px}
+.time-input-group input[type="time"]{flex-grow:1;padding:8px;border:1px solid #ccc;border-radius:5px;box-sizing:border-box;width:auto}
 </style>
 </head>
 <body>
@@ -190,8 +133,8 @@ table tr td:empty { background-color: #dddddd; cursor: default; }
         <button class="lang-toggle-btn" id="langToggle">🇰🇷 Korean</button>
     </div>
     
-    <div id="jobCarousel">
-        </div>
+    <div id="jobCarousel"></div>
+
     <div class="header"> 
         <div class="month-nav">
             <span class="arrow" id="prevMonth">◀</span>
@@ -199,7 +142,9 @@ table tr td:empty { background-color: #dddddd; cursor: default; }
             <span class="arrow" id="nextMonth">▶</span>
         </div>
         <div>
-            <span data-i18n="rate_per_hour">💰 Lương/giờ:</span> <input type="text" id="rate" value="10.000"> <span id="currencyUnit">VND</span>
+            <span data-i18n="rate_per_hour">💰 Lương/giờ:</span>
+            <input type="text" id="rate" value="10.000">
+            <span id="currencyUnit">VND</span>
         </div>
     </div>
     
@@ -215,25 +160,22 @@ table tr td:empty { background-color: #dddddd; cursor: default; }
     </div>
 
     <div class="summary">
-    ✅ <span id="totalHoursLabel">Tổng giờ hiện tại tháng 00:</span> <span id="totalHours">0</span> <span class="green-unit">GIỜ</span><br>
-    💵 <span id="totalPayLabel">Thu nhập ước tính tháng 00:</span> <span id="totalPay">0</span> <span class="red-unit" data-i18n="unit_vnd">VND</span>
-</div>
+        ✅ <span id="totalHoursLabel">Tổng GIỜ tháng 00:</span> <span id="totalHours">0</span> <span class="green-unit">GIỜ</span><br>
+        💵 <span id="totalPayLabel">Thu nhập tháng 00:</span> <span id="totalPay">0</span> <span class="red-unit" data-i18n="unit_vnd">VND</span>
+    </div>
 </div>
 
 <div class="modal" id="timeModal">
     <div class="modal-content">
         <h3 data-i18n="modal_time_title">Nhập giờ công - <span id="modalDate"></span></h3>
-        
         <div class="time-input-group">
             <label for="timeIn" data-i18n="time_in">Vào:</label>
             <input type="time" id="timeIn" value="09:00">
         </div>
-        
         <div class="time-input-group">
             <label for="timeOut" data-i18n="time_out">Ra:</label>
             <input type="time" id="timeOut" value="18:00">
         </div>
-        
         <div class="button-group">
             <button class="delete" id="deleteTime" data-i18n="delete">Xóa</button>
             <div>
@@ -247,28 +189,23 @@ table tr td:empty { background-color: #dddddd; cursor: default; }
 <div class="modal" id="jobModal">
     <div class="modal-content">
         <h3 id="jobModalTitle" data-i18n="modal_job_add_title">Thêm Nơi làm việc mới</h3>
-        
         <div class="input-group">
             <label for="jobName" data-i18n="job_name">Tên Nơi làm việc:</label>
             <input type="text" id="jobName" placeholder="Tên công ty/Dự án..." required>
         </div>
-
         <div class="input-group">
             <label for="jobAddress" data-i18n="job_address">Địa chỉ:</label>
             <input type="text" id="jobAddress" placeholder="Địa chỉ nơi làm việc (VD: 123 đường ABC)">
         </div>
-
         <div class="input-group">
             <label for="jobStartDate" data-i18n="job_start_date">Ngày Bắt đầu:</label>
             <input type="date" id="jobStartDate" required>
         </div>
-
         <div class="input-group">
             <label for="jobEndDate" data-i18n="job_end_date">Ngày Kết thúc:</label>
             <input type="date" id="jobEndDate">
             <input type="checkbox" id="jobIsCurrent" data-i18n-placeholder="job_is_current"> Đang làm
         </div>
-        
         <div class="job-button-group">
             <button class="delete" id="deleteJob" data-i18n="delete">Xóa</button>
             <div class="right-buttons">
@@ -280,42 +217,34 @@ table tr td:empty { background-color: #dddddd; cursor: default; }
 </div>
 
 <script>
-// --- RÚT GỌN + SỬA HIỂN THỊ GIỜ ---
-
+// Trạng thái
 let currentMonth = new Date().getMonth();
 let currentYear = new Date().getFullYear();
-
 let workData = JSON.parse(localStorage.getItem('workData') || '{}');
 let appSettings = JSON.parse(localStorage.getItem('appSettings') || '{}');
 let jobs = JSON.parse(localStorage.getItem('jobs') || '[]');
-
 let editingJobId = null;
 let currentLang = localStorage.getItem('currentLang') || 'vi';
 let startX = 0;
 
+// Elements
 const rateInput = document.getElementById('rate');
 const jobModal = document.getElementById('jobModal');
 const jobCarouselDiv = document.getElementById('jobCarousel');
-
 const langToggleBtn = document.getElementById('langToggle');
 const calendarTable = document.getElementById('calendarTable');
 const currencyUnitSpan = document.getElementById('currencyUnit');
 
+// Dịch
 const translations = {
     vi: {
-        days: ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'],
-        months: ['Tháng 1','Tháng 2','Tháng 3','Tháng 4','Tháng 5','Tháng 6','Tháng 7','Tháng 8','Tháng 9','Tháng 10','Tháng 11','Tháng 12'],
+        days: ['CN','T2','T3','T4','T5','T6','T7'],
         currency: 'VND',
         manage_jobs: '➕ Quản lý Nơi làm việc',
         rate_per_hour: '💰 Lương/giờ:',
-        total_hours_label: 'Tổng giờ công việc hiện tại:',
-        estimated_pay_label: 'Thu nhập ước tính:',
-        unit_hours: 'giờ',
-        unit_vnd: 'VND',
         modal_time_title: 'Nhập giờ công -',
         time_in: 'Vào:',
         time_out: 'Ra:',
-        job_label: 'Nơi làm việc:',
         delete: 'Xóa',
         cancel: 'Hủy',
         save: 'Lưu',
@@ -333,22 +262,17 @@ const translations = {
         alert_delete_time_confirm: (jobName) => `Bạn có chắc chắn muốn xóa giờ công của ngày này cho ${jobName} không?`,
         job_date_current: 'Đang làm',
         job_date_from: 'Từ',
-        job_date_to: 'đến'
+        job_date_to: 'đến',
+        unit_vnd: 'VND'
     },
     ko: {
         days: ['일','월','화','수','목','금','토'],
-        months: ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],
         currency: 'KRW',
         manage_jobs: '➕ 직장 관리',
         rate_per_hour: '💰 시급:',
-        total_hours_label: '총 근무 시간:',
-        estimated_pay_label: '예상 수입:',
-        unit_hours: '시간',
-        unit_vnd: 'KRW',
         modal_time_title: '근무 시간 입력 -',
         time_in: '출근:',
         time_out: '퇴근:',
-        job_label: '직장:',
         delete: '삭제',
         cancel: '취소',
         save: '저장',
@@ -366,89 +290,87 @@ const translations = {
         alert_delete_time_confirm: (jobName) => `이 날짜의 ${jobName} 근무 시간을 정말로 삭제하시겠습니까?`,
         job_date_current: '재직 중',
         job_date_from: '',
-        job_date_to: '까지'
+        job_date_to: '까지',
+        unit_vnd: 'KRW'
     }
 };
 
 // Helpers
 const pad = (n) => (n < 10 ? '0' + n : '' + n);
-const getDayKey = (y, m, d) => `${y}-${pad(m + 1)}-${pad(d)}`;
-const daysInMonth = (y, m) => new Date(y, m + 1, 0).getDate();
-const formatDate = (iso) => (iso ? iso.split('-').reverse().join('/') : '');
+const getDayKey = (y,m,d) => `${y}-${pad(m+1)}-${pad(d)}`;
+const daysInMonth = (y,m) => new Date(y,m+1,0).getDate();
+function getTranslation(key, ...args){ const t = translations[currentLang][key]; return typeof t === 'function' ? t(...args) : (t ?? key); }
 
-function getRateValue() {
-    const digits = String(rateInput.value).replace(/\D/g, '');
+// Rate format helpers
+function getRateValue(){
+    const digits = String(rateInput.value).replace(/\D/g,'');
     return Number(digits || 0);
 }
-function formatRateInputDisplay() {
-    const digits = String(rateInput.value).replace(/\D/g, '');
+function formatRateInputDisplay(){
+    const digits = String(rateInput.value).replace(/\D/g,'');
     rateInput.value = Number(digits || 0).toLocaleString(currentLang === 'vi' ? 'vi-VN' : 'ko-KR');
 }
-
-function getTranslation(key, ...args) {
-    const t = translations[currentLang][key];
-    return typeof t === 'function' ? t(...args) : (t || translations.vi[key] || key);
+function adjustRateInputWidth(){
+    const length = String(rateInput.value).replace(/\D/g,'').length;
+    let newWidth = 70 + Math.max(0, Math.min(12, length) - 4) * 10;
+    if (length < 4) newWidth = 70;
+    rateInput.style.width = `${newWidth}px`;
 }
 
-function setLanguage(lang) {
+// Ngôn ngữ
+function setLanguage(lang){
     currentLang = lang;
     localStorage.setItem('currentLang', lang);
-    const t = translations[lang];
-
     document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.getAttribute('data-i18n');
-    // Nếu phần tử chứa #modalDate, giữ lại span và chỉ cập nhật phần tiêu đề
-    if (el.querySelector && el.querySelector('#modalDate')) {
-        const currentDate = el.querySelector('#modalDate')?.textContent || '';
-        el.innerHTML = `${getTranslation(key)} <span id="modalDate">${currentDate}</span>`;
-    } else {
-        el.textContent = getTranslation(key);
-    }
-});
-
-    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-        const key = el.getAttribute('data-i18n-placeholder');
-        if (key && t[key] && el.nextSibling) el.nextSibling.textContent = ' ' + t[key];
+        const key = el.getAttribute('data-i18n');
+        if (el.querySelector && el.querySelector('#modalDate')) {
+            const currentDate = el.querySelector('#modalDate')?.textContent || '';
+            el.innerHTML = `${getTranslation(key)} <span id="modalDate">${currentDate}</span>`;
+        } else {
+            el.textContent = getTranslation(key);
+        }
     });
-
-    const titleKey = editingJobId ? 'modal_job_edit_title' : 'modal_job_add_title';
-    const titleEl = document.getElementById('jobModalTitle');
-    titleEl.setAttribute('data-i18n', titleKey);
-    titleEl.textContent = getTranslation(titleKey);
-
     const headers = document.getElementById('calendarHeaders').children;
-    t.days.forEach((day, i) => (headers[i].textContent = day));
-
-    currencyUnitSpan.textContent = t.currency;
-    document.querySelector('.summary .red-unit').textContent = t.unit_vnd;
+    translations[currentLang].days.forEach((d,i)=>headers[i].textContent=d);
+    currencyUnitSpan.textContent = translations[currentLang].currency;
+    document.querySelector('.summary .red-unit').textContent = translations[currentLang].unit_vnd;
     langToggleBtn.textContent = lang === 'vi' ? '🇰🇷 Korean' : '🇻🇳 Tiếng Việt';
-
     renderCalendar();
     renderJobList();
 }
-
 langToggleBtn.onclick = () => setLanguage(currentLang === 'vi' ? 'ko' : 'vi');
 
-function saveJobs() {
-    localStorage.setItem('jobs', JSON.stringify(jobs));
-    renderJobList();
-    
+// Jobs
+function ensureJobs(){
+    jobs = JSON.parse(localStorage.getItem('jobs') || '[]');
+    if (jobs.length === 0){
+        jobs.push({
+            id: Date.now().toString(),
+            name: 'Công việc Chính',
+            address: 'Văn phòng/Remote',
+            startDate: new Date().toISOString().split('T')[0],
+            endDate: '',
+            isCurrent: true
+        });
+        localStorage.setItem('jobs', JSON.stringify(jobs));
+    }
 }
-
-function openJobModal(jobId = null) {
+function saveJobs(){
+    localStorage.setItem('jobs', JSON.stringify(jobs));
+    ensureJobs();
+    renderJobList();
+}
+function openJobModal(jobId = null){
     editingJobId = jobId;
     jobModal.style.display = 'flex';
-
     const titleKey = jobId ? 'modal_job_edit_title' : 'modal_job_add_title';
     const titleEl = document.getElementById('jobModalTitle');
     titleEl.setAttribute('data-i18n', titleKey);
     titleEl.textContent = getTranslation(titleKey);
-
     document.getElementById('deleteJob').style.display = jobId ? 'inline-block' : 'none';
-
-    const set = (id, v) => (document.getElementById(id).value = v || '');
-    if (jobId) {
-        const job = jobs.find(j => j.id === jobId) || {};
+    const set = (id,v)=>document.getElementById(id).value = v || '';
+    if (jobId){
+        const job = jobs.find(j=>j.id===jobId) || {};
         set('jobName', job.name);
         set('jobAddress', job.address);
         set('jobStartDate', job.startDate);
@@ -456,29 +378,23 @@ function openJobModal(jobId = null) {
         document.getElementById('jobIsCurrent').checked = !!job.isCurrent;
         document.getElementById('jobEndDate').disabled = !!job.isCurrent;
     } else {
-        set('jobName', '');
-        set('jobAddress', '');
+        set('jobName',''); set('jobAddress','');
         set('jobStartDate', new Date().toISOString().split('T')[0]);
-        set('jobEndDate', '');
+        set('jobEndDate','');
         document.getElementById('jobIsCurrent').checked = true;
         document.getElementById('jobEndDate').disabled = true;
     }
 }
-
 document.getElementById('saveJob').onclick = () => {
     const name = document.getElementById('jobName').value.trim();
     const address = document.getElementById('jobAddress').value.trim();
     const startDate = document.getElementById('jobStartDate').value;
     const endDate = document.getElementById('jobEndDate').value;
     const isCurrent = document.getElementById('jobIsCurrent').checked;
-
     if (!name || !startDate) return alert(getTranslation('alert_job_required'));
-    if (!isCurrent && endDate && new Date(startDate) > new Date(endDate)) {
-        return alert(getTranslation('alert_date_invalid'));
-    }
-
-    if (editingJobId) {
-        const i = jobs.findIndex(j => j.id === editingJobId);
+    if (!isCurrent && endDate && new Date(startDate) > new Date(endDate)) return alert(getTranslation('alert_date_invalid'));
+    if (editingJobId){
+        const i = jobs.findIndex(j=>j.id===editingJobId);
         if (i !== -1) jobs[i] = { id: editingJobId, name, address, startDate, endDate, isCurrent };
     } else {
         jobs.push({ id: Date.now().toString(), name, address, startDate, endDate, isCurrent });
@@ -487,15 +403,13 @@ document.getElementById('saveJob').onclick = () => {
     saveJobs();
     renderCalendar();
 };
-
 document.getElementById('deleteJob').onclick = () => {
-    const job = jobs.find(j => j.id === editingJobId);
+    const job = jobs.find(j=>j.id===editingJobId);
     if (!editingJobId) return;
     if (!confirm(getTranslation('alert_delete_confirm', job?.name || ''))) return;
-
-    jobs = jobs.filter(j => j.id !== editingJobId);
-    for (const dateKey in workData) {
-        if (workData[dateKey]?.[editingJobId]) {
+    jobs = jobs.filter(j=>j.id!==editingJobId);
+    for (const dateKey in workData){
+        if (workData[dateKey]?.[editingJobId]){
             delete workData[dateKey][editingJobId];
             if (Object.keys(workData[dateKey]).length === 0) delete workData[dateKey];
         }
@@ -504,8 +418,7 @@ document.getElementById('deleteJob').onclick = () => {
     saveJobs();
     renderCalendar();
 };
-
-document.getElementById('cancelJob').onclick = () => (jobModal.style.display = 'none');
+document.getElementById('cancelJob').onclick = () => jobModal.style.display = 'none';
 document.getElementById('jobIsCurrent').onchange = (e) => {
     const dis = e.target.checked;
     const endInput = document.getElementById('jobEndDate');
@@ -513,106 +426,93 @@ document.getElementById('jobIsCurrent').onchange = (e) => {
     if (dis) endInput.value = '';
 };
 
-function getCurrentJobId() {
+// Carousel select job
+function getCurrentJobId(){
+    ensureJobs();
     if (jobs.length === 0) return null;
     const scrollPos = jobCarouselDiv.scrollLeft;
     const widthPerItem = jobCarouselDiv.clientWidth || 1;
     let selectedIndex = Math.round(scrollPos / widthPerItem);
     if (selectedIndex >= jobs.length) selectedIndex = jobs.length - 1;
     if (selectedIndex < 0) selectedIndex = 0;
-
     const items = jobCarouselDiv.querySelectorAll('.job-item');
-    items.forEach((item, i) => item.classList.toggle('selected', i === selectedIndex));
-
+    items.forEach((item,i)=>item.classList.toggle('selected', i===selectedIndex));
     return jobs[selectedIndex]?.id || null;
 }
-
 jobCarouselDiv.addEventListener('scroll', () => {
     clearTimeout(jobCarouselDiv.scrollTimeout);
     jobCarouselDiv.scrollTimeout = setTimeout(renderCalendar, 100);
 });
-
-function renderJobList() {
+function renderJobList(){
+    ensureJobs();
     jobCarouselDiv.innerHTML = '';
-    if (jobs.length === 0) {
+    if (jobs.length === 0){
         jobCarouselDiv.innerHTML = `<div style="color:#999;font-size:0.9em; min-width: 100%; text-align: center; padding: 15px;">${getTranslation('job_name')} (${getTranslation('modal_job_add_title').toLowerCase()})</div>`;
-        jobCarouselDiv.style.border = '1px dashed #ccc';
-        jobCarouselDiv.style.boxShadow = 'none';
-        jobCarouselDiv.style.background = 'none';
+        jobCarouselDiv.style.border='1px dashed #ccc';
+        jobCarouselDiv.style.boxShadow='none';
+        jobCarouselDiv.style.background='none';
         return;
     }
-    jobCarouselDiv.style.border = '1px solid #e0e0e0';
-    jobCarouselDiv.style.boxShadow = 'inset 0 0 5px rgba(0,0,0,.05)';
-    jobCarouselDiv.style.background = '#f7f7f7';
-
-    jobs.forEach(job => {
+    jobCarouselDiv.style.border='1px solid #e0e0e0';
+    jobCarouselDiv.style.boxShadow='inset 0 0 5px rgba(0,0,0,.05)';
+    jobCarouselDiv.style.background='#f7f7f7';
+    jobs.forEach(job=>{
         const item = document.createElement('div');
         item.className = 'job-item';
         item.dataset.id = job.id;
-
         const dateStr = job.isCurrent
-            ? `${getTranslation('job_date_from')} ${formatDate(job.startDate)} - ${getTranslation('job_date_current')}`
-            : `${getTranslation('job_date_from')} ${formatDate(job.startDate)} ${getTranslation('job_date_to')} ${formatDate(job.endDate)}`;
-
+            ? `${getTranslation('job_date_from')} ${job.startDate.split('-').reverse().join('/')} - ${getTranslation('job_date_current')}`
+            : `${getTranslation('job_date_from')} ${job.startDate.split('-').reverse().join('/')} ${getTranslation('job_date_to')} ${(job.endDate||'').split('-').reverse().join('/')}`;
         const addressHtml = job.address ? `<span>📍 ${job.address}</span>` : '';
         item.innerHTML = `<strong>${job.name}</strong><span>${dateStr}</span>${addressHtml}`;
-
-        item.onclick = (e) => {
-            if (e.target.closest('.job-item') === item) openJobModal(job.id);
-        };
+        item.onclick = (e) => { if (e.target.closest('.job-item') === item) openJobModal(job.id); };
         jobCarouselDiv.appendChild(item);
     });
-
-    getCurrentJobId(); // set selected state
+    getCurrentJobId();
 }
 
-
-function updateSummary() {
-    const rate = parseFloat(rateInput.value) || 0;
+// Tính tổng
+function updateSummary(){
+    const rate = getRateValue();
     let totalH = 0;
     const currentJobId = getCurrentJobId();
     const monthKey = `${currentYear}-${pad(currentMonth + 1)}`;
-
-    for (const k in workData) {
-        if (k.startsWith(monthKey) && workData[k]?.[currentJobId]) {
+    for (const k in workData){
+        if (k.startsWith(monthKey) && workData[k]?.[currentJobId]){
             totalH += workData[k][currentJobId].hours || 0;
         }
     }
-
     const locale = currentLang === 'vi' ? 'vi-VN' : 'ko-KR';
     document.getElementById('totalHours').textContent = totalH.toFixed(2);
     document.getElementById('totalPay').textContent = (totalH * rate).toLocaleString(locale);
-    // localStorage.setItem('workData', JSON.stringify(workData)); // bỏ dòng này
 }
 
-function renderCalendar() {
+// Render lịch
+function renderCalendar(){
     const tbl = document.getElementById('calendar');
     tbl.innerHTML = '';
-
     const firstDay = new Date(currentYear, currentMonth, 1).getDay();
     const totalDays = daysInMonth(currentYear, currentMonth);
     document.getElementById('monthYear').textContent = `${pad(currentMonth + 1)}/${currentYear}`;
-
     let day = 1;
-    const rate = parseFloat(rateInput.value) || 0;
+    const rate = getRateValue();
     const locale = currentLang === 'vi' ? 'vi-VN' : 'ko-KR';
     const currencyCode = translations[currentLang].unit_vnd;
-    const currentJobId = getCurrentJobId(); // moved up
+    const currentJobId = getCurrentJobId();
 
-    for (let r = 0; r < 6; r++) {
+    for (let r=0;r<6;r++){
         const tr = document.createElement('tr');
-        for (let c = 0; c < 7; c++) {
+        for (let c=0;c<7;c++){
             const td = document.createElement('td');
-            if ((r === 0 && c < firstDay) || day > totalDays) {
+            if ((r===0 && c<firstDay) || day>totalDays){
                 td.innerHTML = '';
             } else {
                 const dkey = getDayKey(currentYear, currentMonth, day);
                 const dayData = workData[dkey] || {};
                 const info = currentJobId ? (dayData[currentJobId] || {}) : {};
                 const hours = info.hours || 0;
-
                 let contentHTML = `<span>${day}</span>`;
-                if (hours > 0) {
+                if (hours > 0){
                     const pay = hours * rate;
                     contentHTML += `
                         <div class="hours-display">${hours.toFixed(1)}h</div>
@@ -622,7 +522,7 @@ function renderCalendar() {
                 td.className = 'day';
                 td.innerHTML = contentHTML;
                 td.dataset.key = dkey;
-                td.onclick = (e) => { if (e.currentTarget.innerHTML !== '') openModal(dkey); };
+                td.onclick = (e)=>{ if (e.currentTarget.innerHTML !== '') openModal(dkey); };
                 day++;
             }
             tr.appendChild(td);
@@ -633,27 +533,27 @@ function renderCalendar() {
 
     updateSummary();
 
-    // cuối renderCalendar()
-const mm = pad(currentMonth + 1);
-if (currentLang === 'vi') {
-    document.getElementById('totalHoursLabel').textContent = `Tổng giờ hiện tại tháng ${mm}:`;
-    document.getElementById('totalPayLabel').textContent = `Thu nhập ước tính tháng ${mm}:`;
-} else {
-    document.getElementById('totalHoursLabel').textContent = `${mm}월 총 시간:`;
-    document.getElementById('totalPayLabel').textContent = `${mm}월 예상 수입:`;
+    const mm = pad(currentMonth + 1);
+    if (currentLang === 'vi') {
+        document.getElementById('totalHoursLabel').textContent = `Tổng GIỜ tháng ${mm}:`;
+        document.getElementById('totalPayLabel').textContent = `Thu nhập tháng ${mm}:`;
+    } else {
+        document.getElementById('totalHoursLabel').textContent = `${mm}월 총 시간:`;
+        document.getElementById('totalPayLabel').textContent = `${mm}월 예상 수입:`;
+    }
 }
-}
-function openModal(key) {
+
+// Modal thời gian
+function openModal(key){
     const m = document.getElementById('timeModal');
     m.style.display = 'flex';
     m.dataset.key = key;
-
-    const [year, month, day] = key.split('-'); // key dạng YYYY-MM-DD (đã có 0 ở đầu)
+    const [year, month, day] = key.split('-');
     const dateText = `${day}/${month}`;
     document.getElementById('modalDate').textContent = dateText;
 
     const currentJobId = getCurrentJobId();
-    if (!currentJobId) {
+    if (!currentJobId){
         alert(getTranslation('alert_time_job_required'));
         m.style.display = 'none';
         return;
@@ -668,112 +568,86 @@ document.getElementById('saveTime').onclick = () => {
     const key = document.getElementById('timeModal').dataset.key;
     const currentJobId = getCurrentJobId();
     if (!currentJobId) return alert(getTranslation('alert_time_job_required'));
-
     const tin = document.getElementById('timeIn').value;
     const tout = document.getElementById('timeOut').value;
 
-    const [y, m, d] = key.split('-').map(Number);
-    const timeIn = new Date(y, m - 1, d, ...tin.split(':').map(Number));
-    let timeOut = new Date(y, m - 1, d, ...tout.split(':').map(Number));
+    const [y,m,d] = key.split('-').map(Number);
+    const timeIn = new Date(y, m-1, d, ...tin.split(':').map(Number));
+    let timeOut = new Date(y, m-1, d, ...tout.split(':').map(Number));
     if (timeOut <= timeIn) timeOut.setDate(timeOut.getDate() + 1);
 
     const hrs = (timeOut - timeIn) / 36e5;
-
-    if (hrs <= 0) {
+    if (hrs <= 0){
         if (workData[key]?.[currentJobId]) delete workData[key][currentJobId];
         if (workData[key] && Object.keys(workData[key]).length === 0) delete workData[key];
     } else {
         workData[key] = workData[key] || {};
         workData[key][currentJobId] = { in: tin, out: tout, hours: hrs };
     }
-
+    localStorage.setItem('workData', JSON.stringify(workData));
     document.getElementById('timeModal').style.display = 'none';
     renderCalendar();
 };
-
 document.getElementById('deleteTime').onclick = () => {
     const key = document.getElementById('timeModal').dataset.key;
     const currentJobId = getCurrentJobId();
-    const jobName = jobs.find(j => j.id === currentJobId)?.name || '';
-
+    const jobName = jobs.find(j=>j.id===currentJobId)?.name || '';
     if (!confirm(getTranslation('alert_delete_time_confirm', jobName))) return;
-
-    if (workData[key]?.[currentJobId]) {
+    if (workData[key]?.[currentJobId]){
         delete workData[key][currentJobId];
         if (Object.keys(workData[key]).length === 0) delete workData[key];
     }
+    localStorage.setItem('workData', JSON.stringify(workData));
     document.getElementById('timeModal').style.display = 'none';
     renderCalendar();
 };
-
 document.getElementById('cancelTime').onclick = () => (document.getElementById('timeModal').style.display = 'none');
 
-function updateSettings() {
-    appSettings.rate = parseFloat(rateInput.value) || 0;
+// Cài đặt
+function updateSettings(){
+    appSettings.rate = getRateValue();
     localStorage.setItem('appSettings', JSON.stringify(appSettings));
     renderCalendar();
 }
 
-function adjustRateInputWidth() {
-    const length = String(rateInput.value).replace(/\D/g, '').length;
-    let newWidth = 70 + Math.max(0, Math.min(12, length) - 4) * 10;
-    if (length < 4) newWidth = 70;
-    rateInput.style.width = `${newWidth}px`;
-}
-
-function goToNextMonth() {
-    currentMonth++;
-    if (currentMonth > 11) { currentMonth = 0; currentYear++; }
-    renderCalendar();
-}
-function goToPrevMonth() {
-    currentMonth--;
-    if (currentMonth < 0) { currentMonth = 11; currentYear--; }
-    renderCalendar();
-}
-
+// Điều hướng tháng
+function goToNextMonth(){ currentMonth++; if (currentMonth > 11){ currentMonth = 0; currentYear++; } renderCalendar(); }
+function goToPrevMonth(){ currentMonth--; if (currentMonth < 0){ currentMonth = 11; currentYear--; } renderCalendar(); }
 document.getElementById('prevMonth').onclick = goToPrevMonth;
 document.getElementById('nextMonth').onclick = goToNextMonth;
 
-// Swipe tháng
-calendarTable.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; });
-calendarTable.addEventListener('touchend', (e) => {
+// Vuốt tháng
+calendarTable.addEventListener('touchstart', (e)=>{ startX = e.touches[0].clientX; });
+calendarTable.addEventListener('touchend', (e)=>{
     const diffX = e.changedTouches[0].clientX - startX;
     const opened = document.getElementById('timeModal').style.display !== 'none' || document.getElementById('jobModal').style.display !== 'none';
     if (!opened && Math.abs(diffX) > 50) diffX > 0 ? goToPrevMonth() : goToNextMonth();
     startX = 0;
 });
 
-rateInput.oninput = adjustRateInputWidth;
-rateInput.onchange = updateSettings;
+// Rate events
+rateInput.oninput = () => { formatRateInputDisplay(); adjustRateInputWidth(); };
+rateInput.onchange = () => { formatRateInputDisplay(); updateSettings(); };
+
+// Open job modal
 document.getElementById('openJobModal').onclick = () => openJobModal();
 
-// Init
-function initApp() {
+// Khởi tạo
+function initApp(){
     const storedSettings = JSON.parse(localStorage.getItem('appSettings') || '{}');
     appSettings = storedSettings;
-    rateInput.value = storedSettings.rate !== undefined ? storedSettings.rate : 100000;
+    const initialRate = typeof storedSettings.rate === 'number' ? storedSettings.rate : 10000;
+    rateInput.value = initialRate.toLocaleString(currentLang === 'vi' ? 'vi-VN' : 'ko-KR');
 
-    jobs = JSON.parse(localStorage.getItem('jobs') || '[]');
-    if (jobs.length === 0) {
-        jobs.push({
-            id: Date.now().toString(),
-            name: 'Công việc Chính',
-            address: 'Văn phòng/Remote',
-            startDate: new Date().toISOString().split('T')[0],
-            endDate: '',
-            isCurrent: true
-        });
-        saveJobs();
-    }
-
+    ensureJobs();
     setLanguage(currentLang);
     renderJobList();
-    
     renderCalendar();
+    formatRateInputDisplay();
     adjustRateInputWidth();
 }
 initApp();
 </script>
 </body>
 </html>
+```
