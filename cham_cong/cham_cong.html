@@ -224,10 +224,6 @@ table tr td:empty { background-color: #dddddd; cursor: default; }
     <div class="modal-content">
         <h3 data-i18n="modal_time_title">Nhập giờ công - <span id="modalDate"></span></h3>
         
-        <div class="input-group">
-            <label for="jobSelect" data-i18n="job_label">Nơi làm việc:</label>
-            <select id="jobSelect"></select>
-        </div>
         <div class="time-input-group">
             <label for="timeIn" data-i18n="time_in">Vào:</label>
             <input type="time" id="timeIn" value="09:00">
@@ -300,7 +296,7 @@ let startX = 0;
 const rateInput = document.getElementById('rate');
 const jobModal = document.getElementById('jobModal');
 const jobCarouselDiv = document.getElementById('jobCarousel');
-const jobSelect = document.getElementById('jobSelect');
+
 const langToggleBtn = document.getElementById('langToggle');
 const calendarTable = document.getElementById('calendarTable');
 const currencyUnitSpan = document.getElementById('currencyUnit');
@@ -554,19 +550,6 @@ function renderJobList() {
     getCurrentJobId(); // set selected state
 }
 
-function renderJobSelectOptions() {
-    jobSelect.innerHTML = '';
-    if (jobs.length === 0) {
-        jobSelect.innerHTML = `<option value="">(${getTranslation('job_label').replace(':','')})</option>`;
-        return;
-    }
-    jobs.forEach(job => {
-        const opt = document.createElement('option');
-        opt.value = job.id;
-        opt.textContent = job.name;
-        jobSelect.appendChild(opt);
-    });
-}
 
 function updateSummary() {
     const rate = parseFloat(rateInput.value) || 0;
@@ -649,49 +632,24 @@ function openModal(key) {
     const [year, month, day] = key.split('-');
     const dateText = `${day}/${month}`;
     document.getElementById('modalDate').textContent = dateText;
-    document.getElementById('timeModal').querySelector('h3').textContent = `${getTranslation('modal_time_title')} ${dateText}`;
+    document.querySelector('#timeModal h3').textContent = `${getTranslation('modal_time_title')} ${dateText}`;
 
-    // Luôn bám theo job đang hiển thị ở ngoài
-    const selectedJobId = getCurrentJobId();
-    if (!selectedJobId) {
+    const currentJobId = getCurrentJobId();
+    if (!currentJobId) {
         alert(getTranslation('alert_time_job_required'));
         m.style.display = 'none';
         return;
     }
 
-    // Chuẩn bị select (giữ value để save/delete dùng), nhưng ẨN đi
-    jobSelect.innerHTML = '';
-    const job = jobs.find(j => j.id === selectedJobId);
-    const opt = document.createElement('option');
-    opt.value = selectedJobId;
-    opt.textContent = job ? job.name : '';
-    jobSelect.appendChild(opt);
-    jobSelect.value = selectedJobId;
-    jobSelect.disabled = true;
-    jobSelect.style.display = 'none';
-
-    // Thêm/ cập nhật text hiển thị tên job (không phải dropdown)
-    let jobText = document.getElementById('jobSelectText');
-    if (!jobText) {
-        jobText = document.createElement('div');
-        jobText.id = 'jobSelectText';
-        jobText.style.padding = '8px 0';
-        jobText.style.fontWeight = 'bold';
-        jobSelect.parentNode.appendChild(jobText);
-    }
-    jobText.textContent = job ? job.name : '';
-
-    // Điền giờ theo job tương ứng ngày đó
-    const dayData = workData[key] || {};
-    const info = dayData[selectedJobId] || {};
+    const info = (workData[key] && workData[key][currentJobId]) || {};
     document.getElementById('timeIn').value = info.in || '09:00';
     document.getElementById('timeOut').value = info.out || '18:00';
     document.getElementById('deleteTime').style.display = info.hours ? 'inline-block' : 'none';
 }
 document.getElementById('saveTime').onclick = () => {
     const key = document.getElementById('timeModal').dataset.key;
-    const selectedJobId = jobSelect.value;
-    if (!selectedJobId) return alert(getTranslation('alert_time_job_required'));
+    const currentJobId = getCurrentJobId();
+    if (!currentJobId) return alert(getTranslation('alert_time_job_required'));
 
     const tin = document.getElementById('timeIn').value;
     const tout = document.getElementById('timeOut').value;
@@ -704,11 +662,11 @@ document.getElementById('saveTime').onclick = () => {
     const hrs = (timeOut - timeIn) / 36e5;
 
     if (hrs <= 0) {
-        if (workData[key]?.[selectedJobId]) delete workData[key][selectedJobId];
+        if (workData[key]?.[currentJobId]) delete workData[key][currentJobId];
         if (workData[key] && Object.keys(workData[key]).length === 0) delete workData[key];
     } else {
         workData[key] = workData[key] || {};
-        workData[key][selectedJobId] = { in: tin, out: tout, hours: hrs };
+        workData[key][currentJobId] = { in: tin, out: tout, hours: hrs };
     }
 
     document.getElementById('timeModal').style.display = 'none';
@@ -717,13 +675,13 @@ document.getElementById('saveTime').onclick = () => {
 
 document.getElementById('deleteTime').onclick = () => {
     const key = document.getElementById('timeModal').dataset.key;
-    const selectedJobId = jobSelect.value;
-    const jobName = jobSelect.options[jobSelect.selectedIndex]?.text || '';
+    const currentJobId = getCurrentJobId();
+    const jobName = jobs.find(j => j.id === currentJobId)?.name || '';
 
     if (!confirm(getTranslation('alert_delete_time_confirm', jobName))) return;
 
-    if (workData[key]?.[selectedJobId]) {
-        delete workData[key][selectedJobId];
+    if (workData[key]?.[currentJobId]) {
+        delete workData[key][currentJobId];
         if (Object.keys(workData[key]).length === 0) delete workData[key];
     }
     document.getElementById('timeModal').style.display = 'none';
@@ -793,7 +751,7 @@ function initApp() {
 
     setLanguage(currentLang);
     renderJobList();
-    renderJobSelectOptions();
+    
     renderCalendar();
     adjustRateInputWidth();
 }
