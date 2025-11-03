@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bảng Chấm Công Đa Dự Án</title>
 <style>
-/* ... (CSS CƠ BẢN VÀ CHUNG GIỮ NGUYÊN) ... */
+/* CSS CƠ BẢN VÀ CHUNG */
 html,body{height:100%;margin:0;font-family:Arial,sans-serif;background:#f6f8f9}
 .container{max-width:900px;margin:20px auto;background:#fff;padding:20px;border-radius:10px;box-shadow:0 4px 10px rgba(0,0,0,.1)}
 .header{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #3498db;padding-bottom:10px}
@@ -275,7 +275,7 @@ function saveWorkplaces() {
 }
 
 function updateCurrentWorkplaceDisplay() {
-    // Ẩn/hiện khối hiển thị tùy thuộc vào việc có nơi làm việc nào được chọn không
+    // Ẩn/hiện khối hiển thị tên nơi làm việc
     if (currentWorkplaceIndex !== -1 && workplaces[currentWorkplaceIndex]) {
         currentWorkplaceName.textContent = workplaces[currentWorkplaceIndex].storeName + (workplaces[currentWorkplaceIndex].endDate === 'Đang làm' ? ' (Hiện tại)' : '');
         currentWorkplaceDisplayBlock.style.display = 'block';
@@ -358,6 +358,7 @@ cancelWorkplaceBtn.onclick = () => {
 };
 
 deleteWorkplaceBtn.onclick = () => {
+    // Bỏ thông báo alert() khi xóa
     if (editingIndex !== -1 && confirm(`Bạn có chắc chắn muốn xóa "${workplaces[editingIndex].storeName}"?`)) {
         workplaces.splice(editingIndex, 1);
         
@@ -383,7 +384,8 @@ createWorkplaceBtn.onclick = () => {
     }
 
     if (!storeName || !startDate) {
-        alert('Vui lòng nhập Tên cửa hàng và Ngày bắt đầu.');
+        // Giữ lại alert() này vì nó là guardrail ngăn người dùng lưu dữ liệu trống
+        alert('Vui lòng nhập Tên cửa hàng và Ngày bắt đầu.'); 
         return;
     }
 
@@ -391,11 +393,11 @@ createWorkplaceBtn.onclick = () => {
 
     if (editingIndex !== -1) {
         workplaces[editingIndex] = newWorkplace;
-        alert(`Đã lưu thay đổi cho: ${storeName}`);
+        // Bỏ alert() khi lưu thành công
     } else {
         workplaces.push(newWorkplace);
         currentWorkplaceIndex = workplaces.length - 1; 
-        alert(`Đã tạo nơi làm việc mới: ${storeName}`);
+        // Bỏ alert() khi tạo thành công
     }
     
     saveWorkplaces();
