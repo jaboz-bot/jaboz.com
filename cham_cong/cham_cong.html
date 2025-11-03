@@ -7,11 +7,14 @@
     <style>
     /* 1. Cấu trúc cơ bản và container */
     html, body {
-        height: 100%; margin: 0; font-family: Arial, sans-serif;
+        /* Đảm bảo chiếm toàn bộ chiều cao khung nhìn */
+        height: 100%; 
+        margin: 0; 
+        font-family: Arial, sans-serif;
     }
     body {
         background-color: #f4f7f6; 
-        min-height: 100vh; 
+        min-height: 100vh; /* Quan trọng: Chiếm hết chiều cao viewport */
         display: flex; 
         justify-content: center;
     }
@@ -26,16 +29,18 @@
         gap: 20px; 
         box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
         border-radius: 8px;
+        /* Quan trọng: Cho phép container co giãn nhưng luôn chiếm tối đa không gian còn lại */
+        min-height: calc(100vh - 40px); /* 100vh trừ đi margin 20px trên dưới */
     }
 
     /* 2. Hàng 1 (Header: Tháng, Ngôn ngữ) */
     .row-header {
         display: flex; 
         justify-content: space-between; 
-        align-items: center; /* Đảm bảo căn chỉnh ngang */
+        align-items: center; 
         padding-bottom: 10px;
         border-bottom: 2px solid #3498db; 
-        flex-shrink: 0;
+        flex-shrink: 0; /* KHÔNG CHO PHÉP CO LẠI */
     }
     .month-navigator {
         display: flex;
@@ -58,11 +63,11 @@
         font-weight: bold; color: #555; font-size: 0.9em;
     }
     
-    /* --- Bổ sung CSS cho Hàng 2 (Workplace Management) --- */
+    /* 3. Hàng 2 (Workplace Management) */
     .row-workplace-management {
-        padding: 10px 0 20px 0; /* Tăng padding dưới để tách biệt */
-        border-bottom: 1px solid #ccc; /* Đường phân cách */
-        flex-shrink: 0;
+        padding: 10px 0 20px 0; 
+        border-bottom: 1px solid #ccc; 
+        flex-shrink: 0; /* KHÔNG CHO PHÉP CO LẠI */
     }
     .add-workplace-button {
         background-color: #f39c12; 
@@ -122,9 +127,9 @@
         font-size: 0.9em;
     }
     
-    /* 3. Hàng Lịch (Calendar Row) */
+    /* 4. Hàng Lịch (Calendar Row) - Kích thước lớn nhất */
     .row-calendar {
-        flex-grow: 1; /* Cho phép phần này mở rộng hết cỡ không gian còn lại */
+        flex-grow: 1; /* QUAN TRỌNG: Cho phép phần này mở rộng hết cỡ không gian còn lại */
         display: flex;
         flex-direction: column;
         gap: 15px;
@@ -133,6 +138,7 @@
         text-align: center; 
         font-size: 1.2em; 
         color: #3498db;
+        flex-shrink: 0; /* KHÔNG CHO PHÉP CO LẠI */
     }
     .rate-input-group {
         display: flex; 
@@ -146,8 +152,8 @@
         width: 100%; 
         table-layout: fixed; 
         border-collapse: collapse; 
-        flex-grow: 1; 
-        min-height: 300px; 
+        flex-grow: 1; /* QUAN TRỌNG: Cho phép bảng lịch chiếm hết không gian còn lại */
+        min-height: 200px; /* Đảm bảo bảng có chiều cao tối thiểu */
     }
     .calendar-table th, .calendar-table td {
         border: 1px solid #bdc3c7; 
@@ -191,13 +197,13 @@
         color: #e74c3c; font-size: 1em;
     }
 
-    /* 4. Hàng Summary */
+    /* 5. Hàng Summary */
     .row-summary {
         padding: 15px; 
         border-top: 3px double #3498db; 
         background-color: #eaf6fd;
         border-radius: 5px; 
-        flex-shrink: 0; 
+        flex-shrink: 0; /* KHÔNG CHO PHÉP CO LẠI */
     }
     .row-summary p {
         font-size: 1em; margin: 8px 0; font-weight: 500;
@@ -359,7 +365,7 @@
             <div class="modal-actions">
                 <button class="cancel" id="timeModalCancel" data-key="btn_cancel">Hủy</button>
                 <button class="delete" id="timeModalDelete" data-key="btn_delete">Xóa</button>
-                <button class="save" id="timeModalSave" data-key="btn_save">Chọn</button>
+                <button class="save" id="timeModalSave" data-key="btn_save">Lưu</button>
             </div>
         </div>
     </div>
@@ -403,9 +409,9 @@
         let currentMonth = new Date().getMonth(); 
         let currentYear = new Date().getFullYear();
         let timeData = {};
-        let workplaceData = []; // Mảng mới để lưu dữ liệu nơi làm việc
+        let workplaceData = []; 
         let currentDayInModal = null;
-        let editingWorkplaceId = null; // ID của nơi làm việc đang chỉnh sửa
+        let editingWorkplaceId = null; 
         
         const SWIPE_THRESHOLD = 100;
         let touchStartX = 0;
@@ -449,7 +455,7 @@
         const STORAGE_KEY = {
             RATE: 'hourlyRate',
             LANGUAGE: 'appLanguage',
-            WORKPLACES: 'workplaceData' // KEY MỚI
+            WORKPLACES: 'workplaceData' 
         };
 
         const getTimesheetKey = () => `timeData-${currentYear}-${currentMonth + 1}`;
@@ -474,8 +480,7 @@
                 modal_title_prefix: 'Nhập Giờ Công',
                 btn_cancel: 'Hủy',
                 btn_delete: 'Xóa',
-                btn_save: 'Lưu', // Đổi Chọn thành Lưu cho đồng bộ
-                // NEW:
+                btn_save: 'Lưu', 
                 add_workplace_btn: '➕ Thêm Nơi Làm Việc',
                 workplace_modal_title_new: 'Thêm Nơi Làm Việc',
                 workplace_modal_title_edit: 'Chỉnh Sửa Nơi Làm Việc',
@@ -501,7 +506,6 @@
                 btn_cancel: 'Cancel',
                 btn_delete: 'Delete',
                 btn_save: 'Save',
-                // NEW:
                 add_workplace_btn: '➕ Add Workplace',
                 workplace_modal_title_new: 'Add Workplace',
                 workplace_modal_title_edit: 'Edit Workplace',
@@ -527,7 +531,6 @@
                 btn_cancel: '취소',
                 btn_delete: '삭제',
                 btn_save: '저장',
-                // NEW:
                 add_workplace_btn: '➕ 근무지 추가',
                 workplace_modal_title_new: '근무지 추가',
                 workplace_modal_title_edit: '근무지 수정',
@@ -556,7 +559,7 @@
                 localStorage.setItem(getTimesheetKey(), JSON.stringify(timeData));
                 localStorage.setItem(STORAGE_KEY.RATE, DOM.hourlyRate.value);
                 localStorage.setItem(STORAGE_KEY.LANGUAGE, DOM.languageSelect.value);
-                localStorage.setItem(STORAGE_KEY.WORKPLACES, JSON.stringify(workplaceData)); // LƯU WORKPLACE
+                localStorage.setItem(STORAGE_KEY.WORKPLACES, JSON.stringify(workplaceData)); 
             } catch (e) {
                 console.error("Could not save data to localStorage", e);
             }
@@ -572,7 +575,7 @@
                 const savedData = localStorage.getItem(getTimesheetKey());
                 timeData = savedData ? JSON.parse(savedData) : {};
 
-                const savedWorkplaces = localStorage.getItem(STORAGE_KEY.WORKPLACES); // TẢI WORKPLACE
+                const savedWorkplaces = localStorage.getItem(STORAGE_KEY.WORKPLACES); 
                 workplaceData = savedWorkplaces ? JSON.parse(savedWorkplaces) : [];
                 
                 const savedLang = localStorage.getItem(STORAGE_KEY.LANGUAGE);
@@ -653,7 +656,7 @@
             } else {
                 // Create mode
                 DOM.workplaceModalTitle.textContent = t.workplace_modal_title_new;
-                DOM.workplaceModalSave.textContent = t.btn_save; 
+                DOM.workplaceModalSave.textContent = 'Tạo'; // Sử dụng Tạo khi thêm mới
                 DOM.workplaceModalSave.className = 'create-workplace';
                 DOM.workplaceEndDate.disabled = false;
             }
@@ -766,7 +769,6 @@
                                  key !== 'summary_total_income_month') {
                         element.textContent = t[key];
                     }
-                    // Cập nhật button Thêm Nơi Làm Việc (được đặt trong data-key của ngôn ngữ)
                     if (key === 'add_workplace_btn' && DOM.addWorkplaceButton) {
                         DOM.addWorkplaceButton.textContent = t[key];
                     }
@@ -775,16 +777,15 @@
 
             document.title = t.title;
 
-            // Cập nhật button Thêm Nơi Làm Việc
             if (DOM.addWorkplaceButton) {
                  DOM.addWorkplaceButton.textContent = t.add_workplace_btn;
             }
             if (DOM.timeModalSave) {
                  DOM.timeModalSave.textContent = t.btn_save;
             }
-
+            
             saveDataToLocalStorage();
-            renderWorkplaces(); // RENDER LẠI NƠI LÀM VIỆC KHI ĐỔI NGÔN NGỮ
+            renderWorkplaces(); 
             renderCalendar();
         }
 
