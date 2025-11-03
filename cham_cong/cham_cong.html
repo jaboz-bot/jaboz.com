@@ -5,176 +5,211 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-key="title">Bảng Chấm Công Theo Tháng</title>
     <style>
-        html, body {
-            height: 100%; margin: 0; font-family: Arial, sans-serif;
-        }
-        body {
-            background-color: #f4f7f6; min-height: 100vh; display: flex; justify-content: center;
-        }
+    /* 1. Cấu trúc cơ bản và container */
+    html, body {
+        height: 100%; margin: 0; font-family: Arial, sans-serif;
+    }
+    body {
+        background-color: #f4f7f6; 
+        min-height: 100vh; 
+        display: flex; 
+        justify-content: center;
+        /* Giữ cho body là flex container để căn giữa container chính */
+    }
+    .container {
+        max-width: 900px; 
+        width: 95%; 
+        margin: 20px auto; 
+        padding: 20px; 
+        background: #fff;
+        display: flex; 
+        flex-direction: column; /* Đảm bảo các hàng xếp dọc */
+        gap: 20px; /* Tạo khoảng cách giữa các hàng */
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* Thêm bóng đổ nhẹ cho container */
+        border-radius: 8px;
+    }
+
+    /* 2. Hàng 1 (Header: Tháng, Tiêu đề, Ngôn ngữ) */
+    .row-header {
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        padding-bottom: 10px;
+        border-bottom: 2px solid #3498db; /* Đường phân cách cho Header */
+        flex-shrink: 0;
+    }
+    .month-navigator {
+        display: flex;
+        align-items: center;
+        gap: 5px; 
+    }
+    .year-display {
+        font-size: 1.4em; font-weight: bold; color: #27ae60; padding: 5px;
+    }
+    .row-header h1 {
+        text-align: left;
+        color: #2c3e50; 
+        margin: 0; 
+        font-size: 1.5em; 
+    }
+    .nav-arrow {
+        cursor: pointer; padding: 0 5px; user-select: none; font-size: 1.2em;
+    }
+    .controls {
+        display: flex; 
+        gap: 15px; 
+        justify-content: flex-end; 
+        align-items: center;
+    }
+    .control-group label {
+        font-weight: bold; color: #555; font-size: 0.9em;
+    }
+
+    /* 3. Hàng 2 (Main Content: Lương/giờ, Bảng lịch) */
+    .row-main-content {
+        flex-grow: 1; /* Cho phép phần này mở rộng hết cỡ không gian còn lại */
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    .calendar-header {
+        text-align: center; 
+        font-size: 1.2em; 
+        color: #3498db;
+    }
+    .rate-input-group {
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        gap: 5px; 
+        font-size: 1em;
+        padding: 5px 0;
+    }
+    .calendar-table {
+        width: 100%; 
+        table-layout: fixed; 
+        border-collapse: collapse; 
+        flex-grow: 1; /* Cho phép bảng chiếm hết không gian còn lại trong row-main-content */
+        min-height: 300px; /* Đảm bảo bảng có chiều cao tối thiểu */
+    }
+    .calendar-table th, .calendar-table td {
+        border: 1px solid #bdc3c7; 
+        padding: 0; 
+        text-align: center; 
+        font-size: 0.7em;
+    }
+    .calendar-table th {
+        background-color: #ecf0f1; color: #2c3e50; padding: 5px 0;
+    }
+    .calendar-table th:first-child {
+        color: #e74c3c;
+    }
+    .calendar-table tr td:first-child {
+        background-color: #fcebeb;
+    }
+    .calendar-table td:empty {
+        background-color: #e0e0e0 !important; cursor: default;
+    }
+    .day-cell {
+        vertical-align: top; width: 14.28%; min-height: 50px; background-color: #fcfcfc;
+        position: relative; cursor: pointer; user-select: none;
+    }
+    .day-number {
+        font-weight: bold; font-size: 1.1em; display: block; position: absolute;
+        top: 2px; left: 5px; color: #2980b9;
+    }
+    .work-display {
+        display: flex; flex-direction: column; justify-content: center; align-items: center;
+        font-weight: bold; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        width: 95%; padding: 2px 0;
+    }
+    .work-display span {
+        line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        width: 100%; text-align: center;
+    }
+    .work-hours-in-cell {
+        color: #27ae60; font-size: 0.9em;
+    }
+    .work-amount-in-cell {
+        color: #e74c3c; font-size: 1em;
+    }
+
+    /* 4. Hàng 3 (Summary/Footer: Tổng giờ và Tổng thu nhập) */
+    .row-summary {
+        padding: 15px; 
+        border-top: 3px double #3498db; 
+        background-color: #eaf6fd;
+        border-radius: 5px; 
+        flex-shrink: 0; /* Không cho phép co lại */
+    }
+    .row-summary p {
+        font-size: 1em; margin: 8px 0; font-weight: 500;
+    }
+    .total-amount {
+        font-size: 1.8em; color: #e74c3c; font-weight: bold;
+    }
+    #totalHours {
+        color: green; font-weight: bold;
+    }
+    
+    /* --- MODAL STYLES (Giữ nguyên) --- */
+    .modal {
+        position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto;
+        background-color: rgba(0,0,0,0.6); display: none; justify-content: center;
+        align-items: center; box-sizing: border-box;
+    }
+    .modal-content {
+        background-color: #fefefe; padding: 20px; border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3); width: 90%; max-width: 400px;
+        display: flex; flex-direction: column; gap: 15px; align-items: stretch; box-sizing: border-box;
+    }
+    .modal-content h2 {
+        margin: 0 0 5px 0; color: #3498db; text-align: center;
+    }
+    .time-input-group, .text-input-group {
+        display: flex; flex-direction: column; gap: 5px;
+    }
+    .time-input-group label, .text-input-group label {
+        font-weight: bold; color: #2c3e50; font-size: 1em;
+    }
+    .modal-content input[type="time"],
+    .modal-content input[type="text"],
+    .modal-content input[type="date"] {
+        padding: 10px; border: 1px solid #bdc3c7; border-radius: 5px; font-size: 1.2em;
+        text-align: center; width: 100%; box-sizing: border-box;
+    }
+    .modal-actions {
+        display: flex; justify-content: space-between; margin-top: 10px;
+    }
+    .modal-actions button {
+        padding: 10px 10px; border: none; border-radius: 5px; font-size: 1em; cursor: pointer;
+        flex: 1; margin: 0 5px;
+    }
+    .modal-actions button:first-child {
+        margin-left: 0;
+    }
+    .modal-actions button:last-child {
+        margin-right: 0;
+    }
+    .modal-actions button.cancel {
+        background-color: #ecf0f1; color: #2c3e50;
+    }
+    .modal-actions button.delete {
+        background-color: #f39c12; color: white;
+    }
+    .modal-actions button.save {
+        background-color: #3498db; color: white;
+    }
+
+    @media (max-width: 767px) {
         .container {
-            max-width: 900px; 
-            width: 95%; 
-            margin: 20px auto; 
-            padding: 20px; 
-            background: #fff;
-            display: flex; 
-            flex-direction: column; 
-        }
-        .header-controls {
-            display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; flex-shrink: 0;
-        }
-        .top-row {
-            display: flex; justify-content: space-between; align-items: center; width: 100%;
-        }
-
-        /* --- CẬP NHẬT CSS ĐỂ HIỂN THỊ THÁNG/NĂM GÓC TRÁI --- */
-        .month-navigator {
-            display: flex;
-            align-items: center;
-            gap: 5px; 
-        }
-        .year-display {
-            font-size: 1.4em; font-weight: bold; color: #27ae60; padding: 5px;
-            order: unset !important;
-        }
-        h1 {
-            text-align: left;
-            color: #2c3e50; 
-            margin: 0; 
-            font-size: 1.5em; 
-            width: auto;
-            order: unset !important;
-        }
-        /* -------------------------------------------------- */
-
-        .controls {
-            display: flex; gap: 15px; justify-content: flex-end; align-items: center;
-        }
-        .control-group label {
-            font-weight: bold; color: #555; font-size: 0.9em;
-        }
-        h1 .nav-arrow {
-            cursor: pointer; padding: 0 5px; user-select: none;
-        }
-        .calendar-header {
-            text-align: center; font-size: 1.2em; margin-bottom: 15px; color: #3498db;
-        }
-        .rate-input-group {
-            display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 0.9em;
-        }
-        .calendar-table {
-            width: 100%; table-layout: fixed; border-collapse: collapse; flex-grow: 1;
-        }
-        .calendar-table th, .calendar-table td {
-            border: 1px solid #bdc3c7; padding: 0; text-align: center; font-size: 0.7em;
-        }
-        .calendar-table th {
-            background-color: #ecf0f1; color: #2c3e50; padding: 5px 0;
-        }
-        .calendar-table th:first-child {
-            color: #e74c3c;
-        }
-        .calendar-table tr td:first-child {
-            background-color: #fcebeb;
-        }
-        .calendar-table td:empty {
-            background-color: #e0e0e0 !important; cursor: default;
+            padding: 10px; min-height: auto;
         }
         .day-cell {
-            vertical-align: top; width: 14.28%; min-height: 50px; background-color: #fcfcfc;
-            position: relative; cursor: pointer; user-select: none;
+            min-height: 50px;
         }
-        .day-number {
-            font-weight: bold; font-size: 1.1em; display: block; position: absolute;
-            top: 2px; left: 5px; color: #2980b9;
-        }
-        .work-display {
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            font-weight: bold; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 95%; padding: 2px 0;
-        }
-        .work-display span {
-            line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-            width: 100%; text-align: center;
-        }
-        .work-hours-in-cell {
-            color: #27ae60; font-size: 0.9em;
-        }
-        .work-amount-in-cell {
-            color: #e74c3c; font-size: 1em;
-        }
-        .summary {
-            margin-top: 10px; padding: 10px; border-top: 3px double #3498db; background-color: #eaf6fd;
-            border-radius: 5px; flex-shrink: 0;
-        }
-        .summary p {
-            font-size: 1em; margin: 8px 0; font-weight: 500;
-        }
-        .total-amount {
-            font-size: 1.6em; color: #e74c3c; font-weight: bold;
-        }
-        #totalHours {
-            color: green; font-weight: bold;
-        }
-        
-        /* --- MODAL STYLES (Time Modal) --- */
-        .modal {
-            position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto;
-            background-color: rgba(0,0,0,0.6); display: none; justify-content: center;
-            align-items: center; box-sizing: border-box;
-        }
-        .modal-content {
-            background-color: #fefefe; padding: 20px; border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3); width: 90%; max-width: 400px;
-            display: flex; flex-direction: column; gap: 15px; align-items: stretch; box-sizing: border-box;
-        }
-        .modal-content h2 {
-            margin: 0 0 5px 0; color: #3498db; text-align: center;
-        }
-        .time-input-group, .text-input-group {
-            display: flex; flex-direction: column; gap: 5px;
-        }
-        .time-input-group label, .text-input-group label {
-            font-weight: bold; color: #2c3e50; font-size: 1em;
-        }
-        .modal-content input[type="time"],
-        .modal-content input[type="text"],
-        .modal-content input[type="date"] {
-            padding: 10px; border: 1px solid #bdc3c7; border-radius: 5px; font-size: 1.2em;
-            text-align: center; width: 100%; box-sizing: border-box;
-        }
-        .modal-actions {
-            display: flex; justify-content: space-between; margin-top: 10px;
-        }
-        .modal-actions button {
-            padding: 10px 10px; border: none; border-radius: 5px; font-size: 1em; cursor: pointer;
-            flex: 1; margin: 0 5px;
-        }
-        .modal-actions button:first-child {
-            margin-left: 0;
-        }
-        .modal-actions button:last-child {
-            margin-right: 0;
-        }
-        .modal-actions button.cancel {
-            background-color: #ecf0f1; color: #2c3e50;
-        }
-        .modal-actions button.delete {
-            background-color: #f39c12; color: white;
-        }
-        .modal-actions button.save {
-            background-color: #3498db; color: white;
-        }
-
-        @media (max-width: 767px) {
-            .container {
-                padding: 10px; min-height: auto;
-            }
-            .day-cell {
-                min-height: 50px;
-            }
-        }
-    </style>
+    }
+</style>
 </head>
 <body>
     <div class="container" id="timesheetContainer">
