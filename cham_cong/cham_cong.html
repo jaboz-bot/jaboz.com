@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bảng Chấm Công Cá Nhân</title>
 <style>
-/* --- PHẦN CSS HOÀN CHỈNH (ĐÃ SỬA MÀU SẮC) --- */
+/* --- PHẦN CSS HOÀN CHỈNH (ĐÃ SỬA MÀU ĐƠN VỊ TÍNH) --- */
 html,body{height:100%;margin:0;font-family:Arial,sans-serif;background:#f6f8f9}
 .container{max-width:900px;margin:20px auto;background:#fff;padding:20px;border-radius:10px;box-shadow:0 4px 10px rgba(0,0,0,.1)}
 
@@ -104,11 +104,11 @@ th{background:#eaf2f8}
 /* Định dạng Giờ Công */
 .day .hours-display {
     font-weight: bold;
-    color: #27ae60; /* Xanh lá cây */
+    color: #2ecc71; /* Xanh lá cây */
     font-size: 0.9em;
 }
 
-/* Định dạng Số Tiền - ĐÃ SỬA MÀU SẮC */
+/* Định dạng Số Tiền */
 .day .pay-display {
     color: #e74c3c; /* MÀU ĐỎ */
     font-size: 0.8em;
@@ -118,11 +118,26 @@ th{background:#eaf2f8}
 
 .summary{margin-top:20px;background:#ecf9ff;padding:10px;border-radius:5px}
 
-/* ĐIỀU CHỈNH TỔNG SỐ TIỀN THU NHẬP - ĐÃ SỬA MÀU SẮC */
+/* ĐIỀU CHỈNH TỔNG GIỜ CÔNG VÀ ĐƠN VỊ TÍNH (ĐÃ SỬA) */
+#totalHours {
+    font-weight: bold;
+    color: #2ecc71; 
+    font-size: 1.1em;
+}
+.summary .green-unit {
+    color: #2ecc71; /* XANH LÁ CÂY */
+    font-weight: bold;
+}
+
+/* ĐIỀU CHỈNH TỔNG THU NHẬP VÀ ĐƠN VỊ TÍNH (ĐÃ SỬA) */
 #totalPay {
     font-weight: bold;
-    color: #e74c3c; /* MÀU ĐỎ */
+    color: #e74c3c; 
     font-size: 1.1em;
+}
+.summary .red-unit {
+    color: #e74c3c; /* MÀU ĐỎ */
+    font-weight: bold;
 }
 
 /* CSS CHO MODAL CHUNG (Không đổi) */
@@ -181,8 +196,8 @@ table tr td:empty { background-color: #dddddd; cursor: default; }
     </table>
 
     <div class="summary">
-        ✅ Tổng giờ công việc hiện tại: <span id="totalHours">0</span> giờ<br>
-        💵 Thu nhập ước tính: <span id="totalPay">0</span> VND
+        ✅ Tổng giờ công việc hiện tại: <span id="totalHours">0</span> <span class="green-unit">giờ</span><br>
+        💵 Thu nhập ước tính: <span id="totalPay">0</span> <span class="red-unit">VND</span>
     </div>
 </div>
 
@@ -467,8 +482,9 @@ function updateSummary(){
         }
     }
     
+    // Đảm bảo tổng giờ có màu xanh lá
     document.getElementById('totalHours').textContent=totalH.toFixed(2);
-    // Đây là phần hiển thị tổng tiền cần đổi màu
+    // Tổng tiền vẫn màu đỏ
     document.getElementById('totalPay').textContent=(totalH*rate).toLocaleString('vi-VN');
     localStorage.setItem('workData',JSON.stringify(workData));
 }
@@ -496,7 +512,7 @@ function renderCalendar(){
                 const info = dayData[currentJobId] || {}; 
                 const hours = info.hours || 0;
                 
-                // --- LOGIC HIỂN THỊ TIỀN VÀ GIỜ (ĐÃ SỬA: THÊM 'VND') ---
+                // --- LOGIC HIỂN THỊ TIỀN VÀ GIỜ ---
                 let contentHTML = `<span>${day}</span>`;
                 if(hours > 0){
                     const pay = hours * rate;
@@ -507,7 +523,7 @@ function renderCalendar(){
                         <div class="pay-display">${payDisplay} VND</div>
                     `;
                 }
-                // -----------------------------------------------------------
+                // ------------------------------------
 
                 td.className='day'; 
                 td.innerHTML=contentHTML;
