@@ -651,28 +651,30 @@ function openModal(key) {
     document.getElementById('modalDate').textContent = dateText;
     document.getElementById('timeModal').querySelector('h3').textContent = `${getTranslation('modal_time_title')} ${dateText}`;
 
-    const dayData = workData[key] || {};
-    const defaultJobId = getCurrentJobId();
-
-    renderJobSelectOptions();
-
-    let selectedJobId = defaultJobId;
-    if (Object.keys(dayData).length > 0) {
-        selectedJobId = dayData[defaultJobId] ? defaultJobId : Object.keys(dayData)[0];
+    // Luôn bám theo job đang hiển thị ở ngoài
+    const selectedJobId = getCurrentJobId();
+    if (!selectedJobId) {
+        alert(getTranslation('alert_time_job_required'));
+        m.style.display = 'none';
+        return;
     }
-    if (selectedJobId) jobSelect.value = selectedJobId;
-    else if (jobs[0]?.id) jobSelect.value = jobs[0].id;
 
-    const updateTimeInputs = (jobId) => {
-        const info = dayData[jobId] || {};
-        document.getElementById('timeIn').value = info.in || '09:00';
-        document.getElementById('timeOut').value = info.out || '18:00';
-        document.getElementById('deleteTime').style.display = info.hours ? 'inline-block' : 'none';
-    };
-    updateTimeInputs(jobSelect.value);
-    jobSelect.onchange = () => updateTimeInputs(jobSelect.value);
+    // Khóa dropdown về đúng 1 option và disable
+    jobSelect.innerHTML = '';
+    const job = jobs.find(j => j.id === selectedJobId);
+    const opt = document.createElement('option');
+    opt.value = selectedJobId;
+    opt.textContent = job ? job.name : '';
+    jobSelect.appendChild(opt);
+    jobSelect.disabled = true;
+
+    // Điền giờ theo job tương ứng ngày đó
+    const dayData = workData[key] || {};
+    const info = dayData[selectedJobId] || {};
+    document.getElementById('timeIn').value = info.in || '09:00';
+    document.getElementById('timeOut').value = info.out || '18:00';
+    document.getElementById('deleteTime').style.display = info.hours ? 'inline-block' : 'none';
 }
-
 document.getElementById('saveTime').onclick = () => {
     const key = document.getElementById('timeModal').dataset.key;
     const selectedJobId = jobSelect.value;
