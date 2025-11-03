@@ -95,20 +95,6 @@ th{background:#eaf2f8}
     margin-top: 3px;
 }
 
-/* HIỂN THỊ NƠI LÀM VIỆC HIỆN TẠI (ĐÃ TỐI ƯU) */
-#current-workplace-display-block {
-    text-align: center;
-    margin: 10px 0 0 0;
-    font-size: 1.2em;
-    font-weight: bold;
-    color: #2c3e50;
-    padding: 5px 0;
-}
-#current-workplace-name {
-    color: #3498db;
-    display: block;
-}
-
 /* Căn chỉnh cho Input giờ (trong timeModal) */
 #timeModal .modal-content input[type="time"] {
     width: 48%;
@@ -130,10 +116,6 @@ th{background:#eaf2f8}
     </div>
     
     <div id="workplace-management">
-        
-        <div id="current-workplace-display-block" style="display: none;">
-            <span id="current-workplace-name"></span>
-        </div>
         
         <div id="workplace-list-container">
             <div id="workplace-list"></div>
@@ -201,8 +183,7 @@ let workplaces = JSON.parse(localStorage.getItem('workplaces') || '[]');
 let currentWorkplaceIndex = localStorage.getItem('currentWorkplaceIndex') !== null ? parseInt(localStorage.getItem('currentWorkplaceIndex')) : -1;
 
 const workplaceList = document.getElementById('workplace-list');
-const currentWorkplaceName = document.getElementById('current-workplace-name');
-const currentWorkplaceDisplayBlock = document.getElementById('current-workplace-display-block');
+// *** ĐÃ LOẠI BỎ BIẾN currentWorkplaceName và currentWorkplaceDisplayBlock ***
 
 // BIẾN CHO MODAL NƠI LÀM VIỆC
 const workplaceModal = document.getElementById('workplaceModal');
@@ -265,32 +246,21 @@ function openModal(key){
     document.getElementById('timeOut').value=info.out||'18:00';
 }
 
-// --- LOGIC NƠI LÀM VIỆC (ĐÃ BỎ CHÚ THÍCH HIỆN TẠI) ---
+// --- LOGIC NƠI LÀM VIỆC (ĐÃ TỐI GIẢN TỐI ĐA) ---
 
 function saveWorkplaces() {
     localStorage.setItem('workplaces', JSON.stringify(workplaces));
     localStorage.setItem('currentWorkplaceIndex', currentWorkplaceIndex);
     renderWorkplaceList();
-    updateCurrentWorkplaceDisplay();
+    // Bỏ gọi hàm updateCurrentWorkplaceDisplay();
 }
 
-function updateCurrentWorkplaceDisplay() {
-    // Ẩn/hiện khối hiển thị tên nơi làm việc
-    if (currentWorkplaceIndex !== -1 && workplaces[currentWorkplaceIndex]) {
-        // *** ĐÃ SỬA: CHỈ HIỂN THỊ TÊN CỬA HÀNG, BỎ CHÚ THÍCH (HIỆN TẠI) ***
-        currentWorkplaceName.textContent = workplaces[currentWorkplaceIndex].storeName;
-        currentWorkplaceDisplayBlock.style.display = 'block';
-    } else {
-        currentWorkplaceName.textContent = '';
-        currentWorkplaceDisplayBlock.style.display = 'none'; 
-    }
-}
+// Bỏ hàm updateCurrentWorkplaceDisplay()
 
 function renderWorkplaceList() {
     workplaceList.innerHTML = '';
     workplaces.forEach((wp, index) => {
         const card = document.createElement('div');
-        // *** ĐÃ SỬA: THẺ CHỌN CHỈ HIỂN THỊ TÊN CỬA HÀNG, BỎ CHÚ THÍCH ***
         card.className = `workplace-card ${index === currentWorkplaceIndex ? 'selected' : ''}`;
         card.dataset.index = index;
         const dateDisplay = wp.endDate === 'Đang làm' ? 'Đang làm' : `${wp.startDate} - ${wp.endDate}`;
@@ -420,7 +390,7 @@ rateInput.onchange=updateSummary;
 
 // --- KHỞI TẠO ỨNG DỤNG ---
 renderWorkplaceList();
-updateCurrentWorkplaceDisplay();
+// Bỏ gọi hàm updateCurrentWorkplaceDisplay();
 renderCalendar();
 </script>
 </body>
