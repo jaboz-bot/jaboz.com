@@ -8,6 +8,44 @@
 /* CSS CƠ BẢN VÀ CHUNG */
 html,body{height:100%;margin:0;font-family:Arial,sans-serif;background:#f6f8f9}
 .container{max-width:900px;margin:20px auto;background:#fff;padding:20px;border-radius:10px;box-shadow:0 4px 10px rgba(0,0,0,.1)}
+
+/* CSS MỚI: Định dạng khu vực nút và danh sách công việc */
+.job-management {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #ddd;
+}
+.add-job-btn {
+    padding: 8px 15px;
+    background: #2ecc71;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0,0,0,.1);
+}
+#jobList {
+    margin-top: 10px;
+    width: 100%;
+}
+.job-item {
+    padding: 5px 0;
+    font-size: 0.9em;
+    border-bottom: 1px dotted #eee;
+    color: #333;
+    cursor: pointer; /* Cho phép click để sửa */
+}
+.job-item:last-child { border-bottom: none; }
+.job-item strong { color: #2980b9; }
+.job-item span { color: #7f8c8d; margin-left: 10px; }
+.job-item:hover { background-color: #f7f9fa; }
+
+
+/* CSS Cũ (tiếp tục) */
 .header{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #3498db;padding-bottom:10px}
 .month-nav{display:flex;align-items:center;gap:8px;font-weight:bold;color:#27ae60}
 .arrow{cursor:pointer;user-select:none;font-size:1.3em}
@@ -23,51 +61,82 @@ th{background:#eaf2f8}
 /* CSS CHO MODAL CHUNG */
 .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);justify-content:center;align-items:center;z-index:1000;}
 .modal-content{background:#fff;padding:20px;border-radius:10px;width:90%;max-width:400px}
-.modal-content input[type="text"], .modal-content input[type="date"], .modal-content input[type="time"]{width:100%;padding:8px;margin:5px 0;border:1px solid #ccc;border-radius:5px;box-sizing:border-box;}
-.modal-content button{margin-top:10px;padding:8px 12px;border:none;border-radius:5px;cursor:pointer}
+.modal-content input[type="text"], .modal-content input[type="date"]{width:100%;padding:8px;margin:5px 0;border:1px solid #ccc;border-radius:5px;box-sizing:border-box;}
+
+/* Điều chỉnh cho 3 nút: Xóa nằm bên trái, Hủy và Lưu nằm bên phải */
+.button-group{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.modal-content button{margin-top:15px;padding:8px 12px;border:none;border-radius:5px;cursor:pointer}
 .save{background:#3498db;color:#fff}
 .cancel{background:#ccc}
+.delete{background:#e74c3c;color:#fff} /* Màu đỏ cho nút xóa */
 
-/* Căn chỉnh cho Input giờ (trong timeModal) */
-#timeModal .modal-content input[type="time"] {
-    width: 48%;
-    display: inline-block;
-}
 
-/* --- CSS ĐÃ THÊM CHO YÊU CẦU CŨ VÀ MỚI --- */
-
-/* 1. Bôi đỏ cột Chủ Nhật (Cột đầu tiên) */
-table th:first-child {
-    background: #e74c3c; /* Màu đỏ đậm cho tiêu đề */
-    color: #fff;
+/* Modal Nơi làm việc mới */
+#jobModal .input-group {
+    margin-bottom: 15px;
 }
-table tr td:first-child {
-    background-color: #fcecec; /* Màu đỏ nhạt cho ô nội dung */
+#jobModal .input-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #34495e;
 }
-/* Đổi màu chữ số ngày của CN thành màu đỏ đậm */
-table tr td:first-child span {
-    color: #c0392b !important; 
+#jobModal .input-group input[type="checkbox"] {
+    margin-right: 5px;
 }
-
-/* 2. Làm tối màu ô trống (ô không có ngày tháng) */
-/* Thẻ td không có nội dung text hoặc span (ngày) */
-table tr td:empty {
-    background-color: #dddddd; /* Màu xám tối */
-    cursor: default;
+.job-button-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.job-button-group .right-buttons button {
+    margin-left: 10px;
 }
 
-/* 3. Tùy biến khung nhập Lương/giờ */
-.header input#rate {
-    min-width: 70px; /* **ĐIỀU CHỈNH: Chiều rộng tối thiểu ngắn hơn** */
-    width: 70px; /* Đảm bảo trạng thái ban đầu là 70px */
-    transition: width 0.2s ease-in-out; /* Hiệu ứng chuyển đổi mượt mà */
-    text-align: right; /* Căn số sang phải cho đẹp */
+/* Các CSS khác giữ nguyên... */
+
+/* *** PHẦN SỬA LỖI CÂN ĐỐI VÀ LÀM ĐẸP GIAO DIỆN NHẬP GIỜ *** */
+.time-input-group {
+    display: flex; /* Dùng Flexbox để căn chỉnh các thành phần con */
+    align-items: center;
+    margin-bottom: 10px;
 }
+.time-input-group label {
+    font-weight: bold;
+    width: 40px; 
+    text-align: left; 
+    margin-right: 10px;
+}
+.time-input-group input[type="time"] {
+    flex-grow: 1; 
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    width: auto; 
+}
+
+
+/* --- Tùy chỉnh Calendar và Input Lương/giờ --- */
+table th:first-child { background: #e74c3c; color: #fff; }
+table tr td:first-child { background-color: #fcecec; }
+table tr td:first-child span { color: #c0392b !important; }
+table tr td:empty { background-color: #dddddd; cursor: default; }
+.header input#rate { min-width: 70px; width: 70px; transition: width 0.2s ease-in-out; text-align: right; }
 
 </style>
 </head>
 <body>
 <div class="container">
+    <div class="job-management">
+        <button class="add-job-btn" id="openJobModal">➕ Quản lý Nơi làm việc</button>
+    </div>
+    <div id="jobList">
+        </div>
     <div class="header">
         <div class="month-nav">
             <span class="arrow" id="prevMonth">◀</span>
@@ -95,12 +164,54 @@ table tr td:empty {
 <div class="modal" id="timeModal">
     <div class="modal-content">
         <h3>Nhập giờ công - <span id="modalDate"></span></h3>
-        <label>Vào:</label>
-        <input type="time" id="timeIn" value="09:00">
-        <label>Ra:</label>
-        <input type="time" id="timeOut" value="18:00">
-        <button class="save" id="saveTime">Lưu</button>
-        <button class="cancel" id="cancelTime">Hủy</button>
+        
+        <div class="time-input-group">
+            <label for="timeIn">Vào:</label>
+            <input type="time" id="timeIn" value="09:00">
+        </div>
+        
+        <div class="time-input-group">
+            <label for="timeOut">Ra:</label>
+            <input type="time" id="timeOut" value="18:00">
+        </div>
+        
+        <div class="button-group">
+            <button class="delete" id="deleteTime">Xóa</button>
+            <div>
+                <button class="cancel" id="cancelTime">Hủy</button>
+                <button class="save" id="saveTime">Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="jobModal">
+    <div class="modal-content">
+        <h3 id="jobModalTitle">Thêm Nơi làm việc mới</h3>
+        
+        <div class="input-group">
+            <label for="jobName">Tên Nơi làm việc:</label>
+            <input type="text" id="jobName" placeholder="Tên công ty/Dự án..." required>
+        </div>
+
+        <div class="input-group">
+            <label for="jobStartDate">Ngày Bắt đầu:</label>
+            <input type="date" id="jobStartDate" required>
+        </div>
+
+        <div class="input-group">
+            <label for="jobEndDate">Ngày Kết thúc:</label>
+            <input type="date" id="jobEndDate">
+            <input type="checkbox" id="jobIsCurrent"> Đang làm
+        </div>
+        
+        <div class="job-button-group">
+            <button class="delete" id="deleteJob">Xóa</button>
+            <div class="right-buttons">
+                <button class="cancel" id="cancelJob">Hủy</button>
+                <button class="save" id="saveJob">Lưu</button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -109,35 +220,174 @@ table tr td:empty {
 let currentMonth = new Date().getMonth();
 let currentYear = new Date().getFullYear();
 let workData = JSON.parse(localStorage.getItem('workData') || '{}'); 
+let appSettings = JSON.parse(localStorage.getItem('appSettings') || '{}'); 
+// Biến MỚI: Mảng lưu trữ các công việc
+let jobs = JSON.parse(localStorage.getItem('jobs') || '[]'); 
+let editingJobId = null; // Dùng để theo dõi công việc đang sửa
+
 const rateInput = document.getElementById('rate');
+const jobModal = document.getElementById('jobModal');
+const jobListDiv = document.getElementById('jobList');
+
 
 // --- HÀM CHUNG ---
 function daysInMonth(y,m){return new Date(y,m+1,0).getDate();}
 
-// HÀM MỚI: Tùy biến chiều rộng khung nhập Lương/giờ
+// HÀM MỚI: Lưu dữ liệu công việc vào Local Storage
+function saveJobs() {
+    localStorage.setItem('jobs', JSON.stringify(jobs));
+    renderJobList();
+}
+
+// HÀM MỚI: Hiển thị danh sách công việc
+function renderJobList() {
+    jobListDiv.innerHTML = '';
+    if (jobs.length === 0) {
+        jobListDiv.innerHTML = '<div style="color:#999;font-size:0.9em;">Chưa có nơi làm việc nào được thêm.</div>';
+        return;
+    }
+
+    jobs.forEach(job => {
+        const item = document.createElement('div');
+        item.className = 'job-item';
+        item.dataset.id = job.id;
+
+        let dateStr = job.isCurrent ? 
+            `Từ ${formatDate(job.startDate)} - Đang làm` : 
+            `Từ ${formatDate(job.startDate)} đến ${formatDate(job.endDate)}`;
+
+        item.innerHTML = `<strong>${job.name}</strong> <span>(${dateStr})</span>`;
+        item.onclick = () => openJobModalForEdit(job.id);
+        jobListDiv.appendChild(item);
+    });
+}
+
+// Hàm format ngày (YYYY-MM-DD sang DD/MM/YYYY)
+function formatDate(dateString) {
+    if (!dateString) return '';
+    const parts = dateString.split('-');
+    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+}
+
+// HÀM MỚI: Mở Modal nhập/sửa công việc
+function openJobModal(id = null) {
+    editingJobId = id;
+    const nameInput = document.getElementById('jobName');
+    const startInput = document.getElementById('jobStartDate');
+    const endInput = document.getElementById('jobEndDate');
+    const currentCheckbox = document.getElementById('jobIsCurrent');
+    const title = document.getElementById('jobModalTitle');
+    const deleteBtn = document.getElementById('deleteJob');
+
+    if (id !== null) {
+        // Chế độ Sửa
+        const job = jobs.find(j => j.id === id);
+        if (!job) return;
+        
+        title.textContent = 'Sửa Nơi làm việc';
+        nameInput.value = job.name;
+        startInput.value = job.startDate;
+        endInput.value = job.endDate || '';
+        currentCheckbox.checked = job.isCurrent;
+        deleteBtn.style.display = 'inline-block';
+    } else {
+        // Chế độ Thêm mới
+        title.textContent = 'Thêm Nơi làm việc mới';
+        nameInput.value = '';
+        startInput.value = new Date().toISOString().split('T')[0]; // Ngày mặc định là ngày hiện tại
+        endInput.value = '';
+        currentCheckbox.checked = true;
+        deleteBtn.style.display = 'none';
+    }
+    
+    // Ẩn/hiện ô Ngày Kết thúc
+    toggleEndDateInput(currentCheckbox.checked);
+
+    jobModal.style.display = 'flex';
+}
+
+function openJobModalForEdit(id) {
+    openJobModal(id);
+}
+
+// HÀM MỚI: Xử lý logic Đang làm / Ngày Kết thúc
+function toggleEndDateInput(isCurrent) {
+    const endInput = document.getElementById('jobEndDate');
+    endInput.disabled = isCurrent;
+    endInput.style.backgroundColor = isCurrent ? '#eee' : '#fff';
+    endInput.required = !isCurrent;
+}
+document.getElementById('jobIsCurrent').onchange = (e) => toggleEndDateInput(e.target.checked);
+
+
+// HÀM MỚI: Lưu công việc
+document.getElementById('saveJob').onclick = () => {
+    const name = document.getElementById('jobName').value.trim();
+    const startDate = document.getElementById('jobStartDate').value;
+    const isCurrent = document.getElementById('jobIsCurrent').checked;
+    let endDate = isCurrent ? null : document.getElementById('jobEndDate').value;
+
+    if (!name || !startDate) {
+        alert('Vui lòng nhập Tên Nơi làm việc và Ngày Bắt đầu.');
+        return;
+    }
+    if (!isCurrent && !endDate) {
+        alert('Vui lòng nhập Ngày Kết thúc hoặc chọn "Đang làm".');
+        return;
+    }
+
+    if (editingJobId) {
+        // Cập nhật công việc
+        const index = jobs.findIndex(j => j.id === editingJobId);
+        if (index !== -1) {
+            jobs[index] = { id: editingJobId, name, startDate, endDate, isCurrent };
+        }
+    } else {
+        // Thêm công việc mới
+        const newId = Date.now(); // Sử dụng timestamp làm ID duy nhất
+        jobs.push({ id: newId, name, startDate, endDate, isCurrent });
+    }
+
+    jobModal.style.display = 'none';
+    saveJobs(); 
+};
+
+// HÀM MỚI: Hủy Modal công việc
+document.getElementById('cancelJob').onclick = () => {
+    jobModal.style.display = 'none';
+};
+
+// HÀM MỚI: Xóa công việc
+document.getElementById('deleteJob').onclick = () => {
+    if (editingJobId && confirm('Bạn có chắc chắn muốn xóa nơi làm việc này không?')) {
+        jobs = jobs.filter(j => j.id !== editingJobId);
+        jobModal.style.display = 'none';
+        saveJobs(); 
+    }
+};
+
+
+// --- CÁC HÀM CŨ ĐÃ TỐI ƯU (Giữ lại logic chính) ---
+
+function updateSettings() {
+    appSettings.rate = parseFloat(rateInput.value) || 0;
+    localStorage.setItem('appSettings', JSON.stringify(appSettings));
+    updateSummary(); 
+}
+
 function adjustRateInputWidth() {
     const val = String(rateInput.value).replace(/[^0-9]/g, '');
     const length = val.length;
-
-    let newWidth = 70; // **ĐIỀU CHỈNH: Chiều rộng tối thiểu mới**
-    const pixelPerChar = 10; // Giảm tốc độ mở rộng để không quá nhanh
-
-    // Từ 4 chữ số trở lên, tăng 10px cho mỗi chữ số
-    if (length >= 4) {
-        newWidth = 70 + (length - 4) * pixelPerChar; 
-    }
-    // Giới hạn độ dài tối đa
-    if (length > 12) { 
-        newWidth = 70 + (12 - 4) * pixelPerChar;
-    }
-
-    // Áp dụng chiều rộng mới
+    let newWidth = 70; 
+    const pixelPerChar = 10; 
+    if (length >= 4) { newWidth = 70 + (length - 4) * pixelPerChar; }
+    if (length > 12) { newWidth = 70 + (12 - 4) * pixelPerChar; }
     rateInput.style.width = `${newWidth}px`;
 }
 
 
 function updateSummary(){
-    const rate=parseFloat(rateInput.value)||0;
+    const rate = appSettings.rate || parseFloat(rateInput.value) || 0; 
     let totalH=0;  
     for(const k in workData) totalH+=workData[k].hours||0;
     
@@ -158,13 +408,11 @@ function renderCalendar(){
         for(let c=0;c<7;c++){
             const td=document.createElement('td');
             if(r===0&&c<firstDay||day>totalDays){
-                // Nếu là ô trống, để trống innerHTML
                 td.innerHTML='';
             } else {
                 const dkey=`${currentYear}-${currentMonth+1}-${day}`;
                 const info=workData[dkey]||{};
                 td.className='day'; 
-                // Ô có nội dung ngày tháng sẽ có span, td:empty sẽ không áp dụng
                 td.innerHTML=`<span>${day}</span>${info.hours?`<div>${info.hours.toFixed(2)}h</div>`:''}`;
                 td.onclick=()=>openModal(dkey);
                 day++;
@@ -177,43 +425,68 @@ function renderCalendar(){
     updateSummary();
 }
 
+// Modal Nhập Giờ
 function openModal(key){
-    const m=document.getElementById('timeModal');m.style.display='flex';
-    const dateParts=key.split('-');document.getElementById('modalDate').textContent=`${dateParts[2]}/${dateParts[1]}`;
+    const m=document.getElementById('timeModal');
+    m.style.display='flex';
+    const dateParts=key.split('-');
+    document.getElementById('modalDate').textContent=`${dateParts[2]}/${dateParts[1]}`;
     m.dataset.key=key;
     const info=workData[key]||{};
     document.getElementById('timeIn').value=info.in||'09:00';
     document.getElementById('timeOut').value=info.out||'18:00';
+    document.getElementById('deleteTime').style.display = info.hours ? 'inline-block' : 'none';
 }
 
-// --- CÁC SỰ KIỆN KHÁC ---
 document.getElementById('saveTime').onclick=()=>{
     const key=document.getElementById('timeModal').dataset.key;
     const tin=document.getElementById('timeIn').value;
     const tout=document.getElementById('timeOut').value;
     const [hi,mi]=tin.split(':').map(Number);const [ho,mo]=tout.split(':').map(Number);
     let hrs=(ho+mo/60)-(hi+mi/60);
-    
-    // Logic tính giờ làm việc qua đêm
-    if(hrs < 0) {
-        hrs += 24;
-    }
+    if(hrs < 0) { hrs += 24; }
     
     workData[key]={in:tin,out:tout,hours:hrs};
     document.getElementById('timeModal').style.display='none';
     renderCalendar();
 };
+
 document.getElementById('cancelTime').onclick=()=>document.getElementById('timeModal').style.display='none';
+
+document.getElementById('deleteTime').onclick=()=>{
+    const key=document.getElementById('timeModal').dataset.key;
+    if(confirm('Bạn có chắc chắn muốn xóa giờ công của ngày này không?')) {
+        delete workData[key];
+        document.getElementById('timeModal').style.display='none';
+        renderCalendar();
+    }
+};
+
 document.getElementById('prevMonth').onclick=()=>{currentMonth--;if(currentMonth<0){currentMonth=11;currentYear--;}renderCalendar();};
 document.getElementById('nextMonth').onclick=()=>{currentMonth++;if(currentMonth>11){currentMonth=0;currentYear++;}renderCalendar();};
 
-// Gán sự kiện cho input Lương/giờ
-rateInput.oninput = adjustRateInputWidth; // Thay đổi chiều rộng khi nhập
-rateInput.onchange = updateSummary; // Cập nhật tổng thu nhập khi giá trị thay đổi
+rateInput.oninput = adjustRateInputWidth; 
+rateInput.onchange = updateSettings; 
+
+document.getElementById('openJobModal').onclick = () => openJobModal();
 
 // --- KHỞI TẠO ỨNG DỤNG ---
-renderCalendar();
-adjustRateInputWidth(); // Thiết lập chiều rộng ban đầu
+function initApp() {
+    const storedSettings = JSON.parse(localStorage.getItem('appSettings') || '{}');
+    appSettings = storedSettings;
+
+    const initialRate = storedSettings.rate !== undefined ? storedSettings.rate : 100000;
+    rateInput.value = initialRate;
+
+    // Khôi phục danh sách công việc
+    jobs = JSON.parse(localStorage.getItem('jobs') || '[]');
+
+    renderJobList(); 
+    renderCalendar();
+    adjustRateInputWidth(); 
+}
+
+initApp(); 
 </script>
 </body>
 </html>
