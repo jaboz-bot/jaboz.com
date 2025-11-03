@@ -29,8 +29,7 @@
         gap: 20px; 
         box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
         border-radius: 8px;
-        /* Quan trọng: Cho phép container co giãn nhưng luôn chiếm tối đa không gian còn lại */
-        min-height: calc(100vh - 40px); /* 100vh trừ đi margin 20px trên dưới */
+        min-height: calc(100vh - 40px);
     }
 
     /* 2. Hàng 1 (Header: Tháng, Ngôn ngữ) */
@@ -40,7 +39,7 @@
         align-items: center; 
         padding-bottom: 10px;
         border-bottom: 2px solid #3498db; 
-        flex-shrink: 0; /* KHÔNG CHO PHÉP CO LẠI */
+        flex-shrink: 0;
     }
     .month-navigator {
         display: flex;
@@ -67,7 +66,7 @@
     .row-workplace-management {
         padding: 10px 0 20px 0; 
         border-bottom: 1px solid #ccc; 
-        flex-shrink: 0; /* KHÔNG CHO PHÉP CO LẠI */
+        flex-shrink: 0;
     }
     .add-workplace-button {
         background-color: #f39c12; 
@@ -127,18 +126,19 @@
         font-size: 0.9em;
     }
     
-    /* 4. Hàng Lịch (Calendar Row) - Kích thước lớn nhất */
+    /* 4. Hàng Lịch (Calendar Row) - Chỉ còn Rate Input */
     .row-calendar {
-        flex-grow: 1; /* QUAN TRỌNG: Cho phép phần này mở rộng hết cỡ không gian còn lại */
+        /* Loại bỏ flex-grow: 1; vì không còn lịch để mở rộng */
         display: flex;
         flex-direction: column;
         gap: 15px;
+        flex-shrink: 0; 
     }
     .calendar-header {
         text-align: center; 
         font-size: 1.2em; 
         color: #3498db;
-        flex-shrink: 0; /* KHÔNG CHO PHÉP CO LẠI */
+        flex-shrink: 0; 
     }
     .rate-input-group {
         display: flex; 
@@ -148,62 +148,16 @@
         font-size: 1em;
         padding: 5px 0;
     }
-    .calendar-table {
-        width: 100%; 
-        table-layout: fixed; 
-        border-collapse: collapse; 
-        flex-grow: 1; /* QUAN TRỌNG: Cho phép bảng lịch chiếm hết không gian còn lại */
-        min-height: 200px; /* Đảm bảo bảng có chiều cao tối thiểu */
-    }
-    .calendar-table th, .calendar-table td {
-        border: 1px solid #bdc3c7; 
-        padding: 0; 
-        text-align: center; 
-        font-size: 0.7em;
-    }
-    .calendar-table th {
-        background-color: #ecf0f1; color: #2c3e50; padding: 5px 0;
-    }
-    .calendar-table th:first-child {
-        color: #e74c3c;
-    }
-    .calendar-table tr td:first-child {
-        background-color: #fcebeb;
-    }
-    .calendar-table td:empty {
-        background-color: #e0e0e0 !important; cursor: default;
-    }
-    .day-cell {
-        vertical-align: top; width: 14.28%; min-height: 50px; background-color: #fcfcfc;
-        position: relative; cursor: pointer; user-select: none;
-    }
-    .day-number {
-        font-weight: bold; font-size: 1.1em; display: block; position: absolute;
-        top: 2px; left: 5px; color: #2980b9;
-    }
-    .work-display {
-        display: flex; flex-direction: column; justify-content: center; align-items: center;
-        font-weight: bold; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-        width: 95%; padding: 2px 0;
-    }
-    .work-display span {
-        line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        width: 100%; text-align: center;
-    }
-    .work-hours-in-cell {
-        color: #27ae60; font-size: 0.9em;
-    }
-    .work-amount-in-cell {
-        color: #e74c3c; font-size: 1em;
-    }
 
+    /* Đã loại bỏ toàn bộ CSS liên quan đến .calendar-table, .day-cell, th, td */
+    
     /* 5. Hàng Summary */
     .row-summary {
         padding: 15px; 
         border-top: 3px double #3498db; 
         background-color: #eaf6fd;
         border-radius: 5px; 
-        flex-shrink: 0; /* KHÔNG CHO PHÉP CO LẠI */
+        flex-shrink: 0; 
     }
     .row-summary p {
         font-size: 1em; margin: 8px 0; font-weight: 500;
@@ -215,7 +169,7 @@
         color: green; font-weight: bold;
     }
     
-    /* --- MODAL STYLES --- */
+    /* --- MODAL STYLES (Giữ lại, nhưng không có cách kích hoạt) --- */
     .modal {
         position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto;
         background-color: rgba(0,0,0,0.6); display: none; justify-content: center;
@@ -277,9 +231,6 @@
         .container {
             padding: 10px; min-height: auto;
         }
-        .day-cell {
-            min-height: 50px;
-        }
     }
 </style>
 </head>
@@ -315,35 +266,16 @@
             <div class="calendar-header">
                 <div class="rate-input-group">
                     <span data-key="label_rate">💰 Lương/giờ:</span>
-
                     <input type="number" id="hourlyRate" min="1000" style="width:80px;" placeholder="">
                     <span id="currencyUnit" class="currency-unit">VND</span>
                 </div>
                 <p id="note" class="note" data-key="note_calc"></p>
             </div>
-
-            <table class="calendar-table">
-                <thead>
-                    <tr id="tableHeaders">
-                        <th data-key="th_sun">CN</th>
-                        <th data-key="th_mon">T2</th>
-                        <th data-key="th_tue">T3</th>
-                        <th data-key="th_wed">T4</th>
-                        <th data-key="th_thu">T5</th>
-                        <th data-key="th_fri">T6</th>
-                        <th data-key="th_sat">T7</th>
-                    </tr>
-                </thead>
-                <tbody id="calendarBody">
-                </tbody>
-            </table>
-        </div>
+            </div>
 
         <div class="row-summary">
             <p><span id="summaryHoursPrefix" data-key="summary_total_hours_prefix_month">✅ Tổng giờ làm việc trong tháng:</span> <span id="totalHours" class="work-hours">0.00</span> <span data-key="summary_hours_suffix">giờ</span></p>
-
             <p><span id="summaryIncomePrefix" data-key="summary_total_income_month">💵 TỔNG THU NHẬP DỰ KIẾN:</span></p>
-
             <div id="totalAmount" class="total-amount">0 VND</div>
         </div>
     </div>
@@ -408,9 +340,9 @@
 
         let currentMonth = new Date().getMonth(); 
         let currentYear = new Date().getFullYear();
-        let timeData = {};
+        let timeData = {}; // Giữ lại cấu trúc dữ liệu giờ công
         let workplaceData = []; 
-        let currentDayInModal = null;
+        let currentDayInModal = null; // Vẫn giữ lại biến này cho modal (nếu được kích hoạt lại)
         let editingWorkplaceId = null; 
         
         const SWIPE_THRESHOLD = 100;
@@ -419,7 +351,7 @@
         // DOM Elements
         const DOM = {
             container: document.getElementById('timesheetContainer'),
-            calendarBody: document.getElementById('calendarBody'),
+            // calendarBody: document.getElementById('calendarBody'), <--- Đã loại bỏ
             hourlyRate: document.getElementById('hourlyRate'),
             languageSelect: document.getElementById('languageSelect'),
             monthYearDisplay: document.getElementById('monthYearDisplay'), 
@@ -436,7 +368,7 @@
             prevMonthArrow: document.getElementById('prevMonthArrow'),
             nextMonthArrow: document.getElementById('nextMonthArrow'),
 
-            // NEW: Workplace Elements
+            // Workplace Elements
             addWorkplaceButton: document.getElementById('addWorkplaceButton'),
             workplaceList: document.getElementById('workplaceList'),
             workplaceModal: document.getElementById('workplaceModal'),
@@ -592,7 +524,6 @@
         }
 
         // --- Logic Nơi Làm Việc (Workplace Logic) ---
-
         function renderWorkplaces() {
             const t = getT();
             DOM.workplaceList.innerHTML = '';
@@ -656,7 +587,7 @@
             } else {
                 // Create mode
                 DOM.workplaceModalTitle.textContent = t.workplace_modal_title_new;
-                DOM.workplaceModalSave.textContent = 'Tạo'; // Sử dụng Tạo khi thêm mới
+                DOM.workplaceModalSave.textContent = 'Tạo'; 
                 DOM.workplaceModalSave.className = 'create-workplace';
                 DOM.workplaceEndDate.disabled = false;
             }
@@ -693,13 +624,13 @@
                         name,
                         address,
                         startDate,
-                        endDate: isCurrent ? '' : endDate, // Nếu đang làm thì EndDate rỗng
+                        endDate: isCurrent ? '' : endDate, 
                         isCurrent
                     };
                 }
             } else {
                 // Create new
-                const newId = Date.now().toString(); // Simple unique ID
+                const newId = Date.now().toString(); 
                 workplaceData.push({
                     id: newId,
                     name,
@@ -786,51 +717,10 @@
             
             saveDataToLocalStorage();
             renderWorkplaces(); 
-            renderCalendar();
+            updateSummary(); // Chỉ gọi updateSummary thay vì renderCalendar
         }
 
-        function renderCalendar() {
-            DOM.calendarBody.innerHTML = '';
-
-            const date = new Date(currentYear, currentMonth, 1);
-            let firstDayOfWeek = date.getDay();
-            let row = DOM.calendarBody.insertRow();
-
-            for (let i = 0; i < firstDayOfWeek; i++) {
-                row.insertCell().innerHTML = '';
-            }
-
-            let day = 1;
-
-            while (date.getMonth() === currentMonth) {
-                if (row.cells.length === 7) {
-                    row = DOM.calendarBody.insertRow();
-                }
-
-                const cell = row.insertCell();
-                cell.className = 'day-cell';
-                const currentDay = day.toString();
-
-                cell.innerHTML = `
-                    <span class="day-number">${currentDay}</span>
-                    <div class="work-display">
-                        <span class="work-hours-in-cell"></span>
-                        <span class="work-amount-in-cell"></span>
-                    </div>
-                `;
-
-                cell.addEventListener('click', () => openModal(currentDay));
-
-                day++;
-                date.setDate(day);
-            }
-
-            while (row.cells.length < 7) {
-                row.insertCell().innerHTML = '';
-            }
-
-            updateSummary();
-        }
+        // Đã loại bỏ hoàn toàn hàm renderCalendar()
 
         function updateSummary() {
             let totalHours = 0;
@@ -840,41 +730,20 @@
             const locale = t.currencyLocale;
             const currentMonthName = t.month_names[currentMonth];
 
-            DOM.calendarBody.querySelectorAll('.day-cell').forEach(cell => {
-                const dayElement = cell.querySelector('.day-number');
-                if (!dayElement) return;
+            // Vòng lặp mới: Tính tổng giờ từ dữ liệu timeData đã lưu
+            for (const day in timeData) {
+                // Đảm bảo chỉ tính toán cho các thuộc tính hợp lệ (tránh các thuộc tính kế thừa nếu có)
+                if (timeData.hasOwnProperty(day)) {
+                    const timeIn = timeData[day]?.in || '';
+                    const timeOut = timeData[day]?.out || '';
+                    let hours = 0;
 
-                const day = dayElement.textContent;
-                const timeIn = timeData[day]?.in || '';
-                const timeOut = timeData[day]?.out || '';
-                let hours = 0;
-
-                if (timeIn && timeOut) {
-                    hours = calculateWorkHours(timeIn, timeOut);
-                }
-                totalHours += hours;
-
-                const hoursSpan = cell.querySelector('.work-hours-in-cell');
-                const amountSpan = cell.querySelector('.work-amount-in-cell');
-
-                if (hours > 0) {
-                    hoursSpan.textContent = hours.toFixed(2) + t.hour_suffix.substring(0, 1);
-
-                    if (hourlyRate > 0) {
-                        const totalAmount = hours * hourlyRate;
-                        amountSpan.textContent = totalAmount.toLocaleString(locale, {
-                            style: 'currency',
-                            currency: currency,
-                            minimumFractionDigits: (currency === 'VND' || currency === 'KRW') ? 0 : 2
-                        });
-                    } else {
-                        amountSpan.textContent = '';
+                    if (timeIn && timeOut) {
+                        hours = calculateWorkHours(timeIn, timeOut);
                     }
-                } else {
-                    hoursSpan.textContent = '';
-                    amountSpan.textContent = '';
+                    totalHours += hours;
                 }
-            });
+            }
 
             // Update Final Summary
             const totalAmountFinal = totalHours * hourlyRate;
@@ -893,7 +762,8 @@
             saveDataToLocalStorage();
         }
 
-        // --- Logic Modal Giờ Công (Time Modal Logic) ---
+        // --- Logic Modal Giờ Công (Time Modal Logic) - KHÔNG CÓ CÁCH KÍCH HOẠT ---
+        // Giữ lại các hàm nhưng không có sự kiện nào gọi chúng
         function openModal(day) {
             currentDayInModal = day;
             const t = getT();
@@ -956,7 +826,7 @@
             DOM.prevMonthArrow.addEventListener('click', () => changeMonth(-1));
             DOM.nextMonthArrow.addEventListener('click', () => changeMonth(1));
 
-            // Event Listeners for Time Modal
+            // Event Listeners for Time Modal (Giữ lại nhưng vô hiệu hóa do không có trigger)
             DOM.timeModalCancel.addEventListener('click', closeModal);
             DOM.timeModalDelete.addEventListener('click', deleteModalData);
             DOM.timeModalSave.addEventListener('click', saveModalData);
@@ -971,7 +841,7 @@
             DOM.container.addEventListener('touchstart', handleTouchStart, false);
             DOM.container.addEventListener('touchend', handleTouchEnd, false);
 
-            // NEW: Workplace Event Listeners
+            // Workplace Event Listeners
             DOM.addWorkplaceButton.addEventListener('click', () => openWorkplaceModal());
             DOM.workplaceModalCancel.addEventListener('click', closeWorkplaceModal);
             DOM.workplaceModalSave.addEventListener('click', saveWorkplace);
