@@ -1,136 +1,127 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bảng Lịch Tháng Đơn Giản</title>
-    <style>
-        /* CSS tích hợp cho bảng lịch */
-        .calendar {
-            width: 80%; /* Chiều rộng bảng */
-            margin: 20px auto; /* Căn giữa */
-            border-collapse: collapse; /* Gộp đường viền */
-            font-family: Arial, sans-serif;
-        }
-
-        .calendar caption {
-            font-size: 1.5em;
-            font-weight: bold;
-            margin-bottom: 10px;
-            padding: 10px;
-            background-color: #4CAF50; /* Màu nền tiêu đề */
-            color: white;
-            border-radius: 5px 5px 0 0;
-        }
-
-        .calendar th, .calendar td {
-            border: 1px solid #ddd;
-            padding: 10px;
-            text-align: center;
-        }
-
-        .calendar th {
-            background-color: #f2f2f2; /* Màu nền cho hàng ngày trong tuần */
-            color: #333;
-            text-transform: uppercase;
-            font-size: 0.9em;
-        }
-
-        .calendar td {
-            height: 60px; /* Chiều cao ô ngày */
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .calendar td:hover {
-            background-color: #e0f7fa; /* Hiệu ứng di chuột */
-        }
-
-        /* Tô màu cho ngày Chủ Nhật */
-        .calendar th:first-child, .calendar td:nth-child(1) {
-            color: red;
-        }
-
-        /* Đánh dấu ngày hiện tại (ví dụ: ngày 15) */
-        .current-day {
-            background-color: #00bcd4;
-            color: white;
-            font-weight: bold;
-            border-radius: 50%;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bảng Chấm Công Theo Tháng</title>
+<style>
+html,body{height:100%;margin:0;font-family:Arial,sans-serif;background:#f6f8f9}
+.container{max-width:900px;margin:20px auto;background:#fff;padding:20px;border-radius:10px;box-shadow:0 4px 10px rgba(0,0,0,.1)}
+.header{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #3498db;padding-bottom:10px}
+.month-nav{display:flex;align-items:center;gap:8px;font-weight:bold;color:#27ae60}
+.arrow{cursor:pointer;user-select:none;font-size:1.3em}
+table{width:100%;border-collapse:collapse;margin-top:10px}
+th,td{border:1px solid #ccc;text-align:center;padding:5px;font-size:.85em}
+th{background:#eaf2f8}
+.day{position:relative;height:80px;vertical-align:top;cursor:pointer}
+.day span{position:absolute;top:3px;left:5px;font-weight:bold;color:#2980b9}
+.day div{position:absolute;bottom:3px;left:0;width:100%;font-size:.8em;color:#27ae60}
+.summary{margin-top:20px;background:#ecf9ff;padding:10px;border-radius:5px}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);justify-content:center;align-items:center}
+.modal-content{background:#fff;padding:20px;border-radius:10px;width:90%;max-width:400px}
+.modal-content input{width:100%;padding:8px;margin:5px 0;border:1px solid #ccc;border-radius:5px}
+.modal-content button{margin-top:10px;padding:8px 12px;border:none;border-radius:5px;cursor:pointer}
+.save{background:#3498db;color:#fff}
+.cancel{background:#ccc}
+</style>
 </head>
 <body>
+<div class="container">
+    <div class="header">
+        <div class="month-nav">
+            <span class="arrow" id="prevMonth">◀</span>
+            <span id="monthYear"></span>
+            <span class="arrow" id="nextMonth">▶</span>
+        </div>
+        <div>
+            💰 Lương/giờ: <input type="number" id="rate" value="100000" style="width:90px"> VND
+        </div>
+    </div>
 
-    <table class="calendar">
-        <caption>Tháng Mười Một - 2025</caption>
+    <table>
         <thead>
-            <tr>
-                <th>CN</th>
-                <th>T2</th>
-                <th>T3</th>
-                <th>T4</th>
-                <th>T5</th>
-                <th>T6</th>
-                <th>T7</th>
-            </tr>
+            <tr><th>CN</th><th>T2</th><th>T3</th><th>T4</th><th>T5</th><th>T6</th><th>T7</th></tr>
         </thead>
-        <tbody>
-            <tr>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td>1</td>
-            </tr>
-            <tr>
-                <td>2</td>
-                <td>3</td>
-                <td>4</td>
-                <td>5</td>
-                <td>6</td>
-                <td>7</td>
-                <td>8</td>
-            </tr>
-            <tr>
-                <td>9</td>
-                <td>10</td>
-                <td>11</td>
-                <td>12</td>
-                <td>13</td>
-                <td>14</td>
-                <td class="current-day">15</td> </tr>
-            <tr>
-                <td>16</td>
-                <td>17</td>
-                <td>18</td>
-                <td>19</td>
-                <td>20</td>
-                <td>21</td>
-                <td>22</td>
-            </tr>
-            <tr>
-                <td>23</td>
-                <td>24</td>
-                <td>25</td>
-                <td>26</td>
-                <td>27</td>
-                <td>28</td>
-                <td>29</td>
-            </tr>
-            <tr>
-                <td>30</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-        </tbody>
+        <tbody id="calendar"></tbody>
     </table>
 
+    <div class="summary">
+        ✅ Tổng giờ: <span id="totalHours">0</span> giờ<br>
+        💵 Thu nhập: <span id="totalPay">0</span> VND
+    </div>
+</div>
+
+<div class="modal" id="timeModal">
+    <div class="modal-content">
+        <h3>Nhập giờ công - <span id="modalDate"></span></h3>
+        <label>Vào:</label>
+        <input type="time" id="timeIn" value="09:00">
+        <label>Ra:</label>
+        <input type="time" id="timeOut" value="18:00">
+        <button class="save" id="saveTime">Lưu</button>
+        <button class="cancel" id="cancelTime">Hủy</button>
+    </div>
+</div>
+
+<script>
+let currentMonth = new Date().getMonth();
+let currentYear = new Date().getFullYear();
+let workData = JSON.parse(localStorage.getItem('workData')||'{}');
+const rateInput=document.getElementById('rate');
+
+function daysInMonth(y,m){return new Date(y,m+1,0).getDate();}
+function renderCalendar(){
+    const tbl=document.getElementById('calendar');
+    tbl.innerHTML='';
+    const firstDay=new Date(currentYear,currentMonth,1).getDay();
+    const totalDays=daysInMonth(currentYear,currentMonth);
+    document.getElementById('monthYear').textContent=`${currentMonth+1}/${currentYear}`;
+    let day=1; for(let r=0;r<6;r++){const tr=document.createElement('tr');
+        for(let c=0;c<7;c++){const td=document.createElement('td');
+            if(r===0&&c<firstDay||day>totalDays){td.innerHTML='';}
+            else{
+                const dkey=`${currentYear}-${currentMonth+1}-${day}`;
+                const info=workData[dkey]||{};
+                td.className='day'; td.innerHTML=`<span>${day}</span>${info.hours?`<div>${info.hours.toFixed(2)}h</div>`:''}`;
+                td.onclick=()=>openModal(dkey);
+                day++;
+            }
+            tr.appendChild(td);
+        } tbl.appendChild(tr);
+        if(day>totalDays)break;
+    }
+    updateSummary();
+}
+function updateSummary(){
+    const rate=parseFloat(rateInput.value)||0;
+    let totalH=0; for(const k in workData) totalH+=workData[k].hours||0;
+    document.getElementById('totalHours').textContent=totalH.toFixed(2);
+    document.getElementById('totalPay').textContent=(totalH*rate).toLocaleString('vi-VN');
+    localStorage.setItem('workData',JSON.stringify(workData));
+}
+function openModal(key){
+    const m=document.getElementById('timeModal');m.style.display='flex';
+    const dateParts=key.split('-');document.getElementById('modalDate').textContent=`${dateParts[2]}/${dateParts[1]}`;
+    m.dataset.key=key;
+    const info=workData[key]||{};
+    document.getElementById('timeIn').value=info.in||'09:00';
+    document.getElementById('timeOut').value=info.out||'18:00';
+}
+document.getElementById('saveTime').onclick=()=>{
+    const key=document.getElementById('timeModal').dataset.key;
+    const tin=document.getElementById('timeIn').value;
+    const tout=document.getElementById('timeOut').value;
+    const [hi,mi]=tin.split(':').map(Number);const [ho,mo]=tout.split(':').map(Number);
+    let hrs=(ho+mo/60)-(hi+mi/60);if(hrs<0)hrs+=24;
+    workData[key]={in:tin,out:tout,hours:hrs};
+    document.getElementById('timeModal').style.display='none';
+    renderCalendar();
+};
+document.getElementById('cancelTime').onclick=()=>document.getElementById('timeModal').style.display='none';
+document.getElementById('prevMonth').onclick=()=>{currentMonth--;if(currentMonth<0){currentMonth=11;currentYear--;}renderCalendar();};
+document.getElementById('nextMonth').onclick=()=>{currentMonth++;if(currentMonth>11){currentMonth=0;currentYear++;}renderCalendar();};
+rateInput.onchange=updateSummary;
+renderCalendar();
+</script>
 </body>
 </html>
