@@ -282,7 +282,7 @@ table tr td:empty { background-color: #dddddd; cursor: default; }
 </div>
 
 <script>
-// --- PHẦN JAVASCRIPT HOÀN CHỈNH (ĐÃ THÊM ĐA NGÔN NGỮ) ---
+// --- PHẦN JAVASCRIPT HOÀN CHỈNH (ĐÃ SỬA LỖI HIỂN THỊ THÁNG/NĂM) ---
 let currentMonth = new Date().getMonth();
 let currentYear = new Date().getFullYear();
 let workData = JSON.parse(localStorage.getItem('workData') || '{}'); 
@@ -642,9 +642,8 @@ function renderCalendar(){
     const firstDay=new Date(currentYear,currentMonth,1).getDay();
     const totalDays=daysInMonth(currentYear,currentMonth);
     
-    // Cập nhật tiêu đề tháng/năm theo ngôn ngữ
-    const monthName = translations[currentLang].months[currentMonth];
-    document.getElementById('monthYear').textContent=`${monthName}/${currentYear}`;
+    // ĐÃ SỬA: Chỉ hiển thị số tháng và năm (currentMonth + 1)
+    document.getElementById('monthYear').textContent=`${currentMonth + 1}/${currentYear}`;
     
     let day=1; 
 
