@@ -3,104 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bảng Chấm Công Tháng</title>
+    <title>Bảng Lịch Tháng Đơn Giản</title>
     <style>
-        /* CSS cho bảng sẽ được đặt ở đây */
-        table {
-            width: 90%;
-            margin: 20px auto;
-            border-collapse: collapse;
+        /* CSS tích hợp cho bảng lịch */
+        .calendar {
+            width: 80%; /* Chiều rộng bảng */
+            margin: 20px auto; /* Căn giữa */
+            border-collapse: collapse; /* Gộp đường viền */
             font-family: Arial, sans-serif;
         }
 
-        caption {
+        .calendar caption {
             font-size: 1.5em;
             font-weight: bold;
             margin-bottom: 10px;
-            color: #333;
+            padding: 10px;
+            background-color: #4CAF50; /* Màu nền tiêu đề */
+            color: white;
+            border-radius: 5px 5px 0 0;
         }
 
-        th, td {
+        .calendar th, .calendar td {
             border: 1px solid #ddd;
-            padding: 8px;
+            padding: 10px;
             text-align: center;
         }
 
-        th {
-            background-color: #4CAF50;
-            color: white;
+        .calendar th {
+            background-color: #f2f2f2; /* Màu nền cho hàng ngày trong tuần */
+            color: #333;
             text-transform: uppercase;
+            font-size: 0.9em;
         }
 
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
+        .calendar td {
+            height: 60px; /* Chiều cao ô ngày */
+            cursor: pointer;
+            transition: background-color 0.3s;
         }
 
-        /* Định dạng đặc biệt cho cột Ngày */
-        td:first-child {
+        .calendar td:hover {
+            background-color: #e0f7fa; /* Hiệu ứng di chuột */
+        }
+
+        /* Tô màu cho ngày Chủ Nhật */
+        .calendar th:first-child, .calendar td:nth-child(1) {
+            color: red;
+        }
+
+        /* Đánh dấu ngày hiện tại (ví dụ: ngày 15) */
+        .current-day {
+            background-color: #00bcd4;
+            color: white;
             font-weight: bold;
-            background-color: #e9ecef;
-        }
-
-        /* Định dạng đặc biệt cho cột Tổng */
-        td:last-child {
-            font-weight: bold;
-            background-color: #fff3cd;
+            border-radius: 50%;
         }
     </style>
 </head>
 <body>
 
-    <table>
-        <caption>BẢNG CHẤM CÔNG THÁNG 10 NĂM 2025</caption>
+    <table class="calendar">
+        <caption>Tháng Mười Một - 2025</caption>
         <thead>
             <tr>
-                <th rowspan="2">Ngày</th>
-                <th colspan="2">Sáng (S)</th>
-                <th colspan="2">Chiều (C)</th>
-                <th rowspan="2">Tổng Giờ</th>
-                <th rowspan="2">Ghi Chú</th>
-            </tr>
-            <tr>
-                <th>Vào</th>
-                <th>Ra</th>
-                <th>Vào</th>
-                <th>Ra</th>
+                <th>CN</th>
+                <th>T2</th>
+                <th>T3</th>
+                <th>T4</th>
+                <th>T5</th>
+                <th>T6</th>
+                <th>T7</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td>01</td>
-                <td>8:00</td>
-                <td>12:00</td>
-                <td>13:30</td>
-                <td>17:30</td>
-                <td>8.0</td>
                 <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>1</td>
             </tr>
             <tr>
-                <td>02</td>
-                <td colspan="4" style="background-color: #ffcccc;">NGHỈ LỄ</td>
-                <td>0.0</td>
-                <td></td>
+                <td>2</td>
+                <td>3</td>
+                <td>4</td>
+                <td>5</td>
+                <td>6</td>
+                <td>7</td>
+                <td>8</td>
             </tr>
             <tr>
-                <td>03</td>
-                <td>8:30</td>
-                <td>12:00</td>
-                <td></td>
-                <td></td>
-                <td>3.5</td>
-                <td>Chỉ làm nửa ngày</td>
-            </tr>
-            </tbody>
-        <tfoot>
+                <td>9</td>
+                <td>10</td>
+                <td>11</td>
+                <td>12</td>
+                <td>13</td>
+                <td>14</td>
+                <td class="current-day">15</td> </tr>
             <tr>
-                <td colspan="5" style="text-align: right;">**TỔNG CỘNG CẢ THÁNG:**</td>
-                <td style="background-color: #c3e6cb; font-size: 1.1em;">...</td>
+                <td>16</td>
+                <td>17</td>
+                <td>18</td>
+                <td>19</td>
+                <td>20</td>
+                <td>21</td>
+                <td>22</td>
+            </tr>
+            <tr>
+                <td>23</td>
+                <td>24</td>
+                <td>25</td>
+                <td>26</td>
+                <td>27</td>
+                <td>28</td>
+                <td>29</td>
+            </tr>
+            <tr>
+                <td>30</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
                 <td></td>
             </tr>
-        </tfoot>
+        </tbody>
     </table>
 
 </body>
