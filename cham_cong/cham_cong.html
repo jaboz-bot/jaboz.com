@@ -23,7 +23,7 @@ th{background:#eaf2f8}
 /* CSS CHO MODAL CHUNG */
 .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);justify-content:center;align-items:center;z-index:1000;}
 .modal-content{background:#fff;padding:20px;border-radius:10px;width:90%;max-width:400px}
-.modal-content input[type="text"], .modal-content input[type="date"], .modal-content input[type="time"]{width:100%;padding:8px;margin:5px 0;border:1px solid #ccc;border-radius:5px;box-sizing:border-box;}
+.modal-content input[type="text"], .modal-content input[type="date"], .modal-content input[type="time"], .modal-content select{width:100%;padding:8px;margin:5px 0;border:1px solid #ccc;border-radius:5px;box-sizing:border-box;}
 .modal-content button{margin-top:10px;padding:8px 12px;border:none;border-radius:5px;cursor:pointer}
 .save{background:#3498db;color:#fff}
 .cancel{background:#ccc}
@@ -50,10 +50,24 @@ table tr td:first-child span {
 }
 
 /* 2. Làm tối màu ô trống (ô không có ngày tháng) */
-/* Thẻ td không có nội dung text hoặc span (ngày) */
 table tr td:empty {
     background-color: #dddddd; /* Màu xám tối */
     cursor: default;
+}
+
+/* Căn chỉnh cho input rate và select currency */
+#rate {
+    width: 100px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    /* Đã chuyển sang type="text" nên css này sẽ áp dụng */
+}
+#currency {
+    width: 70px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
 }
 </style>
 </head>
@@ -65,120 +79,273 @@ table tr td:empty {
             <span id="monthYear"></span>
             <span class="arrow" id="nextMonth">▶</span>
         </div>
-        <div>
-            💰 Lương/giờ: <input type="number" id="rate" value="100000" style="width:90px"> VND
-        </div>
+        <div id="rateSection"></div>
     </div>
     
     <table>
         <thead>
-            <tr><th>CN</th><th>T2</th><th>T3</th><th>T4</th><th>T5</th><th>T6</th><th>T7</th></tr>
+            <tr id="tableHeaders"></tr>
         </thead>
         <tbody id="calendar"></tbody>
     </table>
 
     <div class="summary">
-        ✅ Tổng giờ: <span id="totalHours">0</span> giờ<br>
-        💵 Thu nhập: <span id="totalPay">0</span> VND
+        <span id="labelTotalHours"></span>: <span id="totalHours">0</span> <span id="unitHours"></span><br>
+        <span id="labelTotalPay"></span>: <span id="totalPay">0 VND</span>
     </div>
 </div>
 
 <div class="modal" id="timeModal">
     <div class="modal-content">
-        <h3>Nhập giờ công - <span id="modalDate"></span></h3>
-        <label>Vào:</label>
+        <h3 id="modalTitle"></h3>
+        <span id="modalDate"></span>
+        <label id="labelTimeIn"></label>
         <input type="time" id="timeIn" value="09:00">
-        <label>Ra:</label>
+        <label id="labelTimeOut"></label>
         <input type="time" id="timeOut" value="18:00">
-        <button class="save" id="saveTime">Lưu</button>
-        <button class="cancel" id="cancelTime">Hủy</button>
+        <button class="save" id="saveTime"></button>
+        <button class="cancel" id="cancelTime"></button>
     </div>
 </div>
 
 <script>
+// --- KHAI BÁO NGÔN NGỮ ---
+const LANG = {
+    'vi': {
+        currency: 'VND',
+        rateLabel: '💰 Lương/giờ:',
+        dayNames: ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'], 
+        totalHoursLabel: '✅ Tổng giờ',
+        totalPayLabel: '💵 Thu nhập',
+        hourUnit: 'giờ',
+        modalTitle: 'Nhập giờ công -',
+        timeInLabel: 'Vào:',
+        timeOutLabel: 'Ra:',
+        saveBtn: 'Lưu',
+        cancelBtn: 'Hủy',
+        locale: 'vi-VN' // Locale cho định dạng số
+    },
+    'kr': {
+        currency: 'KRW',
+        rateLabel: '💰 시간당 급여:',
+        dayNames: ['일', '월', '화', '수', '목', '금', '토'], 
+        totalHoursLabel: '✅ 총 근무 시간',
+        totalPayLabel: '💵 총 수익',
+        hourUnit: '시간',
+        modalTitle: '근무 시간 입력 -',
+        timeInLabel: '출근:',
+        timeOutLabel: '퇴근:',
+        saveBtn: '저장',
+        cancelBtn: '취소',
+        locale: 'ko-KR' // Locale cho định dạng số
+    }
+};
+
 // --- KHAI BÁO BIẾN ---
+let currentLang = 'vi'; 
 let currentMonth = new Date().getMonth();
 let currentYear = new Date().getFullYear();
-let workData = JSON.parse(localStorage.getItem('workData') || '{}'); 
-const rateInput = document.getElementById('rate');
+let workData = JSON.parse(localStorage.getItem('workData') || '{}'); 
+
+// Tạo các phần tử DOM cho Rate Section
+const rateInput = document.createElement('input');
+// QUAN TRỌNG: Đã chuyển sang type="text" để kiểm soát định dạng số tiền
+rateInput.type = 'text'; 
+rateInput.id = 'rate';
+rateInput.value = '100.000'; // Đặt giá trị mặc định có dấu chấm
+
+const currencySelect = document.createElement('select');
+currencySelect.id = 'currency';
+currencySelect.innerHTML = '<option value="VND">VND</option><option value="KRW">KRW</option>';
+
+const rateLabelSpan = document.createElement('span');
+rateLabelSpan.id = 'rateLabel';
+
+const rateSection = document.getElementById('rateSection');
+rateSection.appendChild(rateLabelSpan);
+rateSection.appendChild(rateInput);
+rateSection.appendChild(currencySelect);
+
+// --- HÀM XỬ LÝ ĐỊNH DẠNG (MỚI) ---
+function formatCurrencyInput(value) {
+    // 1. Loại bỏ tất cả các ký tự không phải số (và dấu phẩy)
+    let rawValue = value.replace(/[^0-9]/g, ''); 
+
+    // 2. Chuyển đổi thành số và định dạng lại theo kiểu Việt Nam (dấu chấm ngăn cách nghìn)
+    if (rawValue === '') return '';
+    const number = parseInt(rawValue, 10);
+    // Sử dụng toLocaleString với locale 'vi-VN' để có dấu chấm ngăn cách nghìn
+    return number.toLocaleString('vi-VN'); 
+}
+
+function getRateValue(value) {
+    // Lọc bỏ dấu chấm khỏi chuỗi để lấy giá trị số thực để tính toán
+    return parseFloat(value.replace(/\./g, '')) || 0;
+}
 
 // --- HÀM CHUNG ---
 function daysInMonth(y,m){return new Date(y,m+1,0).getDate();}
 
-function updateSummary(){
-    const rate=parseFloat(rateInput.value)||0;
-    let totalH=0; 
-    for(const k in workData) totalH+=workData[k].hours||0;
-    
-    document.getElementById('totalHours').textContent=totalH.toFixed(2);
-    document.getElementById('totalPay').textContent=(totalH*rate).toLocaleString('vi-VN');
-    localStorage.setItem('workData',JSON.stringify(workData));
+function updateLanguage(langCode) {
+    currentLang = langCode;
+    const lang = LANG[langCode];
+    
+    // 1. Cập nhật Tiêu đề Bảng
+    document.getElementById('tableHeaders').innerHTML = lang.dayNames.map(day => `<th>${day}</th>`).join('');
+    
+    // 2. Cập nhật phần Lương/giờ (chỉ label)
+    document.getElementById('rateLabel').textContent = lang.rateLabel + ' ';
+
+    // 3. Cập nhật Summary
+    document.getElementById('labelTotalHours').textContent = lang.totalHoursLabel;
+    document.getElementById('unitHours').textContent = lang.hourUnit;
+    document.getElementById('labelTotalPay').textContent = lang.totalPayLabel;
+
+    // 4. Cập nhật Modal
+    document.getElementById('modalTitle').textContent = lang.modalTitle;
+    document.getElementById('labelTimeIn').textContent = lang.timeInLabel;
+    document.getElementById('labelTimeOut').textContent = lang.timeOutLabel;
+    document.getElementById('saveTime').textContent = lang.saveBtn;
+    document.getElementById('cancelTime').textContent = lang.cancelBtn;
+
+    updateSummary();
+    renderCalendar(false); 
 }
 
-function renderCalendar(){
-    const tbl=document.getElementById('calendar');
-    tbl.innerHTML='';
-    const firstDay=new Date(currentYear,currentMonth,1).getDay();
-    const totalDays=daysInMonth(currentYear,currentMonth);
-    document.getElementById('monthYear').textContent=`${currentMonth+1}/${currentYear}`;
-    let day=1; 
-    for(let r=0;r<6;r++){
-        const tr=document.createElement('tr');
-        for(let c=0;c<7;c++){
-            const td=document.createElement('td');
-            if(r===0&&c<firstDay||day>totalDays){
-                // Nếu là ô trống, để trống innerHTML
-                td.innerHTML='';
-            } else {
-                const dkey=`${currentYear}-${currentMonth+1}-${day}`;
-                const info=workData[dkey]||{};
-                td.className='day'; 
-                // Ô có nội dung ngày tháng sẽ có span, td:empty sẽ không áp dụng
-                td.innerHTML=`<span>${day}</span>${info.hours?`<div>${info.hours.toFixed(2)}h</div>`:''}`;
-                td.onclick=()=>openModal(dkey);
-                day++;
-            }
-            tr.appendChild(td);
-        } 
-        tbl.appendChild(tr);
-        if(day>totalDays)break;
-    }
-    updateSummary();
+function updateSummary(){
+    // Lấy giá trị đã lọc dấu chấm
+    const rate=getRateValue(rateInput.value); 
+    const selectedCurrency=currencySelect.value;
+    const lang = selectedCurrency === 'VND' ? LANG['vi'] : LANG['kr']; 
+    let totalH=0; 
+    
+    for(const k in workData) totalH+=workData[k].hours||0;
+    
+    let finalPay = totalH * rate;
+    let displayPay;
+    
+    // Định dạng hiển thị tiền tệ dựa trên locale của ngôn ngữ
+    displayPay = finalPay.toLocaleString(lang.locale) + ' ' + selectedCurrency;
+    
+    document.getElementById('totalHours').textContent=totalH.toFixed(2);
+    document.getElementById('unitHours').textContent = lang.hourUnit;
+    document.getElementById('totalPay').textContent=displayPay;
+
+    localStorage.setItem('workData',JSON.stringify(workData));
 }
+
+function renderCalendar(shouldUpdateLang = true){
+    const tbl=document.getElementById('calendar');
+    tbl.innerHTML='';
+    const firstDay=new Date(currentYear,currentMonth,1).getDay();
+    const totalDays=daysInMonth(currentYear,currentMonth);
+    
+    const selectedCurrency = currencySelect.value;
+    const langCodeForDisplay = selectedCurrency === 'VND' ? 'vi' : 'kr';
+    const monthYearSeparator = langCodeForDisplay === 'vi' ? '/' : '.';
+    
+    document.getElementById('monthYear').textContent=`${currentMonth+1}${monthYearSeparator}${currentYear}`;
+    
+    if (shouldUpdateLang) {
+        updateLanguage(selectedCurrency === 'VND' ? 'vi' : 'kr');
+    }
+    
+    let day=1; 
+    for(let r=0;r<6;r++){
+        const tr=document.createElement('tr');
+        for(let c=0;c<7;c++){
+            const td=document.createElement('td');
+            if(r===0&&c<firstDay||day>totalDays){
+                td.innerHTML='';
+            } else {
+                const dkey=`${currentYear}-${currentMonth+1}-${day}`;
+                const info=workData[dkey]||{};
+                td.className='day'; 
+                td.innerHTML=`<span>${day}</span>${info.hours?`<div>${info.hours.toFixed(2)}h</div>`:''}`;
+                td.onclick=()=>openModal(dkey);
+                day++;
+            }
+            tr.appendChild(td);
+        } 
+        tbl.appendChild(tr);
+        if(day>totalDays)break;
+    }
+    updateSummary();
+}
+
 
 function openModal(key){
-    const m=document.getElementById('timeModal');m.style.display='flex';
-    const dateParts=key.split('-');document.getElementById('modalDate').textContent=`${dateParts[2]}/${dateParts[1]}`;
-    m.dataset.key=key;
-    const info=workData[key]||{};
-    document.getElementById('timeIn').value=info.in||'09:00';
-    document.getElementById('timeOut').value=info.out||'18:00';
+    const m=document.getElementById('timeModal');m.style.display='flex';
+    const dateParts=key.split('-');
+    
+    const dateSeparator = currentLang === 'vi' ? '/' : '.';
+    document.getElementById('modalDate').textContent=`${dateParts[2]}${dateSeparator}${dateParts[1]}`;
+    
+    m.dataset.key=key;
+    const info=workData[key]||{};
+    document.getElementById('timeIn').value=info.in||'09:00';
+    document.getElementById('timeOut').value=info.out||'18:00';
 }
 
 // --- CÁC SỰ KIỆN KHÁC ---
 document.getElementById('saveTime').onclick=()=>{
-    const key=document.getElementById('timeModal').dataset.key;
-    const tin=document.getElementById('timeIn').value;
-    const tout=document.getElementById('timeOut').value;
-    const [hi,mi]=tin.split(':').map(Number);const [ho,mo]=tout.split(':').map(Number);
-    let hrs=(ho+mo/60)-(hi+mi/60);
-    
-    // Logic tính giờ làm việc qua đêm
+    const key=document.getElementById('timeModal').dataset.key;
+    const tin=document.getElementById('timeIn').value;
+    const tout=document.getElementById('timeOut').value;
+    const [hi,mi]=tin.split(':').map(Number);const [ho,mo]=tout.split(':').map(Number);
+    let hrs=(ho+mo/60)-(hi+mi/60);
+    
     if(hrs < 0) {
         hrs += 24;
     }
     
-    workData[key]={in:tin,out:tout,hours:hrs};
-    document.getElementById('timeModal').style.display='none';
-    renderCalendar();
+    workData[key]={in:tin,out:tout,hours:hrs};
+    document.getElementById('timeModal').style.display='none';
+    renderCalendar();
 };
+
 document.getElementById('cancelTime').onclick=()=>document.getElementById('timeModal').style.display='none';
 document.getElementById('prevMonth').onclick=()=>{currentMonth--;if(currentMonth<0){currentMonth=11;currentYear--;}renderCalendar();};
 document.getElementById('nextMonth').onclick=()=>{currentMonth++;if(currentMonth>11){currentMonth=0;currentYear++;}renderCalendar();};
-rateInput.onchange=updateSummary;
+
+// Gắn sự kiện cho input rate (Đã thêm sự kiện onblur)
+rateInput.onchange = updateSummary;
+
+rateInput.onblur = () => {
+    // Định dạng lại khi người dùng rời khỏi ô input
+    rateInput.value = formatCurrencyInput(rateInput.value);
+    updateSummary();
+};
+
+rateInput.onkeyup = (event) => {
+    // Cho phép nhập số và các phím điều hướng/xóa
+    if (event.key >= '0' && event.key <= '9' || event.key === 'Backspace' || event.key === 'Delete' || event.key === 'ArrowLeft' || event.key === 'ArrowRight' || event.key === 'Tab') {
+        // Chỉ cập nhật khi phím nhập có thể thay đổi giá trị
+        // Đây là cách đơn giản để kiểm soát, onblur sẽ xử lý định dạng cuối cùng
+    } else {
+        // Ngăn chặn các ký tự không phải số (trừ khi là phím điều hướng)
+        // Đây là một cách đơn giản hóa, formatCurrencyInput trong onblur sẽ xử lý triệt để hơn
+    }
+};
+
+currencySelect.onchange=()=>{
+    const newCurrency = currencySelect.value;
+    const newLang = newCurrency === 'VND' ? 'vi' : 'kr';
+    updateLanguage(newLang);
+    // Nếu chuyển sang KRW, ta không nên định dạng dấu chấm ngăn cách nghìn theo kiểu VN nữa
+    if (newCurrency === 'KRW') {
+        // Để đơn giản, khi chuyển sang KRW, ta để input không có dấu phân cách
+        rateInput.value = getRateValue(rateInput.value);
+    } else {
+        // Khi chuyển sang VND, áp dụng định dạng dấu chấm
+        rateInput.value = formatCurrencyInput(String(getRateValue(rateInput.value)));
+    }
+    renderCalendar(false);
+}; 
 
 // --- KHỞI TẠO ỨNG DỤNG ---
-renderCalendar();
+updateLanguage('vi'); 
+renderCalendar(false);
 </script>
 </body>
 </html>
