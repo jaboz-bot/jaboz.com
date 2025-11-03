@@ -376,6 +376,15 @@ const getDayKey = (y, m, d) => `${y}-${pad(m + 1)}-${pad(d)}`;
 const daysInMonth = (y, m) => new Date(y, m + 1, 0).getDate();
 const formatDate = (iso) => (iso ? iso.split('-').reverse().join('/') : '');
 
+function getRateValue() {
+    const digits = String(rateInput.value).replace(/\D/g, '');
+    return Number(digits || 0);
+}
+function formatRateInputDisplay() {
+    const digits = String(rateInput.value).replace(/\D/g, '');
+    rateInput.value = Number(digits || 0).toLocaleString(currentLang === 'vi' ? 'vi-VN' : 'ko-KR');
+}
+
 function getTranslation(key, ...args) {
     const t = translations[currentLang][key];
     return typeof t === 'function' ? t(...args) : (t || translations.vi[key] || key);
