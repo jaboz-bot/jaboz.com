@@ -416,7 +416,7 @@ langToggleBtn.onclick = () => setLanguage(currentLang === 'vi' ? 'ko' : 'vi');
 function saveJobs() {
     localStorage.setItem('jobs', JSON.stringify(jobs));
     renderJobList();
-    renderJobSelectOptions();
+    
 }
 
 function openJobModal(jobId = null) {
