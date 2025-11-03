@@ -629,7 +629,7 @@ function openModal(key) {
     m.style.display = 'flex';
     m.dataset.key = key;
 
-    const [year, month, day] = key.split('-');
+    const [year, month, day] = key.split('-'); // key dạng YYYY-MM-DD (đã có 0 ở đầu)
     const dateText = `${day}/${month}`;
     document.getElementById('modalDate').textContent = dateText;
     document.querySelector('#timeModal h3').textContent = `${getTranslation('modal_time_title')} ${dateText}`;
