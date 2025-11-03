@@ -573,8 +573,7 @@ function updateSummary() {
     const locale = currentLang === 'vi' ? 'vi-VN' : 'ko-KR';
     document.getElementById('totalHours').textContent = totalH.toFixed(2);
     document.getElementById('totalPay').textContent = (totalH * rate).toLocaleString(locale);
-
-    localStorage.setItem('workData', JSON.stringify(workData));
+    // localStorage.setItem('workData', JSON.stringify(workData)); // bỏ dòng này
 }
 
 function renderCalendar() {
@@ -583,13 +582,13 @@ function renderCalendar() {
 
     const firstDay = new Date(currentYear, currentMonth, 1).getDay();
     const totalDays = daysInMonth(currentYear, currentMonth);
-
     document.getElementById('monthYear').textContent = `${getTranslation('months')[currentMonth]} ${currentYear}`;
 
     let day = 1;
     const rate = parseFloat(rateInput.value) || 0;
     const locale = currentLang === 'vi' ? 'vi-VN' : 'ko-KR';
     const currencyCode = translations[currentLang].unit_vnd;
+    const currentJobId = getCurrentJobId(); // moved up
 
     for (let r = 0; r < 6; r++) {
         const tr = document.createElement('tr');
@@ -600,9 +599,6 @@ function renderCalendar() {
             } else {
                 const dkey = getDayKey(currentYear, currentMonth, day);
                 const dayData = workData[dkey] || {};
-
-                // Hiển thị TỔNG giờ của ngày (mọi job)
-                const currentJobId = getCurrentJobId();
                 const info = currentJobId ? (dayData[currentJobId] || {}) : {};
                 const hours = info.hours || 0;
 
@@ -614,13 +610,10 @@ function renderCalendar() {
                         <div class="pay-display">${pay.toLocaleString(locale)} ${currencyCode}</div>
                     `;
                 }
-
                 td.className = 'day';
                 td.innerHTML = contentHTML;
                 td.dataset.key = dkey;
-                td.onclick = (e) => {
-                    if (e.currentTarget.innerHTML !== '') openModal(dkey);
-                };
+                td.onclick = (e) => { if (e.currentTarget.innerHTML !== '') openModal(dkey); };
                 day++;
             }
             tr.appendChild(td);
@@ -628,12 +621,13 @@ function renderCalendar() {
         tbl.appendChild(tr);
         if (day > totalDays) break;
     }
+
     updateSummary();
+
     const monthNum = currentMonth + 1;
     document.querySelector('[data-i18n="total_hours_label"]').textContent = `Tổng giờ hiện tại tháng ${monthNum}:`;
     document.querySelector('[data-i18n="estimated_pay_label"]').textContent = `Thu nhập ước tính tháng ${monthNum}:`;
 }
-
 function openModal(key) {
     const m = document.getElementById('timeModal');
     m.style.display = 'flex';
