@@ -50,34 +50,53 @@ th{background:#eaf2f8}
 }
 
 /* HIỆU ỨNG CUỘN NGANG */
+/* HIỆU ỨNG CHỈ HIỂN THỊ 1 THẺ VÀ CĂN GIỮA */
 #workplace-list-container {
-    overflow-x: auto;
+    /* Đã thay đổi: Buộc chứa 1 thẻ/lần hiển thị */
+    overflow-x: auto; /* Vẫn giữ cuộn ngang để vuốt xem thẻ khác */
     white-space: nowrap;
     padding: 10px 0;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     -ms-overflow-style: none;
-    text-align: left;
+    text-align: center;
+    
+    /* Thêm thuộc tính để mỗi lần cuộn chỉ hiển thị 1 thẻ */
+    scroll-snap-type: x mandatory; 
 }
 #workplace-list-container::-webkit-scrollbar {
     display: none;
 }
 #workplace-list {
-    display: inline-block;
-    width: max-content;
+    /* Đã thay đổi: Sử dụng flexbox để căn chỉnh */
+    display: flex; /* Quan trọng */
+    justify-content: center; /* Căn giữa các thẻ trong viewport */
+    gap: 10px; /* Thêm khoảng cách giữa các thẻ */
+    width: 100%; /* Đảm bảo chiếm đủ chiều rộng */
+    padding: 0 50%; /* Padding giả để căn thẻ giữa khi nó là thẻ đầu tiên/cuối cùng */
+    box-sizing: border-box;
 }
+
 .workplace-card {
+    /* Đã thay đổi: Đảm bảo thẻ luôn có kích thước cố định */
     display: inline-block;
     padding: 10px 15px;
-    margin: 0 5px;
+    margin: 0; /* Đã loại bỏ margin vì dùng gap */
     border: 2px solid #ccc;
     border-radius: 8px;
     background: #fcfcfc;
     cursor: pointer;
     font-size: 0.9em;
-    min-width: 150px;
+    
+    /* Thiết lập kích thước cố định và buộc chúng không co lại */
+    min-width: 250px; /* Buộc chiều rộng để dễ căn giữa */
+    flex-shrink: 0; /* Không co thẻ */
+    
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     vertical-align: top;
+    
+    /* Thêm thuộc tính scroll-snap */
+    scroll-snap-align: center;
 }
 .workplace-card.selected {
     border-color: #e74c3c;
