@@ -215,9 +215,9 @@ table tr td:empty { background-color: #dddddd; cursor: default; }
     </div>
 
     <div class="summary">
-        ✅ <span data-i18n="total_hours_label">Tổng giờ công việc hiện tại:</span> <span id="totalHours">0</span> <span class="green-unit" data-i18n="unit_hours">GIỜ</span><br>
-        💵 <span data-i18n="estimated_pay_label">Thu nhập ước tính:</span> <span id="totalPay">0</span> <span class="red-unit" data-i18n="unit_vnd">VND</span>
-    </div>
+    ✅ <span id="totalHoursLabel">Tổng giờ hiện tại tháng 00:</span> <span id="totalHours">0</span> <span class="green-unit">GIỜ</span><br>
+    💵 <span id="totalPayLabel">Thu nhập ước tính tháng 00:</span> <span id="totalPay">0</span> <span class="red-unit" data-i18n="unit_vnd">VND</span>
+</div>
 </div>
 
 <div class="modal" id="timeModal">
@@ -624,13 +624,14 @@ function renderCalendar() {
 
     updateSummary();
 
-    const mm = pad(currentMonth + 1);
+    // cuối renderCalendar()
+const mm = pad(currentMonth + 1);
 if (currentLang === 'vi') {
-    document.querySelector('[data-i18n="total_hours_label"]').textContent = `Tổng giờ hiện tại tháng ${mm}:`;
-    document.querySelector('[data-i18n="estimated_pay_label"]').textContent = `Thu nhập ước tính tháng ${mm}:`;
+    document.getElementById('totalHoursLabel').textContent = `Tổng giờ hiện tại tháng ${mm}:`;
+    document.getElementById('totalPayLabel').textContent = `Thu nhập ước tính tháng ${mm}:`;
 } else {
-    document.querySelector('[data-i18n="total_hours_label"]').textContent = `${mm}월 총 시간:`;
-    document.querySelector('[data-i18n="estimated_pay_label"]').textContent = `${mm}월 예상 수입:`;
+    document.getElementById('totalHoursLabel').textContent = `${mm}월 총 시간:`;
+    document.getElementById('totalPayLabel').textContent = `${mm}월 예상 수입:`;
 }
 }
 function openModal(key) {
