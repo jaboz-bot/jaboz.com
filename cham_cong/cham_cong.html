@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bảng Chấm Công Đa Dự Án</title>
 <style>
-/* CSS CƠ BẢN VÀ CHUNG */
+/* ... (CSS CƠ BẢN VÀ CHUNG GIỮ NGUYÊN) ... */
 html,body{height:100%;margin:0;font-family:Arial,sans-serif;background:#f6f8f9}
 .container{max-width:900px;margin:20px auto;background:#fff;padding:20px;border-radius:10px;box-shadow:0 4px 10px rgba(0,0,0,.1)}
 .header{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #3498db;padding-bottom:10px}
@@ -32,7 +32,7 @@ th{background:#eaf2f8}
     margin-bottom: 20px;
     border-bottom: 1px dashed #ccc;
     padding-bottom: 15px;
-    text-align: center; /* Căn giữa nút Thêm Mới */
+    text-align: center;
 }
 #workplace-actions {
     margin: 10px 0;
@@ -55,7 +55,7 @@ th{background:#eaf2f8}
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     -ms-overflow-style: none;
-    text-align: left; /* Đảm bảo nội dung cuộn từ trái sang */
+    text-align: left;
 }
 #workplace-list-container::-webkit-scrollbar {
     display: none;
@@ -106,7 +106,7 @@ th{background:#eaf2f8}
 }
 #current-workplace-name {
     color: #3498db;
-    display: block; /* Đặt tên cửa hàng lên dòng riêng */
+    display: block;
 }
 
 /* Căn chỉnh cho Input giờ (trong timeModal) */
@@ -130,8 +130,9 @@ th{background:#eaf2f8}
     </div>
     
     <div id="workplace-management">
-        <div id="current-workplace-display-block">
-            <span id="current-workplace-name">Chưa chọn</span>
+        
+        <div id="current-workplace-display-block" style="display: none;">
+            <span id="current-workplace-name"></span>
         </div>
         
         <div id="workplace-list-container">
@@ -201,6 +202,7 @@ let currentWorkplaceIndex = localStorage.getItem('currentWorkplaceIndex') !== nu
 
 const workplaceList = document.getElementById('workplace-list');
 const currentWorkplaceName = document.getElementById('current-workplace-name');
+const currentWorkplaceDisplayBlock = document.getElementById('current-workplace-display-block');
 
 // BIẾN CHO MODAL NƠI LÀM VIỆC
 const workplaceModal = document.getElementById('workplaceModal');
@@ -263,7 +265,7 @@ function openModal(key){
     document.getElementById('timeOut').value=info.out||'18:00';
 }
 
-// --- LOGIC NƠI LÀM VIỆC ---
+// --- LOGIC NƠI LÀM VIỆC (TINH GIẢN) ---
 
 function saveWorkplaces() {
     localStorage.setItem('workplaces', JSON.stringify(workplaces));
@@ -273,10 +275,13 @@ function saveWorkplaces() {
 }
 
 function updateCurrentWorkplaceDisplay() {
+    // Ẩn/hiện khối hiển thị tùy thuộc vào việc có nơi làm việc nào được chọn không
     if (currentWorkplaceIndex !== -1 && workplaces[currentWorkplaceIndex]) {
         currentWorkplaceName.textContent = workplaces[currentWorkplaceIndex].storeName + (workplaces[currentWorkplaceIndex].endDate === 'Đang làm' ? ' (Hiện tại)' : '');
+        currentWorkplaceDisplayBlock.style.display = 'block';
     } else {
-        currentWorkplaceName.textContent = 'Chưa chọn';
+        currentWorkplaceName.textContent = '';
+        currentWorkplaceDisplayBlock.style.display = 'none'; // Ẩn khi không có nơi làm việc nào được chọn
     }
 }
 
@@ -289,7 +294,6 @@ function renderWorkplaceList() {
         const dateDisplay = wp.endDate === 'Đang làm' ? 'Đang làm' : `${wp.startDate} - ${wp.endDate}`;
         card.innerHTML = `<span class="store-name">${wp.storeName}</span><span class="date-range">${dateDisplay}</span>`;
         
-        // Sự kiện click (Chạm 1 lần: Chọn, Chạm 2 lần: Sửa)
         let clickTimer = null;
         card.onclick = () => {
             if (clickTimer === null) {
