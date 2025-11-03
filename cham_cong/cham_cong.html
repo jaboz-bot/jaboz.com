@@ -83,7 +83,18 @@ table{width:100%;border-collapse:collapse;margin-top:10px}
 th,td{border:1px solid #ccc;text-align:center;padding:5px;font-size:.85em}
 /* Cột tiêu đề mặc định */
 th{background:#eaf2f8}
-.day{position:relative;height:80px;vertical-align:top;cursor:pointer}
+.day{
+    position:relative;
+    height:80px;
+    /* Đã XÓA: vertical-align:top; */
+    cursor:pointer;
+    /* --- THAY ĐỔI CSS ĐỂ CĂN GIỮA NỘI DUNG BẰNG FLEXBOX --- */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Căn giữa theo chiều dọc */
+    align-items: center; /* Căn giữa theo chiều ngang */
+    text-align: center;
+}
 .day span{position:absolute;top:3px;left:5px;font-weight:bold;color:#2980b9}
 .day div{position:absolute;bottom:3px;left:0;width:100%;font-size:.8em;color:#27ae60}
 .summary{margin-top:20px;background:#ecf9ff;padding:10px;border-radius:5px}
