@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -9,7 +8,6 @@
 /* --- PHẦN CSS HOÀN CHỈNH --- */
 html,body{height:100%;margin:0;font-family:Arial,sans-serif;background:#f6f8f9}
 .container{max-width:900px;margin:20px auto;background:#fff;padding:20px;border-radius:10px;box-shadow:0 4px 10px rgba(0,0,0,.1)}
-
 /* Định dạng khu vực nút và danh sách công việc */
 .top-controls {
     display: flex;
@@ -19,58 +17,28 @@ html,body{height:100%;margin:0;font-family:Arial,sans-serif;background:#f6f8f9}
     margin-bottom: 5px; 
     border-bottom: 1px solid #ddd;
 }
-.control-group {
-    display: flex;
-    gap: 10px;
-}
+.control-group { display:flex; gap:10px; }
 .add-job-btn, .lang-toggle-btn {
-    padding: 8px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
-    box-shadow: 0 2px 5px rgba(0,0,0,.1);
-    white-space: nowrap; 
+    padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer;
+    font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,.1); white-space: nowrap;
 }
 .add-job-btn { background:#2ecc71; color:#fff; }
 .lang-toggle-btn { background:#f1c40f; color:#333; font-size:.9em; padding:8px 12px; }
-
 /* CSS CHO CAROUSEL */
 #jobCarousel {
-    display:flex;
-    overflow-x:auto;
-    scroll-snap-type:x mandatory;
-    scroll-behavior:smooth;
-    -webkit-overflow-scrolling:touch;
-    margin-bottom:15px;
-    border:1px solid #e0e0e0;
-    border-radius:8px;
-    padding:10px;
-    background:#f7f7f7;
-    box-shadow:inset 0 0 5px rgba(0,0,0,.05);
-    min-height:72px; /* đảm bảo luôn thấy khu vực */
+    display:flex; overflow-x:auto; scroll-snap-type:x mandatory; scroll-behavior:smooth; -webkit-overflow-scrolling:touch;
+    margin-bottom:15px; border:1px solid #e0e0e0; border-radius:8px; padding:10px; background:#f7f7f7; box-shadow:inset 0 0 5px rgba(0,0,0,.05);
+    min-height:72px;
 }
 .job-item {
-    min-width:100%;
-    flex-shrink:0;
-    padding:10px 12px;
-    font-size:.95em;
-    color:#333;
-    cursor:pointer;
-    scroll-snap-align:start;
-    box-sizing:border-box;
+    min-width:100%; flex-shrink:0; padding:10px 12px; font-size:.95em; color:#333; cursor:pointer; scroll-snap-align:start; box-sizing:border-box;
     transition:background-color .15s ease;
 }
-.job-item.selected {
-    background-color:#d7e8f5;
-    border:1px solid #2980b9;
-    border-radius:5px;
-}
+.job-item.selected { background-color:#d7e8f5; border:1px solid #2980b9; border-radius:5px; }
 .job-item strong { color:#2980b9; display:block; font-size:1.15em; }
 .job-item span { color:#7f8c8d; display:block; margin-top:4px; font-size:.9em; }
 .job-item:hover { background-color:#eaf2f8; }
 .job-item.selected:hover { background-color:#d7e8f5; }
-
 /* CSS CHUNG BẢNG LỊCH */
 .header{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #3498db;padding-bottom:10px}
 .month-nav{display:flex;align-items:center;gap:8px;font-weight:bold;color:#27ae60}
@@ -78,31 +46,25 @@ html,body{height:100%;margin:0;font-family:Arial,sans-serif;background:#f6f8f9}
 table{width:100%;border-collapse:collapse;margin-top:10px;table-layout:fixed}
 th,td{border:1px solid #ccc;text-align:center;padding:5px;font-size:.85em}
 th{background:#eaf2f8}
-
-/* Định dạng ô ngày */
+/* Ô ngày */
 .day{position:relative;height:80px;vertical-align:top;cursor:pointer;padding-top:20px}
 .day span{position:absolute;top:3px;left:5px;font-weight:bold;color:#2980b9}
-
-/* CĂN GIỮA GIỜ CÔNG VÀ TIỀN */
 .day div{width:100%;margin-top:5px;text-align:center;line-height:1.2}
-
-/* Định dạng Giờ Công */
 .day .hours-display{font-weight:bold;color:#2ecc71;font-size:.9em}
-
-/* Định dạng Số Tiền */
 .day .pay-display{color:#e74c3c;font-size:.8em;font-weight:normal;margin-top:2px}
-
-.summary{margin-top:20px;background:#ecf9ff;padding:10px;border-radius:5px}
-
-/* ĐIỀU CHỈNH TỔNG GIỜ CÔNG VÀ ĐƠN VỊ TÍNH */
+/* Summary + nút máy tính */
+.summary{position:relative;margin-top:20px;background:#ecf9ff;padding:10px 120px 10px 10px;border-radius:5px}
 #totalHours{font-weight:bold;color:#2ecc71;font-size:1.1em}
 .summary .green-unit{color:#2ecc71;font-weight:bold}
-
-/* ĐIỀU CHỈNH TỔNG THU NHẬP VÀ ĐƠN VỊ TÍNH */
 #totalPay{font-weight:bold;color:#e74c3c;font-size:1.1em}
 .summary .red-unit{color:#e74c3c;font-weight:bold}
-
-/* CSS CHO MODAL CHUNG (Không đổi) */
+/* Nút máy tính đặt góc phải trong summary */
+.calc-open-btn{
+    position:absolute; right:10px; bottom:10px;
+    background:#8e44ad; color:#fff; border:none; border-radius:6px; padding:10px 14px; cursor:pointer;
+    font-weight:bold; box-shadow:0 2px 5px rgba(0,0,0,.15);
+}
+/* Modal chung */
 .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);justify-content:center;align-items:center;z-index:1000;}
 .modal-content{background:#fff;padding:20px;border-radius:10px;width:90%;max-width:400px}
 .modal-content input[type="text"], .modal-content input[type="date"], .modal-content select{width:100%;padding:8px;margin:5px 0;border:1px solid #ccc;border-radius:5px;box-sizing:border-box;}
@@ -111,17 +73,27 @@ th{background:#eaf2f8}
 .save{background:#3498db;color:#fff}
 .cancel{background:#ccc}
 .delete{background:#e74c3c;color:#fff}
-
 /* Tùy chỉnh Calendar và Input Lương/giờ */
 table th:first-child{background:#e74c3c;color:#fff}
 table tr td:first-child{background-color:#fcecec}
 table tr td:first-child span{color:#c0392b !important}
 table tr td:empty{background-color:#dddddd;cursor:default}
 .header input#rate{min-width:70px;width:70px;transition:width .2s ease-in-out;text-align:right}
-
 .time-input-group{display:flex;align-items:center;margin-bottom:10px}
 .time-input-group label{font-weight:bold;width:40px;text-align:left;margin-right:10px}
 .time-input-group input[type="time"]{flex-grow:1;padding:8px;border:1px solid #ccc;border-radius:5px;box-sizing:border-box;width:auto}
+/* Modal máy tính */
+.calc-content{max-width:320px}
+.calc-display{
+    width:100%; padding:10px; border:1px solid #ccc; border-radius:6px;
+    font-size:1.2em; text-align:right; box-sizing:border-box; margin-bottom:10px;
+}
+.calc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.calc-grid button{padding:12px;font-size:1em;border:none;border-radius:6px;cursor:pointer;background:#f1f1f1}
+.calc-grid button.op{background:#e8f0fe}
+.calc-grid button.equals{background:#2ecc71;color:#fff}
+.calc-grid button.clear{background:#e74c3c;color:#fff}
+.calc-grid button.back{background:#f39c12;color:#fff}
 </style>
 </head>
 <body>
@@ -162,6 +134,7 @@ table tr td:empty{background-color:#dddddd;cursor:default}
     <div class="summary">
         ✅ <span id="totalHoursLabel">Tổng GIỜ tháng 00:</span> <span id="totalHours">0</span> <span class="green-unit">GIỜ</span><br>
         💵 <span id="totalPayLabel">Thu nhập tháng 00:</span> <span id="totalPay">0</span> <span class="red-unit" data-i18n="unit_vnd">VND</span>
+        <button class="calc-open-btn" id="openCalc">🧮 Máy tính</button>
     </div>
 </div>
 
@@ -212,6 +185,39 @@ table tr td:empty{background-color:#dddddd;cursor:default}
                 <button class="cancel" id="cancelJob" data-i18n="cancel">Hủy</button>
                 <button class="save" id="saveJob" data-i18n="save">Lưu</button>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Máy tính -->
+<div class="modal" id="calcModal">
+    <div class="modal-content calc-content">
+        <h3>Máy tính</h3>
+        <input id="calcDisplay" class="calc-display" type="text" value="" readonly>
+        <div class="calc-grid">
+            <button data-val="7">7</button>
+            <button data-val="8">8</button>
+            <button data-val="9">9</button>
+            <button class="op" data-val="/">/</button>
+
+            <button data-val="4">4</button>
+            <button data-val="5">5</button>
+            <button data-val="6">6</button>
+            <button class="op" data-val="*">*</button>
+
+            <button data-val="1">1</button>
+            <button data-val="2">2</button>
+            <button data-val="3">3</button>
+            <button class="op" data-val="-">-</button>
+
+            <button data-val="0">0</button>
+            <button data-val=".">.</button>
+            <button class="equals" data-action="equals">=</button>
+            <button class="op" data-val="+">+</button>
+
+            <button class="clear" data-action="clear">C</button>
+            <button class="back" data-action="back">←</button>
+            <button class="cancel" id="closeCalc" style="grid-column: span 2;">Đóng</button>
         </div>
     </div>
 </div>
@@ -629,6 +635,41 @@ calendarTable.addEventListener('touchend', (e)=>{
 rateInput.oninput = () => { formatRateInputDisplay(); adjustRateInputWidth(); };
 rateInput.onchange = () => { formatRateInputDisplay(); updateSettings(); };
 
+// Nút máy tính
+const calcModal = document.getElementById('calcModal');
+const calcDisplay = document.getElementById('calcDisplay');
+function openCalc(){ calcDisplay.value = calcDisplay.value || ''; calcModal.style.display = 'flex'; }
+function closeCalc(){ calcModal.style.display = 'none'; }
+document.getElementById('openCalc').onclick = openCalc;
+document.getElementById('closeCalc')?.addEventListener('click', closeCalc);
+calcModal.addEventListener('click', (e)=>{ if (e.target === calcModal) closeCalc(); });
+document.querySelector('#calcModal .calc-grid').addEventListener('click', (e)=>{
+    const btn = e.target.closest('button'); if (!btn || btn.id === 'closeCalc') return;
+    const action = btn.getAttribute('data-action'); const val = btn.getAttribute('data-val');
+    if (action === 'clear'){ calcDisplay.value = ''; return; }
+    if (action === 'back'){ calcDisplay.value = calcDisplay.value.slice(0,-1); return; }
+    if (action === 'equals'){
+        const expr = (calcDisplay.value || '').replace(/[^0-9+\-*/().]/g,'');
+        if (!expr) return;
+        try{
+            if (/[*+/)]\s*[*+/)]/.test(expr)) throw new Error('Bad');
+            const result = Function(`"use strict";return (${expr})`)();
+            calcDisplay.value = (result ?? '').toString();
+        }catch{
+            calcDisplay.value = 'Lỗi'; setTimeout(()=>{ if (calcDisplay.value === 'Lỗi') calcDisplay.value = ''; },800);
+        }
+        return;
+    }
+    if (val){
+        if (val === '.'){
+            const parts = calcDisplay.value.split(/[*+\-/()]/);
+            const last = parts[parts.length-1] || '';
+            if (last.includes('.')) return;
+        }
+        calcDisplay.value += val;
+    }
+});
+
 // Open job modal
 document.getElementById('openJobModal').onclick = () => openJobModal();
 
@@ -650,4 +691,3 @@ initApp();
 </script>
 </body>
 </html>
-```
