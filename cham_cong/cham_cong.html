@@ -192,7 +192,8 @@ table tr td:empty { background-color: #dddddd; cursor: default; }
     
     <div id="jobCarousel">
         </div>
-    <div class="header" id="calendarHeader"> <div class="month-nav">
+    <div class="header"> 
+        <div class="month-nav">
             <span class="arrow" id="prevMonth">◀</span>
             <span id="monthYear"></span>
             <span class="arrow" id="nextMonth">▶</span>
@@ -202,14 +203,16 @@ table tr td:empty { background-color: #dddddd; cursor: default; }
         </div>
     </div>
     
-    <table>
-        <thead>
-            <tr id="calendarHeaders">
-                <th>CN</th><th>T2</th><th>T3</th><th>T4</th><th>T5</th><th>T6</th><th>T7</th>
-            </tr>
-        </thead>
-        <tbody id="calendar"></tbody>
-    </table>
+    <div id="calendarTable"> 
+        <table>
+            <thead>
+                <tr id="calendarHeaders">
+                    <th>CN</th><th>T2</th><th>T3</th><th>T4</th><th>T5</th><th>T6</th><th>T7</th>
+                </tr>
+            </thead>
+            <tbody id="calendar"></tbody>
+        </table>
+    </div>
 
     <div class="summary">
         ✅ <span data-i18n="total_hours_label">Tổng giờ công việc hiện tại:</span> <span id="totalHours">0</span> <span class="green-unit" data-i18n="unit_hours">giờ</span><br>
@@ -281,7 +284,7 @@ table tr td:empty { background-color: #dddddd; cursor: default; }
 </div>
 
 <script>
-// --- PHẦN JAVASCRIPT HOÀN CHỈNH (ĐÃ THÊM TÍNH NĂNG CHUYỂN ĐỔI TIỀN TỆ) ---
+// --- PHẦN JAVASCRIPT HOÀN CHỈNH (CẬP NHẬT VUỐT TRÊN TOÀN BỘ LỊCH) ---
 let currentMonth = new Date().getMonth();
 let currentYear = new Date().getFullYear();
 let workData = JSON.parse(localStorage.getItem('workData') || '{}'); 
@@ -296,7 +299,7 @@ const jobModal = document.getElementById('jobModal');
 const jobCarouselDiv = document.getElementById('jobCarousel'); 
 const jobSelect = document.getElementById('jobSelect'); 
 const langToggleBtn = document.getElementById('langToggle');
-const calendarHeader = document.getElementById('calendarHeader'); 
+const calendarTable = document.getElementById('calendarTable'); // Phần tử mới để bắt sự kiện vuốt
 const currencyUnitSpan = document.getElementById('currencyUnit'); // Đơn vị tiền tệ
 
 // Dữ liệu dịch thuật
@@ -304,13 +307,13 @@ const translations = {
     'vi': {
         days: ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'],
         months: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'],
-        currency: 'VND', // Thêm đơn vị tiền tệ cho Việt Nam
+        currency: 'VND', // Đơn vị tiền tệ cho Việt Nam (ở ô nhập)
         manage_jobs: '➕ Quản lý Nơi làm việc',
         rate_per_hour: '💰 Lương/giờ:',
         total_hours_label: 'Tổng giờ công việc hiện tại:',
         estimated_pay_label: 'Thu nhập ước tính:',
         unit_hours: 'giờ',
-        unit_vnd: 'VND', // Giữ nguyên VND ở tổng kết
+        unit_vnd: 'VND', // Đơn vị tiền tệ trong tổng kết
         modal_time_title: 'Nhập giờ công -',
         time_in: 'Vào:',
         time_out: 'Ra:',
@@ -337,13 +340,13 @@ const translations = {
     'ko': {
         days: ['일', '월', '화', '수', '목', '금', '토'],
         months: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
-        currency: 'KRW', // Thêm đơn vị tiền tệ cho Hàn Quốc
+        currency: 'KRW', // Đơn vị tiền tệ cho Hàn Quốc (ở ô nhập)
         manage_jobs: '➕ 직장 관리',
         rate_per_hour: '💰 시급:',
         total_hours_label: '총 근무 시간:',
         estimated_pay_label: '예상 수입:',
         unit_hours: '시간',
-        unit_vnd: 'KRW', // Giữ nguyên đơn vị tiền tệ cho Hàn Quốc ở tổng kết
+        unit_vnd: 'KRW', // Đơn vị tiền tệ trong tổng kết
         modal_time_title: '근무 시간 입력 -',
         time_in: '출근:',
         time_out: '퇴근:',
@@ -830,16 +833,16 @@ function goToPrevMonth() {
 document.getElementById('prevMonth').onclick = goToPrevMonth;
 document.getElementById('nextMonth').onclick = goToNextMonth;
 
-// --- LOGIC VUỐT (SWIPE) ---
+// --- LOGIC VUỐT (SWIPE) TRÊN TOÀN BỘ BẢNG LỊCH ---
 
 // Bắt đầu chạm
-calendarHeader.addEventListener('touchstart', (e) => {
+calendarTable.addEventListener('touchstart', (e) => {
     // Chỉ quan tâm đến lần chạm đầu tiên
     startX = e.touches[0].clientX;
 });
 
 // Kết thúc chạm
-calendarHeader.addEventListener('touchend', (e) => {
+calendarTable.addEventListener('touchend', (e) => {
     // Lấy vị trí X khi kết thúc chạm
     const endX = e.changedTouches[0].clientX;
     // Tính khoảng cách di chuyển (theo trục X)
@@ -848,7 +851,8 @@ calendarHeader.addEventListener('touchend', (e) => {
     // Ngưỡng vuốt tối thiểu (ví dụ: 50 pixel)
     const swipeThreshold = 50;
 
-    if (Math.abs(diffX) > swipeThreshold) {
+    // Chỉ thực hiện hành động vuốt nếu không có modal nào đang mở
+    if (document.getElementById('timeModal').style.display === 'none' && document.getElementById('jobModal').style.display === 'none' && Math.abs(diffX) > swipeThreshold) {
         if (diffX > 0) {
             // Vuốt sang phải (chuyển sang tháng trước)
             goToPrevMonth();
@@ -861,7 +865,7 @@ calendarHeader.addEventListener('touchend', (e) => {
     startX = 0;
 });
 
-// ---------------------------
+// ----------------------------------------------------
 
 rateInput.oninput = adjustRateInputWidth; 
 rateInput.onchange = updateSettings; 
