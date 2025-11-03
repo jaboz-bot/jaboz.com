@@ -192,14 +192,13 @@ table tr td:empty { background-color: #dddddd; cursor: default; }
     
     <div id="jobCarousel">
         </div>
-    <div class="header">
-        <div class="month-nav">
+    <div class="header" id="calendarHeader"> <div class="month-nav">
             <span class="arrow" id="prevMonth">◀</span>
             <span id="monthYear"></span>
             <span class="arrow" id="nextMonth">▶</span>
         </div>
         <div>
-            <span data-i18n="rate_per_hour">💰 Lương/giờ:</span> <input type="number" id="rate" value="100000"> VND
+            <span data-i18n="rate_per_hour">💰 Lương/giờ:</span> <input type="number" id="rate" value="100000"> <span id="currencyUnit">VND</span>
         </div>
     </div>
     
@@ -282,7 +281,7 @@ table tr td:empty { background-color: #dddddd; cursor: default; }
 </div>
 
 <script>
-// --- PHẦN JAVASCRIPT HOÀN CHỈNH (ĐÃ SỬA LỖI HIỂN THỊ THÁNG/NĂM) ---
+// --- PHẦN JAVASCRIPT HOÀN CHỈNH (ĐÃ THÊM TÍNH NĂNG CHUYỂN ĐỔI TIỀN TỆ) ---
 let currentMonth = new Date().getMonth();
 let currentYear = new Date().getFullYear();
 let workData = JSON.parse(localStorage.getItem('workData') || '{}'); 
@@ -290,24 +289,28 @@ let appSettings = JSON.parse(localStorage.getItem('appSettings') || '{}');
 let jobs = JSON.parse(localStorage.getItem('jobs') || '[]'); 
 let editingJobId = null; 
 let currentLang = localStorage.getItem('currentLang') || 'vi'; 
+let startX = 0; // Biến lưu vị trí X khi bắt đầu chạm (cho tính năng vuốt)
 
 const rateInput = document.getElementById('rate');
 const jobModal = document.getElementById('jobModal');
 const jobCarouselDiv = document.getElementById('jobCarousel'); 
 const jobSelect = document.getElementById('jobSelect'); 
 const langToggleBtn = document.getElementById('langToggle');
+const calendarHeader = document.getElementById('calendarHeader'); 
+const currencyUnitSpan = document.getElementById('currencyUnit'); // Đơn vị tiền tệ
 
 // Dữ liệu dịch thuật
 const translations = {
     'vi': {
         days: ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'],
         months: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'],
+        currency: 'VND', // Thêm đơn vị tiền tệ cho Việt Nam
         manage_jobs: '➕ Quản lý Nơi làm việc',
         rate_per_hour: '💰 Lương/giờ:',
         total_hours_label: 'Tổng giờ công việc hiện tại:',
         estimated_pay_label: 'Thu nhập ước tính:',
         unit_hours: 'giờ',
-        unit_vnd: 'VND',
+        unit_vnd: 'VND', // Giữ nguyên VND ở tổng kết
         modal_time_title: 'Nhập giờ công -',
         time_in: 'Vào:',
         time_out: 'Ra:',
@@ -334,12 +337,13 @@ const translations = {
     'ko': {
         days: ['일', '월', '화', '수', '목', '금', '토'],
         months: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+        currency: 'KRW', // Thêm đơn vị tiền tệ cho Hàn Quốc
         manage_jobs: '➕ 직장 관리',
         rate_per_hour: '💰 시급:',
         total_hours_label: '총 근무 시간:',
         estimated_pay_label: '예상 수입:',
         unit_hours: '시간',
-        unit_vnd: 'VND',
+        unit_vnd: 'KRW', // Giữ nguyên đơn vị tiền tệ cho Hàn Quốc ở tổng kết
         modal_time_title: '근무 시간 입력 -',
         time_in: '출근:',
         time_out: '퇴근:',
@@ -405,6 +409,12 @@ function setLanguage(lang) {
     t.days.forEach((day, index) => {
         headers[index].textContent = day;
     });
+
+    // Cập nhật Đơn vị tiền tệ
+    currencyUnitSpan.textContent = t.currency;
+
+    // Cập nhật Đơn vị tiền tệ trong Tổng kết
+    document.querySelector('.summary .red-unit').textContent = t.unit_vnd;
 
     // Cập nhật nút chuyển đổi
     langToggleBtn.textContent = lang === 'vi' ? '🇰🇷 Korean' : '🇻🇳 Tiếng Việt';
@@ -631,8 +641,15 @@ function updateSummary(){
         }
     }
     
+    // Lấy định dạng tiền tệ và đơn vị tương ứng
+    const currencyLocale = currentLang === 'vi' ? 'vi-VN' : 'ko-KR';
+    const currencyCode = translations[currentLang].unit_vnd; 
+    
     document.getElementById('totalHours').textContent=totalH.toFixed(2);
-    document.getElementById('totalPay').textContent=(totalH*rate).toLocaleString('vi-VN'); // Luôn dùng format VN cho tiền tệ
+    
+    // Cập nhật hiển thị tổng tiền theo ngôn ngữ (VND: .toLocaleString('vi-VN') vs KRW: .toLocaleString('ko-KR'))
+    document.getElementById('totalPay').textContent=(totalH*rate).toLocaleString(currencyLocale); 
+    
     localStorage.setItem('workData',JSON.stringify(workData));
 }
 
@@ -642,14 +659,15 @@ function renderCalendar(){
     const firstDay=new Date(currentYear,currentMonth,1).getDay();
     const totalDays=daysInMonth(currentYear,currentMonth);
     
-    // ĐÃ SỬA: Chỉ hiển thị số tháng và năm (currentMonth + 1)
+    // Chỉ hiển thị số tháng và năm
     document.getElementById('monthYear').textContent=`${currentMonth + 1}/${currentYear}`;
     
     let day=1; 
 
     const currentJobId = getCurrentJobId(); 
     const rate = parseFloat(rateInput.value) || 0; 
-
+    const currencyCode = translations[currentLang].unit_vnd; 
+    
     for(let r=0;r<6;r++){
         const tr=document.createElement('tr');
         for(let c=0;c<7;c++){
@@ -666,11 +684,12 @@ function renderCalendar(){
                 let contentHTML = `<span>${day}</span>`;
                 if(hours > 0){
                     const pay = hours * rate;
-                    const payDisplay = pay.toLocaleString('vi-VN'); 
+                    // Format tiền theo ngôn ngữ hiện tại
+                    const payDisplay = pay.toLocaleString(currentLang === 'vi' ? 'vi-VN' : 'ko-KR'); 
 
                     contentHTML += `
                         <div class="hours-display">${hours.toFixed(1)}h</div>
-                        <div class="pay-display">${payDisplay} ${getTranslation('unit_vnd')}</div>
+                        <div class="pay-display">${payDisplay} ${currencyCode}</div>
                     `;
                 }
                 // ------------------------------------
@@ -790,8 +809,59 @@ function adjustRateInputWidth() {
     rateInput.style.width = `${newWidth}px`;
 }
 
-document.getElementById('prevMonth').onclick=()=>{currentMonth--;if(currentMonth<0){currentMonth=11;currentYear--;}renderCalendar();};
-document.getElementById('nextMonth').onclick=()=>{currentMonth++;if(currentMonth>11){currentMonth=0;currentYear++;}renderCalendar();};
+function goToNextMonth() {
+    currentMonth++;
+    if(currentMonth > 11){
+        currentMonth = 0;
+        currentYear++;
+    }
+    renderCalendar();
+}
+
+function goToPrevMonth() {
+    currentMonth--;
+    if(currentMonth < 0){
+        currentMonth = 11;
+        currentYear--;
+    }
+    renderCalendar();
+}
+
+document.getElementById('prevMonth').onclick = goToPrevMonth;
+document.getElementById('nextMonth').onclick = goToNextMonth;
+
+// --- LOGIC VUỐT (SWIPE) ---
+
+// Bắt đầu chạm
+calendarHeader.addEventListener('touchstart', (e) => {
+    // Chỉ quan tâm đến lần chạm đầu tiên
+    startX = e.touches[0].clientX;
+});
+
+// Kết thúc chạm
+calendarHeader.addEventListener('touchend', (e) => {
+    // Lấy vị trí X khi kết thúc chạm
+    const endX = e.changedTouches[0].clientX;
+    // Tính khoảng cách di chuyển (theo trục X)
+    const diffX = endX - startX;
+    
+    // Ngưỡng vuốt tối thiểu (ví dụ: 50 pixel)
+    const swipeThreshold = 50;
+
+    if (Math.abs(diffX) > swipeThreshold) {
+        if (diffX > 0) {
+            // Vuốt sang phải (chuyển sang tháng trước)
+            goToPrevMonth();
+        } else {
+            // Vuốt sang trái (chuyển sang tháng sau)
+            goToNextMonth();
+        }
+    }
+    // Reset startX
+    startX = 0;
+});
+
+// ---------------------------
 
 rateInput.oninput = adjustRateInputWidth; 
 rateInput.onchange = updateSettings; 
@@ -814,7 +884,7 @@ function initApp() {
         saveJobs();
     }
     
-    // Khởi tạo ngôn ngữ
+    // Khởi tạo ngôn ngữ và cập nhật đơn vị tiền tệ ban đầu
     setLanguage(currentLang); 
     
     renderJobList(); 
