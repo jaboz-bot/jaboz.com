@@ -362,11 +362,15 @@ table tr td:empty{background-color:#dddddd;cursor:default}
 
         <div class="input-group">
 
-            <label for="jobEndDate" data-i18n="job_end_date">Ngày Kết thúc:</label>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+                <label for="jobEndDate" data-i18n="job_end_date" style="margin:0;">Ngày Kết thúc:</label>
+                <label style="display:flex;align-items:center;margin:0;cursor:pointer;">
+                    <input type="checkbox" id="jobIsCurrent" data-i18n-placeholder="job_is_current" style="margin-right:5px;"> 
+                    <span data-i18n="job_is_current">Đang làm</span>
+                </label>
+            </div>
 
             <input type="date" id="jobEndDate">
-
-            <input type="checkbox" id="jobIsCurrent" data-i18n-placeholder="job_is_current"> Đang làm
 
         </div>
 
