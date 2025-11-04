@@ -186,31 +186,59 @@
     
     updateInstallButtonVisibility();
     
-    // Bộ đếm lượt truy cập
+    // Bộ đếm lượt truy cập ảo tăng dần theo thời gian
     (function() {
-        const VISITOR_KEY = 'jaboz_visitor_count';
-        const SESSION_KEY = 'jaboz_visitor_session';
-        const today = new Date().toDateString();
+        const START_DATE_KEY = 'jaboz_start_date';
         const counterEl = document.getElementById('visitorCount');
         
-        function getCount() {
-            return parseInt(localStorage.getItem(VISITOR_KEY) || '0', 10);
+        if (!counterEl) return;
+        
+        function calculateVisitorCount() {
+            const now = new Date();
+            const today = new Date(now);
+            today.setHours(0, 0, 0, 0);
+            
+            let startDate = localStorage.getItem(START_DATE_KEY);
+            if (!startDate) {
+                // Ngày bắt đầu: 30 ngày trước (để có số lượt truy cập ban đầu)
+                const initialDate = new Date(today);
+                initialDate.setDate(initialDate.getDate() - 30);
+                startDate = initialDate.toISOString();
+                localStorage.setItem(START_DATE_KEY, startDate);
+            }
+            
+            const start = new Date(startDate);
+            const daysDiff = Math.floor((today - start) / (1000 * 60 * 60 * 24));
+            
+            // Tính số lượt truy cập dựa trên số ngày
+            const baseVisitors = 1200; // Số lượt cơ bản ban đầu
+            const visitorsPerDay = 80; // Trung bình mỗi ngày
+            const randomSeed = daysDiff % 100; // Random dựa trên số ngày (ổn định mỗi ngày)
+            
+            // Tính số lượt truy cập = số cơ bản + (số ngày * lượt mỗi ngày) + random nhẹ
+            let count = baseVisitors + (daysDiff * visitorsPerDay) + (randomSeed * 0.8);
+            
+            // Thêm phần tăng theo giờ và phút trong ngày (tăng dần trong ngày)
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+            const hourFactor = hours * 2; // Tăng 0-46 lượt theo giờ
+            const minuteFactor = Math.floor(minutes / 10); // Tăng theo 10 phút
+            
+            count += hourFactor + minuteFactor;
+            
+            return Math.floor(count);
         }
         
-        function saveCount(count) {
-            localStorage.setItem(VISITOR_KEY, count.toString());
-        }
-        
-        let count = getCount();
-        if (localStorage.getItem(SESSION_KEY) !== today) {
-            count++;
-            saveCount(count);
-            localStorage.setItem(SESSION_KEY, today);
-        }
-        
-        if (counterEl) {
+        function updateCounter() {
+            const count = calculateVisitorCount();
             counterEl.textContent = count.toLocaleString('vi-VN');
         }
+        
+        // Cập nhật ngay lập tức
+        updateCounter();
+        
+        // Cập nhật mỗi phút để tăng dần
+        setInterval(updateCounter, 60000); // 60000ms = 1 phút
     })();
 </script>
 
