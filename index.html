@@ -93,6 +93,22 @@
              transform: translateY(-2px);
              box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         }
+        .visitor-counter {
+            margin-top: 20px;
+            padding: 15px 25px;
+            background: linear-gradient(45deg, #00BCD4, #0097A7);
+            border-radius: 10px;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            font-size: 16px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .visitor-counter .counter-number {
+            font-size: 24px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -114,6 +130,10 @@
             </a>
             
         </div>
+        <div class="visitor-counter">
+            <span>👥 Lượt truy cập:</span>
+            <span class="counter-number" id="visitorCount">0</span>
+        </div>
     </div>
 
 <div class="settings-area">
@@ -123,79 +143,75 @@
 </div>
 
 <script>
-    // === Logic Chuyển Hướng Game ===
-    // 1. Lấy phần tử nút Game
-    const gameLink = document.getElementById('gameLink');
-    // 2. Định nghĩa hàm chuyển hướng
-    function redirectToGame() {
-        // Sử dụng window.location.href để chuyển hướng
-        // Đường link này sẽ KHÔNG HIỂN THỊ trong mã nguồn HTML mà chỉ nằm trong JS
+    // Chuyển hướng Game
+    document.getElementById('gameLink').addEventListener('click', () => {
         window.location.href = 'https://gamesnacks.com/';
-    }
-    // 3. Gắn sự kiện click
-    gameLink.addEventListener('click', redirectToGame);
+    });
 
-    // === Logic PWA (Giữ nguyên) ===
+    // Logic PWA
     let deferredPrompt = null;
     const installButton = document.getElementById('installButton');
-
-    // Hàm kiểm tra chế độ standalone (đã cài đặt)
+    
     function isRunningStandalone() {
         return window.matchMedia('(display-mode: standalone)').matches;
     }
-
-    // Hàm quyết định hiển thị/ẩn nút
+    
     function updateInstallButtonVisibility() {
-        // Nút CHỈ hiển thị nếu:
-        // 1. CHƯA chạy ở chế độ standalone (chưa cài đặt)
-        // 2. CÓ prompt cài đặt (trình duyệt đã sẵn sàng)
-        if (!isRunningStandalone() && deferredPrompt) { 
-            installButton.style.display = 'inline-block';
-            console.log('PWA available. Install button shown.'); // << HIỆN NÚT
-        } else {
-            // Nút ẩn nếu đã cài đặt HOẶC trình duyệt chưa sẵn sàng
-            installButton.style.display = 'none';
-        }
+        installButton.style.display = (!isRunningStandalone() && deferredPrompt) ? 'inline-block' : 'none';
     }
-
+    
     function installApp() {
-        installButton.removeEventListener('click', installApp);
-
         if (deferredPrompt) {
             deferredPrompt.prompt();
-            
-            deferredPrompt.userChoice.then((choiceResult) => {
-                console.log('User choice:', choiceResult.outcome);
-                
-                // Xóa prompt sau khi đã sử dụng
+            deferredPrompt.userChoice.then(() => {
                 deferredPrompt = null;
-                // Gọi lại hàm để ẩn nút ngay sau khi hộp thoại đóng (biến mất sau khi tương tác)
-                updateInstallButtonVisibility(); 
+                updateInstallButtonVisibility();
             });
         }
     }
     
-    // 1. SỰ KIỆN HIỂN THỊ NÚT: Trình duyệt báo hiệu đã sẵn sàng cài đặt
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
-        
         deferredPrompt = e;
-        updateInstallButtonVisibility(); // << HIỆN NÚT
-        
+        updateInstallButtonVisibility();
         if (installButton.style.display !== 'none') {
             installButton.addEventListener('click', installApp, { once: true });
         }
     });
-
-    // 2. SỰ KIỆN ẨN NÚT: Ứng dụng được cài đặt thành công
+    
     window.addEventListener('appinstalled', () => {
         deferredPrompt = null;
-        updateInstallButtonVisibility(); // << ẨN NÚT
-        console.log('App successfully installed.');
+        updateInstallButtonVisibility();
     });
     
-    // Khởi tạo: Ẩn nút ngay khi tải trang nếu đã cài đặt trước đó
-    updateInstallButtonVisibility(); 
+    updateInstallButtonVisibility();
+    
+    // Bộ đếm lượt truy cập
+    (function() {
+        const VISITOR_KEY = 'jaboz_visitor_count';
+        const SESSION_KEY = 'jaboz_visitor_session';
+        const today = new Date().toDateString();
+        const counterEl = document.getElementById('visitorCount');
+        
+        function getCount() {
+            return parseInt(localStorage.getItem(VISITOR_KEY) || '0', 10);
+        }
+        
+        function saveCount(count) {
+            localStorage.setItem(VISITOR_KEY, count.toString());
+        }
+        
+        let count = getCount();
+        if (localStorage.getItem(SESSION_KEY) !== today) {
+            count++;
+            saveCount(count);
+            localStorage.setItem(SESSION_KEY, today);
+        }
+        
+        if (counterEl) {
+            counterEl.textContent = count.toLocaleString('vi-VN');
+        }
+    })();
 </script>
 
 </body>
