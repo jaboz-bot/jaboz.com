@@ -110,7 +110,7 @@ th{background:#eaf2f8}
 
 .payday-cell{background:#e8f8ec !important;}
 
-.payday-note{font-size:.7em;color:#e74c3c;font-style:italic;position:absolute;bottom:3px;left:50%;transform:translateX(-50%);white-space:nowrap;}
+.payday-note{font-size:.6em;color:#e74c3c;font-style:italic;position:absolute;bottom:2px;left:50%;transform:translateX(-50%);max-width:90%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;pointer-events:none;}
 
 /* Summary + nút máy tính (nút ở giữa dòng cuối) */
 
@@ -463,8 +463,6 @@ let jobs = JSON.parse(localStorage.getItem('jobs') || '[]');
 let editingJobId = null;
 
 let currentLang = localStorage.getItem('currentLang') || 'vi';
-
-let startX = 0;
 
 // Elements
 
@@ -1327,8 +1325,14 @@ let touchStartY = 0;
 let isSwiping = false;
 
 function handleTouchStart(e) {
-    // Bỏ qua nếu đang touch vào input, button, hoặc modal
-    if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON' || e.target.closest('.modal')) {
+    // Bỏ qua nếu đang touch vào input, button, link, hoặc modal
+    const target = e.target;
+    if (target.tagName === 'INPUT' || 
+        target.tagName === 'BUTTON' || 
+        target.tagName === 'A' ||
+        target.closest('.modal') ||
+        target.closest('button') ||
+        target.closest('input')) {
         return;
     }
     touchStartX = e.touches[0].clientX;
@@ -1385,21 +1389,36 @@ function handleTouchEnd(e) {
     isSwiping = false;
 }
 
-// Thêm event listener cho header và calendar
-const header = document.querySelector('.header');
-const monthNav = document.querySelector('.month-nav');
-
-// Áp dụng cho header
-if (header) {
-    header.addEventListener('touchstart', handleTouchStart, { passive: false });
-    header.addEventListener('touchmove', handleTouchMove, { passive: false });
-    header.addEventListener('touchend', handleTouchEnd, { passive: true });
+// Hàm đăng ký event listener cho vuốt tháng
+let swipeSetupDone = false;
+function setupSwipeNavigation() {
+    if (swipeSetupDone) return; // Tránh đăng ký nhiều lần
+    swipeSetupDone = true;
+    
+    const header = document.querySelector('.header');
+    const container = document.querySelector('.container');
+    
+    // Áp dụng cho header (khu vực tháng/năm)
+    if (header) {
+        header.addEventListener('touchstart', handleTouchStart, { passive: false });
+        header.addEventListener('touchmove', handleTouchMove, { passive: false });
+        header.addEventListener('touchend', handleTouchEnd, { passive: true });
+    }
+    
+    // Áp dụng cho calendar table (bảng lịch)
+    if (calendarTable) {
+        calendarTable.addEventListener('touchstart', handleTouchStart, { passive: false });
+        calendarTable.addEventListener('touchmove', handleTouchMove, { passive: false });
+        calendarTable.addEventListener('touchend', handleTouchEnd, { passive: true });
+    }
+    
+    // Áp dụng cho container (toàn bộ khu vực chính)
+    if (container) {
+        container.addEventListener('touchstart', handleTouchStart, { passive: false });
+        container.addEventListener('touchmove', handleTouchMove, { passive: false });
+        container.addEventListener('touchend', handleTouchEnd, { passive: true });
+    }
 }
-
-// Áp dụng cho calendar table
-calendarTable.addEventListener('touchstart', handleTouchStart, { passive: false });
-calendarTable.addEventListener('touchmove', handleTouchMove, { passive: false });
-calendarTable.addEventListener('touchend', handleTouchEnd, { passive: true });
 
 // Rate events
 
@@ -1502,6 +1521,9 @@ function initApp(){
     formatRateInputDisplay();
 
     adjustRateInputWidth();
+
+    // Đăng ký vuốt tháng sau khi DOM đã sẵn sàng
+    setupSwipeNavigation();
 
 }
 
