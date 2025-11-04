@@ -88,6 +88,12 @@ html,body{height:100%;margin:0;font-family:Arial,sans-serif;background:#f6f8f9}
 
 .arrow{cursor:pointer;user-select:none;font-size:1.3em}
 
+#calendarTable{position:relative;overflow:hidden}
+#calendarTable table{width:100%;border-collapse:collapse;margin-top:10px;table-layout:fixed;transition:transform 0.25s ease, opacity 0.25s ease}
+#calendarTable.flipping-left table{transform:translateX(-100%);opacity:0}
+#calendarTable.flipping-right table{transform:translateX(100%);opacity:0}
+#calendarTable table.fade-in{animation:fadeIn 0.25s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateX(0)}to{opacity:1;transform:translateX(0)}}
 table{width:100%;border-collapse:collapse;margin-top:10px;table-layout:fixed}
 
 th,td{border:1px solid #ccc;text-align:center;padding:5px;font-size:.85em}
@@ -1183,6 +1189,16 @@ function renderCalendar(){
     }
 
     updateSummary();
+    
+    // Thêm hiệu ứng fade-in cho calendar mới
+    const ct = document.getElementById('calendarTable');
+    if (ct) {
+        const table = ct.querySelector('table');
+        if (table) {
+            table.classList.add('fade-in');
+            setTimeout(() => table.classList.remove('fade-in'), 250);
+        }
+    }
 
 }
 
@@ -1310,9 +1326,39 @@ function updateSettings(){
 
 // Điều hướng tháng
 
-function goToNextMonth(){ currentMonth++; if (currentMonth > 11){ currentMonth = 0; currentYear++; } renderCalendar(); }
+function goToNextMonth(){ 
+    const ct = document.getElementById('calendarTable');
+    if (ct) {
+        ct.classList.add('flipping-left');
+        setTimeout(() => {
+            currentMonth++; 
+            if (currentMonth > 11){ currentMonth = 0; currentYear++; } 
+            renderCalendar();
+            setTimeout(() => ct.classList.remove('flipping-left'), 10);
+        }, 150);
+    } else {
+        currentMonth++; 
+        if (currentMonth > 11){ currentMonth = 0; currentYear++; } 
+        renderCalendar();
+    }
+}
 
-function goToPrevMonth(){ currentMonth--; if (currentMonth < 0){ currentMonth = 11; currentYear--; } renderCalendar(); }
+function goToPrevMonth(){ 
+    const ct = document.getElementById('calendarTable');
+    if (ct) {
+        ct.classList.add('flipping-right');
+        setTimeout(() => {
+            currentMonth--; 
+            if (currentMonth < 0){ currentMonth = 11; currentYear--; } 
+            renderCalendar();
+            setTimeout(() => ct.classList.remove('flipping-right'), 10);
+        }, 150);
+    } else {
+        currentMonth--; 
+        if (currentMonth < 0){ currentMonth = 11; currentYear--; } 
+        renderCalendar();
+    }
+}
 
 document.getElementById('prevMonth').onclick = goToPrevMonth;
 
