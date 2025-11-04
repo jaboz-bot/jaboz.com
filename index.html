@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -20,6 +21,77 @@
             min-height: 100vh;
             justify-content: space-between;
             box-sizing: border-box;
+        }
+        .logo-container {
+            margin-bottom: 30px;
+            padding: 20px 0;
+            animation: fadeInDown 0.8s ease-out;
+        }
+        .logo {
+            font-size: 48px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #1976D2 0%, #42A5F5 50%, #66BB6A 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 4px 20px rgba(25, 118, 210, 0.3);
+            letter-spacing: 3px;
+            position: relative;
+            display: inline-block;
+            transition: transform 0.3s ease;
+        }
+        .logo:hover {
+            transform: scale(1.05);
+        }
+        .logo::before {
+            content: '✨';
+            position: absolute;
+            left: -40px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 32px;
+            animation: twinkle 2s ease-in-out infinite;
+        }
+        .logo::after {
+            content: '✨';
+            position: absolute;
+            right: -40px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 32px;
+            animation: twinkle 2s ease-in-out infinite 0.5s;
+        }
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes twinkle {
+            0%, 100% {
+                opacity: 1;
+                transform: translateY(-50%) scale(1);
+            }
+            50% {
+                opacity: 0.5;
+                transform: translateY(-50%) scale(0.8);
+            }
+        }
+        @media (max-width: 600px) {
+            .logo {
+                font-size: 36px;
+                letter-spacing: 2px;
+            }
+            .logo::before,
+            .logo::after {
+                font-size: 24px;
+                left: -30px;
+                right: -30px;
+            }
         }
         h1 {
             color: #1976D2;
@@ -112,6 +184,10 @@
     </style>
 </head>
 <body>
+    
+    <div class="logo-container">
+        <div class="logo">JABOZ</div>
+    </div>
     
     <div style="width: 100%; display: flex; flex-direction: column; align-items: center;">
         <h1>Chọn Ứng Dụng</h1>
