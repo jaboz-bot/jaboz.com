@@ -176,7 +176,7 @@ table tr td:first-child span{color:#c0392b !important}
 
 table tr td:empty{background-color:#dddddd;cursor:default}
 
-.header input#rate{min-width:70px;width:70px;transition:width .2s ease-in-out;text-align:right}
+.header input#rate{min-width:60px;width:60px;transition:width .2s ease-in-out;text-align:right}
 
 .time-input-group{display:flex;align-items:center;margin-bottom:10px}
 
@@ -646,9 +646,9 @@ function adjustRateInputWidth(){
 
     const length = String(rateInput.value).replace(/\D/g,'').length;
 
-    let newWidth = 70 + Math.max(0, Math.min(12, length) - 4) * 10;
+    let newWidth = 60 + Math.max(0, Math.min(12, length) - 4) * 8;
 
-    if (length < 4) newWidth = 70;
+    if (length < 4) newWidth = 60;
 
     rateInput.style.width = `${newWidth}px`;
 
