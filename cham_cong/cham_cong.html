@@ -91,12 +91,12 @@ html,body{height:100%;margin:0;font-family:Arial,sans-serif;background:#f6f8f9}
 .arrow{cursor:pointer;user-select:none;font-size:1.3em}
 
 #calendarTable{position:relative;overflow:hidden}
-#calendarTable table{width:100%;border-collapse:collapse;margin-top:10px;table-layout:fixed;transition:transform 0.25s ease, opacity 0.25s ease}
+table{width:100%;border-collapse:collapse;margin-top:10px;table-layout:fixed}
+#calendarTable table{transition:transform 0.25s ease, opacity 0.25s ease}
 #calendarTable.flipping-left table{transform:translateX(-100%);opacity:0}
 #calendarTable.flipping-right table{transform:translateX(100%);opacity:0}
 #calendarTable table.fade-in{animation:fadeIn 0.25s ease}
 @keyframes fadeIn{from{opacity:0;transform:translateX(0)}to{opacity:1;transform:translateX(0)}}
-table{width:100%;border-collapse:collapse;margin-top:10px;table-layout:fixed}
 
 th,td{border:1px solid #ccc;text-align:center;padding:5px;font-size:.85em}
 
@@ -523,6 +523,8 @@ const rateInput = document.getElementById('rate');
 
 const jobModal = document.getElementById('jobModal');
 
+const timeModal = document.getElementById('timeModal');
+
 const jobCarouselDiv = document.getElementById('jobCarousel');
 
 const langToggleBtn = document.getElementById('langToggle');
@@ -591,7 +593,9 @@ const translations = {
 
         unit_vnd: 'VND',
 
-        payday_note: 'Ngày trả lương'
+        payday_note: 'Ngày trả lương',
+
+        payday_label: '💴 Ngày TL:'
 
     },
 
@@ -649,7 +653,9 @@ const translations = {
 
         unit_vnd: 'KRW',
 
-        payday_note: '급여일'
+        payday_note: '급여일',
+
+        payday_label: '💴 급여일:'
 
     }
 
@@ -667,17 +673,21 @@ function getTranslation(key, ...args){ const t = translations[currentLang][key];
 
 // Rate helpers
 
+function getRateDigits(){
+
+    return String(rateInput.value).replace(/\D/g,'');
+
+}
+
 function getRateValue(){
 
-    const digits = String(rateInput.value).replace(/\D/g,'');
-
-    return Number(digits || 0);
+    return Number(getRateDigits() || 0);
 
 }
 
 function formatRateInputDisplay(){
 
-    const digits = String(rateInput.value).replace(/\D/g,'');
+    const digits = getRateDigits();
 
     rateInput.value = Number(digits || 0).toLocaleString(currentLang === 'vi' ? 'vi-VN' : 'ko-KR');
 
@@ -685,7 +695,7 @@ function formatRateInputDisplay(){
 
 function adjustRateInputWidth(){
 
-    const length = String(rateInput.value).replace(/\D/g,'').length;
+    const length = getRateDigits().length;
 
     let newWidth = 60 + Math.max(0, Math.min(12, length) - 4) * 8;
 
@@ -877,9 +887,9 @@ document.getElementById('saveJob').onclick = () => {
 
 document.getElementById('deleteJob').onclick = () => {
 
-    const job = jobs.find(j=>j.id===editingJobId);
-
     if (!editingJobId) return;
+
+    const job = jobs.find(j=>j.id===editingJobId);
 
     if (!confirm(getTranslation('alert_delete_confirm', job?.name || ''))) return;
 
@@ -995,7 +1005,7 @@ function renderJobList(){
 
             : `${getTranslation('job_date_from')} ${job.startDate.split('-').reverse().join('/')} ${getTranslation('job_date_to')} ${(job.endDate||'').split('-').reverse().join('/')}`;
 
-        const paydayStr = job.payday ? ` | 💴 Ngày TL: ${job.payday}` : '';
+        const paydayStr = job.payday ? ` | ${getTranslation('payday_label')} ${job.payday}` : '';
 
         const addressHtml = job.address ? `<span>📍 ${job.address}${paydayStr}</span>` : `<span>${paydayStr ? paydayStr.slice(3) : ''}</span>`;
 
@@ -1253,11 +1263,9 @@ function renderCalendar(){
 
 function openModal(key){
 
-    const m = document.getElementById('timeModal');
+    timeModal.style.display = 'flex';
 
-    m.style.display = 'flex';
-
-    m.dataset.key = key;
+    timeModal.dataset.key = key;
 
     const [year, month, day] = key.split('-');
 
@@ -1271,7 +1279,7 @@ function openModal(key){
 
         alert(getTranslation('alert_time_job_required'));
 
-        m.style.display = 'none';
+        timeModal.style.display = 'none';
 
         return;
 
@@ -1289,7 +1297,7 @@ function openModal(key){
 
 document.getElementById('saveTime').onclick = () => {
 
-    const key = document.getElementById('timeModal').dataset.key;
+    const key = timeModal.dataset.key;
 
     const currentJobId = getCurrentJobId();
 
@@ -1325,7 +1333,7 @@ document.getElementById('saveTime').onclick = () => {
 
     localStorage.setItem('workData', JSON.stringify(workData));
 
-    document.getElementById('timeModal').style.display = 'none';
+    timeModal.style.display = 'none';
 
     renderCalendar();
 
@@ -1333,7 +1341,7 @@ document.getElementById('saveTime').onclick = () => {
 
 document.getElementById('deleteTime').onclick = () => {
 
-    const key = document.getElementById('timeModal').dataset.key;
+    const key = timeModal.dataset.key;
 
     const currentJobId = getCurrentJobId();
 
@@ -1351,13 +1359,13 @@ document.getElementById('deleteTime').onclick = () => {
 
     localStorage.setItem('workData', JSON.stringify(workData));
 
-    document.getElementById('timeModal').style.display = 'none';
+    timeModal.style.display = 'none';
 
     renderCalendar();
 
 };
 
-document.getElementById('cancelTime').onclick = () => (document.getElementById('timeModal').style.display = 'none');
+document.getElementById('cancelTime').onclick = () => (timeModal.style.display = 'none');
 
 // Cài đặt
 
