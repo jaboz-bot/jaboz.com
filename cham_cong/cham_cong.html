@@ -1,751 +1,1419 @@
 <!DOCTYPE html>
+
 <html lang="vi">
+
 <head>
+
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Bảng Chấm Công Cá Nhân</title>
+
 <style>
+
 /* --- PHẦN CSS HOÀN CHỈNH --- */
+
 html,body{height:100%;margin:0;font-family:Arial,sans-serif;background:#f6f8f9}
+
 .container{max-width:900px;margin:20px auto;background:#fff;padding:20px;border-radius:10px;box-shadow:0 4px 10px rgba(0,0,0,.1)}
+
 /* Định dạng khu vực nút và danh sách công việc */
+
 .top-controls {
+
     display: flex;
+
     justify-content: space-between;
+
     align-items: center;
+
     padding-bottom: 10px;
+
     margin-bottom: 5px; 
+
     border-bottom: 1px solid #ddd;
+
 }
+
 .control-group { display:flex; gap:10px; }
+
 .add-job-btn, .lang-toggle-btn {
+
     padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer;
+
     font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,.1); white-space: nowrap;
+
 }
+
 .add-job-btn { background:#2ecc71; color:#fff; }
+
 .lang-toggle-btn { background:#f1c40f; color:#333; font-size:.9em; padding:8px 12px; }
+
 /* CSS CHO CAROUSEL */
+
 #jobCarousel {
+
     display:flex; overflow-x:auto; scroll-snap-type:x mandatory; scroll-behavior:smooth; -webkit-overflow-scrolling:touch;
+
     margin-bottom:15px; border:1px solid #e0e0e0; border-radius:8px; padding:10px; background:#f7f7f7; box-shadow:inset 0 0 5px rgba(0,0,0,.05);
+
     min-height:72px;
+
 }
+
 .job-item {
+
     min-width:100%; flex-shrink:0; padding:10px 12px; font-size:.95em; color:#333; cursor:pointer; scroll-snap-align:start; box-sizing:border-box;
+
     transition:background-color .15s ease;
+
 }
+
 .job-item.selected { background-color:#d7e8f5; border:1px solid #2980b9; border-radius:5px; }
+
 .job-item strong { color:#2980b9; display:block; font-size:1.15em; }
+
 .job-item span { color:#7f8c8d; display:block; margin-top:4px; font-size:.9em; }
+
 .job-item:hover { background-color:#eaf2f8; }
+
 .job-item.selected:hover { background-color:#d7e8f5; }
+
 /* CSS CHUNG BẢNG LỊCH */
+
 .header{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #3498db;padding-bottom:10px}
+
 .month-nav{display:flex;align-items:center;gap:8px;font-weight:bold;color:#27ae60}
+
 .arrow{cursor:pointer;user-select:none;font-size:1.3em}
+
 table{width:100%;border-collapse:collapse;margin-top:10px;table-layout:fixed}
+
 th,td{border:1px solid #ccc;text-align:center;padding:5px;font-size:.85em}
+
 th{background:#eaf2f8}
+
 /* Ô ngày */
+
 .day{position:relative;height:80px;vertical-align:top;cursor:pointer;padding-top:20px}
+
 .day span{position:absolute;top:3px;left:5px;font-weight:bold;color:#2980b9}
+
 .day div{width:100%;margin-top:5px;text-align:center;line-height:1.2}
+
 .day .hours-display{font-weight:bold;color:#2ecc71;font-size:.9em}
+
 .day .pay-display{color:#e74c3c;font-size:.8em;font-weight:normal;margin-top:2px}
+
 /* Đánh dấu ngày trả lương */
+
 .payday-cell{background:#e8f8ec !important;}
 
+.payday-note{font-size:.7em;color:#27ae60;font-style:italic;position:absolute;bottom:3px;left:50%;transform:translateX(-50%);white-space:nowrap;}
+
 /* Summary + nút máy tính (nút ở giữa dòng cuối) */
+
 .summary{position:relative;margin-top:20px;background:#ecf9ff;padding:10px;border-radius:5px}
+
 .summary .notice{color:#e74c3c;font-style:italic;display:none;margin-bottom:4px}
+
 #totalHours{font-weight:bold;color:#2ecc71;font-size:1.1em}
+
 .summary .green-unit{color:#2ecc71;font-weight:bold}
+
 #totalPay{font-weight:bold;color:#e74c3c;font-size:1.1em}
+
 .summary .red-unit{color:#e74c3c;font-weight:bold}
+
 .calc-open-btn{
+
     position: static;
+
     display: block;
+
     margin: 12px auto 0;
+
     background:#8e44ad; color:#fff; border:none; border-radius:6px; padding:10px 14px; cursor:pointer;
+
     font-weight:bold; box-shadow:0 2px 5px rgba(0,0,0,.15);
+
 }
 
 /* Modal chung */
+
 .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);justify-content:center;align-items:center;z-index:1000;}
+
 .modal-content{background:#fff;padding:20px;border-radius:10px;width:90%;max-width:420px}
+
 .modal-content input[type="text"], .modal-content input[type="date"], .modal-content input[type="number"], .modal-content select{width:100%;padding:8px;margin:5px 0;border:1px solid #ccc;border-radius:5px;box-sizing:border-box;}
+
 .button-group{display:flex;justify-content:space-between;align-items:center}
+
 .modal-content button{margin-top:15px;padding:8px 12px;border:none;border-radius:5px;cursor:pointer}
+
 .save{background:#3498db;color:#fff}
+
 .cancel{background:#ccc}
+
 .delete{background:#e74c3c;color:#fff}
 
 /* Tùy chỉnh Calendar và Input Lương/giờ */
+
 table th:first-child{background:#e74c3c;color:#fff}
+
 table tr td:first-child{background-color:#fcecec}
+
 table tr td:first-child span{color:#c0392b !important}
+
 table tr td:empty{background-color:#dddddd;cursor:default}
+
 .header input#rate{min-width:70px;width:70px;transition:width .2s ease-in-out;text-align:right}
+
 .time-input-group{display:flex;align-items:center;margin-bottom:10px}
+
 .time-input-group label{font-weight:bold;width:40px;text-align:left;margin-right:10px}
+
 .time-input-group input[type="time"]{flex-grow:1;padding:8px;border:1px solid #ccc;border-radius:5px;box-sizing:border-box;width:auto}
 
 /* Modal máy tính */
+
 .calc-content{max-width:320px}
+
 .calc-display{
+
     width:100%; padding:10px; border:1px solid #ccc; border-radius:6px;
+
     font-size:1.2em; text-align:right; box-sizing:border-box; margin-bottom:10px;
+
 }
+
 .calc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+
 .calc-grid button{padding:12px;font-size:1em;border:none;border-radius:6px;cursor:pointer;background:#f1f1f1}
+
 .calc-grid button.op{background:#e8f0fe}
+
 .calc-grid button.equals{background:#2ecc71;color:#fff}
+
 .calc-grid button.clear{background:#e74c3c;color:#fff}
+
 .calc-grid button.back{background:#f39c12;color:#fff}
+
 </style>
+
 </head>
+
 <body>
+
 <div class="container">
+
     <div class="top-controls">
+
         <div class="control-group">
+
             <button class="add-job-btn" id="openJobModal" data-i18n="manage_jobs">➕ Quản lý Nơi làm việc</button>
+
         </div>
+
         <button class="lang-toggle-btn" id="langToggle">🇰🇷 Korean</button>
+
     </div>
+
     
+
     <div id="jobCarousel"></div>
 
     <div class="header"> 
+
         <div class="month-nav">
+
             <span class="arrow" id="prevMonth">◀</span>
+
             <span id="monthYear"></span>
+
             <span class="arrow" id="nextMonth">▶</span>
+
         </div>
+
         <div>
+
             <span data-i18n="rate_per_hour">💰 Lương/giờ:</span>
+
             <input type="text" id="rate" value="10.000">
+
             <span id="currencyUnit">VND</span>
+
         </div>
+
     </div>
+
     
+
     <div id="calendarTable"> 
+
         <table>
+
             <thead>
+
                 <tr id="calendarHeaders">
+
                     <th>CN</th><th>T2</th><th>T3</th><th>T4</th><th>T5</th><th>T6</th><th>T7</th>
+
                 </tr>
+
             </thead>
+
             <tbody id="calendar"></tbody>
+
         </table>
+
     </div>
 
     <div class="summary">
+
         <div id="paydayNotice" class="notice">Vui lòng nhập ngày trả lương để có thu nhập chính xác</div>
+
         ✅ <span id="totalHoursLabel">Tổng giờ tháng 00:</span> <span id="totalHours">0</span> <span class="green-unit">GIỜ</span><br>
+
         💵 <span id="totalPayLabel">Thu nhập tháng 00:</span> <span id="totalPay">0</span> <span class="red-unit" data-i18n="unit_vnd">VND</span>
+
         <button class="calc-open-btn" id="openCalc">🧮 Máy tính</button>
+
     </div>
+
 </div>
 
 <div class="modal" id="timeModal">
+
     <div class="modal-content">
+
         <h3 data-i18n="modal_time_title">Nhập giờ công - <span id="modalDate"></span></h3>
+
         <div class="time-input-group">
+
             <label for="timeIn" data-i18n="time_in">Vào:</label>
+
             <input type="time" id="timeIn" value="09:00">
+
         </div>
+
         <div class="time-input-group">
+
             <label for="timeOut" data-i18n="time_out">Ra:</label>
+
             <input type="time" id="timeOut" value="18:00">
+
         </div>
+
         <div class="button-group">
+
             <button class="delete" id="deleteTime" data-i18n="delete">Xóa</button>
+
             <div>
+
                 <button class="cancel" id="cancelTime" data-i18n="cancel">Hủy</button>
+
                 <button class="save" id="saveTime" data-i18n="save">Lưu</button>
+
             </div>
+
         </div>
+
     </div>
+
 </div>
 
 <div class="modal" id="jobModal">
+
     <div class="modal-content">
+
         <h3 id="jobModalTitle" data-i18n="modal_job_add_title">Thêm Nơi làm việc mới</h3>
+
         <div class="input-group">
+
             <label for="jobName" data-i18n="job_name">Tên Nơi làm việc:</label>
+
             <input type="text" id="jobName" placeholder="Tên công ty/Dự án..." required>
+
         </div>
+
         <div class="input-group">
+
             <label for="jobAddress" data-i18n="job_address">Địa chỉ:</label>
+
             <input type="text" id="jobAddress" placeholder="Địa chỉ nơi làm việc (VD: 123 đường ABC)">
+
         </div>
+
         <div class="input-group">
+
             <label for="jobStartDate" data-i18n="job_start_date">Ngày Bắt đầu:</label>
+
             <input type="date" id="jobStartDate" required>
+
         </div>
+
         <div class="input-group">
+
             <label for="jobEndDate" data-i18n="job_end_date">Ngày Kết thúc:</label>
+
             <input type="date" id="jobEndDate">
+
             <input type="checkbox" id="jobIsCurrent" data-i18n-placeholder="job_is_current"> Đang làm
+
         </div>
+
         <div class="input-group">
+
             <label for="jobPayday">Ngày trả lương (1-31):</label>
+
             <input type="number" id="jobPayday" min="1" max="31" placeholder="VD: 10">
+
         </div>
+
         <div class="job-button-group" style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;">
+
             <button class="delete" id="deleteJob" data-i18n="delete">Xóa</button>
+
             <div class="right-buttons">
+
                 <button class="cancel" id="cancelJob" data-i18n="cancel">Hủy</button>
+
                 <button class="save" id="saveJob" data-i18n="save">Lưu</button>
+
             </div>
+
         </div>
+
     </div>
+
 </div>
 
 <!-- Modal Máy tính -->
+
 <div class="modal" id="calcModal">
+
     <div class="modal-content calc-content">
+
         <h3>Máy tính</h3>
+
         <input id="calcDisplay" class="calc-display" type="text" value="" readonly>
+
         <div class="calc-grid">
+
             <button data-val="7">7</button>
+
             <button data-val="8">8</button>
+
             <button data-val="9">9</button>
+
             <button class="op" data-val="/">/</button>
 
             <button data-val="4">4</button>
+
             <button data-val="5">5</button>
+
             <button data-val="6">6</button>
+
             <button class="op" data-val="*">*</button>
 
             <button data-val="1">1</button>
+
             <button data-val="2">2</button>
+
             <button data-val="3">3</button>
+
             <button class="op" data-val="-">-</button>
 
             <button data-val="0">0</button>
+
             <button data-val=".">.</button>
+
             <button class="equals" data-action="equals">=</button>
+
             <button class="op" data-val="+">+</button>
 
             <button class="clear" data-action="clear">C</button>
+
             <button class="back" data-action="back">←</button>
+
             <button class="cancel" id="closeCalc" style="grid-column: span 2;">Đóng</button>
+
         </div>
+
     </div>
+
 </div>
 
 <script>
+
 // Trạng thái
+
 let currentMonth = new Date().getMonth();
+
 let currentYear = new Date().getFullYear();
+
 let workData = JSON.parse(localStorage.getItem('workData') || '{}');
+
 let appSettings = JSON.parse(localStorage.getItem('appSettings') || '{}');
+
 let jobs = JSON.parse(localStorage.getItem('jobs') || '[]');
+
 let editingJobId = null;
+
 let currentLang = localStorage.getItem('currentLang') || 'vi';
+
 let startX = 0;
 
 // Elements
+
 const rateInput = document.getElementById('rate');
+
 const jobModal = document.getElementById('jobModal');
+
 const jobCarouselDiv = document.getElementById('jobCarousel');
+
 const langToggleBtn = document.getElementById('langToggle');
+
 const calendarTable = document.getElementById('calendarTable');
+
 const currencyUnitSpan = document.getElementById('currencyUnit');
+
 const paydayNotice = document.getElementById('paydayNotice');
 
 // Dịch
+
 const translations = {
+
     vi: {
+
         days: ['CN','T2','T3','T4','T5','T6','T7'],
+
         currency: 'VND',
+
         manage_jobs: '➕ Quản lý Nơi làm việc',
+
         rate_per_hour: '💰 Lương/giờ:',
+
         modal_time_title: 'Nhập giờ công -',
+
         time_in: 'Vào:',
+
         time_out: 'Ra:',
+
         delete: 'Xóa',
+
         cancel: 'Hủy',
+
         save: 'Lưu',
+
         modal_job_add_title: 'Thêm Nơi làm việc mới',
+
         modal_job_edit_title: 'Chỉnh sửa Nơi làm việc',
+
         job_name: 'Tên Nơi làm việc:',
+
         job_address: 'Địa chỉ:',
+
         job_start_date: 'Ngày Bắt đầu:',
+
         job_end_date: 'Ngày Kết thúc:',
+
         job_is_current: 'Đang làm',
+
         alert_job_required: 'Tên và Ngày Bắt đầu là bắt buộc.',
+
         alert_date_invalid: 'Ngày Kết thúc phải sau hoặc bằng Ngày Bắt đầu.',
+
         alert_delete_confirm: (name) => `Bạn có chắc chắn muốn xóa nơi làm việc ${name} không? Việc này sẽ xóa tất cả giờ công liên quan!`,
+
         alert_time_job_required: 'Vui lòng thêm Nơi làm việc trước khi chấm công.',
+
         alert_delete_time_confirm: (jobName) => `Bạn có chắc chắn muốn xóa giờ công của ngày này cho ${jobName} không?`,
+
         job_date_current: 'Đang làm',
+
         job_date_from: 'Từ',
+
         job_date_to: 'đến',
-        unit_vnd: 'VND'
+
+        unit_vnd: 'VND',
+
+        payday_note: 'Ngày trả lương'
+
     },
+
     ko: {
+
         days: ['일','월','화','수','목','금','토'],
+
         currency: 'KRW',
+
         manage_jobs: '➕ 직장 관리',
+
         rate_per_hour: '💰 시급:',
+
         modal_time_title: '근무 시간 입력 -',
+
         time_in: '출근:',
+
         time_out: '퇴근:',
+
         delete: '삭제',
+
         cancel: '취소',
+
         save: '저장',
+
         modal_job_add_title: '새 직장 추가',
+
         modal_job_edit_title: '직장 수정',
+
         job_name: '직장 이름:',
+
         job_address: '주소:',
+
         job_start_date: '시작일:',
+
         job_end_date: '종료일:',
+
         job_is_current: '재직 중',
+
         alert_job_required: '이름과 시작일은 필수입니다.',
+
         alert_date_invalid: '종료일은 시작일과 같거나 그 이후여야 합니다.',
+
         alert_delete_confirm: (name) => `정말로 ${name} 직장을 삭제하시겠습니까? 관련 근무 시간이 모두 삭제됩니다!`,
+
         alert_time_job_required: '출퇴근 기록 전에 직장을 추가해주세요.',
+
         alert_delete_time_confirm: (jobName) => `이 날짜의 ${jobName} 근무 시간을 정말로 삭제하시겠습니까?`,
+
         job_date_current: '재직 중',
+
         job_date_from: '',
+
         job_date_to: '까지',
-        unit_vnd: 'KRW'
+
+        unit_vnd: 'KRW',
+
+        payday_note: '급여일'
+
     }
+
 };
 
 // Helpers
+
 const pad = (n) => (n < 10 ? '0' + n : '' + n);
+
 const getDayKey = (y,m,d) => `${y}-${pad(m+1)}-${pad(d)}`;
+
 const daysInMonth = (y,m) => new Date(y,m+1,0).getDate();
+
 function getTranslation(key, ...args){ const t = translations[currentLang][key]; return typeof t === 'function' ? t(...args) : (t ?? key); }
 
 // Rate helpers
+
 function getRateValue(){
+
     const digits = String(rateInput.value).replace(/\D/g,'');
+
     return Number(digits || 0);
+
 }
+
 function formatRateInputDisplay(){
+
     const digits = String(rateInput.value).replace(/\D/g,'');
+
     rateInput.value = Number(digits || 0).toLocaleString(currentLang === 'vi' ? 'vi-VN' : 'ko-KR');
+
 }
+
 function adjustRateInputWidth(){
+
     const length = String(rateInput.value).replace(/\D/g,'').length;
+
     let newWidth = 70 + Math.max(0, Math.min(12, length) - 4) * 10;
+
     if (length < 4) newWidth = 70;
+
     rateInput.style.width = `${newWidth}px`;
+
 }
 
 // Ngôn ngữ
+
 function setLanguage(lang){
+
     currentLang = lang;
+
     localStorage.setItem('currentLang', lang);
+
     document.querySelectorAll('[data-i18n]').forEach(el => {
+
         const key = el.getAttribute('data-i18n');
+
         if (el.querySelector && el.querySelector('#modalDate')) {
+
             const currentDate = el.querySelector('#modalDate')?.textContent || '';
+
             el.innerHTML = `${getTranslation(key)} <span id="modalDate">${currentDate}</span>`;
+
         } else {
+
             el.textContent = getTranslation(key);
+
         }
+
     });
+
     const headers = document.getElementById('calendarHeaders').children;
+
     translations[currentLang].days.forEach((d,i)=>headers[i].textContent=d);
+
     currencyUnitSpan.textContent = translations[currentLang].currency;
+
     document.querySelector('.summary .red-unit').textContent = translations[currentLang].unit_vnd;
+
     langToggleBtn.textContent = lang === 'vi' ? '🇰🇷 Korean' : '🇻🇳 Tiếng Việt';
+
     renderCalendar();
+
     renderJobList();
+
 }
+
 langToggleBtn.onclick = () => setLanguage(currentLang === 'vi' ? 'ko' : 'vi');
 
 // Jobs
+
 function ensureJobs(){
+
     jobs = JSON.parse(localStorage.getItem('jobs') || '[]');
+
     if (jobs.length === 0){
+
         jobs.push({
+
             id: Date.now().toString(),
+
             name: 'Công việc Chính',
+
             address: 'Văn phòng/Remote',
+
             startDate: new Date().toISOString().split('T')[0],
+
             endDate: '',
+
             isCurrent: true,
+
             payday: null
+
         });
+
         localStorage.setItem('jobs', JSON.stringify(jobs));
+
     }
+
 }
+
 function saveJobs(){
+
     localStorage.setItem('jobs', JSON.stringify(jobs));
+
     ensureJobs();
+
     renderJobList();
+
 }
+
 function openJobModal(jobId = null){
+
     editingJobId = jobId;
+
     jobModal.style.display = 'flex';
+
     const titleKey = jobId ? 'modal_job_edit_title' : 'modal_job_add_title';
+
     const titleEl = document.getElementById('jobModalTitle');
+
     titleEl.setAttribute('data-i18n', titleKey);
+
     titleEl.textContent = getTranslation(titleKey);
+
     document.getElementById('deleteJob').style.display = jobId ? 'inline-block' : 'none';
+
     const set = (id,v)=>document.getElementById(id).value = v ?? '';
+
     if (jobId){
+
         const job = jobs.find(j=>j.id===jobId) || {};
+
         set('jobName', job.name);
+
         set('jobAddress', job.address);
+
         set('jobStartDate', job.startDate);
+
         set('jobEndDate', job.endDate);
+
         document.getElementById('jobIsCurrent').checked = !!job.isCurrent;
+
         document.getElementById('jobEndDate').disabled = !!job.isCurrent;
+
         document.getElementById('jobPayday').value = (job.payday ?? '');
+
     } else {
+
         set('jobName',''); set('jobAddress','');
+
         set('jobStartDate', new Date().toISOString().split('T')[0]);
+
         set('jobEndDate','');
+
         document.getElementById('jobIsCurrent').checked = true;
+
         document.getElementById('jobEndDate').disabled = true;
+
         document.getElementById('jobPayday').value = '';
+
     }
+
 }
+
 document.getElementById('saveJob').onclick = () => {
+
     const name = document.getElementById('jobName').value.trim();
+
     const address = document.getElementById('jobAddress').value.trim();
+
     const startDate = document.getElementById('jobStartDate').value;
+
     const endDate = document.getElementById('jobEndDate').value;
+
     const isCurrent = document.getElementById('jobIsCurrent').checked;
+
     const paydayRaw = document.getElementById('jobPayday').value.trim();
+
     const payday = paydayRaw ? Math.max(1, Math.min(31, parseInt(paydayRaw,10))) : null;
 
     if (!name || !startDate) return alert(getTranslation('alert_job_required'));
+
     if (!isCurrent && endDate && new Date(startDate) > new Date(endDate)) return alert(getTranslation('alert_date_invalid'));
 
     if (editingJobId){
+
         const i = jobs.findIndex(j=>j.id===editingJobId);
+
         if (i !== -1) jobs[i] = { id: editingJobId, name, address, startDate, endDate, isCurrent, payday };
+
     } else {
+
         jobs.push({ id: Date.now().toString(), name, address, startDate, endDate, isCurrent, payday });
+
     }
+
     jobModal.style.display = 'none';
+
     saveJobs();
+
     renderCalendar();
+
 };
+
 document.getElementById('deleteJob').onclick = () => {
+
     const job = jobs.find(j=>j.id===editingJobId);
+
     if (!editingJobId) return;
+
     if (!confirm(getTranslation('alert_delete_confirm', job?.name || ''))) return;
+
     jobs = jobs.filter(j=>j.id!==editingJobId);
+
     for (const dateKey in workData){
+
         if (workData[dateKey]?.[editingJobId]){
+
             delete workData[dateKey][editingJobId];
+
             if (Object.keys(workData[dateKey]).length === 0) delete workData[dateKey];
+
         }
+
     }
+
     jobModal.style.display = 'none';
+
     saveJobs();
+
     renderCalendar();
+
 };
+
 document.getElementById('cancelJob').onclick = () => jobModal.style.display = 'none';
+
 document.getElementById('jobIsCurrent').onchange = (e) => {
+
     const dis = e.target.checked;
+
     const endInput = document.getElementById('jobEndDate');
+
     endInput.disabled = dis;
+
     if (dis) endInput.value = '';
+
 };
 
 // Carousel select job
+
 function getCurrentJobId(){
+
     ensureJobs();
+
     if (jobs.length === 0) return null;
+
     const scrollPos = jobCarouselDiv.scrollLeft;
+
     const widthPerItem = jobCarouselDiv.clientWidth || 1;
+
     let selectedIndex = Math.round(scrollPos / widthPerItem);
+
     if (selectedIndex >= jobs.length) selectedIndex = jobs.length - 1;
+
     if (selectedIndex < 0) selectedIndex = 0;
+
     const items = jobCarouselDiv.querySelectorAll('.job-item');
+
     items.forEach((item,i)=>item.classList.toggle('selected', i===selectedIndex));
+
     return jobs[selectedIndex]?.id || null;
+
 }
+
 jobCarouselDiv.addEventListener('scroll', () => {
+
     clearTimeout(jobCarouselDiv.scrollTimeout);
+
     jobCarouselDiv.scrollTimeout = setTimeout(renderCalendar, 100);
+
 });
+
 function renderJobList(){
+
     ensureJobs();
+
     jobCarouselDiv.innerHTML = '';
+
     if (jobs.length === 0){
+
         jobCarouselDiv.innerHTML = `<div style="color:#999;font-size:0.9em; min-width: 100%; text-align: center; padding: 15px;">${getTranslation('job_name')} (${getTranslation('modal_job_add_title').toLowerCase()})</div>`;
+
         jobCarouselDiv.style.border='1px dashed #ccc';
+
         jobCarouselDiv.style.boxShadow='none';
+
         jobCarouselDiv.style.background='none';
+
         return;
+
     }
+
     jobCarouselDiv.style.border='1px solid #e0e0e0';
+
     jobCarouselDiv.style.boxShadow='inset 0 0 5px rgba(0,0,0,.05)';
+
     jobCarouselDiv.style.background='#f7f7f7';
+
     jobs.forEach(job=>{
+
         const item = document.createElement('div');
+
         item.className = 'job-item';
+
         item.dataset.id = job.id;
+
         const dateStr = job.isCurrent
+
             ? `${getTranslation('job_date_from')} ${job.startDate.split('-').reverse().join('/')} - ${getTranslation('job_date_current')}`
+
             : `${getTranslation('job_date_from')} ${job.startDate.split('-').reverse().join('/')} ${getTranslation('job_date_to')} ${(job.endDate||'').split('-').reverse().join('/')}`;
+
         const paydayStr = job.payday ? ` | 💴 Ngày TL: ${job.payday}` : '';
+
         const addressHtml = job.address ? `<span>📍 ${job.address}${paydayStr}</span>` : `<span>${paydayStr ? paydayStr.slice(3) : ''}</span>`;
+
         item.innerHTML = `<strong>${job.name}</strong><span>${dateStr}</span>${addressHtml}`;
+
         item.onclick = (e) => { if (e.target.closest('.job-item') === item) openJobModal(job.id); };
+
         jobCarouselDiv.appendChild(item);
+
     });
+
     getCurrentJobId();
+
 }
 
 // Tổng theo tháng hoặc theo chu kỳ trả lương
+
 function computeCycleRange(payday){
+
     // trả về {startDate, endDate} (inclusive) theo chu kỳ: (payday+1) của tháng trước -> payday của tháng này
+
     const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+
     const prevYear  = currentMonth === 0 ? currentYear - 1 : currentYear;
+
     const prevMaxDay = daysInMonth(prevYear, prevMonth);
+
     const currMaxDay = daysInMonth(currentYear, currentMonth);
+
     const startDay = Math.min(prevMaxDay, payday) + 1; // ngày sau ngày TL tháng trước
+
     const endDay   = Math.min(currMaxDay, payday);      // đến ngày TL tháng này
+
     const startDate = new Date(prevYear, prevMonth, startDay);
+
     const endDate   = new Date(currentYear, currentMonth, endDay);
+
     return { startDate, endDate, endDay };
+
 }
 
 function updateSummary(){
+
     const rate = getRateValue();
+
     const locale = currentLang === 'vi' ? 'vi-VN' : 'ko-KR';
+
     const currentJobId = getCurrentJobId();
+
     const monthKey = `${currentYear}-${pad(currentMonth + 1)}`;
+
     const job = jobs.find(j=>j.id===currentJobId);
+
     const payday = job?.payday || null;
 
     let totalHours = 0;
 
     if (payday){ // Tính theo chu kỳ
+
         const { startDate, endDate } = computeCycleRange(payday);
+
         for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate()+1)){
+
             const key = getDayKey(d.getFullYear(), d.getMonth(), d.getDate());
+
             if (workData[key]?.[currentJobId]){
+
                 totalHours += workData[key][currentJobId].hours || 0;
+
             }
+
         }
+
         paydayNotice.style.display = 'none';
+
     } else { // Không có payday: tính trong tháng hiện tại
+
         for (const k in workData){
+
             if (k.startsWith(monthKey) && workData[k]?.[currentJobId]){
+
                 totalHours += workData[k][currentJobId].hours || 0;
+
             }
+
         }
+
         paydayNotice.style.display = 'block';
+
     }
 
     document.getElementById('totalHours').textContent = totalHours.toFixed(2);
+
     document.getElementById('totalPay').textContent = (totalHours * rate).toLocaleString(locale);
 
     const mm = pad(currentMonth + 1);
+
     if (currentLang === 'vi') {
-        document.getElementById('totalHoursLabel').textContent = `Tổng giờ tháng ${mm}:`;
+
+        document.getElementById('totalHoursLabel').textContent = `Tổng GIỜ tháng ${mm}:`;
+
         document.getElementById('totalPayLabel').textContent = `Thu nhập tháng ${mm}:`;
+
     } else {
+
         document.getElementById('totalHoursLabel').textContent = `${mm}월 총 시간:`;
+
         document.getElementById('totalPayLabel').textContent = `${mm}월 예상 수입:`;
+
     }
+
 }
 
 // Render lịch
+
 function renderCalendar(){
+
     const tbl = document.getElementById('calendar');
+
     tbl.innerHTML = '';
+
     const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+
     const totalDays = daysInMonth(currentYear, currentMonth);
+
     document.getElementById('monthYear').textContent = `${pad(currentMonth + 1)}/${currentYear}`;
+
     let day = 1;
+
     const rate = getRateValue();
+
     const locale = currentLang === 'vi' ? 'vi-VN' : 'ko-KR';
+
     const currencyCode = translations[currentLang].unit_vnd;
+
     const currentJobId = getCurrentJobId();
+
     const job = jobs.find(j=>j.id===currentJobId);
+
     const payday = job?.payday || null;
+
     const paydayInMonth = payday ? Math.min(payday, totalDays) : null;
 
     for (let r=0;r<6;r++){
+
         const tr = document.createElement('tr');
+
         for (let c=0;c<7;c++){
+
             const td = document.createElement('td');
+
             if ((r===0 && c<firstDay) || day>totalDays){
+
                 td.innerHTML = '';
+
             } else {
+
                 const dkey = getDayKey(currentYear, currentMonth, day);
+
                 const dayData = workData[dkey] || {};
+
                 const info = currentJobId ? (dayData[currentJobId] || {}) : {};
+
                 const hours = info.hours || 0;
+
                 let contentHTML = `<span>${day}</span>`;
+
                 if (hours > 0){
+
                     const pay = hours * rate;
+
                     contentHTML += `
+
                         <div class="hours-display">${hours.toFixed(1)}h</div>
+
                         <div class="pay-display">${pay.toLocaleString(locale)} ${currencyCode}</div>
+
                     `;
+
                 }
+
                 td.className = 'day';
+
                 if (paydayInMonth && day === paydayInMonth){
+
                     td.classList.add('payday-cell');
+
+                    contentHTML += `<div class="payday-note">${getTranslation('payday_note')}</div>`;
+
                 }
+
                 td.innerHTML = contentHTML;
+
                 td.dataset.key = dkey;
+
                 td.onclick = (e)=>{ if (e.currentTarget.innerHTML !== '') openModal(dkey); };
+
                 day++;
+
             }
+
             tr.appendChild(td);
+
         }
+
         tbl.appendChild(tr);
+
         if (day > totalDays) break;
+
     }
 
     updateSummary();
+
 }
 
 // Modal thời gian
+
 function openModal(key){
+
     const m = document.getElementById('timeModal');
+
     m.style.display = 'flex';
+
     m.dataset.key = key;
+
     const [year, month, day] = key.split('-');
+
     const dateText = `${day}/${month}`;
+
     document.getElementById('modalDate').textContent = dateText;
 
     const currentJobId = getCurrentJobId();
+
     if (!currentJobId){
+
         alert(getTranslation('alert_time_job_required'));
+
         m.style.display = 'none';
+
         return;
+
     }
 
     const info = (workData[key] && workData[key][currentJobId]) || {};
+
     document.getElementById('timeIn').value = info.in || '09:00';
+
     document.getElementById('timeOut').value = info.out || '18:00';
+
     document.getElementById('deleteTime').style.display = info.hours ? 'inline-block' : 'none';
+
 }
+
 document.getElementById('saveTime').onclick = () => {
+
     const key = document.getElementById('timeModal').dataset.key;
+
     const currentJobId = getCurrentJobId();
+
     if (!currentJobId) return alert(getTranslation('alert_time_job_required'));
+
     const tin = document.getElementById('timeIn').value;
+
     const tout = document.getElementById('timeOut').value;
 
     const [y,m,d] = key.split('-').map(Number);
+
     const timeIn = new Date(y, m-1, d, ...tin.split(':').map(Number));
+
     let timeOut = new Date(y, m-1, d, ...tout.split(':').map(Number));
+
     if (timeOut <= timeIn) timeOut.setDate(timeOut.getDate() + 1);
 
     const hrs = (timeOut - timeIn) / 36e5;
+
     if (hrs <= 0){
+
         if (workData[key]?.[currentJobId]) delete workData[key][currentJobId];
+
         if (workData[key] && Object.keys(workData[key]).length === 0) delete workData[key];
+
     } else {
+
         workData[key] = workData[key] || {};
+
         workData[key][currentJobId] = { in: tin, out: tout, hours: hrs };
+
     }
+
     localStorage.setItem('workData', JSON.stringify(workData));
+
     document.getElementById('timeModal').style.display = 'none';
+
     renderCalendar();
+
 };
+
 document.getElementById('deleteTime').onclick = () => {
+
     const key = document.getElementById('timeModal').dataset.key;
+
     const currentJobId = getCurrentJobId();
+
     const jobName = jobs.find(j=>j.id===currentJobId)?.name || '';
+
     if (!confirm(getTranslation('alert_delete_time_confirm', jobName))) return;
+
     if (workData[key]?.[currentJobId]){
+
         delete workData[key][currentJobId];
+
         if (Object.keys(workData[key]).length === 0) delete workData[key];
+
     }
+
     localStorage.setItem('workData', JSON.stringify(workData));
+
     document.getElementById('timeModal').style.display = 'none';
+
     renderCalendar();
+
 };
+
 document.getElementById('cancelTime').onclick = () => (document.getElementById('timeModal').style.display = 'none');
 
 // Cài đặt
+
 function updateSettings(){
+
     appSettings.rate = getRateValue();
+
     localStorage.setItem('appSettings', JSON.stringify(appSettings));
+
     renderCalendar();
+
 }
 
 // Điều hướng tháng
+
 function goToNextMonth(){ currentMonth++; if (currentMonth > 11){ currentMonth = 0; currentYear++; } renderCalendar(); }
+
 function goToPrevMonth(){ currentMonth--; if (currentMonth < 0){ currentMonth = 11; currentYear--; } renderCalendar(); }
+
 document.getElementById('prevMonth').onclick = goToPrevMonth;
+
 document.getElementById('nextMonth').onclick = goToNextMonth;
 
 // Vuốt tháng
+
 calendarTable.addEventListener('touchstart', (e)=>{ startX = e.touches[0].clientX; });
+
 calendarTable.addEventListener('touchend', (e)=>{
+
     const diffX = e.changedTouches[0].clientX - startX;
+
     const opened = document.getElementById('timeModal').style.display !== 'none' || document.getElementById('jobModal').style.display !== 'none';
+
     if (!opened && Math.abs(diffX) > 50) diffX > 0 ? goToPrevMonth() : goToNextMonth();
+
     startX = 0;
+
 });
 
 // Rate events
+
 rateInput.oninput = () => { formatRateInputDisplay(); adjustRateInputWidth(); };
+
 rateInput.onchange = () => { formatRateInputDisplay(); updateSettings(); };
 
 // Nút máy tính
+
 const calcModal = document.getElementById('calcModal');
+
 const calcDisplay = document.getElementById('calcDisplay');
+
 function openCalc(){ calcDisplay.value = calcDisplay.value || ''; calcModal.style.display = 'flex'; }
+
 function closeCalc(){ calcModal.style.display = 'none'; }
+
 document.getElementById('openCalc').onclick = openCalc;
+
 document.getElementById('closeCalc')?.addEventListener('click', closeCalc);
+
 calcModal.addEventListener('click', (e)=>{ if (e.target === calcModal) closeCalc(); });
+
 document.querySelector('#calcModal .calc-grid').addEventListener('click', (e)=>{
+
     const btn = e.target.closest('button'); if (!btn || btn.id === 'closeCalc') return;
+
     const action = btn.getAttribute('data-action'); const val = btn.getAttribute('data-val');
+
     if (action === 'clear'){ calcDisplay.value = ''; return; }
+
     if (action === 'back'){ calcDisplay.value = calcDisplay.value.slice(0,-1); return; }
+
     if (action === 'equals'){
+
         const expr = (calcDisplay.value || '').replace(/[^0-9+\-*/().]/g,'');
+
         if (!expr) return;
+
         try{
+
             if (/[*+/)]\s*[*+/)]/.test(expr)) throw new Error('Bad');
+
             const result = Function(`"use strict";return (${expr})`)();
+
             calcDisplay.value = (result ?? '').toString();
+
         }catch{
+
             calcDisplay.value = 'Lỗi'; setTimeout(()=>{ if (calcDisplay.value === 'Lỗi') calcDisplay.value = ''; },800);
+
         }
+
         return;
+
     }
+
     if (val){
+
         if (val === '.'){
+
             const parts = calcDisplay.value.split(/[*+\-/()]/);
+
             const last = parts[parts.length-1] || '';
+
             if (last.includes('.')) return;
+
         }
+
         calcDisplay.value += val;
+
     }
+
 });
 
 // Open job modal
+
 document.getElementById('openJobModal').onclick = () => openJobModal();
 
 // Khởi tạo
+
 function initApp(){
+
     const storedSettings = JSON.parse(localStorage.getItem('appSettings') || '{}');
+
     appSettings = storedSettings;
+
     const initialRate = typeof storedSettings.rate === 'number' ? storedSettings.rate : 10000;
+
     rateInput.value = initialRate.toLocaleString(currentLang === 'vi' ? 'vi-VN' : 'ko-KR');
 
     ensureJobs();
+
     setLanguage(currentLang);
+
     renderJobList();
+
     renderCalendar();
+
     formatRateInputDisplay();
+
     adjustRateInputWidth();
+
 }
+
 initApp();
+
 </script>
+
 </body>
+
 </html>
