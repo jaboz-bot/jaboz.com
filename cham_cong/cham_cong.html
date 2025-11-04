@@ -1333,29 +1333,46 @@ function isModalOpen() {
            calcModal.style.display !== 'none';
 }
 
-function isInteractiveElement(elem) {
+function canSwipe(elem) {
     if (!elem) return false;
+    
+    // Không cho vuốt khi modal đang mở
+    if (isModalOpen()) return false;
+    
+    // Kiểm tra xem có phải trong modal không
+    if (elem.closest('.modal')) return false;
+    
+    // Chỉ chặn khi đang chạm trực tiếp vào input hoặc button
     const tag = elem.tagName;
-    return tag === 'INPUT' || tag === 'BUTTON' || tag === 'A' || 
-           elem.closest('button') || elem.closest('input') || 
-           elem.closest('.modal');
+    if (tag === 'INPUT' || tag === 'BUTTON') return false;
+    
+    // Cho phép vuốt trên tất cả các phần tử khác (td, div, span, header, table, etc.)
+    return true;
 }
 
-// Xử lý bắt đầu vuốt
-document.addEventListener('touchstart', function(e) {
-    // Bỏ qua nếu đang chạm vào phần tử tương tác hoặc modal đang mở
-    if (isModalOpen() || isInteractiveElement(e.target)) {
+function handleTouchStart(e) {
+    if (!canSwipe(e.target)) {
+        swipeStartX = null;
+        swipeStartY = null;
         return;
     }
     
     swipeStartX = e.touches[0].clientX;
     swipeStartY = e.touches[0].clientY;
-}, { passive: true });
+}
 
-// Xử lý kết thúc vuốt
-document.addEventListener('touchend', function(e) {
-    // Bỏ qua nếu không có điểm bắt đầu hoặc modal đang mở
-    if (swipeStartX === null || swipeStartY === null || isModalOpen()) {
+function handleTouchEnd(e) {
+    if (swipeStartX === null || swipeStartY === null) {
+        return;
+    }
+    
+    if (isModalOpen()) {
+        swipeStartX = null;
+        swipeStartY = null;
+        return;
+    }
+    
+    if (!e.changedTouches || e.changedTouches.length === 0) {
         swipeStartX = null;
         swipeStartY = null;
         return;
@@ -1367,8 +1384,7 @@ document.addEventListener('touchend', function(e) {
     const diffX = endX - swipeStartX;
     const diffY = endY - swipeStartY;
     
-    // Kiểm tra vuốt ngang (vuốt trái/phải)
-    // Vuốt ngang phải có khoảng cách ngang lớn hơn khoảng cách dọc
+    // Kiểm tra vuốt ngang: khoảng cách ngang > khoảng cách dọc và > 50px
     if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > swipeMinDistance) {
         // Vuốt sang phải -> tháng trước
         if (diffX > 0) {
@@ -1383,7 +1399,39 @@ document.addEventListener('touchend', function(e) {
     // Reset
     swipeStartX = null;
     swipeStartY = null;
-}, { passive: true });
+}
+
+// Đăng ký event listener sau khi DOM sẵn sàng
+function setupSwipe() {
+    const header = document.querySelector('.header');
+    const calendarTable = document.getElementById('calendarTable');
+    const container = document.querySelector('.container');
+    
+    // Áp dụng cho header
+    if (header) {
+        header.addEventListener('touchstart', handleTouchStart, { passive: true });
+        header.addEventListener('touchend', handleTouchEnd, { passive: true });
+    }
+    
+    // Áp dụng cho calendar table
+    if (calendarTable) {
+        calendarTable.addEventListener('touchstart', handleTouchStart, { passive: true });
+        calendarTable.addEventListener('touchend', handleTouchEnd, { passive: true });
+    }
+    
+    // Áp dụng cho container
+    if (container) {
+        container.addEventListener('touchstart', handleTouchStart, { passive: true });
+        container.addEventListener('touchend', handleTouchEnd, { passive: true });
+    }
+}
+
+// Đăng ký khi DOM ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupSwipe);
+} else {
+    setupSwipe();
+}
 
 // Rate events
 
@@ -1487,7 +1535,7 @@ function initApp(){
 
     adjustRateInputWidth();
 
-    // Vuốt tháng đã được đăng ký qua document.addEventListener
+    // Vuốt tháng đã được đăng ký trong setupSwipe()
 
 }
 
