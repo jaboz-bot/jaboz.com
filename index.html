@@ -12,7 +12,6 @@
             font-family: 'Segoe UI', sans-serif;
             background: #e3f2fd;
             margin: 0;
-            /* ĐIỀU CHỈNH: Tăng padding dưới lên 70px để chừa chỗ cho nút cố định */
             padding: 20px 10px 70px 10px; 
             text-align: center;
             display: flex;
@@ -21,11 +20,6 @@
             min-height: 100vh;
             justify-content: space-between;
             box-sizing: border-box;
-        }
-        .logo-wrapper {
-            position: relative;
-            display: inline-block;
-            margin-bottom: 10px;
         }
         .logo {
             font-size: 42px;
@@ -36,12 +30,11 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
             letter-spacing: 3px;
+            margin-bottom: 10px;
             transition: transform 0.3s ease;
-            position: relative;
             display: inline-block;
             animation: gradientShift 3s ease infinite, glowPulse 2s ease-in-out infinite;
             filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.6));
-            z-index: 2;
         }
         .logo:hover {
             transform: scale(1.05);
@@ -83,8 +76,7 @@
             width: 100%;
             margin-bottom: 50px;
         }
-        /* Thay đổi từ .app-link thành class chung cho tất cả các nút ứng dụng (bao gồm cả game) */
-        .app-item { /* Đổi tên class để linh hoạt hơn */
+        .app-item {
             text-decoration: none;
             color: white;
             padding: 30px 40px;
@@ -95,7 +87,7 @@
             text-align: center;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             transition: transform 0.2s, box-shadow 0.2s;
-            cursor: pointer; /* Thêm con trỏ để trông giống nút */
+            cursor: pointer;
         }
         .app-item:hover {
             transform: translateY(-5px);
@@ -110,20 +102,16 @@
         .movie-link {
             background: linear-gradient(45deg, #FF9800, #F57C00);
         }
-        /* THAY ĐỔI LỚN: CỐ ĐỊNH NÚT CÀI ĐẶT */
         .settings-area {
             width: 100%;
             text-align: center;
-            /* CỐ ĐỊNH VỊ TRÍ */
-            position: fixed; 
-            bottom: 0; 
+            position: fixed;
+            bottom: 0;
             left: 0;
-            z-index: 1000; /* Đảm bảo nút nằm trên các nội dung khác */
-            /* Thêm nền mờ nhẹ */
+            z-index: 1000;
             background: rgba(240, 248, 255, 0.95);
-            padding: 10px 0; 
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1); /* Tạo hiệu ứng nổi */
-            /* BỎ: padding-bottom: 10px; và margin-top: auto; */
+            padding: 10px 0;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
         }
         .settings-link {
             background: linear-gradient(45deg, #9C27B0, #7B1FA2);
@@ -132,11 +120,11 @@
             width: auto;
             display: inline-block;
             border-radius: 8px;
-            color: white; /* Thêm màu chữ để đảm bảo hiển thị */
-            border: none; /* Thêm để đảm bảo trông giống nút */
+            color: white;
+            border: none;
             cursor: pointer;
             text-decoration: none;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Thêm shadow cho nút */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
         }
         .settings-link:hover {
              transform: translateY(-2px);
@@ -163,9 +151,7 @@
 <body>
     
     <div style="width: 100%; display: flex; flex-direction: column; align-items: center;">
-        <div class="logo-wrapper">
-            <div class="logo">JABOZ</div>
-        </div>
+        <div class="logo">JABOZ</div>
         <h1>Chọn Ứng Dụng</h1>
         <div class="main-container">
             
@@ -189,9 +175,7 @@
     </div>
 
 <div class="settings-area">
-    <button class="btn install-btn large-control-btn settings-link" id="installButton">
-    📲 Trang Chủ
-</button>
+    <button class="settings-link" id="installButton">📲 Trang Chủ</button>
 </div>
 
 <script>
@@ -252,7 +236,6 @@
             
             let startDate = localStorage.getItem(START_DATE_KEY);
             if (!startDate) {
-                // Ngày bắt đầu: 30 ngày trước (để có số lượt truy cập ban đầu)
                 const initialDate = new Date(today);
                 initialDate.setDate(initialDate.getDate() - 30);
                 startDate = initialDate.toISOString();
@@ -262,19 +245,15 @@
             const start = new Date(startDate);
             const daysDiff = Math.floor((today - start) / (1000 * 60 * 60 * 24));
             
-            // Tính số lượt truy cập dựa trên số ngày
-            const baseVisitors = 1200; // Số lượt cơ bản ban đầu
-            const visitorsPerDay = 80; // Trung bình mỗi ngày
-            const randomSeed = daysDiff % 100; // Random dựa trên số ngày (ổn định mỗi ngày)
+            const baseVisitors = 1200;
+            const visitorsPerDay = 80;
+            const randomSeed = daysDiff % 100;
             
-            // Tính số lượt truy cập = số cơ bản + (số ngày * lượt mỗi ngày) + random nhẹ
             let count = baseVisitors + (daysDiff * visitorsPerDay) + (randomSeed * 0.8);
-            
-            // Thêm phần tăng theo giờ và phút trong ngày (tăng dần trong ngày)
             const hours = now.getHours();
             const minutes = now.getMinutes();
-            const hourFactor = hours * 2; // Tăng 0-46 lượt theo giờ
-            const minuteFactor = Math.floor(minutes / 10); // Tăng theo 10 phút
+            const hourFactor = hours * 2;
+            const minuteFactor = Math.floor(minutes / 10);
             
             count += hourFactor + minuteFactor;
             
@@ -286,11 +265,8 @@
             counterEl.textContent = count.toLocaleString('vi-VN');
         }
         
-        // Cập nhật ngay lập tức
         updateCounter();
-        
-        // Cập nhật mỗi phút để tăng dần
-        setInterval(updateCounter, 60000); // 60000ms = 1 phút
+        setInterval(updateCounter, 60000);
     })();
 </script>
 
