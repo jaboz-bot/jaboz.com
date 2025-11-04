@@ -1319,119 +1319,9 @@ document.getElementById('prevMonth').onclick = goToPrevMonth;
 document.getElementById('nextMonth').onclick = goToNextMonth;
 
 // Vuốt tháng cho điện thoại
-
-let swipeStartX = null;
-let swipeStartY = null;
-let swipeMinDistance = 50; // Khoảng cách tối thiểu để nhận diện vuốt
-
-function isModalOpen() {
-    const timeModal = document.getElementById('timeModal');
-    const jobModal = document.getElementById('jobModal');
-    const calcModal = document.getElementById('calcModal');
-    return timeModal.style.display !== 'none' || 
-           jobModal.style.display !== 'none' || 
-           calcModal.style.display !== 'none';
-}
-
-function canSwipe(elem) {
-    if (!elem) return false;
-    
-    // Không cho vuốt khi modal đang mở
-    if (isModalOpen()) return false;
-    
-    // Kiểm tra xem có phải trong modal không
-    if (elem.closest('.modal')) return false;
-    
-    // Chỉ chặn khi đang chạm trực tiếp vào input hoặc button
-    const tag = elem.tagName;
-    if (tag === 'INPUT' || tag === 'BUTTON') return false;
-    
-    // Cho phép vuốt trên tất cả các phần tử khác (td, div, span, header, table, etc.)
-    return true;
-}
-
-function handleTouchStart(e) {
-    if (!canSwipe(e.target)) {
-        swipeStartX = null;
-        swipeStartY = null;
-        return;
-    }
-    
-    swipeStartX = e.touches[0].clientX;
-    swipeStartY = e.touches[0].clientY;
-}
-
-function handleTouchEnd(e) {
-    if (swipeStartX === null || swipeStartY === null) {
-        return;
-    }
-    
-    if (isModalOpen()) {
-        swipeStartX = null;
-        swipeStartY = null;
-        return;
-    }
-    
-    if (!e.changedTouches || e.changedTouches.length === 0) {
-        swipeStartX = null;
-        swipeStartY = null;
-        return;
-    }
-    
-    const endX = e.changedTouches[0].clientX;
-    const endY = e.changedTouches[0].clientY;
-    
-    const diffX = endX - swipeStartX;
-    const diffY = endY - swipeStartY;
-    
-    // Kiểm tra vuốt ngang: khoảng cách ngang > khoảng cách dọc và > 50px
-    if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > swipeMinDistance) {
-        // Vuốt sang phải -> tháng trước
-        if (diffX > 0) {
-            goToPrevMonth();
-        } 
-        // Vuốt sang trái -> tháng sau
-        else {
-            goToNextMonth();
-        }
-    }
-    
-    // Reset
-    swipeStartX = null;
-    swipeStartY = null;
-}
-
-// Đăng ký event listener sau khi DOM sẵn sàng
-function setupSwipe() {
-    const header = document.querySelector('.header');
-    const calendarTable = document.getElementById('calendarTable');
-    const container = document.querySelector('.container');
-    
-    // Áp dụng cho header
-    if (header) {
-        header.addEventListener('touchstart', handleTouchStart, { passive: true });
-        header.addEventListener('touchend', handleTouchEnd, { passive: true });
-    }
-    
-    // Áp dụng cho calendar table
-    if (calendarTable) {
-        calendarTable.addEventListener('touchstart', handleTouchStart, { passive: true });
-        calendarTable.addEventListener('touchend', handleTouchEnd, { passive: true });
-    }
-    
-    // Áp dụng cho container
-    if (container) {
-        container.addEventListener('touchstart', handleTouchStart, { passive: true });
-        container.addEventListener('touchend', handleTouchEnd, { passive: true });
-    }
-}
-
-// Đăng ký khi DOM ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', setupSwipe);
-} else {
-    setupSwipe();
-}
+let swipeStartX = 0;
+let swipeStartY = 0;
+let swipeActive = false;
 
 // Rate events
 
@@ -1535,11 +1425,88 @@ function initApp(){
 
     adjustRateInputWidth();
 
-    // Vuốt tháng đã được đăng ký trong setupSwipe()
+    // Đăng ký vuốt tháng sau khi app đã khởi tạo
+    setupSwipeNavigation();
 
 }
 
 initApp();
+
+// Hàm đăng ký vuốt tháng
+function setupSwipeNavigation() {
+    // Đăng ký trực tiếp trên document để đảm bảo hoạt động
+    document.addEventListener('touchstart', function(e) {
+        // Bỏ qua nếu chạm vào input, button, hoặc modal
+        const target = e.target;
+        if (target.tagName === 'INPUT' || target.tagName === 'BUTTON' || target.closest('.modal')) {
+            return;
+        }
+        
+        // Bỏ qua nếu modal đang mở
+        const timeModal = document.getElementById('timeModal');
+        const jobModal = document.getElementById('jobModal');
+        const calcModal = document.getElementById('calcModal');
+        if (timeModal && timeModal.style.display !== 'none') return;
+        if (jobModal && jobModal.style.display !== 'none') return;
+        if (calcModal && calcModal.style.display !== 'none') return;
+        
+        swipeStartX = e.touches[0].clientX;
+        swipeStartY = e.touches[0].clientY;
+        swipeActive = true;
+    }, { passive: true });
+
+    document.addEventListener('touchend', function(e) {
+        if (!swipeActive || swipeStartX === 0 || swipeStartY === 0) {
+            swipeActive = false;
+            return;
+        }
+        
+        // Bỏ qua nếu modal đang mở
+        const timeModal = document.getElementById('timeModal');
+        const jobModal = document.getElementById('jobModal');
+        const calcModal = document.getElementById('calcModal');
+        if (timeModal && timeModal.style.display !== 'none') {
+            swipeActive = false;
+            return;
+        }
+        if (jobModal && jobModal.style.display !== 'none') {
+            swipeActive = false;
+            return;
+        }
+        if (calcModal && calcModal.style.display !== 'none') {
+            swipeActive = false;
+            return;
+        }
+        
+        if (!e.changedTouches || e.changedTouches.length === 0) {
+            swipeActive = false;
+            return;
+        }
+        
+        const endX = e.changedTouches[0].clientX;
+        const endY = e.changedTouches[0].clientY;
+        
+        const diffX = endX - swipeStartX;
+        const diffY = endY - swipeStartY;
+        
+        // Kiểm tra vuốt ngang: khoảng cách ngang > khoảng cách dọc và > 50px
+        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+            // Vuốt sang phải -> tháng trước
+            if (diffX > 0) {
+                goToPrevMonth();
+            } 
+            // Vuốt sang trái -> tháng sau
+            else {
+                goToNextMonth();
+            }
+        }
+        
+        // Reset
+        swipeStartX = 0;
+        swipeStartY = 0;
+        swipeActive = false;
+    }, { passive: true });
+}
 
 </script>
 
