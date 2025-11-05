@@ -472,15 +472,9 @@ table tr td:empty{background-color:#dddddd;cursor:default}
 
             <div style="margin-bottom:10px;display:flex;gap:8px;flex-direction:column;">
 
-                <button type="button" id="getCurrentLocation" style="width:100%;padding:12px;background:#3498db;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:1em;box-shadow:0 2px 5px rgba(0,0,0,.2);transition:all 0.3s;" data-i18n="get_location" onmouseover="this.style.background='#2980b9';this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 8px rgba(0,0,0,.3)'" onmouseout="this.style.background='#3498db';this.style.transform='translateY(0)';this.style.boxShadow='0 2px 5px rgba(0,0,0,.2)'">📍 Lấy vị trí hiện tại</button>
+                <input type="text" id="jobAddressInput" placeholder="Nhập địa chỉ chính xác..." style="width:100%;padding:12px;border:1px solid #ccc;border-radius:8px;font-size:1em;box-sizing:border-box;" data-i18n-placeholder="enter_address_placeholder">
 
-                <div style="display:flex;gap:8px;align-items:flex-start;">
-
-                    <input type="text" id="jobAddressInput" placeholder="Nhập địa chỉ chính xác..." style="flex:1;padding:10px;border:1px solid #ccc;border-radius:8px;font-size:0.95em;box-sizing:border-box;" data-i18n-placeholder="enter_address_placeholder">
-
-                    <button type="button" id="searchAddressBtn" style="padding:10px 20px;background:#2ecc71;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;white-space:nowrap;box-shadow:0 2px 5px rgba(0,0,0,.2);transition:all 0.3s;" data-i18n="search_address" onmouseover="this.style.background='#27ae60';this.style.transform='translateY(-2px)'" onmouseout="this.style.background='#2ecc71';this.style.transform='translateY(0)'">🔍 Tìm kiếm</button>
-
-                </div>
+                <button type="button" id="searchAddressBtn" style="width:100%;padding:12px;background:#2ecc71;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:1em;box-shadow:0 2px 5px rgba(0,0,0,.2);transition:all 0.3s;" data-i18n="search_address" onmouseover="this.style.background='#27ae60';this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 8px rgba(0,0,0,.3)'" onmouseout="this.style.background='#2ecc71';this.style.transform='translateY(0)';this.style.boxShadow='0 2px 5px rgba(0,0,0,.2)'">🔍 Tìm kiếm</button>
 
             </div>
 
@@ -498,9 +492,7 @@ table tr td:empty{background-color:#dddddd;cursor:default}
 
             <input type="hidden" id="jobLng" step="any">
 
-            <input type="number" id="jobRadius" min="10" max="1000" value="100" data-i18n-placeholder="gps_radius_placeholder" placeholder="Bán kính (mét)" style="width:100%;margin-top:15px;">
-
-            <small style="color:#7f8c8d;font-size:0.85em;" data-i18n="gps_radius_hint">Bán kính cho phép chấm công tự động (mét). Mặc định: 100m</small>
+            <input type="hidden" id="jobRadius" value="100">
 
         </div>
 
@@ -808,10 +800,6 @@ const translations = {
 
         get_location: '📍 Lấy vị trí hiện tại',
 
-        gps_radius_placeholder: 'Bán kính (mét)',
-
-        gps_radius_hint: 'Bán kính cho phép chấm công tự động (mét). Mặc định: 100m',
-
         location_address_label: '📍 Địa chỉ:',
 
         enter_address_placeholder: 'Nhập địa chỉ chính xác...',
@@ -945,10 +933,6 @@ const translations = {
         gps_lng_placeholder: '경도 (Lng)',
 
         get_location: '📍 현재 위치 가져오기',
-
-        gps_radius_placeholder: '반경 (미터)',
-
-        gps_radius_hint: '자동 출퇴근 허용 반경 (미터). 기본값: 100m',
 
         location_address_label: '📍 주소:',
 
@@ -1275,13 +1259,13 @@ document.getElementById('saveJob').onclick = () => {
 
     const lngRaw = document.getElementById('jobLng').value.trim();
 
-    const radiusRaw = document.getElementById('jobRadius').value.trim();
-
     const lat = latRaw ? parseFloat(latRaw) : null;
 
     const lng = lngRaw ? parseFloat(lngRaw) : null;
 
-    const radius = radiusRaw ? Math.max(10, Math.min(1000, parseInt(radiusRaw,10))) : 100;
+    // Bán kính mặc định 100m (ẩn khỏi giao diện)
+
+    const radius = 100;
 
     if (!name || !startDate) return alert(getTranslation('alert_job_required'));
 
@@ -2896,116 +2880,6 @@ document.getElementById('jobAddressInput').addEventListener('keypress', (e) => {
 });
 
 // Các input tọa độ đã được ẩn, không cần logic tự động cập nhật từ input nữa
-
-// Nút lấy vị trí hiện tại
-
-document.getElementById('getCurrentLocation').onclick = () => {
-
-    if (!navigator.geolocation) {
-
-        alert('Trình duyệt của bạn không hỗ trợ GPS. Vui lòng sử dụng trình duyệt khác hoặc cập nhật trình duyệt.');
-
-        return;
-
-    }
-
-    // Hiển thị thông báo đang lấy vị trí
-
-    const btn = document.getElementById('getCurrentLocation');
-
-    const originalText = btn.textContent;
-
-    btn.textContent = 'Đang lấy vị trí...';
-
-    btn.disabled = true;
-
-    navigator.geolocation.getCurrentPosition(
-
-        (position) => {
-
-            // Lấy vị trí thành công
-
-            const lat = position.coords.latitude.toFixed(6);
-
-            const lng = position.coords.longitude.toFixed(6);
-
-            document.getElementById('jobLat').value = lat;
-
-            document.getElementById('jobLng').value = lng;
-
-            // Lấy địa chỉ từ tọa độ (Reverse Geocoding)
-
-            getAddressFromCoordinates(parseFloat(lat), parseFloat(lng));
-
-            // Khôi phục nút
-
-            btn.textContent = originalText;
-
-            btn.disabled = false;
-
-            console.log('Vị trí đã được lấy:', lat, lng);
-
-        },
-
-        (error) => {
-
-            // Xử lý lỗi
-
-            let errorMsg = 'Không thể lấy vị trí: ';
-
-            switch(error.code) {
-
-                case error.PERMISSION_DENIED:
-
-                    errorMsg = 'Bạn đã từ chối quyền truy cập vị trí.\n\nVui lòng:\n1. Bật GPS trên thiết bị\n2. Cho phép trình duyệt truy cập vị trí trong cài đặt trình duyệt\n3. Thử lại';
-
-                    break;
-
-                case error.POSITION_UNAVAILABLE:
-
-                    errorMsg = 'Thông tin vị trí không khả dụng.\n\nVui lòng:\n1. Bật GPS trên thiết bị\n2. Đảm bảo bạn đang ở nơi có tín hiệu GPS tốt\n3. Thử lại';
-
-                    break;
-
-                case error.TIMEOUT:
-
-                    errorMsg = 'Yêu cầu vị trí đã hết thời gian chờ.\n\nVui lòng:\n1. Đảm bảo GPS đã được bật\n2. Kiểm tra kết nối mạng\n3. Thử lại';
-
-                    break;
-
-                default:
-
-                    errorMsg = 'Lỗi không xác định: ' + error.message + '\n\nVui lòng thử lại sau khi đảm bảo GPS đã được bật.';
-
-                    break;
-
-            }
-
-            alert(errorMsg);
-
-            console.error('GPS Error:', error);
-
-            // Khôi phục nút
-
-            btn.textContent = originalText;
-
-            btn.disabled = false;
-
-        },
-
-        { 
-
-            enableHighAccuracy: true, 
-
-            timeout: 15000,
-
-            maximumAge: 0  // Luôn lấy vị trí mới nhất
-
-        }
-
-    );
-
-};
 
 // Khởi tạo
 
