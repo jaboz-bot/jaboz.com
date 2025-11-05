@@ -280,6 +280,7 @@
 
         // Firebase configuration - THAY ĐỔI THÔNG TIN NÀY VỚI THÔNG TIN CỦA BẠN
         const firebaseConfig = {
+            const firebaseConfig = {
   apiKey: "AIzaSyBMv04BBtq623wHq5ANafgZTLWB6eI21MQ",
   authDomain: "giang-cdd21.firebaseapp.com",
   projectId: "giang-cdd21",
@@ -289,9 +290,21 @@
   measurementId: "G-T77QP608PB"
 };
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        // Check if Firebase config is set
+        let firebaseInitialized = false;
+        let db = null;
+        
+        try {
+            if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "YOUR_API_KEY") {
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                firebaseInitialized = true;
+            } else {
+                console.warn('Firebase chưa được cấu hình. Vui lòng cập nhật firebaseConfig trong file binh_luan.html');
+            }
+        } catch (error) {
+            console.error('Lỗi khởi tạo Firebase:', error);
+        }
 
         // Load saved name from localStorage
         const savedName = localStorage.getItem('commenterName');
@@ -382,6 +395,11 @@
                 return;
             }
 
+            if (!firebaseInitialized || !db) {
+                showMessage('Firebase chưa được cấu hình. Vui lòng cập nhật thông tin Firebase trong file binh_luan.html', 'error');
+                return;
+            }
+
             try {
                 // Save name to localStorage
                 localStorage.setItem('commenterName', userName);
@@ -397,6 +415,7 @@
                 lastCommentTime = now;
                 showMessage('Bình luận đã được gửi thành công!', 'success');
             } catch (error) {
+                console.error('Lỗi khi gửi bình luận:', error);
                 showMessage('Lỗi khi gửi bình luận: ' + error.message, 'error');
             }
         };
@@ -409,44 +428,86 @@
             }, 5000);
         }
 
-        // Load comments
-        const commentsRef = collection(db, 'comments');
-        const q = query(commentsRef, orderBy('timestamp', 'desc'), limit(100));
-        
-        onSnapshot(q, (snapshot) => {
+        // Load comments function
+        function loadComments() {
             const commentsList = document.getElementById('commentsList');
             
-            if (snapshot.empty) {
-                commentsList.innerHTML = '<div class="empty-comments">Chưa có bình luận nào. Hãy là người đầu tiên!</div>';
+            if (!firebaseInitialized || !db) {
+                commentsList.innerHTML = '<div class="error-message">⚠️ Firebase chưa được cấu hình. Vui lòng cập nhật thông tin Firebase trong file binh_luan.html (dòng 282-289). Xem hướng dẫn trong file HUONG_DAN_CAU_HINH.md</div>';
                 return;
             }
 
-            commentsList.innerHTML = '';
-            snapshot.forEach((doc) => {
-                const data = doc.data();
-                const commentItem = document.createElement('div');
-                commentItem.className = 'comment-item';
+            try {
+                const commentsRef = collection(db, 'comments');
+                // Try to order by timestamp, if fails, order by createdAt
+                let q;
+                try {
+                    q = query(commentsRef, orderBy('timestamp', 'desc'), limit(100));
+                } catch (e) {
+                    // Fallback to createdAt if timestamp index not available
+                    q = query(commentsRef, orderBy('createdAt', 'desc'), limit(100));
+                }
                 
-                const userName = data.userName || 'Người dùng';
-                const content = data.content || '';
-                const createdAt = data.createdAt || data.timestamp?.toDate?.() || new Date();
-                const date = new Date(createdAt);
-                
-                commentItem.innerHTML = `
-                    <div class="comment-header">
-                        <div class="comment-avatar">${userName.charAt(0).toUpperCase()}</div>
-                        <span class="comment-author">${userName}</span>
-                        <span class="comment-date">${formatDate(date)}</span>
-                    </div>
-                    <div class="comment-content">${escapeHtml(content)}</div>
-                `;
-                
-                commentsList.appendChild(commentItem);
-            });
-        }, (error) => {
-            console.error('Error loading comments:', error);
-            document.getElementById('commentsList').innerHTML = '<div class="error-message">Lỗi khi tải bình luận. Vui lòng kiểm tra cấu hình Firebase.</div>';
-        });
+                onSnapshot(q, (snapshot) => {
+                    commentsList.innerHTML = '';
+                    
+                    if (snapshot.empty) {
+                        commentsList.innerHTML = '<div class="empty-comments">Chưa có bình luận nào. Hãy là người đầu tiên!</div>';
+                        return;
+                    }
+
+                    snapshot.forEach((doc) => {
+                        const data = doc.data();
+                        const commentItem = document.createElement('div');
+                        commentItem.className = 'comment-item';
+                        
+                        const userName = data.userName || 'Người dùng';
+                        const content = data.content || '';
+                        
+                        // Handle date properly
+                        let date = new Date();
+                        if (data.createdAt) {
+                            date = new Date(data.createdAt);
+                        } else if (data.timestamp && data.timestamp.toDate) {
+                            date = data.timestamp.toDate();
+                        } else if (data.timestamp && typeof data.timestamp === 'object' && data.timestamp.seconds) {
+                            date = new Date(data.timestamp.seconds * 1000);
+                        }
+                        
+                        // Validate date
+                        if (isNaN(date.getTime())) {
+                            date = new Date();
+                        }
+                        
+                        commentItem.innerHTML = `
+                            <div class="comment-header">
+                                <div class="comment-avatar">${escapeHtml(userName).charAt(0).toUpperCase()}</div>
+                                <span class="comment-author">${escapeHtml(userName)}</span>
+                                <span class="comment-date">${formatDate(date)}</span>
+                            </div>
+                            <div class="comment-content">${escapeHtml(content)}</div>
+                        `;
+                        
+                        commentsList.appendChild(commentItem);
+                    });
+                }, (error) => {
+                    console.error('Error loading comments:', error);
+                    let errorMsg = 'Lỗi khi tải bình luận: ' + error.message;
+                    if (error.code === 'permission-denied') {
+                        errorMsg = '⚠️ Lỗi quyền truy cập. Vui lòng kiểm tra Firestore Rules trong Firebase Console. Đảm bảo rules cho phép đọc công khai (allow read: if true).';
+                    } else if (error.code === 'failed-precondition') {
+                        errorMsg = '⚠️ Cần tạo index trong Firestore. Vui lòng click vào link trong console để tạo index.';
+                    }
+                    commentsList.innerHTML = `<div class="error-message">${errorMsg}</div>`;
+                });
+            } catch (error) {
+                console.error('Error setting up comments listener:', error);
+                commentsList.innerHTML = '<div class="error-message">Lỗi khi khởi tạo hệ thống bình luận: ' + error.message + '</div>';
+            }
+        }
+
+        // Start loading comments
+        loadComments();
 
         function formatDate(date) {
             const now = new Date();
