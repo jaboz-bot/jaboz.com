@@ -2840,14 +2840,10 @@ function getCoordinatesFromAddress(address) {
 
             document.getElementById('jobLng').value = lng.toFixed(6);
 
-            // Nếu địa chỉ đã nhập có số nhà, ưu tiên hiển thị địa chỉ đã nhập để đảm bảo chính xác
+            // Hiển thị địa chỉ theo cấu trúc Hàn Quốc (từ lớn đến nhỏ)
             let displayAddress = address;
             
-            if (hasHouseNumber) {
-                // Nếu địa chỉ đã nhập chi tiết có số nhà, hiển thị địa chỉ đã nhập
-                displayAddress = address.trim();
-            } else if (result.address) {
-                // Nếu không có số nhà, hiển thị địa chỉ đã được format lại
+            if (result.address) {
                 const addr = result.address;
                 let addressParts = [];
 
@@ -2869,7 +2865,29 @@ function getCoordinatesFromAddress(address) {
 
                 if (addr.road || addr.street) addressParts.push(addr.road || addr.street);
 
-                if (addr.house_number) addressParts.push(addr.house_number);
+                // Ưu tiên hiển thị số nhà từ địa chỉ đã nhập nếu có, nếu không thì dùng từ API
+                if (hasHouseNumber) {
+                    // Lấy số nhà từ địa chỉ đã nhập (tìm số cuối cùng hoặc số sau tên đường)
+                    // Tìm tất cả các số trong địa chỉ
+                    const numbers = address.trim().match(/\d+/g);
+                    let houseNumber = null;
+                    
+                    if (numbers && numbers.length > 0) {
+                        // Ưu tiên số cuối cùng (thường là số nhà)
+                        houseNumber = numbers[numbers.length - 1];
+                    }
+                    
+                    // Nếu có số nhà từ địa chỉ đã nhập, dùng nó
+                    if (houseNumber) {
+                        addressParts.push(houseNumber);
+                    } else if (addr.house_number) {
+                        // Nếu không tìm thấy, dùng từ API
+                        addressParts.push(addr.house_number);
+                    }
+                } else if (addr.house_number) {
+                    // Nếu địa chỉ không có số, dùng từ API nếu có
+                    addressParts.push(addr.house_number);
+                }
 
                 displayAddress = addressParts.length > 0 ? addressParts.join(' - ') : (result.display_name || address);
             } else {
