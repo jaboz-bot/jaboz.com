@@ -1,9 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <title>Đổi Tiền Tệ - JABOZ</title>
     <style>
         * {
@@ -131,6 +132,14 @@
             font-weight: 600;
             text-align: right;
             transition: all 0.3s ease;
+            -webkit-appearance: none;
+            -moz-appearance: textfield;
+        }
+        
+        .amount-input::-webkit-outer-spin-button,
+        .amount-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
         }
         
         .amount-input:focus {
@@ -154,6 +163,8 @@
             margin: 10px auto;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
         
         .swap-button:hover {
@@ -217,6 +228,8 @@
             cursor: pointer;
             transition: all 0.3s ease;
             background: white;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
         
         .currency-item:hover {
@@ -281,21 +294,148 @@
         }
         
         @media (max-width: 600px) {
-            .container {
-                padding: 20px;
+            body {
+                padding: 10px 5px;
             }
             
-            .amount-input {
+            .header {
+                margin-bottom: 20px;
+            }
+            
+            .logo {
+                font-size: 32px;
+                letter-spacing: 2px;
+            }
+            
+            .header h1 {
                 font-size: 20px;
-                padding: 12px;
+                margin-top: 5px;
             }
             
-            .result-amount {
+            .container {
+                padding: 20px 15px;
+                border-radius: 15px;
+                margin-bottom: 80px;
+            }
+            
+            .currency-selector {
+                flex-wrap: wrap;
+                gap: 8px;
+                margin-bottom: 12px;
+            }
+            
+            .flag-select {
+                width: 50px;
+                height: 45px;
+            }
+            
+            .flag-icon {
                 font-size: 28px;
             }
             
+            .currency-code {
+                font-size: 16px;
+                min-width: 50px;
+            }
+            
+            .amount-input {
+                font-size: 18px;
+                padding: 12px 10px;
+                width: 100%;
+                min-width: 0;
+            }
+            
+            .swap-button {
+                width: 45px;
+                height: 45px;
+                font-size: 20px;
+                margin: 8px auto;
+            }
+            
+            .result-box {
+                padding: 15px;
+                margin-top: 15px;
+            }
+            
+            .result-label {
+                font-size: 12px;
+            }
+            
+            .result-amount {
+                font-size: 24px;
+            }
+            
+            .result-rate {
+                font-size: 11px;
+            }
+            
+            .rate-info {
+                padding: 12px;
+                font-size: 12px;
+                margin-top: 15px;
+            }
+            
             .currency-list {
-                grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+                grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+                gap: 8px;
+                margin-top: 15px;
+            }
+            
+            .currency-item {
+                padding: 8px 5px;
+            }
+            
+            .currency-item .flag {
+                font-size: 20px;
+            }
+            
+            .currency-item .code {
+                font-size: 11px;
+            }
+            
+            .back-button {
+                bottom: 10px;
+                padding: 12px 25px;
+                font-size: 14px;
+                border-radius: 20px;
+            }
+        }
+        
+        @media (max-width: 400px) {
+            .logo {
+                font-size: 28px;
+            }
+            
+            .header h1 {
+                font-size: 18px;
+            }
+            
+            .container {
+                padding: 15px 10px;
+            }
+            
+            .currency-selector {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .flag-select {
+                width: 45px;
+                height: 40px;
+            }
+            
+            .currency-code {
+                font-size: 14px;
+            }
+            
+            .amount-input {
+                font-size: 16px;
+                padding: 10px;
+            }
+            
+            .currency-list {
+                grid-template-columns: repeat(auto-fill, minmax(55px, 1fr));
+                gap: 6px;
             }
         }
     </style>
