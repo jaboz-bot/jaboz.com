@@ -118,7 +118,17 @@ th{background:#eaf2f8}
 
 .payday-cell{background:#e8f8ec !important;}
 
-.payday-note{font-size:.6em;color:#e74c3c;font-style:italic;position:absolute;bottom:2px;left:50%;transform:translateX(-50%);max-width:90%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;pointer-events:none;}
+.job-date-cell{background:#fff3e0 !important;}
+
+/* Khi cả ngày trả lương và ngày bắt đầu/kết thúc trùng nhau */
+.payday-cell.job-date-cell{background:#ffeaa7 !important;}
+
+/* Container cho các ghi chú */
+.notes-container{position:absolute;bottom:2px;left:50%;transform:translateX(-50%);max-width:90%;display:flex;flex-direction:column;align-items:center;gap:1px;pointer-events:none;}
+
+.payday-note{font-size:.6em;color:#e74c3c;font-style:italic;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%;text-align:center;}
+
+.job-date-note{font-size:.6em;color:#f57c00;font-style:italic;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%;text-align:center;}
 
 /* Summary + nút máy tính (nút ở giữa dòng cuối) */
 
@@ -406,7 +416,7 @@ table tr td:empty{background-color:#dddddd;cursor:default}
         <div class="input-group">
 
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
-                <label for="jobEndDate" data-i18n="job_end_date" style="margin:0;">Ngày Kết thúc:</label>
+                <label for="jobEndDate" data-i18n="job_end_date" style="margin:0;">Ngày nghỉ việc:</label>
                 <label style="display:flex;align-items:center;margin:0;cursor:pointer;">
                     <input type="checkbox" id="jobIsCurrent" data-i18n-placeholder="job_is_current" style="margin-right:5px;"> 
                     <span data-i18n="job_is_current">Đang làm</span>
@@ -571,13 +581,13 @@ const translations = {
 
         job_start_date: 'Ngày Bắt đầu:',
 
-        job_end_date: 'Ngày Kết thúc:',
+        job_end_date: 'Ngày nghỉ việc:',
 
         job_is_current: 'Đang làm',
 
         alert_job_required: 'Tên và Ngày Bắt đầu là bắt buộc.',
 
-        alert_date_invalid: 'Ngày Kết thúc phải sau hoặc bằng Ngày Bắt đầu.',
+        alert_date_invalid: 'Ngày nghỉ việc phải sau hoặc bằng Ngày Bắt đầu.',
 
         alert_delete_confirm: (name) => `Bạn có chắc chắn muốn xóa nơi làm việc ${name} không? Việc này sẽ xóa tất cả giờ công liên quan!`,
 
@@ -593,9 +603,13 @@ const translations = {
 
         unit_vnd: 'VND',
 
-        payday_note: 'Ngày trả lương',
+        payday_note: 'Trả lương',
 
-        payday_label: '💴 Ngày TL:'
+        payday_label: '💴 Ngày TL:',
+
+        job_start_date_note: 'Bắt đầu',
+
+        job_end_date_note: 'Nghỉ việc'
 
     },
 
@@ -631,13 +645,13 @@ const translations = {
 
         job_start_date: '시작일:',
 
-        job_end_date: '종료일:',
+        job_end_date: '퇴직일:',
 
         job_is_current: '재직 중',
 
         alert_job_required: '이름과 시작일은 필수입니다.',
 
-        alert_date_invalid: '종료일은 시작일과 같거나 그 이후여야 합니다.',
+        alert_date_invalid: '퇴직일은 시작일과 같거나 그 이후여야 합니다.',
 
         alert_delete_confirm: (name) => `정말로 ${name} 직장을 삭제하시겠습니까? 관련 근무 시간이 모두 삭제됩니다!`,
 
@@ -655,7 +669,11 @@ const translations = {
 
         payday_note: '급여일',
 
-        payday_label: '💴 급여일:'
+        payday_label: '💴 급여일:',
+
+        job_start_date_note: '시작일',
+
+        job_end_date_note: '퇴직일'
 
     }
 
@@ -1176,6 +1194,31 @@ function renderCalendar(){
         return true;
     }
 
+    // Hàm kiểm tra ngày có phải ngày bắt đầu hoặc kết thúc của job
+    function isJobDateInRange(dayNum) {
+        if (!job) return null;
+        const checkDate = new Date(currentYear, currentMonth, dayNum);
+        checkDate.setHours(0, 0, 0, 0);
+        
+        const startDate = new Date(job.startDate);
+        startDate.setHours(0, 0, 0, 0);
+        
+        const endDate = job.endDate ? new Date(job.endDate) : null;
+        if (endDate) endDate.setHours(0, 0, 0, 0);
+        
+        // Kiểm tra ngày bắt đầu
+        if (checkDate.getTime() === startDate.getTime()) {
+            return 'start';
+        }
+        
+        // Kiểm tra ngày kết thúc
+        if (endDate && checkDate.getTime() === endDate.getTime()) {
+            return 'end';
+        }
+        
+        return null;
+    }
+
     for (let r=0;r<6;r++){
 
         const tr = document.createElement('tr');
@@ -1216,13 +1259,28 @@ function renderCalendar(){
 
                 td.className = 'day';
 
+                // Thu thập tất cả các ghi chú cần hiển thị
+                const notes = [];
+                
                 // Kiểm tra ngày trả lương cho từng ngày trong tháng
                 if (isPaydayInRange(day)){
-
                     td.classList.add('payday-cell');
+                    notes.push(`<div class="payday-note">${jobNumber}${getTranslation('payday_note')}</div>`);
+                }
 
-                    contentHTML += `<div class="payday-note">${jobNumber}${getTranslation('payday_note')}</div>`;
+                // Kiểm tra ngày bắt đầu và kết thúc của job
+                const jobDateType = isJobDateInRange(day);
+                if (jobDateType === 'start') {
+                    td.classList.add('job-date-cell');
+                    notes.push(`<div class="job-date-note">${jobNumber}${getTranslation('job_start_date_note')}</div>`);
+                } else if (jobDateType === 'end') {
+                    td.classList.add('job-date-cell');
+                    notes.push(`<div class="job-date-note">${jobNumber}${getTranslation('job_end_date_note')}</div>`);
+                }
 
+                // Hiển thị tất cả ghi chú trong container nếu có
+                if (notes.length > 0) {
+                    contentHTML += `<div class="notes-container">${notes.join('')}</div>`;
                 }
 
                 td.innerHTML = contentHTML;
