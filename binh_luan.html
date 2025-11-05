@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bình Luận - Jaboz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #e3f2fd;
+            padding: 20px 10px 100px 10px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo {
+            font-size: 42px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #1976D2 0%, #42A5F5 50%, #66BB6A 100%);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+        }
+        h1 {
+            color: #1976D2;
+            margin-bottom: 20px;
+        }
+        .auth-section {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #1976D2, #42A5F5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .user-name {
+            font-weight: bold;
+            color: #1976D2;
+        }
+        .auth-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, #1976D2, #42A5F5);
+            color: white;
+        }
+        .btn-secondary {
+            background: linear-gradient(45deg, #9C27B0, #7B1FA2);
+            color: white;
+        }
+        .btn-danger {
+            background: linear-gradient(45deg, #F44336, #D32F2F);
+            color: white;
+        }
+        .comment-form {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        .comment-form textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            margin-bottom: 15px;
+        }
+        .comment-form textarea:focus {
+            outline: none;
+            border-color: #1976D2;
+        }
+        .comment-form button {
+            padding: 12px 30px;
+            background: linear-gradient(45deg, #4CAF50, #388E3C);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .comment-form button:hover {
+            transform: translateY(-2px);
+        }
+        .comment-form button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .comments-section {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .comments-title {
+            font-size: 24px;
+            color: #1976D2;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        .comment-item {
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 15px;
+        }
+        .comment-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        .comment-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+        .comment-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #1976D2, #42A5F5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .comment-author {
+            font-weight: bold;
+            color: #1976D2;
+        }
+        .comment-date {
+            color: #757575;
+            font-size: 14px;
+            margin-left: auto;
+        }
+        .comment-content {
+            color: #424242;
+            line-height: 1.6;
+            margin-top: 10px;
+            padding-left: 47px;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #757575;
+        }
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #c62828;
+        }
+        .success-message {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #2e7d32;
+        }
+        .empty-comments {
+            text-align: center;
+            padding: 40px;
+            color: #757575;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #1976D2;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .spam-warning {
+            background: #fff3e0;
+            color: #e65100;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            border-left: 4px solid #e65100;
+        }
+        @media (max-width: 600px) {
+            .auth-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .user-info {
+                justify-content: center;
+            }
+            .auth-buttons {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← Quay lại trang chủ</a>
+        
+        <div class="header">
+            <div class="logo">JABOZ</div>
+            <h1>💬 Bình Luận</h1>
+        </div>
+
+        <div class="auth-section" id="authSection">
+            <div class="user-info" id="userInfo" style="display: none;">
+                <div class="user-avatar" id="userAvatar"></div>
+                <span class="user-name" id="userName"></span>
+            </div>
+            <div class="auth-buttons" id="authButtons">
+                <button class="btn btn-primary" onclick="showLogin()">Đăng Nhập</button>
+                <button class="btn btn-secondary" onclick="showRegister()">Đăng Ký</button>
+            </div>
+        </div>
+
+        <div id="messageArea"></div>
+
+        <div class="comment-form" id="commentForm" style="display: none;">
+            <h3>Viết bình luận</h3>
+            <textarea id="commentText" placeholder="Nhập bình luận của bạn..."></textarea>
+            <button onclick="submitComment()">Gửi Bình Luận</button>
+        </div>
+
+        <div class="comments-section">
+            <h2 class="comments-title">Bình Luận Công Khai</h2>
+            <div id="commentsList">
+                <div class="loading">Đang tải bình luận...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, limit } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        // Firebase configuration - THAY ĐỔI THÔNG TIN NÀY VỚI THÔNG TIN CỦA BẠN
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Bad words filter (Vietnamese)
+        const badWords = [
+            'địt', 'đụ', 'đéo', 'đm', 'đù', 'đmm', 'đcm', 'đkm', 'đmm', 'đcm',
+            'fuck', 'shit', 'damn', 'bitch', 'asshole', 'cunt',
+            'spam', 'click here', 'buy now', 'free money'
+        ];
+
+        function containsBadWords(text) {
+            const lowerText = text.toLowerCase();
+            return badWords.some(word => lowerText.includes(word));
+        }
+
+        function detectSpam(text) {
+            // Check for spam patterns
+            const spamPatterns = [
+                /http[s]?:\/\/[^\s]+/g, // URLs
+                /[A-Z]{5,}/g, // Too many caps
+                /(.)\1{4,}/g, // Repeated characters
+                /.{200,}/g // Too long
+            ];
+            
+            let spamScore = 0;
+            spamPatterns.forEach(pattern => {
+                if (pattern.test(text)) spamScore++;
+            });
+            
+            return spamScore >= 2 || text.length > 500;
+        }
+
+        // Rate limiting
+        let lastCommentTime = 0;
+        const MIN_COMMENT_INTERVAL = 30000; // 30 seconds
+
+        // Auth state listener
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                showUserInfo(user);
+            } else {
+                showAuthButtons();
+            }
+        });
+
+        function showUserInfo(user) {
+            document.getElementById('userInfo').style.display = 'flex';
+            document.getElementById('commentForm').style.display = 'block';
+            
+            const userName = user.displayName || user.email.split('@')[0];
+            document.getElementById('userName').textContent = userName;
+            document.getElementById('userAvatar').textContent = userName.charAt(0).toUpperCase();
+            
+            // Show logout button instead of login/register buttons
+            const authButtons = document.getElementById('authButtons');
+            authButtons.innerHTML = '<button class="btn btn-danger" onclick="logout()">Đăng Xuất</button>';
+            authButtons.style.display = 'flex';
+        }
+
+        function showAuthButtons() {
+            document.getElementById('userInfo').style.display = 'none';
+            document.getElementById('commentForm').style.display = 'none';
+            
+            // Restore login/register buttons
+            const authButtons = document.getElementById('authButtons');
+            authButtons.innerHTML = `
+                <button class="btn btn-primary" onclick="showLogin()">Đăng Nhập</button>
+                <button class="btn btn-secondary" onclick="showRegister()">Đăng Ký</button>
+            `;
+            authButtons.style.display = 'flex';
+        }
+
+        window.showLogin = function() {
+            const email = prompt('Nhập email của bạn:');
+            if (!email) return;
+            
+            const password = prompt('Nhập mật khẩu:');
+            if (!password) return;
+
+            signInWithEmailAndPassword(auth, email, password)
+                .then(() => {
+                    showMessage('Đăng nhập thành công!', 'success');
+                })
+                .catch((error) => {
+                    showMessage('Lỗi đăng nhập: ' + error.message, 'error');
+                });
+        };
+
+        window.showRegister = function() {
+            const email = prompt('Nhập email của bạn:');
+            if (!email) return;
+            
+            const password = prompt('Nhập mật khẩu (ít nhất 6 ký tự):');
+            if (!password || password.length < 6) {
+                showMessage('Mật khẩu phải có ít nhất 6 ký tự!', 'error');
+                return;
+            }
+
+            createUserWithEmailAndPassword(auth, email, password)
+                .then(() => {
+                    showMessage('Đăng ký thành công!', 'success');
+                })
+                .catch((error) => {
+                    showMessage('Lỗi đăng ký: ' + error.message, 'error');
+                });
+        };
+
+        window.logout = function() {
+            signOut(auth)
+                .then(() => {
+                    showMessage('Đã đăng xuất!', 'success');
+                })
+                .catch((error) => {
+                    showMessage('Lỗi đăng xuất: ' + error.message, 'error');
+                });
+        };
+
+        window.submitComment = async function() {
+            const user = auth.currentUser;
+            if (!user) {
+                showMessage('Vui lòng đăng nhập để bình luận!', 'error');
+                return;
+            }
+
+            const commentText = document.getElementById('commentText').value.trim();
+            
+            if (!commentText) {
+                showMessage('Vui lòng nhập nội dung bình luận!', 'error');
+                return;
+            }
+
+            // Check rate limiting
+            const now = Date.now();
+            if (now - lastCommentTime < MIN_COMMENT_INTERVAL) {
+                const remaining = Math.ceil((MIN_COMMENT_INTERVAL - (now - lastCommentTime)) / 1000);
+                showMessage(`Vui lòng đợi ${remaining} giây trước khi bình luận tiếp!`, 'error');
+                return;
+            }
+
+            // Check bad words
+            if (containsBadWords(commentText)) {
+                showMessage('Bình luận chứa từ ngữ không phù hợp!', 'error');
+                return;
+            }
+
+            // Check spam
+            if (detectSpam(commentText)) {
+                showMessage('Bình luận của bạn bị phát hiện là spam!', 'error');
+                return;
+            }
+
+            try {
+                const userName = user.displayName || user.email.split('@')[0];
+                
+                await addDoc(collection(db, 'comments'), {
+                    userId: user.uid,
+                    userName: userName,
+                    userEmail: user.email,
+                    content: commentText,
+                    timestamp: serverTimestamp(),
+                    createdAt: new Date().toISOString()
+                });
+
+                document.getElementById('commentText').value = '';
+                lastCommentTime = now;
+                showMessage('Bình luận đã được gửi thành công!', 'success');
+            } catch (error) {
+                showMessage('Lỗi khi gửi bình luận: ' + error.message, 'error');
+            }
+        };
+
+        function showMessage(message, type) {
+            const messageArea = document.getElementById('messageArea');
+            messageArea.innerHTML = `<div class="${type === 'success' ? 'success-message' : 'error-message'}">${message}</div>`;
+            setTimeout(() => {
+                messageArea.innerHTML = '';
+            }, 5000);
+        }
+
+        // Load comments
+        const commentsRef = collection(db, 'comments');
+        const q = query(commentsRef, orderBy('timestamp', 'desc'), limit(100));
+        
+        onSnapshot(q, (snapshot) => {
+            const commentsList = document.getElementById('commentsList');
+            
+            if (snapshot.empty) {
+                commentsList.innerHTML = '<div class="empty-comments">Chưa có bình luận nào. Hãy là người đầu tiên!</div>';
+                return;
+            }
+
+            commentsList.innerHTML = '';
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                const commentItem = document.createElement('div');
+                commentItem.className = 'comment-item';
+                
+                const userName = data.userName || 'Người dùng';
+                const content = data.content || '';
+                const createdAt = data.createdAt || data.timestamp?.toDate?.() || new Date();
+                const date = new Date(createdAt);
+                
+                commentItem.innerHTML = `
+                    <div class="comment-header">
+                        <div class="comment-avatar">${userName.charAt(0).toUpperCase()}</div>
+                        <span class="comment-author">${userName}</span>
+                        <span class="comment-date">${formatDate(date)}</span>
+                    </div>
+                    <div class="comment-content">${escapeHtml(content)}</div>
+                `;
+                
+                commentsList.appendChild(commentItem);
+            });
+        }, (error) => {
+            console.error('Error loading comments:', error);
+            document.getElementById('commentsList').innerHTML = '<div class="error-message">Lỗi khi tải bình luận. Vui lòng kiểm tra cấu hình Firebase.</div>';
+        });
+
+        function formatDate(date) {
+            const now = new Date();
+            const diff = now - date;
+            const seconds = Math.floor(diff / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const hours = Math.floor(minutes / 60);
+            const days = Math.floor(hours / 24);
+
+            if (seconds < 60) return 'Vừa xong';
+            if (minutes < 60) return `${minutes} phút trước`;
+            if (hours < 24) return `${hours} giờ trước`;
+            if (days < 7) return `${days} ngày trước`;
+            
+            return date.toLocaleDateString('vi-VN', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
+
