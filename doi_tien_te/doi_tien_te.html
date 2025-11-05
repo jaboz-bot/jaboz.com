@@ -58,11 +58,13 @@
         .container {
             background: white;
             border-radius: 20px;
-            padding: 30px;
+            padding: 25px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             max-width: 500px;
             width: 100%;
             margin-bottom: 20px;
+            box-sizing: border-box;
+            overflow-x: hidden;
         }
         
         .exchange-box {
@@ -72,14 +74,17 @@
         .currency-selector {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             margin-bottom: 12px;
+            flex-wrap: nowrap;
+            width: 100%;
+            max-width: 100%;
         }
         
         .flag-select {
             position: relative;
-            width: 50px;
-            height: 45px;
+            width: 45px;
+            height: 42px;
             border-radius: 8px;
             overflow: hidden;
             cursor: pointer;
@@ -103,27 +108,25 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 32px;
+            font-size: 28px;
             pointer-events: none;
             z-index: 10;
         }
         
         
         .currency-code {
-            font-weight: bold;
-            color: #333;
-            font-size: 16px;
-            min-width: 50px;
-            flex-shrink: 0;
+            display: none;
         }
         
         .currency-select {
-            flex: 1;
-            min-width: 120px;
-            padding: 10px 12px;
+            flex: 0 1 auto;
+            min-width: 0;
+            max-width: 180px;
+            width: 100%;
+            padding: 8px 10px;
             border: 2px solid #e0e0e0;
             border-radius: 8px;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 600;
             background: white;
             cursor: pointer;
@@ -131,10 +134,13 @@
             appearance: none;
             -webkit-appearance: none;
             -moz-appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
-            background-position: right 10px center;
-            padding-right: 35px;
+            background-position: right 8px center;
+            padding-right: 30px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         
         .currency-select:focus {
@@ -148,16 +154,20 @@
         }
         
         .amount-input {
-            flex: 1;
-            padding: 12px;
+            flex: 1 1 auto;
+            min-width: 0;
+            max-width: 100%;
+            padding: 8px 10px;
             border: 2px solid #e0e0e0;
             border-radius: 8px;
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 600;
             text-align: right;
             transition: all 0.3s ease;
             -webkit-appearance: none;
             -moz-appearance: textfield;
+            width: 100%;
+            box-sizing: border-box;
         }
         
         .amount-input::-webkit-outer-spin-button,
@@ -343,30 +353,37 @@
             }
             
             .currency-selector {
-                flex-wrap: wrap;
-                gap: 8px;
-                margin-bottom: 12px;
+                flex-wrap: nowrap;
+                gap: 5px;
+                margin-bottom: 10px;
             }
             
             .flag-select {
-                width: 50px;
-                height: 45px;
+                width: 40px;
+                height: 38px;
+                flex-shrink: 0;
             }
             
             .flag-icon {
-                font-size: 28px;
+                font-size: 24px;
             }
             
             .currency-code {
-                font-size: 16px;
-                min-width: 50px;
+                display: none;
+            }
+            
+            .currency-select {
+                max-width: 140px;
+                font-size: 13px;
+                padding: 7px 8px;
+                padding-right: 25px;
             }
             
             .amount-input {
-                font-size: 18px;
-                padding: 12px 10px;
-                width: 100%;
+                font-size: 16px;
+                padding: 7px 8px;
                 min-width: 0;
+                flex: 1 1 auto;
             }
             
             .swap-button {
@@ -439,22 +456,33 @@
             }
             
             .currency-selector {
-                flex-direction: column;
-                align-items: stretch;
+                flex-wrap: nowrap;
+                gap: 4px;
             }
             
             .flag-select {
-                width: 45px;
-                height: 40px;
+                width: 38px;
+                height: 36px;
+            }
+            
+            .flag-icon {
+                font-size: 22px;
             }
             
             .currency-code {
-                font-size: 14px;
+                display: none;
+            }
+            
+            .currency-select {
+                max-width: 120px;
+                font-size: 12px;
+                padding: 6px 7px;
+                padding-right: 22px;
             }
             
             .amount-input {
-                font-size: 16px;
-                padding: 10px;
+                font-size: 15px;
+                padding: 6px 7px;
             }
             
             .currency-list {
