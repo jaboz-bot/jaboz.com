@@ -2425,29 +2425,105 @@ document.getElementById('getCurrentLocation').onclick = () => {
 
     if (!navigator.geolocation) {
 
-        alert('Trình duyệt của bạn không hỗ trợ GPS');
+        alert('Trình duyệt của bạn không hỗ trợ GPS. Vui lòng sử dụng trình duyệt khác hoặc cập nhật trình duyệt.');
 
         return;
 
     }
 
+    // Hiển thị thông báo đang lấy vị trí
+
+    const btn = document.getElementById('getCurrentLocation');
+
+    const originalText = btn.textContent;
+
+    btn.textContent = 'Đang lấy vị trí...';
+
+    btn.disabled = true;
+
     navigator.geolocation.getCurrentPosition(
 
         (position) => {
 
-            document.getElementById('jobLat').value = position.coords.latitude.toFixed(6);
+            // Lấy vị trí thành công
 
-            document.getElementById('jobLng').value = position.coords.longitude.toFixed(6);
+            const lat = position.coords.latitude.toFixed(6);
+
+            const lng = position.coords.longitude.toFixed(6);
+
+            document.getElementById('jobLat').value = lat;
+
+            document.getElementById('jobLng').value = lng;
+
+            // Khôi phục nút
+
+            btn.textContent = originalText;
+
+            btn.disabled = false;
+
+            // Hiển thị thông báo thành công
+
+            alert(`Đã lấy vị trí thành công!\nVĩ độ: ${lat}\nKinh độ: ${lng}`);
+
+            console.log('Vị trí đã được lấy:', lat, lng);
 
         },
 
         (error) => {
 
-            alert('Không thể lấy vị trí: ' + error.message);
+            // Xử lý lỗi
+
+            let errorMsg = 'Không thể lấy vị trí: ';
+
+            switch(error.code) {
+
+                case error.PERMISSION_DENIED:
+
+                    errorMsg = 'Bạn đã từ chối quyền truy cập vị trí.\n\nVui lòng:\n1. Bật GPS trên thiết bị\n2. Cho phép trình duyệt truy cập vị trí trong cài đặt trình duyệt\n3. Thử lại';
+
+                    break;
+
+                case error.POSITION_UNAVAILABLE:
+
+                    errorMsg = 'Thông tin vị trí không khả dụng.\n\nVui lòng:\n1. Bật GPS trên thiết bị\n2. Đảm bảo bạn đang ở nơi có tín hiệu GPS tốt\n3. Thử lại';
+
+                    break;
+
+                case error.TIMEOUT:
+
+                    errorMsg = 'Yêu cầu vị trí đã hết thời gian chờ.\n\nVui lòng:\n1. Đảm bảo GPS đã được bật\n2. Kiểm tra kết nối mạng\n3. Thử lại';
+
+                    break;
+
+                default:
+
+                    errorMsg = 'Lỗi không xác định: ' + error.message + '\n\nVui lòng thử lại sau khi đảm bảo GPS đã được bật.';
+
+                    break;
+
+            }
+
+            alert(errorMsg);
+
+            console.error('GPS Error:', error);
+
+            // Khôi phục nút
+
+            btn.textContent = originalText;
+
+            btn.disabled = false;
 
         },
 
-        { enableHighAccuracy: true, timeout: 10000 }
+        { 
+
+            enableHighAccuracy: true, 
+
+            timeout: 15000,
+
+            maximumAge: 0  // Luôn lấy vị trí mới nhất
+
+        }
 
     );
 
