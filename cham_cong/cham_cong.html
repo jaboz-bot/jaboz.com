@@ -2867,14 +2867,33 @@ function getCoordinatesFromAddress(address) {
 
                 // Ưu tiên hiển thị số nhà từ địa chỉ đã nhập nếu có, nếu không thì dùng từ API
                 if (hasHouseNumber) {
-                    // Lấy số nhà từ địa chỉ đã nhập (tìm số cuối cùng hoặc số sau tên đường)
-                    // Tìm tất cả các số trong địa chỉ
-                    const numbers = address.trim().match(/\d+/g);
+                    // Lấy số nhà từ địa chỉ đã nhập (có thể là dạng "29-9" hoặc số thường)
+                    // Tìm số nhà ở cuối địa chỉ (có thể có dấu gạch ngang)
                     let houseNumber = null;
+                    const addressTrimmed = address.trim();
                     
-                    if (numbers && numbers.length > 0) {
-                        // Ưu tiên số cuối cùng (thường là số nhà)
-                        houseNumber = numbers[numbers.length - 1];
+                    // Tìm số nhà dạng Hàn Quốc (có thể có dấu gạch ngang, ví dụ: 29-9, 123-45)
+                    // Ưu tiên tìm số nhà ở cuối địa chỉ trước
+                    const koreanHouseNumberPatternEnd = /(\d+-\d+)\s*$/;
+                    let koreanMatch = addressTrimmed.match(koreanHouseNumberPatternEnd);
+                    
+                    if (koreanMatch) {
+                        // Tìm thấy số nhà dạng Hàn Quốc ở cuối (ví dụ: 29-9)
+                        houseNumber = koreanMatch[1];
+                    } else {
+                        // Nếu không tìm thấy ở cuối, tìm bất kỳ đâu trong địa chỉ
+                        const koreanHouseNumberPatternAny = /\d+-\d+/;
+                        koreanMatch = addressTrimmed.match(koreanHouseNumberPatternAny);
+                        if (koreanMatch) {
+                            houseNumber = koreanMatch[0];
+                        } else {
+                            // Nếu không tìm thấy dạng số-số, tìm số cuối cùng trong địa chỉ
+                            const numbers = addressTrimmed.match(/\d+/g);
+                            if (numbers && numbers.length > 0) {
+                                // Lấy số cuối cùng (thường là số nhà)
+                                houseNumber = numbers[numbers.length - 1];
+                            }
+                        }
                     }
                     
                     // Nếu có số nhà từ địa chỉ đã nhập, dùng nó
