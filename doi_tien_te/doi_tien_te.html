@@ -182,17 +182,9 @@
             font-weight: 600;
             text-align: right;
             transition: all 0.3s ease;
-            -webkit-appearance: none;
-            -moz-appearance: textfield;
             width: 100%;
             box-sizing: border-box;
             min-height: 50px;
-        }
-        
-        .amount-input::-webkit-outer-spin-button,
-        .amount-input::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
         }
         
         .amount-input:focus {
@@ -517,7 +509,7 @@
     <div class="container">
         <div class="exchange-box">
             <div class="currency-selector">
-                <input type="number" class="amount-input" id="fromAmount" value="1" placeholder="0" min="0" step="0.01">
+                <input type="text" class="amount-input" id="fromAmount" value="1" placeholder="0" inputmode="numeric">
                 <div class="currency-flag-select">
                     <div class="flag-select" id="fromFlag" data-type="from">
                         <div class="flag-icon" id="fromFlagIcon">🇺🇸</div>
@@ -543,7 +535,7 @@
             </div>
             
             <div class="currency-selector">
-                <input type="number" class="amount-input" id="toAmount" value="" placeholder="0" readonly>
+                <input type="text" class="amount-input" id="toAmount" value="" placeholder="0" readonly>
                 <div class="currency-flag-select">
                     <div class="flag-select" id="toFlag" data-type="to">
                         <div class="flag-icon" id="toFlagIcon">🇻🇳</div>
@@ -669,7 +661,7 @@
         function convert() {
             const from = fromCurrency.value;
             const to = toCurrency.value;
-            const amount = parseFloat(fromAmount.value) || 0;
+            const amount = parseAmount(fromAmount.value);
             
             if (amount <= 0) {
                 toAmount.value = '';
@@ -690,7 +682,7 @@
             const decimals = to === 'JPY' || to === 'KRW' || to === 'VND' || to === 'IDR' ? 0 : 2;
             const formattedResult = result.toFixed(decimals);
             
-            toAmount.value = formattedResult;
+            toAmount.value = formatAmountInput(formattedResult);
             
             // Hiển thị kết quả
             resultBox.style.display = 'block';
@@ -704,7 +696,7 @@
             updateRateInfo();
         }
         
-        // Định dạng số
+        // Định dạng số với dấu chấm ngăn cách
         function formatNumber(num) {
             const numStr = num.toString();
             if (numStr.includes('.')) {
@@ -712,6 +704,65 @@
                 return parseInt(intPart).toLocaleString('vi-VN') + '.' + decPart;
             }
             return parseInt(numStr).toLocaleString('vi-VN');
+        }
+        
+        // Format số tiền khi nhập (thêm dấu chấm ngăn cách)
+        function formatAmountInput(value) {
+            // Loại bỏ tất cả ký tự không phải số và dấu chấm/phẩy
+            let cleanValue = value.replace(/[^\d.,]/g, '');
+            
+            // Nếu rỗng, trả về rỗng
+            if (!cleanValue) return '';
+            
+            // Chuyển dấu phẩy thành dấu chấm
+            cleanValue = cleanValue.replace(',', '.');
+            
+            // Tìm dấu chấm cuối cùng (dấu chấm thập phân)
+            const lastDotIndex = cleanValue.lastIndexOf('.');
+            
+            let intPart = '';
+            let decPart = '';
+            
+            if (lastDotIndex !== -1) {
+                // Có dấu chấm thập phân
+                intPart = cleanValue.substring(0, lastDotIndex).replace(/\./g, '');
+                decPart = cleanValue.substring(lastDotIndex + 1);
+            } else {
+                // Không có dấu chấm thập phân
+                intPart = cleanValue.replace(/\./g, '');
+            }
+            
+            // Format phần nguyên với dấu chấm ngăn cách (mỗi 3 số)
+            const formattedInt = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            
+            // Nếu có phần thập phân, thêm vào
+            if (decPart) {
+                return formattedInt + '.' + decPart;
+            }
+            
+            return formattedInt;
+        }
+        
+        // Parse số từ string có dấu chấm
+        function parseAmount(value) {
+            if (!value) return 0;
+            
+            // Tìm dấu chấm cuối cùng (dấu chấm thập phân)
+            const lastDotIndex = value.lastIndexOf('.');
+            
+            let intPart = '';
+            let decPart = '';
+            
+            if (lastDotIndex !== -1) {
+                // Có dấu chấm thập phân
+                intPart = value.substring(0, lastDotIndex).replace(/\./g, '');
+                decPart = value.substring(lastDotIndex + 1);
+                return parseFloat(intPart + '.' + decPart) || 0;
+            } else {
+                // Không có dấu chấm thập phân - chỉ loại bỏ dấu chấm ngăn cách
+                const cleanValue = value.replace(/\./g, '').replace(',', '.');
+                return parseFloat(cleanValue) || 0;
+            }
         }
         
         // Cập nhật thông tin tỷ giá
@@ -742,9 +793,89 @@
             convert();
         });
         
-        fromAmount.addEventListener('input', convert);
+        // Format số tiền khi nhập
+        fromAmount.addEventListener('input', (e) => {
+            const cursorPosition = e.target.selectionStart;
+            const oldValue = e.target.value;
+            
+            // Đếm số ký tự số trước vị trí con trỏ (không tính dấu chấm)
+            const digitsBeforeCursor = (oldValue.substring(0, cursorPosition).match(/\d/g) || []).length;
+            
+            const formattedValue = formatAmountInput(e.target.value);
+            e.target.value = formattedValue;
+            
+            // Tìm vị trí con trỏ mới dựa trên số ký tự số
+            let newCursorPosition = 0;
+            let digitCount = 0;
+            
+            // Tìm vị trí dấu chấm thập phân (nếu có)
+            const lastDotIndex = formattedValue.lastIndexOf('.');
+            const hasDecimal = lastDotIndex !== -1 && lastDotIndex < formattedValue.length - 1;
+            
+            if (hasDecimal) {
+                // Có phần thập phân
+                const intPart = formattedValue.substring(0, lastDotIndex);
+                const decPart = formattedValue.substring(lastDotIndex + 1);
+                
+                // Đếm số ký tự số trong phần nguyên
+                const intDigits = intPart.replace(/\./g, '').length;
+                
+                if (digitsBeforeCursor <= intDigits) {
+                    // Con trỏ ở phần nguyên
+                    let count = 0;
+                    for (let i = 0; i < intPart.length; i++) {
+                        if (/\d/.test(intPart[i])) {
+                            count++;
+                            if (count === digitsBeforeCursor) {
+                                newCursorPosition = i + 1;
+                                break;
+                            }
+                        }
+                    }
+                    if (count < digitsBeforeCursor) {
+                        newCursorPosition = intPart.length;
+                    }
+                } else {
+                    // Con trỏ ở phần thập phân
+                    newCursorPosition = lastDotIndex + 1 + (digitsBeforeCursor - intDigits);
+                }
+            } else {
+                // Không có phần thập phân
+                let count = 0;
+                for (let i = 0; i < formattedValue.length; i++) {
+                    if (/\d/.test(formattedValue[i])) {
+                        count++;
+                        if (count === digitsBeforeCursor) {
+                            newCursorPosition = i + 1;
+                            break;
+                        }
+                    }
+                }
+                if (count < digitsBeforeCursor) {
+                    newCursorPosition = formattedValue.length;
+                }
+            }
+            
+            // Giữ vị trí con trỏ sau khi format
+            setTimeout(() => {
+                e.target.setSelectionRange(newCursorPosition, newCursorPosition);
+            }, 0);
+            
+            convert();
+        });
         
-        // Khởi tạo
+        // Format khi paste
+        fromAmount.addEventListener('paste', (e) => {
+            e.preventDefault();
+            const paste = (e.clipboardData || window.clipboardData).getData('text');
+            const formattedValue = formatAmountInput(paste);
+            fromAmount.value = formattedValue;
+            convert();
+        });
+        
+        // Khởi tạo - format số tiền ban đầu
+        fromAmount.value = formatAmountInput(fromAmount.value);
+        
         updateFlagIcon('from');
         updateFlagIcon('to');
         createCurrencyList();
