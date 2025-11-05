@@ -112,6 +112,10 @@
             background: rgba(240, 248, 255, 0.95);
             padding: 10px 0;
             box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
         }
         .settings-link {
             background: linear-gradient(45deg, #9C27B0, #7B1FA2);
@@ -131,19 +135,16 @@
              box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         }
         .visitor-counter {
-            margin-top: 20px;
-            padding: 15px 25px;
-            background: linear-gradient(45deg, #00BCD4, #0097A7);
-            border-radius: 10px;
-            color: white;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            font-size: 16px;
+            margin-top: 0;
+            padding: 5px;
+            color: #1976D2;
+            font-size: 14px;
             display: inline-flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
         .visitor-counter .counter-number {
-            font-size: 24px;
+            font-size: 14px;
             font-weight: bold;
         }
     </style>
@@ -168,14 +169,14 @@
             </a>
             
         </div>
-        <div class="visitor-counter">
-            <span>👥 Lượt truy cập:</span>
-            <span class="counter-number" id="visitorCount">0</span>
-        </div>
     </div>
 
 <div class="settings-area">
     <button class="settings-link" id="installButton">📲 Trang Chủ</button>
+    <div class="visitor-counter">
+        <span>👥 Lượt truy cập:</span>
+        <span class="counter-number" id="visitorCount">0</span>
+    </div>
 </div>
 
 <script>
