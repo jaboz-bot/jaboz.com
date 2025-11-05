@@ -50,6 +50,10 @@ html,body{height:100%;margin:0;font-family:Arial,sans-serif;background:#f6f8f9}
 
 .lang-toggle-btn { background:#f1c40f; color:#333; font-size:.9em; padding:8px 12px; }
 
+.auto-checkin-btn { background:#3498db; color:#fff; font-size:.9em; padding:8px 12px; }
+
+.auto-checkin-btn.active { background:#27ae60; }
+
 /* CSS CHO CAROUSEL */
 
 #jobCarousel {
@@ -275,6 +279,8 @@ table tr td:empty{background-color:#dddddd;cursor:default}
 
             <button class="add-job-btn" id="openJobModal" data-i18n="manage_jobs">➕ Quản lý Nơi làm việc</button>
 
+            <button class="auto-checkin-btn" id="toggleAutoCheckin" data-i18n="auto_checkin">📍 Chấm công tự động</button>
+
         </div>
 
         <button class="lang-toggle-btn" id="langToggle">🇰🇷 Korean</button>
@@ -434,6 +440,26 @@ table tr td:empty{background-color:#dddddd;cursor:default}
             <label for="jobPayday" data-i18n="job_payday_label">Ngày trả lương (1-31):</label>
 
             <input type="number" id="jobPayday" min="1" max="31" data-i18n-placeholder="job_payday_placeholder" placeholder="VD: 10">
+
+        </div>
+
+        <div class="input-group">
+
+            <label data-i18n="gps_location">📍 Vị trí GPS (cho chấm công tự động):</label>
+
+            <div style="display:flex;gap:5px;margin-bottom:5px;">
+
+                <input type="number" id="jobLat" step="any" data-i18n-placeholder="gps_lat_placeholder" placeholder="Vĩ độ (Lat)" style="flex:1;">
+
+                <input type="number" id="jobLng" step="any" data-i18n-placeholder="gps_lng_placeholder" placeholder="Kinh độ (Lng)" style="flex:1;">
+
+                <button type="button" id="getCurrentLocation" style="padding:8px 12px;background:#3498db;color:#fff;border:none;border-radius:5px;cursor:pointer;white-space:nowrap;" data-i18n="get_location">Lấy vị trí</button>
+
+            </div>
+
+            <input type="number" id="jobRadius" min="10" max="1000" value="100" data-i18n-placeholder="gps_radius_placeholder" placeholder="Bán kính (mét)" style="width:100%;">
+
+            <small style="color:#7f8c8d;font-size:0.85em;" data-i18n="gps_radius_hint">Bán kính cho phép chấm công tự động (mét). Mặc định: 100m</small>
 
         </div>
 
@@ -629,7 +655,27 @@ const translations = {
 
         payday_notice: 'Vui lòng nhập ngày trả lương để có thu nhập chính xác',
 
-        hours_unit: 'GIỜ'
+        hours_unit: 'GIỜ',
+
+        auto_checkin: '📍 Chấm công tự động',
+
+        gps_location: '📍 Vị trí GPS (cho chấm công tự động):',
+
+        gps_lat_placeholder: 'Vĩ độ (Lat)',
+
+        gps_lng_placeholder: 'Kinh độ (Lng)',
+
+        get_location: 'Lấy vị trí',
+
+        gps_radius_placeholder: 'Bán kính (mét)',
+
+        gps_radius_hint: 'Bán kính cho phép chấm công tự động (mét). Mặc định: 100m',
+
+        notification_checkin: '✅ Đã tự động chấm công vào',
+
+        notification_checkout: '✅ Đã tự động chấm công ra',
+
+        notification_welcome: 'Chào mừng bạn! Chấm công tự động đang hoạt động.'
 
     },
 
@@ -711,7 +757,27 @@ const translations = {
 
         payday_notice: '정확한 수입을 위해 급여일을 입력해주세요',
 
-        hours_unit: '시간'
+        hours_unit: '시간',
+
+        auto_checkin: '📍 자동 출퇴근',
+
+        gps_location: '📍 GPS 위치 (자동 출퇴근용):',
+
+        gps_lat_placeholder: '위도 (Lat)',
+
+        gps_lng_placeholder: '경도 (Lng)',
+
+        get_location: '위치 가져오기',
+
+        gps_radius_placeholder: '반경 (미터)',
+
+        gps_radius_hint: '자동 출퇴근 허용 반경 (미터). 기본값: 100m',
+
+        notification_checkin: '✅ 자동 출근 기록됨',
+
+        notification_checkout: '✅ 자동 퇴근 기록됨',
+
+        notification_welcome: '환영합니다! 자동 출퇴근이 활성화되어 있습니다.'
 
     }
 
@@ -924,6 +990,12 @@ function openJobModal(jobId = null){
 
         document.getElementById('jobPayday').value = (job.payday ?? '');
 
+        set('jobLat', job.lat);
+
+        set('jobLng', job.lng);
+
+        set('jobRadius', job.radius || 100);
+
     } else {
 
         set('jobName',''); set('jobAddress','');
@@ -937,6 +1009,10 @@ function openJobModal(jobId = null){
         document.getElementById('jobEndDate').disabled = true;
 
         document.getElementById('jobPayday').value = '';
+
+        set('jobLat',''); set('jobLng','');
+
+        set('jobRadius', 100);
 
     }
 
@@ -958,6 +1034,18 @@ document.getElementById('saveJob').onclick = () => {
 
     const payday = paydayRaw ? Math.max(1, Math.min(31, parseInt(paydayRaw,10))) : null;
 
+    const latRaw = document.getElementById('jobLat').value.trim();
+
+    const lngRaw = document.getElementById('jobLng').value.trim();
+
+    const radiusRaw = document.getElementById('jobRadius').value.trim();
+
+    const lat = latRaw ? parseFloat(latRaw) : null;
+
+    const lng = lngRaw ? parseFloat(lngRaw) : null;
+
+    const radius = radiusRaw ? Math.max(10, Math.min(1000, parseInt(radiusRaw,10))) : 100;
+
     if (!name || !startDate) return alert(getTranslation('alert_job_required'));
 
     if (!isCurrent && endDate && new Date(startDate) > new Date(endDate)) return alert(getTranslation('alert_date_invalid'));
@@ -966,11 +1054,11 @@ document.getElementById('saveJob').onclick = () => {
 
         const i = jobs.findIndex(j=>j.id===editingJobId);
 
-        if (i !== -1) jobs[i] = { id: editingJobId, name, address, startDate, endDate, isCurrent, payday };
+        if (i !== -1) jobs[i] = { id: editingJobId, name, address, startDate, endDate, isCurrent, payday, lat, lng, radius };
 
     } else {
 
-        jobs.push({ id: Date.now().toString(), name, address, startDate, endDate, isCurrent, payday });
+        jobs.push({ id: Date.now().toString(), name, address, startDate, endDate, isCurrent, payday, lat, lng, radius });
 
     }
 
@@ -1654,6 +1742,296 @@ document.getElementById('monthYear').onclick = () => {
     renderCalendar();
 };
 
+// GPS Auto Check-in
+
+let autoCheckinEnabled = JSON.parse(localStorage.getItem('autoCheckinEnabled') || 'false');
+
+let gpsWatchId = null;
+
+let lastCheckinStatus = null; // 'in' or 'out' or null
+
+// Tính khoảng cách giữa 2 điểm GPS (Haversine formula)
+
+function getDistance(lat1, lng1, lat2, lng2) {
+
+    const R = 6371000; // Bán kính Trái Đất (mét)
+
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+
+              Math.sin(dLng/2) * Math.sin(dLng/2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+    return R * c; // Khoảng cách (mét)
+
+}
+
+// Kiểm tra và tự động chấm công
+
+function checkAutoCheckin(position) {
+
+    if (!autoCheckinEnabled) return;
+
+    const currentJobId = getCurrentJobId();
+
+    if (!currentJobId) return;
+
+    const job = jobs.find(j => j.id === currentJobId);
+
+    if (!job || !job.lat || !job.lng) return;
+
+    const distance = getDistance(position.coords.latitude, position.coords.longitude, job.lat, job.lng);
+
+    const radius = job.radius || 100;
+
+    const isInRange = distance <= radius;
+
+    const today = new Date();
+
+    const todayKey = getDayKey(today.getFullYear(), today.getMonth(), today.getDate());
+
+    const todayData = workData[todayKey] || {};
+
+    const todayJobData = todayData[currentJobId] || {};
+
+    const now = new Date();
+
+    const currentHour = now.getHours();
+
+    const currentMinute = now.getMinutes();
+
+    const currentTime = `${pad(currentHour)}:${pad(currentMinute)}`;
+
+    if (isInRange && lastCheckinStatus !== 'in') {
+
+        // Tự động chấm công vào
+
+        if (!todayJobData.in || todayJobData.out) {
+
+            workData[todayKey] = workData[todayKey] || {};
+
+            workData[todayKey][currentJobId] = {
+
+                in: currentTime,
+
+                out: '',
+
+                hours: 0
+
+            };
+
+            localStorage.setItem('workData', JSON.stringify(workData));
+
+            lastCheckinStatus = 'in';
+
+            showNotification(getTranslation('notification_checkin'));
+
+            renderCalendar();
+
+        }
+
+    } else if (!isInRange && lastCheckinStatus === 'in' && todayJobData.in && !todayJobData.out) {
+
+        // Tự động chấm công ra
+
+        const [y, m, d] = todayKey.split('-').map(Number);
+
+        const timeIn = new Date(y, m-1, d, ...todayJobData.in.split(':').map(Number));
+
+        const timeOut = new Date(y, m-1, d, currentHour, currentMinute);
+
+        if (timeOut <= timeIn) timeOut.setDate(timeOut.getDate() + 1);
+
+        const hrs = (timeOut - timeIn) / 36e5;
+
+        workData[todayKey][currentJobId] = {
+
+            in: todayJobData.in,
+
+            out: currentTime,
+
+            hours: hrs
+
+        };
+
+        localStorage.setItem('workData', JSON.stringify(workData));
+
+        lastCheckinStatus = 'out';
+
+        showNotification(getTranslation('notification_checkout'));
+
+        renderCalendar();
+
+    } else if (!isInRange) {
+
+        lastCheckinStatus = 'out';
+
+    }
+
+}
+
+// Bắt đầu theo dõi GPS
+
+function startGPSTracking() {
+
+    if (!navigator.geolocation) {
+
+        alert('Trình duyệt của bạn không hỗ trợ GPS');
+
+        return;
+
+    }
+
+    const options = {
+
+        enableHighAccuracy: true,
+
+        timeout: 10000,
+
+        maximumAge: 60000
+
+    };
+
+    gpsWatchId = navigator.geolocation.watchPosition(
+
+        (position) => checkAutoCheckin(position),
+
+        (error) => console.error('GPS Error:', error),
+
+        options
+
+    );
+
+    // Kiểm tra ngay lập tức
+
+    navigator.geolocation.getCurrentPosition(
+
+        (position) => checkAutoCheckin(position),
+
+        (error) => console.error('GPS Error:', error),
+
+        options
+
+    );
+
+}
+
+// Dừng theo dõi GPS
+
+function stopGPSTracking() {
+
+    if (gpsWatchId !== null) {
+
+        navigator.geolocation.clearWatch(gpsWatchId);
+
+        gpsWatchId = null;
+
+    }
+
+}
+
+// Hiển thị thông báo
+
+function showNotification(message) {
+
+    if ('Notification' in window && Notification.permission === 'granted') {
+
+        new Notification(message);
+
+    } else if ('Notification' in window && Notification.permission !== 'denied') {
+
+        Notification.requestPermission().then(permission => {
+
+            if (permission === 'granted') {
+
+                new Notification(message);
+
+            }
+
+        });
+
+    }
+
+    // Fallback: hiển thị alert nếu không có notification
+
+    console.log(message);
+
+}
+
+// Nút bật/tắt chấm công tự động
+
+const toggleAutoCheckinBtn = document.getElementById('toggleAutoCheckin');
+
+toggleAutoCheckinBtn.onclick = () => {
+
+    autoCheckinEnabled = !autoCheckinEnabled;
+
+    localStorage.setItem('autoCheckinEnabled', JSON.stringify(autoCheckinEnabled));
+
+    if (autoCheckinEnabled) {
+
+        toggleAutoCheckinBtn.classList.add('active');
+
+        if (Notification.permission === 'default') {
+
+            Notification.requestPermission();
+
+        }
+
+        startGPSTracking();
+
+        showNotification(getTranslation('notification_welcome'));
+
+    } else {
+
+        toggleAutoCheckinBtn.classList.remove('active');
+
+        stopGPSTracking();
+
+    }
+
+};
+
+// Nút lấy vị trí hiện tại
+
+document.getElementById('getCurrentLocation').onclick = () => {
+
+    if (!navigator.geolocation) {
+
+        alert('Trình duyệt của bạn không hỗ trợ GPS');
+
+        return;
+
+    }
+
+    navigator.geolocation.getCurrentPosition(
+
+        (position) => {
+
+            document.getElementById('jobLat').value = position.coords.latitude.toFixed(6);
+
+            document.getElementById('jobLng').value = position.coords.longitude.toFixed(6);
+
+        },
+
+        (error) => {
+
+            alert('Không thể lấy vị trí: ' + error.message);
+
+        },
+
+        { enableHighAccuracy: true, timeout: 10000 }
+
+    );
+
+};
+
 // Khởi tạo
 
 function initApp(){
@@ -1677,6 +2055,22 @@ function initApp(){
     formatRateInputDisplay();
 
     adjustRateInputWidth();
+
+    // Khởi tạo chấm công tự động
+
+    if (autoCheckinEnabled) {
+
+        toggleAutoCheckinBtn.classList.add('active');
+
+        if (Notification.permission === 'default') {
+
+            Notification.requestPermission();
+
+        }
+
+        startGPSTracking();
+
+    }
 
     // Vuốt tháng đã được đăng ký qua document.addEventListener
 
