@@ -1463,7 +1463,8 @@ function renderJobList(){
 
         const paydayStr = job.payday ? ` | ${getTranslation('payday_label')} ${job.payday}` : '';
 
-        const addressHtml = job.address ? `<span>📍 ${job.address}${paydayStr}</span>` : `<span>${paydayStr ? paydayStr.slice(3) : ''}</span>`;
+        const addressLabel = getTranslation('job_address');
+        const addressHtml = job.address ? `<span>📍 ${addressLabel}: ${job.address}${paydayStr}</span>` : `<span>${paydayStr ? paydayStr.slice(3) : ''}</span>`;
 
         item.innerHTML = `<strong>${jobNumber}${job.name}</strong><span>${dateStr}</span>${addressHtml}`;
 
