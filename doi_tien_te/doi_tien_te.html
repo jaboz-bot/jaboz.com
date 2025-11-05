@@ -81,23 +81,32 @@
             max-width: 100%;
         }
         
-        .flag-select {
+        .currency-flag-select {
             position: relative;
-            width: 45px;
-            height: 42px;
-            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            flex: 0 1 auto;
+            min-width: 0;
+            max-width: 180px;
+            width: 100%;
+        }
+        
+        .flag-select {
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
             overflow: hidden;
             cursor: pointer;
-            border: 2px solid #e0e0e0;
+            border: 1px solid #e0e0e0;
             transition: all 0.3s ease;
             flex-shrink: 0;
+            z-index: 2;
+            pointer-events: none;
         }
-        
-        .flag-select:hover {
-            border-color: #667eea;
-            transform: scale(1.05);
-        }
-        
         
         .flag-icon {
             position: absolute;
@@ -108,22 +117,18 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 28px;
+            font-size: 20px;
             pointer-events: none;
-            z-index: 10;
         }
-        
         
         .currency-code {
             display: none;
         }
         
         .currency-select {
-            flex: 0 1 auto;
-            min-width: 0;
-            max-width: 180px;
+            flex: 1;
             width: 100%;
-            padding: 8px 10px;
+            padding: 8px 10px 8px 42px;
             border: 2px solid #e0e0e0;
             border-radius: 8px;
             font-size: 14px;
@@ -149,7 +154,12 @@
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
         
-        .currency-select:hover {
+        .currency-select:hover,
+        .currency-flag-select:hover .currency-select {
+            border-color: #667eea;
+        }
+        
+        .currency-flag-select:hover .flag-select {
             border-color: #667eea;
         }
         
@@ -358,14 +368,17 @@
                 margin-bottom: 10px;
             }
             
+            .currency-flag-select {
+                max-width: 140px;
+            }
+            
             .flag-select {
-                width: 40px;
-                height: 38px;
-                flex-shrink: 0;
+                width: 24px;
+                height: 24px;
             }
             
             .flag-icon {
-                font-size: 24px;
+                font-size: 18px;
             }
             
             .currency-code {
@@ -373,9 +386,8 @@
             }
             
             .currency-select {
-                max-width: 140px;
                 font-size: 13px;
-                padding: 7px 8px;
+                padding: 7px 8px 7px 36px;
                 padding-right: 25px;
             }
             
@@ -460,13 +472,18 @@
                 gap: 4px;
             }
             
+            .currency-flag-select {
+                max-width: 120px;
+            }
+            
             .flag-select {
-                width: 38px;
-                height: 36px;
+                width: 22px;
+                height: 22px;
+                left: 6px;
             }
             
             .flag-icon {
-                font-size: 22px;
+                font-size: 16px;
             }
             
             .currency-code {
@@ -474,9 +491,8 @@
             }
             
             .currency-select {
-                max-width: 120px;
                 font-size: 12px;
-                padding: 6px 7px;
+                padding: 6px 7px 6px 32px;
                 padding-right: 22px;
             }
             
@@ -517,52 +533,56 @@
     <div class="container">
         <div class="exchange-box">
             <div class="currency-selector">
-                <div class="flag-select" id="fromFlag" data-type="from">
-                    <div class="flag-icon" id="fromFlagIcon">🇺🇸</div>
+                <div class="currency-flag-select">
+                    <div class="flag-select" id="fromFlag" data-type="from">
+                        <div class="flag-icon" id="fromFlagIcon">🇺🇸</div>
+                    </div>
+                    <select class="currency-select" id="fromCurrency">
+                        <option value="VND" data-flag="🇻🇳">VND</option>
+                        <option value="USD" data-flag="🇺🇸" selected>USD</option>
+                        <option value="EUR" data-flag="🇪🇺">EUR</option>
+                        <option value="KRW" data-flag="🇰🇷">KRW</option>
+                        <option value="JPY" data-flag="🇯🇵">JPY</option>
+                        <option value="CNY" data-flag="🇨🇳">CNY</option>
+                        <option value="GBP" data-flag="🇬🇧">GBP</option>
+                        <option value="AUD" data-flag="🇦🇺">AUD</option>
+                        <option value="CAD" data-flag="🇨🇦">CAD</option>
+                        <option value="SGD" data-flag="🇸🇬">SGD</option>
+                        <option value="THB" data-flag="🇹🇭">THB</option>
+                        <option value="MYR" data-flag="🇲🇾">MYR</option>
+                        <option value="IDR" data-flag="🇮🇩">IDR</option>
+                        <option value="PHP" data-flag="🇵🇭">PHP</option>
+                        <option value="INR" data-flag="🇮🇳">INR</option>
+                    </select>
                 </div>
-                <select class="currency-select" id="fromCurrency">
-                    <option value="VND" data-flag="🇻🇳">VND - Việt Nam Đồng</option>
-                    <option value="USD" data-flag="🇺🇸" selected>USD - US Dollar</option>
-                    <option value="EUR" data-flag="🇪🇺">EUR - Euro</option>
-                    <option value="KRW" data-flag="🇰🇷">KRW - Won Hàn Quốc</option>
-                    <option value="JPY" data-flag="🇯🇵">JPY - Yên Nhật</option>
-                    <option value="CNY" data-flag="🇨🇳">CNY - Nhân Dân Tệ</option>
-                    <option value="GBP" data-flag="🇬🇧">GBP - Bảng Anh</option>
-                    <option value="AUD" data-flag="🇦🇺">AUD - Đô la Úc</option>
-                    <option value="CAD" data-flag="🇨🇦">CAD - Đô la Canada</option>
-                    <option value="SGD" data-flag="🇸🇬">SGD - Đô la Singapore</option>
-                    <option value="THB" data-flag="🇹🇭">THB - Bạt Thái</option>
-                    <option value="MYR" data-flag="🇲🇾">MYR - Ringgit Malaysia</option>
-                    <option value="IDR" data-flag="🇮🇩">IDR - Rupiah Indonesia</option>
-                    <option value="PHP" data-flag="🇵🇭">PHP - Peso Philippines</option>
-                    <option value="INR" data-flag="🇮🇳">INR - Rupee Ấn Độ</option>
-                </select>
                 <input type="number" class="amount-input" id="fromAmount" value="1" placeholder="0" min="0" step="0.01">
             </div>
             
             <button class="swap-button" id="swapButton">⇅</button>
             
             <div class="currency-selector">
-                <div class="flag-select" id="toFlag" data-type="to">
-                    <div class="flag-icon" id="toFlagIcon">🇻🇳</div>
+                <div class="currency-flag-select">
+                    <div class="flag-select" id="toFlag" data-type="to">
+                        <div class="flag-icon" id="toFlagIcon">🇻🇳</div>
+                    </div>
+                    <select class="currency-select" id="toCurrency">
+                        <option value="VND" data-flag="🇻🇳" selected>VND</option>
+                        <option value="USD" data-flag="🇺🇸">USD</option>
+                        <option value="EUR" data-flag="🇪🇺">EUR</option>
+                        <option value="KRW" data-flag="🇰🇷">KRW</option>
+                        <option value="JPY" data-flag="🇯🇵">JPY</option>
+                        <option value="CNY" data-flag="🇨🇳">CNY</option>
+                        <option value="GBP" data-flag="🇬🇧">GBP</option>
+                        <option value="AUD" data-flag="🇦🇺">AUD</option>
+                        <option value="CAD" data-flag="🇨🇦">CAD</option>
+                        <option value="SGD" data-flag="🇸🇬">SGD</option>
+                        <option value="THB" data-flag="🇹🇭">THB</option>
+                        <option value="MYR" data-flag="🇲🇾">MYR</option>
+                        <option value="IDR" data-flag="🇮🇩">IDR</option>
+                        <option value="PHP" data-flag="🇵🇭">PHP</option>
+                        <option value="INR" data-flag="🇮🇳">INR</option>
+                    </select>
                 </div>
-                <select class="currency-select" id="toCurrency">
-                    <option value="VND" data-flag="🇻🇳" selected>VND - Việt Nam Đồng</option>
-                    <option value="USD" data-flag="🇺🇸">USD - US Dollar</option>
-                    <option value="EUR" data-flag="🇪🇺">EUR - Euro</option>
-                    <option value="KRW" data-flag="🇰🇷">KRW - Won Hàn Quốc</option>
-                    <option value="JPY" data-flag="🇯🇵">JPY - Yên Nhật</option>
-                    <option value="CNY" data-flag="🇨🇳">CNY - Nhân Dân Tệ</option>
-                    <option value="GBP" data-flag="🇬🇧">GBP - Bảng Anh</option>
-                    <option value="AUD" data-flag="🇦🇺">AUD - Đô la Úc</option>
-                    <option value="CAD" data-flag="🇨🇦">CAD - Đô la Canada</option>
-                    <option value="SGD" data-flag="🇸🇬">SGD - Đô la Singapore</option>
-                    <option value="THB" data-flag="🇹🇭">THB - Bạt Thái</option>
-                    <option value="MYR" data-flag="🇲🇾">MYR - Ringgit Malaysia</option>
-                    <option value="IDR" data-flag="🇮🇩">IDR - Rupiah Indonesia</option>
-                    <option value="PHP" data-flag="🇵🇭">PHP - Peso Philippines</option>
-                    <option value="INR" data-flag="🇮🇳">INR - Rupee Ấn Độ</option>
-                </select>
                 <input type="number" class="amount-input" id="toAmount" value="" placeholder="0" readonly>
             </div>
         </div>
