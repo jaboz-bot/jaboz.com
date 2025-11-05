@@ -252,7 +252,7 @@
             
             // Nếu là ngày mới, reset về số cơ bản
             if (savedDate !== todayKey) {
-                savedCount = 850; // Số cơ bản trong ngày
+                savedCount = 180; // Số cơ bản trong ngày (hàng trăm)
                 savedDate = todayKey;
             }
             
@@ -261,8 +261,8 @@
             const minutes = now.getMinutes();
             const seconds = now.getSeconds();
             
-            // Tăng dần theo thời gian trong ngày
-            const hourFactor = hours * 15; // ~15 lượt mỗi giờ
+            // Tăng dần theo thời gian trong ngày (tự động từ hàng trăm lên hàng nghìn)
+            const hourFactor = hours * 8; // ~8 lượt mỗi giờ
             const minuteFactor = Math.floor(minutes / 3) * 2; // ~2 lượt mỗi 3 phút
             const secondFactor = Math.floor(seconds / 30); // Tăng theo giây để nhảy động hơn
             
@@ -280,12 +280,12 @@
         function animateCount() {
             if (currentCount < targetCount) {
                 const diff = targetCount - currentCount;
-                const increment = Math.max(1, Math.ceil(diff / 10)); // Tăng từng bước
+                const increment = Math.max(1, Math.ceil(diff / 15)); // Tăng từng bước nhanh hơn
                 currentCount = Math.min(currentCount + increment, targetCount);
                 counterEl.textContent = currentCount.toLocaleString('vi-VN');
             } else if (currentCount > targetCount) {
                 const diff = currentCount - targetCount;
-                const decrement = Math.max(1, Math.ceil(diff / 10)); // Giảm từng bước
+                const decrement = Math.max(1, Math.ceil(diff / 15)); // Giảm từng bước nhanh hơn
                 currentCount = Math.max(currentCount - decrement, targetCount);
                 counterEl.textContent = currentCount.toLocaleString('vi-VN');
             }
@@ -293,13 +293,16 @@
         
         function updateCounter() {
             targetCount = calculateTodayVisitorCount();
-            // Cập nhật liên tục để số nhảy động
-            requestAnimationFrame(function animate() {
+            // Cập nhật chậm hơn với delay
+            function animate() {
                 animateCount();
                 if (currentCount !== targetCount) {
-                    requestAnimationFrame(animate);
+                    setTimeout(() => {
+                        requestAnimationFrame(animate);
+                    }, 25); // Delay 25ms giữa các frame (nhanh hơn)
                 }
-            });
+            }
+            requestAnimationFrame(animate);
         }
         
         // Khởi tạo
@@ -307,8 +310,8 @@
         targetCount = currentCount;
         counterEl.textContent = currentCount.toLocaleString('vi-VN');
         
-        // Cập nhật mỗi 5 giây để số nhảy linh hoạt hơn
-        setInterval(updateCounter, 5000);
+        // Cập nhật mỗi 15 giây để số nhảy nhanh hơn
+        setInterval(updateCounter, 15000);
         
         // Cũng cập nhật ngay khi có thay đổi
         updateCounter();
