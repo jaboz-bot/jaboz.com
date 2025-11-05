@@ -520,16 +520,6 @@ table tr td:empty{background-color:#dddddd;cursor:default}
 
             </p>
 
-            <div class="input-group" style="margin-bottom:15px;">
-
-                <label for="customNotification" style="font-weight:bold;margin-bottom:8px;display:block;" data-i18n="custom_notification_label">Thông báo tùy chỉnh:</label>
-
-                <input type="text" id="customNotification" placeholder="" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:0.95em;box-sizing:border-box;">
-
-                <small style="color:#888;font-size:0.85em;display:block;margin-top:5px;" data-i18n="custom_notification_hint">Để trống để sử dụng thông báo mặc định</small>
-
-            </div>
-
         </div>
 
         <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px;">
@@ -2185,13 +2175,9 @@ function stopGPSTracking() {
 
 function showNotification(message) {
 
-    // Sử dụng thông báo tùy chỉnh nếu có, nếu không dùng message mặc định
-
-    const finalMessage = customNotification && customNotification.trim() ? customNotification.trim() : message;
-
     if ('Notification' in window && Notification.permission === 'granted') {
 
-        new Notification(finalMessage);
+        new Notification(message);
 
     } else if ('Notification' in window && Notification.permission !== 'denied') {
 
@@ -2199,7 +2185,7 @@ function showNotification(message) {
 
             if (permission === 'granted') {
 
-                new Notification(finalMessage);
+                new Notification(message);
 
             }
 
@@ -2209,13 +2195,11 @@ function showNotification(message) {
 
     // Fallback: hiển thị alert nếu không có notification
 
-    console.log(finalMessage);
+    console.log(message);
 
 }
 
 // Modal Chấm công tự động
-
-let customNotification = localStorage.getItem('customNotification') || '';
 
 const autoCheckinModal = document.getElementById('autoCheckinModal');
 
@@ -2225,13 +2209,9 @@ const autoCheckinOnBtn = document.getElementById('autoCheckinOn');
 
 const autoCheckinOffBtn = document.getElementById('autoCheckinOff');
 
-const customNotificationInput = document.getElementById('customNotification');
-
 // Mở modal
 
 openAutoCheckinModalBtn.onclick = () => {
-
-    customNotificationInput.value = customNotification;
 
     autoCheckinModal.style.display = 'flex';
 
@@ -2252,10 +2232,6 @@ autoCheckinModal.addEventListener('click', (e) => {
 // Nút Bật
 
 autoCheckinOnBtn.onclick = () => {
-
-    customNotification = customNotificationInput.value.trim();
-
-    localStorage.setItem('customNotification', customNotification);
 
     autoCheckOnOpenEnabled = true;
 
@@ -2392,10 +2368,6 @@ autoCheckinOnBtn.onclick = () => {
 // Nút Tắt
 
 autoCheckinOffBtn.onclick = () => {
-
-    customNotification = customNotificationInput.value.trim();
-
-    localStorage.setItem('customNotification', customNotification);
 
     autoCheckOnOpenEnabled = false;
 
