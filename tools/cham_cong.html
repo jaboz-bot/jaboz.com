@@ -266,6 +266,8 @@ table tr td:empty{background-color:#dddddd;cursor:default}
 .search-btn:hover{background:#27ae60;transform:translateY(-2px);box-shadow:0 4px 8px rgba(0,0,0,.3)}
 #locationMapLink{display:inline-block;padding:12px 20px;background:#3498db;color:#fff;text-decoration:none;border-radius:8px;font-weight:600;transition:all 0.3s;box-shadow:0 2px 5px rgba(0,0,0,.2)}
 #locationMapLink:hover{background:#2980b9;transform:translateY(-2px);box-shadow:0 4px 8px rgba(0,0,0,.3)}
+a[data-i18n="feedback_button"]{display:inline-block;padding:8px 16px;background:#ffc107;color:#333;text-decoration:none;border-radius:6px;font-weight:600;font-size:0.9em;transition:all 0.3s;box-shadow:0 2px 4px rgba(0,0,0,.15)}
+a[data-i18n="feedback_button"]:hover{background:#ffb300;transform:translateY(-2px);box-shadow:0 4px 8px rgba(0,0,0,.25)}
 .modal-wide{max-width:450px}
 .modal-medium{max-width:420px}
 .grid-span-2{grid-column:span 2}
@@ -532,6 +534,17 @@ table tr td:empty{background-color:#dddddd;cursor:default}
                 Đây là tính năng chấm công tự động sử dụng GPS. Khi bật, hệ thống sẽ tự động kiểm tra vị trí của bạn và chấm công vào/ra khi bạn đến hoặc rời khỏi nơi làm việc.
 
             </p>
+
+            <div class="info-box mt-10" style="background:#fff3cd; border-left-color:#ffc107;">
+                <p class="text-gray mb-10" style="margin:0;" data-i18n="auto_checkin_beta_notice">
+                    ⚠️ Tính năng đang thử nghiệm, mong nhận được ý kiến đóng góp.
+                </p>
+                <div style="text-align:center; margin-top:10px;">
+                    <a href="binh_luan.html" target="_blank" style="display:inline-block; padding:8px 16px; background:#ffc107; color:#333; text-decoration:none; border-radius:6px; font-weight:600; font-size:0.9em; transition:all 0.3s;" data-i18n="feedback_button">
+                        💬 Đóng góp ý kiến
+                    </a>
+                </div>
+            </div>
 
         </div>
 
@@ -827,6 +840,10 @@ const translations = {
 
         auto_checkin_description: 'Đây là tính năng chấm công tự động sử dụng GPS. Khi bật, hệ thống sẽ tự động kiểm tra vị trí của bạn và chấm công vào/ra khi bạn đến hoặc rời khỏi nơi làm việc.',
 
+        auto_checkin_beta_notice: '⚠️ Tính năng đang thử nghiệm, mong nhận được ý kiến đóng góp.',
+
+        feedback_button: '💬 Đóng góp ý kiến',
+
         confirm_checkin_title: '✅ Xác nhận chấm công tự động',
 
         checkin_type: 'Loại:',
@@ -964,6 +981,10 @@ const translations = {
         auto_checkin_modal_title: '⚙️ 자동 출퇴근',
 
         auto_checkin_description: '이것은 GPS를 사용하는 자동 출퇴근 기능입니다. 활성화하면 시스템이 귀하의 위치를 자동으로 확인하고 직장에 도착하거나 떠날 때 자동으로 출퇴근을 기록합니다.',
+
+        auto_checkin_beta_notice: '⚠️ 이 기능은 테스트 중이며 의견을 환영합니다.',
+
+        feedback_button: '💬 의견 제출',
 
         confirm_checkin_title: '✅ 자동 출퇴근 확인',
 
