@@ -2716,29 +2716,27 @@ function getAddressFromCoordinates(lat, lng) {
 
             let addressParts = [];
 
-            // Xây dựng địa chỉ từ các thành phần
+            // Xây dựng địa chỉ theo cấu trúc Hàn Quốc (từ lớn đến nhỏ)
+            // Quốc gia → Tỉnh/Thành phố lớn → Thành phố → Quận/Huyện → Phường/Xã → Đường → Số nhà
+
+            if (addr.country) {
+                const countryName = addr.country === 'Việt Nam' || addr.country === 'Vietnam' ? 'Việt Nam' : addr.country;
+                addressParts.push(countryName);
+            }
+
+            if (addr.state || addr.province) addressParts.push(addr.state || addr.province);
+
+            if (addr.city || addr.town || addr.village) addressParts.push(addr.city || addr.town || addr.village);
+
+            if (addr.district || addr.city_district) addressParts.push(addr.district || addr.city_district);
+
+            if (addr.ward || addr.suburb) addressParts.push(addr.ward || addr.suburb);
 
             if (addr.road || addr.street) addressParts.push(addr.road || addr.street);
 
             if (addr.house_number) addressParts.push(addr.house_number);
 
-            if (addr.ward || addr.suburb) addressParts.push(addr.ward || addr.suburb);
-
-            if (addr.district || addr.city_district) addressParts.push(addr.district || addr.city_district);
-
-            if (addr.city || addr.town || addr.village) addressParts.push(addr.city || addr.town || addr.village);
-
-            if (addr.state || addr.province) addressParts.push(addr.state || addr.province);
-
-            if (addr.country) {
-
-                const countryName = addr.country === 'Việt Nam' || addr.country === 'Vietnam' ? 'Việt Nam' : addr.country;
-
-                addressParts.push(countryName);
-
-            }
-
-            const fullAddress = addressParts.length > 0 ? addressParts.join(', ') : data.display_name || 'Không xác định được địa chỉ';
+            const fullAddress = addressParts.length > 0 ? addressParts.join(' - ') : data.display_name || 'Không xác định được địa chỉ';
 
             addressText.textContent = fullAddress;
 
@@ -2824,13 +2822,40 @@ function getCoordinatesFromAddress(address) {
 
             document.getElementById('jobLng').value = lng.toFixed(6);
 
-            // Hiển thị địa chỉ đã tìm thấy
+            // Hiển thị địa chỉ đã tìm thấy theo cấu trúc Hàn Quốc (từ lớn đến nhỏ)
+            let displayAddress = address;
+            if (result.address) {
+                const addr = result.address;
+                let addressParts = [];
 
-            const displayName = result.display_name || address;
+                // Xây dựng địa chỉ theo cấu trúc Hàn Quốc (từ lớn đến nhỏ)
+                // Quốc gia → Tỉnh/Thành phố lớn → Thành phố → Quận/Huyện → Phường/Xã → Đường → Số nhà
 
-            addressText.textContent = displayName;
+                if (addr.country) {
+                    const countryName = addr.country === 'Việt Nam' || addr.country === 'Vietnam' ? 'Việt Nam' : addr.country;
+                    addressParts.push(countryName);
+                }
 
-            console.log('Đã tìm thấy địa chỉ:', displayName, 'Tọa độ:', lat, lng);
+                if (addr.state || addr.province) addressParts.push(addr.state || addr.province);
+
+                if (addr.city || addr.town || addr.village) addressParts.push(addr.city || addr.town || addr.village);
+
+                if (addr.district || addr.city_district) addressParts.push(addr.district || addr.city_district);
+
+                if (addr.ward || addr.suburb) addressParts.push(addr.ward || addr.suburb);
+
+                if (addr.road || addr.street) addressParts.push(addr.road || addr.street);
+
+                if (addr.house_number) addressParts.push(addr.house_number);
+
+                displayAddress = addressParts.length > 0 ? addressParts.join(' - ') : (result.display_name || address);
+            } else {
+                displayAddress = result.display_name || address;
+            }
+
+            addressText.textContent = displayAddress;
+
+            console.log('Đã tìm thấy địa chỉ:', displayAddress, 'Tọa độ:', lat, lng);
 
         } else {
 
