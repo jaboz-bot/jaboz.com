@@ -50,9 +50,32 @@ html,body{height:100%;margin:0;font-family:Arial,sans-serif;background:#f6f8f9}
 
 .lang-toggle-btn { background:#f1c40f; color:#333; font-size:.9em; padding:8px 12px; }
 
-.auto-checkin-btn { background:#3498db; color:#fff; font-size:.9em; padding:8px 12px; }
+.auto-checkin-btn { 
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color:#fff; 
+    font-size:.9em; 
+    padding:10px 20px; 
+    border-radius:25px;
+    border:none;
+    cursor:pointer;
+    font-weight:600;
+    box-shadow:0 4px 15px rgba(102, 126, 234, 0.4);
+    transition:all 0.3s ease;
+}
 
-.auto-checkin-btn.active { background:#27ae60; }
+.auto-checkin-btn:hover { 
+    transform:translateY(-2px);
+    box-shadow:0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.auto-checkin-btn.active { 
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    box-shadow:0 4px 15px rgba(17, 153, 142, 0.4);
+}
+
+.auto-checkin-btn.active:hover {
+    box-shadow:0 6px 20px rgba(17, 153, 142, 0.6);
+}
 
 /* CSS CHO CAROUSEL */
 
@@ -279,7 +302,7 @@ table tr td:empty{background-color:#dddddd;cursor:default}
 
             <button class="add-job-btn" id="openJobModal" data-i18n="manage_jobs">➕ Quản lý Nơi làm việc</button>
 
-            <button class="auto-checkin-btn" id="toggleAutoCheckin" data-i18n="auto_checkin">📍 Chấm công tự động</button>
+            <button class="auto-checkin-btn" id="openAutoCheckinModal">Auto</button>
 
         </div>
 
@@ -481,6 +504,46 @@ table tr td:empty{background-color:#dddddd;cursor:default}
 
 </div>
 
+<!-- Modal Chấm công tự động -->
+
+<div class="modal" id="autoCheckinModal">
+
+    <div class="modal-content" style="max-width:450px;">
+
+        <h3 data-i18n="auto_checkin_modal_title">⚙️ Chấm công tự động</h3>
+
+        <div style="margin-bottom:20px;">
+
+            <p style="color:#555;line-height:1.6;margin-bottom:15px;" data-i18n="auto_checkin_description">
+
+                Đây là tính năng chấm công tự động sử dụng GPS. Khi bật, hệ thống sẽ tự động kiểm tra vị trí của bạn và chấm công vào/ra khi bạn đến hoặc rời khỏi nơi làm việc.
+
+            </p>
+
+            <div class="input-group" style="margin-bottom:15px;">
+
+                <label for="customNotification" style="font-weight:bold;margin-bottom:8px;display:block;" data-i18n="custom_notification_label">Thông báo tùy chỉnh:</label>
+
+                <input type="text" id="customNotification" placeholder="" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:0.95em;box-sizing:border-box;">
+
+                <small style="color:#888;font-size:0.85em;display:block;margin-top:5px;" data-i18n="custom_notification_hint">Để trống để sử dụng thông báo mặc định</small>
+
+            </div>
+
+        </div>
+
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px;">
+
+            <button class="cancel" id="autoCheckinOff" data-i18n="auto_checkin_off">✗ Tắt</button>
+
+            <button class="save" id="autoCheckinOn" data-i18n="auto_checkin_on">✓ Bật</button>
+
+        </div>
+
+    </div>
+
+</div>
+
 <!-- Modal Máy tính -->
 
 <div class="modal" id="calcModal">
@@ -675,7 +738,15 @@ const translations = {
 
         notification_checkout: '✅ Đã tự động chấm công ra',
 
-        notification_welcome: 'Chào mừng bạn! Chấm công tự động đang hoạt động.'
+        notification_welcome: 'Chào mừng bạn! Chấm công tự động đang hoạt động.',
+
+        auto_checkin_modal_title: '⚙️ Chấm công tự động',
+
+        auto_checkin_description: 'Đây là tính năng chấm công tự động sử dụng GPS. Khi bật, hệ thống sẽ tự động kiểm tra vị trí của bạn và chấm công vào/ra khi bạn đến hoặc rời khỏi nơi làm việc.',
+
+        custom_notification_label: 'Thông báo tùy chỉnh:',
+
+        custom_notification_hint: 'Để trống để sử dụng thông báo mặc định'
 
     },
 
@@ -777,7 +848,19 @@ const translations = {
 
         notification_checkout: '✅ 자동 퇴근 기록됨',
 
-        notification_welcome: '환영합니다! 자동 출퇴근이 활성화되어 있습니다.'
+        notification_welcome: '환영합니다! 자동 출퇴근이 활성화되어 있습니다.',
+
+        auto_checkin_on: '✓ 켜기',
+
+        auto_checkin_off: '✗ 끄기',
+
+        auto_checkin_modal_title: '⚙️ 자동 출퇴근',
+
+        auto_checkin_description: '이것은 GPS를 사용하는 자동 출퇴근 기능입니다. 활성화하면 시스템이 귀하의 위치를 자동으로 확인하고 직장에 도착하거나 떠날 때 자동으로 출퇴근을 기록합니다.',
+
+        custom_notification_label: '사용자 정의 알림:',
+
+        custom_notification_hint: '기본 알림을 사용하려면 비워두세요'
 
     }
 
@@ -1810,6 +1893,8 @@ document.getElementById('monthYear').onclick = () => {
 
 let autoCheckinEnabled = JSON.parse(localStorage.getItem('autoCheckinEnabled') || 'false');
 
+let autoCheckOnOpenEnabled = JSON.parse(localStorage.getItem('autoCheckOnOpenEnabled') || 'true'); // Mặc định bật
+
 let gpsWatchId = null;
 
 let lastCheckinStatus = null; // 'in' or 'out' or null
@@ -2096,9 +2181,13 @@ function stopGPSTracking() {
 
 function showNotification(message) {
 
+    // Sử dụng thông báo tùy chỉnh nếu có, nếu không dùng message mặc định
+
+    const finalMessage = customNotification && customNotification.trim() ? customNotification.trim() : message;
+
     if ('Notification' in window && Notification.permission === 'granted') {
 
-        new Notification(message);
+        new Notification(finalMessage);
 
     } else if ('Notification' in window && Notification.permission !== 'denied') {
 
@@ -2106,7 +2195,7 @@ function showNotification(message) {
 
             if (permission === 'granted') {
 
-                new Notification(message);
+                new Notification(finalMessage);
 
             }
 
@@ -2116,41 +2205,131 @@ function showNotification(message) {
 
     // Fallback: hiển thị alert nếu không có notification
 
-    console.log(message);
+    console.log(finalMessage);
 
 }
 
-// Nút bật/tắt chấm công tự động
+// Modal Chấm công tự động
 
-const toggleAutoCheckinBtn = document.getElementById('toggleAutoCheckin');
+let customNotification = localStorage.getItem('customNotification') || '';
 
-toggleAutoCheckinBtn.onclick = () => {
+const autoCheckinModal = document.getElementById('autoCheckinModal');
 
-    autoCheckinEnabled = !autoCheckinEnabled;
+const openAutoCheckinModalBtn = document.getElementById('openAutoCheckinModal');
 
-    localStorage.setItem('autoCheckinEnabled', JSON.stringify(autoCheckinEnabled));
+const autoCheckinOnBtn = document.getElementById('autoCheckinOn');
 
-    if (autoCheckinEnabled) {
+const autoCheckinOffBtn = document.getElementById('autoCheckinOff');
 
-        toggleAutoCheckinBtn.classList.add('active');
+const customNotificationInput = document.getElementById('customNotification');
 
-        if (Notification.permission === 'default') {
+// Mở modal
 
-            Notification.requestPermission();
+openAutoCheckinModalBtn.onclick = () => {
+
+    customNotificationInput.value = customNotification;
+
+    autoCheckinModal.style.display = 'flex';
+
+};
+
+// Đóng modal khi click ra ngoài
+
+autoCheckinModal.addEventListener('click', (e) => {
+
+    if (e.target === autoCheckinModal) {
+
+        autoCheckinModal.style.display = 'none';
+
+    }
+
+});
+
+// Nút Bật
+
+autoCheckinOnBtn.onclick = () => {
+
+    customNotification = customNotificationInput.value.trim();
+
+    localStorage.setItem('customNotification', customNotification);
+
+    autoCheckOnOpenEnabled = true;
+
+    localStorage.setItem('autoCheckOnOpenEnabled', JSON.stringify(true));
+
+    openAutoCheckinModalBtn.classList.add('active');
+
+    autoCheckinModal.style.display = 'none';
+
+    // Bật theo dõi liên tục nếu có GPS location
+
+    const currentJobId = getCurrentJobId();
+
+    if (currentJobId) {
+
+        const job = jobs.find(j => j.id === currentJobId);
+
+        if (job && job.lat && job.lng) {
+
+            if (Notification.permission === 'default') {
+
+                Notification.requestPermission();
+
+            }
+
+            startGPSTracking();
 
         }
 
-        startGPSTracking();
+    }
 
-        showNotification(getTranslation('notification_welcome'));
+    // Kiểm tra ngay lập tức
 
-    } else {
+    if (navigator.geolocation) {
 
-        toggleAutoCheckinBtn.classList.remove('active');
+        const currentJobId = getCurrentJobId();
 
-        stopGPSTracking();
+        if (currentJobId) {
+
+            const job = jobs.find(j => j.id === currentJobId);
+
+            if (job && job.lat && job.lng) {
+
+                navigator.geolocation.getCurrentPosition(
+
+                    (position) => checkLocationOnOpen(position),
+
+                    (error) => console.log('GPS không khả dụng:', error.message),
+
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+
+                );
+
+            }
+
+        }
 
     }
+
+};
+
+// Nút Tắt
+
+autoCheckinOffBtn.onclick = () => {
+
+    customNotification = customNotificationInput.value.trim();
+
+    localStorage.setItem('customNotification', customNotification);
+
+    autoCheckOnOpenEnabled = false;
+
+    localStorage.setItem('autoCheckOnOpenEnabled', JSON.stringify(false));
+
+    openAutoCheckinModalBtn.classList.remove('active');
+
+    autoCheckinModal.style.display = 'none';
+
+    stopGPSTracking();
 
 };
 
@@ -2234,9 +2413,9 @@ function initApp(){
 
     }
 
-    // Kiểm tra vị trí khi mở ứng dụng (một lần) - không cần bật auto check-in
+    // Kiểm tra vị trí khi mở ứng dụng (một lần) - chỉ nếu checkbox được bật
 
-    if (navigator.geolocation) {
+    if (autoCheckOnOpenEnabled && navigator.geolocation) {
 
         const currentJobId = getCurrentJobId();
 
@@ -2262,9 +2441,21 @@ function initApp(){
 
     }
 
+    // Khởi tạo trạng thái nút Auto
+
+    if (autoCheckOnOpenEnabled) {
+
+        openAutoCheckinModalBtn.classList.add('active');
+
+    } else {
+
+        openAutoCheckinModalBtn.classList.remove('active');
+
+    }
+
     if (autoCheckinEnabled) {
 
-        toggleAutoCheckinBtn.classList.add('active');
+        openAutoCheckinModalBtn.classList.add('active');
 
         if (Notification.permission === 'default') {
 
