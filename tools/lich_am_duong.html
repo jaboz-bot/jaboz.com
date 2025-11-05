@@ -284,19 +284,26 @@
             }
             
             .date-input-group {
-                flex-direction: column;
-                gap: 10px;
+                flex-direction: row;
+                gap: 8px;
+                flex-wrap: wrap;
+                justify-content: center;
             }
             
-            .date-input-group input,
+            .date-input-group input {
+                width: 70px;
+                flex: 0 0 auto;
+            }
+            
             .date-input-group select {
-                width: 100%;
-                max-width: 200px;
+                width: 100px;
+                flex: 0 0 auto;
             }
             
             .convert-btn {
-                width: 100%;
-                max-width: 200px;
+                width: auto;
+                padding: 12px 20px;
+                flex: 0 0 auto;
             }
             
             .header h1 {
