@@ -386,7 +386,7 @@
 
         <div class="comment-form" id="commentForm">
             <h3>Viết bình luận</h3>
-            <input type="email" id="userEmailInput" placeholder="Email của bạn (bắt buộc)" maxlength="100">
+            <input type="text" id="userNameInput" placeholder="Tên của bạn (bắt buộc, tối thiểu 5 ký tự)" maxlength="50">
             <textarea id="commentText" placeholder="Nhập bình luận của bạn..."></textarea>
             <button onclick="submitComment()">Gửi Bình Luận</button>
         </div>
@@ -444,11 +444,11 @@
             console.error('Lỗi khởi tạo Firebase:', error);
         }
 
-        // Admin list - THÊM EMAIL ADMIN VÀO ĐÂY
+        // Admin list - THÊM TÊN ADMIN VÀO ĐÂY
         const adminList = [
-            'jaboz.bot@gmail.com', // Thêm email admin vào đây
-            
-            // Thêm các email admin khác nếu cần
+            'Admin', // Thêm tên admin vào đây
+            'admin',
+            // Thêm các tên admin khác nếu cần
         ];
 
         // Get or create unique user ID
@@ -461,15 +461,9 @@
             return userId;
         }
 
-        // Validate email format
-        function isValidEmail(email) {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return emailRegex.test(email);
-        }
-
         // Check if user is admin
-        function isAdmin(userEmail) {
-            return adminList.some(admin => userEmail.toLowerCase() === admin.toLowerCase());
+        function isAdmin(userName) {
+            return adminList.some(admin => userName.toLowerCase() === admin.toLowerCase());
         }
 
         // Check if user owns the comment
@@ -482,9 +476,9 @@
             const header = document.querySelector('.header');
             let existingLink = header.querySelector('.admin-link');
             
-            // Get current email from input or localStorage
-            const emailInput = document.getElementById('userEmailInput');
-            const currentEmail = emailInput ? emailInput.value.trim() : (localStorage.getItem('commenterEmail') || '');
+            // Get current name from input or localStorage
+            const nameInput = document.getElementById('userNameInput');
+            const currentName = nameInput ? nameInput.value.trim() : (localStorage.getItem('commenterName') || '');
             
             // Remove existing link
             if (existingLink) {
@@ -492,7 +486,7 @@
             }
             
             // Add admin link if user is admin
-            if (currentEmail && isValidEmail(currentEmail) && isAdmin(currentEmail)) {
+            if (currentName && isAdmin(currentName)) {
                 const adminLink = document.createElement('a');
                 adminLink.className = 'admin-link';
                 adminLink.href = 'admin_binh_luan.html';
@@ -504,25 +498,25 @@
             }
         }
 
-        // Load saved email from localStorage
-        const savedEmail = localStorage.getItem('commenterEmail');
-        if (savedEmail) {
-            document.getElementById('userEmailInput').value = savedEmail;
+        // Load saved name from localStorage
+        const savedName = localStorage.getItem('commenterName');
+        if (savedName) {
+            document.getElementById('userNameInput').value = savedName;
         }
         
         // Check admin link on page load
         updateAdminLink();
         
-        // Check admin link when email input changes
-        const emailInput = document.getElementById('userEmailInput');
-        if (emailInput) {
-            emailInput.addEventListener('input', function() {
+        // Check admin link when name input changes
+        const nameInput = document.getElementById('userNameInput');
+        if (nameInput) {
+            nameInput.addEventListener('input', function() {
                 // Debounce: check after user stops typing
-                clearTimeout(emailInput.checkTimeout);
-                emailInput.checkTimeout = setTimeout(updateAdminLink, 500);
+                clearTimeout(nameInput.checkTimeout);
+                nameInput.checkTimeout = setTimeout(updateAdminLink, 500);
             });
             
-            emailInput.addEventListener('blur', updateAdminLink);
+            nameInput.addEventListener('blur', updateAdminLink);
         }
 
         // Bad words filter (Vietnamese)
@@ -559,22 +553,22 @@
         const MIN_COMMENT_INTERVAL = 30000; // 30 seconds
 
         window.submitComment = async function() {
-            const userEmail = document.getElementById('userEmailInput').value.trim();
+            const userName = document.getElementById('userNameInput').value.trim();
             const commentText = document.getElementById('commentText').value.trim();
             
-            if (!userEmail) {
-                showMessage('Vui lòng nhập email của bạn!', 'error');
+            if (!userName) {
+                showMessage('Vui lòng nhập tên của bạn!', 'error');
                 return;
             }
 
-            // Validate email format
-            if (!isValidEmail(userEmail)) {
-                showMessage('Email không hợp lệ! Vui lòng nhập đúng định dạng email.', 'error');
+            // Validate name length (minimum 5 characters)
+            if (userName.length < 5) {
+                showMessage('Tên phải có ít nhất 5 ký tự!', 'error');
                 return;
             }
 
-            if (userEmail.length > 100) {
-                showMessage('Email không được vượt quá 100 ký tự!', 'error');
+            if (userName.length > 50) {
+                showMessage('Tên không được vượt quá 50 ký tự!', 'error');
                 return;
             }
             
@@ -591,9 +585,9 @@
                 return;
             }
 
-            // Check bad words in email (basic check)
-            if (containsBadWords(userEmail)) {
-                showMessage('Email chứa từ ngữ không phù hợp!', 'error');
+            // Check bad words in name
+            if (containsBadWords(userName)) {
+                showMessage('Tên chứa từ ngữ không phù hợp!', 'error');
                 return;
             }
 
@@ -615,17 +609,13 @@
             }
 
             try {
-                // Save email to localStorage
-                localStorage.setItem('commenterEmail', userEmail);
+                // Save name to localStorage
+                localStorage.setItem('commenterName', userName);
                 
                 const userId = getUserId();
                 
-                // Get display name from email (part before @)
-                const displayName = userEmail.split('@')[0];
-                
                 await addDoc(collection(db, 'comments'), {
-                    userEmail: userEmail,
-                    userName: displayName, // Store display name for backward compatibility
+                    userName: userName,
                     content: commentText,
                     userId: userId,
                     timestamp: serverTimestamp(),
@@ -681,8 +671,8 @@
                     }
 
                     const currentUserId = getUserId();
-                    const savedEmail = localStorage.getItem('commenterEmail') || '';
-                    const currentUserEmail = savedEmail;
+                    const savedName = localStorage.getItem('commenterName') || '';
+                    const currentUserName = savedName;
                     
                     snapshot.forEach((docSnap) => {
                         const data = docSnap.data();
@@ -690,14 +680,13 @@
                         const commentItem = document.createElement('div');
                         commentItem.className = 'comment-item';
                         
-                        // Get email, fallback to userName for backward compatibility
-                        const userEmail = data.userEmail || data.userName || '';
-                        const displayName = userEmail.split('@')[0] || 'Người dùng';
+                        // Get userName (fallback to userEmail for backward compatibility)
+                        const userName = data.userName || data.userEmail || 'Người dùng';
                         const content = data.content || '';
                         const commentUserId = data.userId || '';
                         
                         // Check if user can edit/delete
-                        const canEdit = isAdmin(currentUserEmail) || ownsComment(commentUserId, currentUserId);
+                        const canEdit = isAdmin(currentUserName) || ownsComment(commentUserId, currentUserId);
                         
                         // Handle date properly
                         let date = new Date();
@@ -734,8 +723,8 @@
                         
                         commentItem.innerHTML = `
                             <div class="comment-header">
-                                <div class="comment-avatar">${escapeHtml(displayName).charAt(0).toUpperCase()}</div>
-                                <span class="comment-author">${escapeHtml(userEmail)}</span>
+                                <div class="comment-avatar">${escapeHtml(userName).charAt(0).toUpperCase()}</div>
+                                <span class="comment-author">${escapeHtml(userName)}</span>
                                 <span class="comment-date">${formatDate(date)}</span>
                             </div>
                             <div class="comment-content" id="content-${commentId}">${escapeHtml(content)}</div>
