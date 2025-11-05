@@ -106,7 +106,11 @@ th{background:#eaf2f8}
 
 .day{position:relative;height:80px;vertical-align:top;cursor:pointer;padding-top:20px}
 
-.day span{position:absolute;top:3px;left:5px;font-weight:bold;color:#2980b9}
+.day span{position:absolute;top:3px;left:5px;font-weight:bold;color:#2980b9;z-index:1;}
+
+.day .today-dot{position:absolute;top:3px;left:18px;width:6px;height:6px;background:#f1c40f;border-radius:50%;z-index:2;}
+
+#monthYear{cursor:pointer;user-select:none;}
 
 .day div{width:100%;margin-top:5px;text-align:center;line-height:1.2}
 
@@ -1241,7 +1245,18 @@ function renderCalendar(){
 
                 const hours = info.hours || 0;
 
+                // Kiểm tra xem có phải ngày hiện tại không
+                const today = new Date();
+                today.setHours(0, 0, 0, 0); // Đặt về 00:00:00 để so sánh chính xác
+                const checkDate = new Date(currentYear, currentMonth, day);
+                checkDate.setHours(0, 0, 0, 0);
+                const isToday = checkDate.getTime() === today.getTime();
+
                 let contentHTML = `<span>${day}</span>`;
+                
+                if (isToday) {
+                    contentHTML += `<div class="today-dot"></div>`;
+                }
 
                 if (hours > 0){
 
@@ -1554,6 +1569,14 @@ document.querySelector('#calcModal .calc-grid').addEventListener('click', (e)=>{
 // Open job modal
 
 document.getElementById('openJobModal').onclick = () => openJobModal();
+
+// Click vào tháng/năm để quay về tháng hiện tại
+document.getElementById('monthYear').onclick = () => {
+    const today = new Date();
+    currentMonth = today.getMonth();
+    currentYear = today.getFullYear();
+    renderCalendar();
+};
 
 // Khởi tạo
 
