@@ -199,6 +199,99 @@
             margin-top: 10px;
             padding-left: 47px;
         }
+        .comment-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            padding-left: 47px;
+        }
+        .btn-edit, .btn-delete {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .btn-edit {
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+            color: white;
+        }
+        .btn-delete {
+            background: linear-gradient(45deg, #F44336, #D32F2F);
+            color: white;
+        }
+        .btn-edit:hover, .btn-delete:hover {
+            transform: translateY(-1px);
+            opacity: 0.9;
+        }
+        .edit-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .edit-modal.active {
+            display: flex;
+        }
+        .edit-modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 90%;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        .edit-modal-content h3 {
+            margin-bottom: 20px;
+            color: #1976D2;
+        }
+        .edit-modal-content textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            margin-bottom: 15px;
+        }
+        .edit-modal-content textarea:focus {
+            outline: none;
+            border-color: #1976D2;
+        }
+        .edit-modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        .edit-modal-actions button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .btn-cancel {
+            background: #e0e0e0;
+            color: #424242;
+        }
+        .btn-save {
+            background: linear-gradient(45deg, #4CAF50, #388E3C);
+            color: white;
+        }
+        .edit-modal-actions button:hover {
+            transform: translateY(-2px);
+        }
         .loading {
             text-align: center;
             padding: 40px;
@@ -259,7 +352,7 @@
 
         <div class="comment-form" id="commentForm">
             <h3>Viết bình luận</h3>
-            <input type="text" id="userNameInput" placeholder="Tên của bạn (bắt buộc)" maxlength="50">
+            <input type="email" id="userEmailInput" placeholder="Email của bạn (bắt buộc)" maxlength="100">
             <textarea id="commentText" placeholder="Nhập bình luận của bạn..."></textarea>
             <button onclick="submitComment()">Gửi Bình Luận</button>
         </div>
@@ -272,11 +365,23 @@
         </div>
     </div>
 
+    <!-- Edit Comment Modal -->
+    <div class="edit-modal" id="editModal">
+        <div class="edit-modal-content">
+            <h3>✏️ Sửa Bình Luận</h3>
+            <textarea id="editCommentText" placeholder="Nhập nội dung bình luận..."></textarea>
+            <div class="edit-modal-actions">
+                <button class="btn-cancel" onclick="closeEditModal()">Hủy</button>
+                <button class="btn-save" onclick="saveEditedComment()">Lưu</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Firebase SDK -->
     <script type="module">
         // Import Firebase modules
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, limit } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, query, orderBy, onSnapshot, serverTimestamp, limit } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
         // Firebase configuration - THAY ĐỔI THÔNG TIN NÀY VỚI THÔNG TIN CỦA BẠN
         const firebaseConfig = {
@@ -305,15 +410,43 @@
             console.error('Lỗi khởi tạo Firebase:', error);
         }
 
-        // Load saved name from localStorage
+        // Admin list - THÊM EMAIL ADMIN VÀO ĐÂY
         const adminList = [
-        'Admin', // Thêm tên admin vào đây
-        'admin',
-        // Thêm các admin khác nếu cần
+            'jaboz.com', // Thêm email admin vào đây
+            'admin',
+            // Thêm các email admin khác nếu cần
         ];
-        const savedName = localStorage.getItem('commenterName');
-        if (savedName) {
-            document.getElementById('userNameInput').value = savedName;
+
+        // Get or create unique user ID
+        function getUserId() {
+            let userId = localStorage.getItem('commenterUserId');
+            if (!userId) {
+                userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('commenterUserId', userId);
+            }
+            return userId;
+        }
+
+        // Validate email format
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        // Check if user is admin
+        function isAdmin(userEmail) {
+            return adminList.some(admin => userEmail.toLowerCase() === admin.toLowerCase());
+        }
+
+        // Check if user owns the comment
+        function ownsComment(commentUserId, currentUserId) {
+            return commentUserId === currentUserId;
+        }
+
+        // Load saved email from localStorage
+        const savedEmail = localStorage.getItem('commenterEmail');
+        if (savedEmail) {
+            document.getElementById('userEmailInput').value = savedEmail;
         }
 
         // Bad words filter (Vietnamese)
@@ -350,21 +483,22 @@
         const MIN_COMMENT_INTERVAL = 30000; // 30 seconds
 
         window.submitComment = async function() {
-            const userName = document.getElementById('userNameInput').value.trim();
+            const userEmail = document.getElementById('userEmailInput').value.trim();
             const commentText = document.getElementById('commentText').value.trim();
             
-            if (!userName) {
-                showMessage('Vui lòng nhập tên của bạn!', 'error');
+            if (!userEmail) {
+                showMessage('Vui lòng nhập email của bạn!', 'error');
                 return;
             }
 
-            if (userName.length < 2) {
-                showMessage('Tên phải có ít nhất 2 ký tự!', 'error');
+            // Validate email format
+            if (!isValidEmail(userEmail)) {
+                showMessage('Email không hợp lệ! Vui lòng nhập đúng định dạng email.', 'error');
                 return;
             }
 
-            if (userName.length > 50) {
-                showMessage('Tên không được vượt quá 50 ký tự!', 'error');
+            if (userEmail.length > 100) {
+                showMessage('Email không được vượt quá 100 ký tự!', 'error');
                 return;
             }
             
@@ -381,9 +515,9 @@
                 return;
             }
 
-            // Check bad words in name
-            if (containsBadWords(userName)) {
-                showMessage('Tên chứa từ ngữ không phù hợp!', 'error');
+            // Check bad words in email (basic check)
+            if (containsBadWords(userEmail)) {
+                showMessage('Email chứa từ ngữ không phù hợp!', 'error');
                 return;
             }
 
@@ -405,12 +539,19 @@
             }
 
             try {
-                // Save name to localStorage
-                localStorage.setItem('commenterName', userName);
+                // Save email to localStorage
+                localStorage.setItem('commenterEmail', userEmail);
+                
+                const userId = getUserId();
+                
+                // Get display name from email (part before @)
+                const displayName = userEmail.split('@')[0];
                 
                 await addDoc(collection(db, 'comments'), {
-                    userName: userName,
+                    userEmail: userEmail,
+                    userName: displayName, // Store display name for backward compatibility
                     content: commentText,
+                    userId: userId,
                     timestamp: serverTimestamp(),
                     createdAt: new Date().toISOString()
                 });
@@ -460,13 +601,24 @@
                         return;
                     }
 
-                    snapshot.forEach((doc) => {
-                        const data = doc.data();
+                    const currentUserId = getUserId();
+                    const savedEmail = localStorage.getItem('commenterEmail') || '';
+                    const currentUserEmail = savedEmail;
+                    
+                    snapshot.forEach((docSnap) => {
+                        const data = docSnap.data();
+                        const commentId = docSnap.id;
                         const commentItem = document.createElement('div');
                         commentItem.className = 'comment-item';
                         
-                        const userName = data.userName || 'Người dùng';
+                        // Get email, fallback to userName for backward compatibility
+                        const userEmail = data.userEmail || data.userName || '';
+                        const displayName = userEmail.split('@')[0] || 'Người dùng';
                         const content = data.content || '';
+                        const commentUserId = data.userId || '';
+                        
+                        // Check if user can edit/delete
+                        const canEdit = isAdmin(currentUserEmail) || ownsComment(commentUserId, currentUserId);
                         
                         // Handle date properly
                         let date = new Date();
@@ -483,14 +635,36 @@
                             date = new Date();
                         }
                         
+                        // Create actions section
+                        const actionsDiv = document.createElement('div');
+                        if (canEdit) {
+                            actionsDiv.className = 'comment-actions';
+                            const editBtn = document.createElement('button');
+                            editBtn.className = 'btn-edit';
+                            editBtn.textContent = '✏️ Sửa';
+                            editBtn.onclick = () => editComment(commentId, content);
+                            
+                            const deleteBtn = document.createElement('button');
+                            deleteBtn.className = 'btn-delete';
+                            deleteBtn.textContent = '🗑️ Xóa';
+                            deleteBtn.onclick = () => deleteComment(commentId);
+                            
+                            actionsDiv.appendChild(editBtn);
+                            actionsDiv.appendChild(deleteBtn);
+                        }
+                        
                         commentItem.innerHTML = `
                             <div class="comment-header">
-                                <div class="comment-avatar">${escapeHtml(userName).charAt(0).toUpperCase()}</div>
-                                <span class="comment-author">${escapeHtml(userName)}</span>
+                                <div class="comment-avatar">${escapeHtml(displayName).charAt(0).toUpperCase()}</div>
+                                <span class="comment-author">${escapeHtml(userEmail)}</span>
                                 <span class="comment-date">${formatDate(date)}</span>
                             </div>
-                            <div class="comment-content">${escapeHtml(content)}</div>
+                            <div class="comment-content" id="content-${commentId}">${escapeHtml(content)}</div>
                         `;
+                        
+                        if (canEdit) {
+                            commentItem.appendChild(actionsDiv);
+                        }
                         
                         commentsList.appendChild(commentItem);
                     });
@@ -540,6 +714,91 @@
             div.textContent = text;
             return div.innerHTML;
         }
+
+        // Edit comment
+        let editingCommentId = null;
+        
+        window.editComment = function(commentId, currentContent) {
+            editingCommentId = commentId;
+            document.getElementById('editCommentText').value = currentContent;
+            document.getElementById('editModal').classList.add('active');
+        };
+
+        window.closeEditModal = function() {
+            document.getElementById('editModal').classList.remove('active');
+            editingCommentId = null;
+            document.getElementById('editCommentText').value = '';
+        };
+
+        window.saveEditedComment = async function() {
+            if (!editingCommentId) return;
+            
+            const newContent = document.getElementById('editCommentText').value.trim();
+            
+            if (!newContent) {
+                showMessage('Vui lòng nhập nội dung bình luận!', 'error');
+                return;
+            }
+
+            // Check bad words
+            if (containsBadWords(newContent)) {
+                showMessage('Bình luận chứa từ ngữ không phù hợp!', 'error');
+                return;
+            }
+
+            // Check spam
+            if (detectSpam(newContent)) {
+                showMessage('Bình luận của bạn bị phát hiện là spam!', 'error');
+                return;
+            }
+
+            if (!firebaseInitialized || !db) {
+                showMessage('Firebase chưa được cấu hình.', 'error');
+                return;
+            }
+
+            try {
+                const commentRef = doc(db, 'comments', editingCommentId);
+                await updateDoc(commentRef, {
+                    content: newContent,
+                    updatedAt: new Date().toISOString()
+                });
+
+                closeEditModal();
+                showMessage('Bình luận đã được cập nhật!', 'success');
+            } catch (error) {
+                console.error('Lỗi khi sửa bình luận:', error);
+                showMessage('Lỗi khi sửa bình luận: ' + error.message, 'error');
+            }
+        };
+
+        window.deleteComment = async function(commentId) {
+            if (!confirm('Bạn có chắc chắn muốn xóa bình luận này?')) {
+                return;
+            }
+
+            if (!firebaseInitialized || !db) {
+                showMessage('Firebase chưa được cấu hình.', 'error');
+                return;
+            }
+
+            try {
+                const commentRef = doc(db, 'comments', commentId);
+                await deleteDoc(commentRef);
+                showMessage('Bình luận đã được xóa!', 'success');
+            } catch (error) {
+                console.error('Lỗi khi xóa bình luận:', error);
+                showMessage('Lỗi khi xóa bình luận: ' + error.message, 'error');
+            }
+        };
+
+        // Close modal when clicking outside
+        document.getElementById('editModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeEditModal();
+            }
+        });
     </script>
 </body>
 </html>
+
