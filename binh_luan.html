@@ -306,6 +306,11 @@
         }
 
         // Load saved name from localStorage
+        const adminList = [
+        'Admin', // Thêm tên admin vào đây
+        'admin',
+        // Thêm các admin khác nếu cần
+        ];
         const savedName = localStorage.getItem('commenterName');
         if (savedName) {
             document.getElementById('userNameInput').value = savedName;
