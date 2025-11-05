@@ -740,6 +740,10 @@ const translations = {
 
         notification_welcome: 'Chào mừng bạn! Chấm công tự động đang hoạt động.',
 
+        auto_checkin_on: '✓ Bật',
+
+        auto_checkin_off: '✗ Tắt',
+
         auto_checkin_modal_title: '⚙️ Chấm công tự động',
 
         auto_checkin_description: 'Đây là tính năng chấm công tự động sử dụng GPS. Khi bật, hệ thống sẽ tự động kiểm tra vị trí của bạn và chấm công vào/ra khi bạn đến hoặc rời khỏi nơi làm việc.',
@@ -2257,59 +2261,131 @@ autoCheckinOnBtn.onclick = () => {
 
     localStorage.setItem('autoCheckOnOpenEnabled', JSON.stringify(true));
 
+    autoCheckinEnabled = true;
+
+    localStorage.setItem('autoCheckinEnabled', JSON.stringify(true));
+
     openAutoCheckinModalBtn.classList.add('active');
 
     autoCheckinModal.style.display = 'none';
 
-    // Bật theo dõi liên tục nếu có GPS location
+    // Kiểm tra hỗ trợ GPS
 
-    const currentJobId = getCurrentJobId();
+    if (!navigator.geolocation) {
 
-    if (currentJobId) {
+        alert('Trình duyệt của bạn không hỗ trợ GPS. Vui lòng sử dụng trình duyệt khác hoặc cập nhật trình duyệt.');
 
-        const job = jobs.find(j => j.id === currentJobId);
+        return;
 
-        if (job && job.lat && job.lng) {
+    }
 
-            if (Notification.permission === 'default') {
+    // Yêu cầu quyền GPS ngay lập tức
 
-                Notification.requestPermission();
+    const options = {
 
-            }
+        enableHighAccuracy: true,
+
+        timeout: 15000,
+
+        maximumAge: 0
+
+    };
+
+    // Yêu cầu quyền GPS và bật tracking
+
+    navigator.geolocation.getCurrentPosition(
+
+        (position) => {
+
+            // GPS đã được bật thành công
+
+            console.log('GPS đã được bật:', position.coords.latitude, position.coords.longitude);
+
+            // Bật theo dõi liên tục
 
             startGPSTracking();
 
-        }
+            // Kiểm tra và chấm công nếu có GPS location trong job
 
-    }
+            const currentJobId = getCurrentJobId();
 
-    // Kiểm tra ngay lập tức
+            if (currentJobId) {
 
-    if (navigator.geolocation) {
+                const job = jobs.find(j => j.id === currentJobId);
 
-        const currentJobId = getCurrentJobId();
+                if (job && job.lat && job.lng) {
 
-        if (currentJobId) {
+                    checkLocationOnOpen(position);
 
-            const job = jobs.find(j => j.id === currentJobId);
-
-            if (job && job.lat && job.lng) {
-
-                navigator.geolocation.getCurrentPosition(
-
-                    (position) => checkLocationOnOpen(position),
-
-                    (error) => console.log('GPS không khả dụng:', error.message),
-
-                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
-
-                );
+                }
 
             }
 
-        }
+            // Yêu cầu quyền thông báo
 
-    }
+            if (Notification.permission === 'default') {
+
+                Notification.requestPermission().then(permission => {
+
+                    if (permission === 'granted') {
+
+                        showNotification('Chấm công tự động đã được bật thành công!');
+
+                    }
+
+                });
+
+            } else if (Notification.permission === 'granted') {
+
+                showNotification('Chấm công tự động đã được bật thành công!');
+
+            }
+
+        },
+
+        (error) => {
+
+            // Xử lý lỗi GPS
+
+            let errorMsg = 'Không thể truy cập GPS: ';
+
+            switch(error.code) {
+
+                case error.PERMISSION_DENIED:
+
+                    errorMsg += 'Bạn đã từ chối quyền truy cập vị trí. Vui lòng bật GPS và cho phép trình duyệt truy cập vị trí trong cài đặt.';
+
+                    break;
+
+                case error.POSITION_UNAVAILABLE:
+
+                    errorMsg += 'Thông tin vị trí không khả dụng. Vui lòng bật GPS trên thiết bị.';
+
+                    break;
+
+                case error.TIMEOUT:
+
+                    errorMsg += 'Yêu cầu vị trí đã hết thời gian chờ. Vui lòng thử lại và đảm bảo GPS đã bật.';
+
+                    break;
+
+                default:
+
+                    errorMsg += 'Lỗi không xác định: ' + error.message;
+
+                    break;
+
+            }
+
+            alert(errorMsg);
+
+            console.error('GPS Error:', error);
+
+        },
+
+        options
+
+    );
 
 };
 
@@ -2325,11 +2401,21 @@ autoCheckinOffBtn.onclick = () => {
 
     localStorage.setItem('autoCheckOnOpenEnabled', JSON.stringify(false));
 
+    autoCheckinEnabled = false;
+
+    localStorage.setItem('autoCheckinEnabled', JSON.stringify(false));
+
     openAutoCheckinModalBtn.classList.remove('active');
 
     autoCheckinModal.style.display = 'none';
 
+    // Dừng hoàn toàn GPS tracking
+
     stopGPSTracking();
+
+    lastCheckinStatus = null;
+
+    console.log('Chấm công tự động đã được tắt');
 
 };
 
@@ -2413,57 +2499,101 @@ function initApp(){
 
     }
 
-    // Kiểm tra vị trí khi mở ứng dụng (một lần) - chỉ nếu checkbox được bật
+    // Khởi tạo trạng thái nút Auto
 
-    if (autoCheckOnOpenEnabled && navigator.geolocation) {
+    if (autoCheckOnOpenEnabled || autoCheckinEnabled) {
 
-        const currentJobId = getCurrentJobId();
+        openAutoCheckinModalBtn.classList.add('active');
 
-        if (currentJobId) {
+        // Bật GPS tracking nếu đã được bật trước đó
 
-            const job = jobs.find(j => j.id === currentJobId);
+        if (autoCheckinEnabled && navigator.geolocation) {
 
-            if (job && job.lat && job.lng) {
+            // Yêu cầu quyền GPS và bật tracking
 
-                navigator.geolocation.getCurrentPosition(
+            navigator.geolocation.getCurrentPosition(
 
-                    (position) => checkLocationOnOpen(position),
+                (position) => {
 
-                    (error) => console.log('GPS không khả dụng:', error.message),
+                    console.log('GPS đã được bật khi khởi động:', position.coords.latitude, position.coords.longitude);
 
-                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+                    startGPSTracking();
 
-                );
+                    // Kiểm tra và chấm công nếu có GPS location trong job
+
+                    const currentJobId = getCurrentJobId();
+
+                    if (currentJobId) {
+
+                        const job = jobs.find(j => j.id === currentJobId);
+
+                        if (job && job.lat && job.lng) {
+
+                            checkLocationOnOpen(position);
+
+                        }
+
+                    }
+
+                },
+
+                (error) => {
+
+                    console.error('GPS không khả dụng khi khởi động:', error.message);
+
+                    // Vẫn thử bật tracking, có thể GPS sẽ được bật sau
+
+                    if (autoCheckinEnabled) {
+
+                        startGPSTracking();
+
+                    }
+
+                },
+
+                { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+
+            );
+
+            // Yêu cầu quyền thông báo
+
+            if (Notification.permission === 'default') {
+
+                Notification.requestPermission();
+
+            }
+
+        } else if (autoCheckOnOpenEnabled && navigator.geolocation) {
+
+            // Chỉ kiểm tra khi mở ứng dụng (không theo dõi liên tục)
+
+            const currentJobId = getCurrentJobId();
+
+            if (currentJobId) {
+
+                const job = jobs.find(j => j.id === currentJobId);
+
+                if (job && job.lat && job.lng) {
+
+                    navigator.geolocation.getCurrentPosition(
+
+                        (position) => checkLocationOnOpen(position),
+
+                        (error) => console.log('GPS không khả dụng:', error.message),
+
+                        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+
+                    );
+
+                }
 
             }
 
         }
 
-    }
-
-    // Khởi tạo trạng thái nút Auto
-
-    if (autoCheckOnOpenEnabled) {
-
-        openAutoCheckinModalBtn.classList.add('active');
-
     } else {
 
         openAutoCheckinModalBtn.classList.remove('active');
-
-    }
-
-    if (autoCheckinEnabled) {
-
-        openAutoCheckinModalBtn.classList.add('active');
-
-        if (Notification.permission === 'default') {
-
-            Notification.requestPermission();
-
-        }
-
-        startGPSTracking();
 
     }
 
