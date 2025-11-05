@@ -470,25 +470,35 @@ table tr td:empty{background-color:#dddddd;cursor:default}
 
             <label data-i18n="gps_location">📍 Vị trí GPS (cho chấm công tự động):</label>
 
-            <div style="display:flex;gap:5px;margin-bottom:5px;align-items:flex-start;">
+            <div style="margin-bottom:10px;display:flex;gap:8px;flex-direction:column;">
 
-                <input type="number" id="jobLat" step="any" data-i18n-placeholder="gps_lat_placeholder" placeholder="Vĩ độ (Lat)" style="flex:1;padding:8px;border:1px solid #ccc;border-radius:5px;box-sizing:border-box;">
+                <button type="button" id="getCurrentLocation" style="width:100%;padding:12px;background:#3498db;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:1em;box-shadow:0 2px 5px rgba(0,0,0,.2);transition:all 0.3s;" data-i18n="get_location" onmouseover="this.style.background='#2980b9';this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 8px rgba(0,0,0,.3)'" onmouseout="this.style.background='#3498db';this.style.transform='translateY(0)';this.style.boxShadow='0 2px 5px rgba(0,0,0,.2)'">📍 Lấy vị trí hiện tại</button>
 
-                <input type="number" id="jobLng" step="any" data-i18n-placeholder="gps_lng_placeholder" placeholder="Kinh độ (Lng)" style="flex:1;padding:8px;border:1px solid #ccc;border-radius:5px;box-sizing:border-box;">
+                <div style="display:flex;gap:8px;align-items:flex-start;">
 
-                <button type="button" id="getCurrentLocation" style="padding:8px 12px;background:#3498db;color:#fff;border:none;border-radius:5px;cursor:pointer;white-space:nowrap;height:38px;align-self:flex-start;" data-i18n="get_location">Lấy vị trí</button>
+                    <input type="text" id="jobAddressInput" placeholder="Nhập địa chỉ chính xác..." style="flex:1;padding:10px;border:1px solid #ccc;border-radius:8px;font-size:0.95em;box-sizing:border-box;" data-i18n-placeholder="enter_address_placeholder">
 
-            </div>
+                    <button type="button" id="searchAddressBtn" style="padding:10px 20px;background:#2ecc71;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;white-space:nowrap;box-shadow:0 2px 5px rgba(0,0,0,.2);transition:all 0.3s;" data-i18n="search_address" onmouseover="this.style.background='#27ae60';this.style.transform='translateY(-2px)'" onmouseout="this.style.background='#2ecc71';this.style.transform='translateY(0)'">🔍 Tìm kiếm</button>
 
-            <div id="locationAddressDisplay" style="margin-top:8px;padding:10px;background:#f0f8ff;border-radius:5px;border-left:4px solid #3498db;display:none;">
-
-                <div style="font-weight:bold;color:#2980b9;margin-bottom:5px;" data-i18n="location_address_label">📍 Địa chỉ:</div>
-
-                <div id="locationAddressText" style="color:#555;font-size:0.95em;line-height:1.4;"></div>
+                </div>
 
             </div>
 
-            <input type="number" id="jobRadius" min="10" max="1000" value="100" data-i18n-placeholder="gps_radius_placeholder" placeholder="Bán kính (mét)" style="width:100%;margin-top:10px;">
+            <div id="locationAddressDisplay" style="margin-top:10px;padding:15px;background:#f0f8ff;border-radius:8px;border-left:4px solid #3498db;display:none;">
+
+                <div style="font-weight:bold;color:#2980b9;margin-bottom:8px;font-size:1.05em;" data-i18n="location_address_label">📍 Địa chỉ:</div>
+
+                <div id="locationAddressText" style="color:#555;font-size:1em;line-height:1.6;word-wrap:break-word;"></div>
+
+            </div>
+
+            <!-- Ẩn các input để lưu tọa độ (không hiển thị cho người dùng) -->
+
+            <input type="hidden" id="jobLat" step="any">
+
+            <input type="hidden" id="jobLng" step="any">
+
+            <input type="number" id="jobRadius" min="10" max="1000" value="100" data-i18n-placeholder="gps_radius_placeholder" placeholder="Bán kính (mét)" style="width:100%;margin-top:15px;">
 
             <small style="color:#7f8c8d;font-size:0.85em;" data-i18n="gps_radius_hint">Bán kính cho phép chấm công tự động (mét). Mặc định: 100m</small>
 
@@ -796,13 +806,17 @@ const translations = {
 
         gps_lng_placeholder: 'Kinh độ (Lng)',
 
-        get_location: 'Lấy vị trí',
+        get_location: '📍 Lấy vị trí hiện tại',
 
         gps_radius_placeholder: 'Bán kính (mét)',
 
         gps_radius_hint: 'Bán kính cho phép chấm công tự động (mét). Mặc định: 100m',
 
         location_address_label: '📍 Địa chỉ:',
+
+        enter_address_placeholder: 'Nhập địa chỉ chính xác...',
+
+        search_address: '🔍 Tìm kiếm',
 
         notification_checkin: '✅ Đã tự động chấm công vào',
 
@@ -930,13 +944,17 @@ const translations = {
 
         gps_lng_placeholder: '경도 (Lng)',
 
-        get_location: '위치 가져오기',
+        get_location: '📍 현재 위치 가져오기',
 
         gps_radius_placeholder: '반경 (미터)',
 
         gps_radius_hint: '자동 출퇴근 허용 반경 (미터). 기본값: 100m',
 
         location_address_label: '📍 주소:',
+
+        enter_address_placeholder: '정확한 주소 입력...',
+
+        search_address: '🔍 검색',
 
         notification_checkin: '✅ 자동 출근 기록됨',
 
@@ -1197,9 +1215,15 @@ function openJobModal(jobId = null){
 
             getAddressFromCoordinates(parseFloat(job.lat), parseFloat(job.lng));
 
+            // Xóa input địa chỉ khi load job
+
+            document.getElementById('jobAddressInput').value = '';
+
         } else {
 
             document.getElementById('locationAddressDisplay').style.display = 'none';
+
+            document.getElementById('jobAddressInput').value = '';
 
         }
 
@@ -1224,6 +1248,8 @@ function openJobModal(jobId = null){
         // Ẩn địa chỉ khi tạo mới
 
         document.getElementById('locationAddressDisplay').style.display = 'none';
+
+        document.getElementById('jobAddressInput').value = '';
 
     }
 
@@ -2747,45 +2773,129 @@ function getAddressFromCoordinates(lat, lng) {
 
 }
 
-// Tự động lấy địa chỉ khi người dùng nhập tọa độ thủ công
+// Tìm kiếm địa chỉ và chuyển đổi thành tọa độ GPS (Geocoding)
 
-const jobLatInput = document.getElementById('jobLat');
+function getCoordinatesFromAddress(address) {
 
-const jobLngInput = document.getElementById('jobLng');
+    if (!address || !address.trim()) {
 
-let addressUpdateTimeout = null;
+        alert('Vui lòng nhập địa chỉ cần tìm kiếm.');
 
-function updateAddressFromInputs() {
+        return;
 
-    clearTimeout(addressUpdateTimeout);
+    }
 
-    addressUpdateTimeout = setTimeout(() => {
+    const addressDisplay = document.getElementById('locationAddressDisplay');
 
-        const lat = parseFloat(jobLatInput.value);
+    const addressText = document.getElementById('locationAddressText');
 
-        const lng = parseFloat(jobLngInput.value);
+    const searchBtn = document.getElementById('searchAddressBtn');
 
-        if (!isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0) {
+    const originalText = searchBtn.textContent;
 
-            getAddressFromCoordinates(lat, lng);
+    addressText.textContent = 'Đang tìm kiếm địa chỉ...';
 
-        } else {
+    addressDisplay.style.display = 'block';
 
-            document.getElementById('locationAddressDisplay').style.display = 'none';
+    searchBtn.textContent = 'Đang tìm...';
+
+    searchBtn.disabled = true;
+
+    // Sử dụng Nominatim API (OpenStreetMap) - Geocoding
+
+    const encodedAddress = encodeURIComponent(address.trim());
+
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodedAddress}&limit=1&addressdetails=1`, {
+
+        headers: {
+
+            'User-Agent': 'ChamCongApp/1.0'
 
         }
 
-    }, 1000); // Đợi 1 giây sau khi người dùng ngừng nhập
+    })
+
+    .then(response => response.json())
+
+    .then(data => {
+
+        searchBtn.textContent = originalText;
+
+        searchBtn.disabled = false;
+
+        if (data && data.length > 0) {
+
+            const result = data[0];
+
+            const lat = parseFloat(result.lat);
+
+            const lng = parseFloat(result.lon);
+
+            // Lưu tọa độ vào hidden inputs
+
+            document.getElementById('jobLat').value = lat.toFixed(6);
+
+            document.getElementById('jobLng').value = lng.toFixed(6);
+
+            // Hiển thị địa chỉ đã tìm thấy
+
+            const displayName = result.display_name || address;
+
+            addressText.textContent = displayName;
+
+            console.log('Đã tìm thấy địa chỉ:', displayName, 'Tọa độ:', lat, lng);
+
+        } else {
+
+            addressText.textContent = 'Không tìm thấy địa chỉ. Vui lòng thử lại với địa chỉ khác.';
+
+            console.log('Không tìm thấy địa chỉ cho:', address);
+
+        }
+
+    })
+
+    .catch(error => {
+
+        console.error('Lỗi khi tìm kiếm địa chỉ:', error);
+
+        searchBtn.textContent = originalText;
+
+        searchBtn.disabled = false;
+
+        addressText.textContent = 'Lỗi khi tìm kiếm địa chỉ. Vui lòng thử lại.';
+
+    });
 
 }
 
-if (jobLatInput && jobLngInput) {
+// Nút tìm kiếm địa chỉ
 
-    jobLatInput.addEventListener('input', updateAddressFromInputs);
+document.getElementById('searchAddressBtn').onclick = () => {
 
-    jobLngInput.addEventListener('input', updateAddressFromInputs);
+    const addressInput = document.getElementById('jobAddressInput');
 
-}
+    const address = addressInput.value.trim();
+
+    getCoordinatesFromAddress(address);
+
+};
+
+// Cho phép nhấn Enter để tìm kiếm
+
+document.getElementById('jobAddressInput').addEventListener('keypress', (e) => {
+
+    if (e.key === 'Enter') {
+
+        e.preventDefault();
+
+        document.getElementById('searchAddressBtn').click();
+
+    }
+
+});
+
+// Các input tọa độ đã được ẩn, không cần logic tự động cập nhật từ input nữa
 
 // Nút lấy vị trí hiện tại
 
