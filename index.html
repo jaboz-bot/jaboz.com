@@ -174,7 +174,7 @@
 <div class="settings-area">
     <button class="settings-link" id="installButton">📲 Trang Chủ</button>
     <div class="visitor-counter">
-        <span>👥 Lượt truy cập:</span>
+        <span>👥 Lượt truy cập trong ngày:</span>
         <span class="counter-number" id="visitorCount">0</span>
     </div>
 </div>
@@ -223,51 +223,95 @@
     
     updateInstallButtonVisibility();
     
-    // Bộ đếm lượt truy cập ảo tăng dần theo thời gian
+    // Bộ đếm lượt truy cập trong ngày với animation
     (function() {
-        const START_DATE_KEY = 'jaboz_start_date';
+        const TODAY_KEY = 'jaboz_today_visitors';
         const counterEl = document.getElementById('visitorCount');
         
         if (!counterEl) return;
         
-        function calculateVisitorCount() {
+        let currentCount = 0;
+        let targetCount = 0;
+        
+        function calculateTodayVisitorCount() {
             const now = new Date();
             const today = new Date(now);
             today.setHours(0, 0, 0, 0);
+            const todayKey = today.toISOString().split('T')[0];
             
-            let startDate = localStorage.getItem(START_DATE_KEY);
-            if (!startDate) {
-                const initialDate = new Date(today);
-                initialDate.setDate(initialDate.getDate() - 30);
-                startDate = initialDate.toISOString();
-                localStorage.setItem(START_DATE_KEY, startDate);
+            // Lấy số lượt truy cập đã lưu cho ngày hôm nay
+            const savedData = localStorage.getItem(TODAY_KEY);
+            let savedCount = 0;
+            let savedDate = '';
+            
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                savedDate = data.date;
+                savedCount = data.count || 0;
             }
             
-            const start = new Date(startDate);
-            const daysDiff = Math.floor((today - start) / (1000 * 60 * 60 * 24));
+            // Nếu là ngày mới, reset về số cơ bản
+            if (savedDate !== todayKey) {
+                savedCount = 850; // Số cơ bản trong ngày
+                savedDate = todayKey;
+            }
             
-            const baseVisitors = 1200;
-            const visitorsPerDay = 80;
-            const randomSeed = daysDiff % 100;
-            
-            let count = baseVisitors + (daysDiff * visitorsPerDay) + (randomSeed * 0.8);
+            // Tính số lượt truy cập dựa trên giờ và phút trong ngày
             const hours = now.getHours();
             const minutes = now.getMinutes();
-            const hourFactor = hours * 2;
-            const minuteFactor = Math.floor(minutes / 10);
+            const seconds = now.getSeconds();
             
-            count += hourFactor + minuteFactor;
+            // Tăng dần theo thời gian trong ngày
+            const hourFactor = hours * 15; // ~15 lượt mỗi giờ
+            const minuteFactor = Math.floor(minutes / 3) * 2; // ~2 lượt mỗi 3 phút
+            const secondFactor = Math.floor(seconds / 30); // Tăng theo giây để nhảy động hơn
+            
+            let count = savedCount + hourFactor + minuteFactor + secondFactor;
+            
+            // Lưu lại số hiện tại
+            localStorage.setItem(TODAY_KEY, JSON.stringify({
+                date: todayKey,
+                count: Math.floor(count)
+            }));
             
             return Math.floor(count);
         }
         
-        function updateCounter() {
-            const count = calculateVisitorCount();
-            counterEl.textContent = count.toLocaleString('vi-VN');
+        function animateCount() {
+            if (currentCount < targetCount) {
+                const diff = targetCount - currentCount;
+                const increment = Math.max(1, Math.ceil(diff / 10)); // Tăng từng bước
+                currentCount = Math.min(currentCount + increment, targetCount);
+                counterEl.textContent = currentCount.toLocaleString('vi-VN');
+            } else if (currentCount > targetCount) {
+                const diff = currentCount - targetCount;
+                const decrement = Math.max(1, Math.ceil(diff / 10)); // Giảm từng bước
+                currentCount = Math.max(currentCount - decrement, targetCount);
+                counterEl.textContent = currentCount.toLocaleString('vi-VN');
+            }
         }
         
+        function updateCounter() {
+            targetCount = calculateTodayVisitorCount();
+            // Cập nhật liên tục để số nhảy động
+            requestAnimationFrame(function animate() {
+                animateCount();
+                if (currentCount !== targetCount) {
+                    requestAnimationFrame(animate);
+                }
+            });
+        }
+        
+        // Khởi tạo
+        currentCount = calculateTodayVisitorCount();
+        targetCount = currentCount;
+        counterEl.textContent = currentCount.toLocaleString('vi-VN');
+        
+        // Cập nhật mỗi 5 giây để số nhảy linh hoạt hơn
+        setInterval(updateCounter, 5000);
+        
+        // Cũng cập nhật ngay khi có thay đổi
         updateCounter();
-        setInterval(updateCounter, 60000);
     })();
 </script>
 
