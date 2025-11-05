@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bình Luận - Jaboz</title>
+    <title>Góp Ý - Jaboz</title>
     <style>
         * {
             margin: 0;
@@ -39,44 +39,30 @@
             color: #1976D2;
             margin-bottom: 20px;
         }
-        .auth-section {
+        .name-input {
             background: white;
             padding: 20px;
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             margin-bottom: 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
         }
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
+        .name-input input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
         }
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(45deg, #1976D2, #42A5F5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 18px;
+        .name-input input:focus {
+            outline: none;
+            border-color: #1976D2;
         }
-        .user-name {
-            font-weight: bold;
+        .name-input label {
+            display: block;
+            margin-bottom: 8px;
             color: #1976D2;
-        }
-        .auth-buttons {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
+            font-weight: bold;
         }
         .btn {
             padding: 10px 20px;
@@ -111,6 +97,19 @@
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             margin-bottom: 30px;
+        }
+        .comment-form input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+            margin-bottom: 15px;
+        }
+        .comment-form input:focus {
+            outline: none;
+            border-color: #1976D2;
         }
         .comment-form textarea {
             width: 100%;
@@ -245,18 +244,6 @@
             font-size: 14px;
             border-left: 4px solid #e65100;
         }
-        @media (max-width: 600px) {
-            .auth-section {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .user-info {
-                justify-content: center;
-            }
-            .auth-buttons {
-                justify-content: center;
-            }
-        }
     </style>
 </head>
 <body>
@@ -265,24 +252,14 @@
         
         <div class="header">
             <div class="logo">JABOZ</div>
-            <h1>💬 Bình Luận</h1>
-        </div>
-
-        <div class="auth-section" id="authSection">
-            <div class="user-info" id="userInfo" style="display: none;">
-                <div class="user-avatar" id="userAvatar"></div>
-                <span class="user-name" id="userName"></span>
-            </div>
-            <div class="auth-buttons" id="authButtons">
-                <button class="btn btn-primary" onclick="showLogin()">Đăng Nhập</button>
-                <button class="btn btn-secondary" onclick="showRegister()">Đăng Ký</button>
-            </div>
+            <h1>Góp Ý</h1>
         </div>
 
         <div id="messageArea"></div>
 
-        <div class="comment-form" id="commentForm" style="display: none;">
+        <div class="comment-form" id="commentForm">
             <h3>Viết bình luận</h3>
+            <input type="text" id="userNameInput" placeholder="Tên của bạn (bắt buộc)" maxlength="50">
             <textarea id="commentText" placeholder="Nhập bình luận của bạn..."></textarea>
             <button onclick="submitComment()">Gửi Bình Luận</button>
         </div>
@@ -299,7 +276,6 @@
     <script type="module">
         // Import Firebase modules
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
         import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, limit } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
         // Firebase configuration - THAY ĐỔI THÔNG TIN NÀY VỚI THÔNG TIN CỦA BẠN
@@ -314,8 +290,13 @@
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
         const db = getFirestore(app);
+
+        // Load saved name from localStorage
+        const savedName = localStorage.getItem('commenterName');
+        if (savedName) {
+            document.getElementById('userNameInput').value = savedName;
+        }
 
         // Bad words filter (Vietnamese)
         const badWords = [
@@ -350,95 +331,24 @@
         let lastCommentTime = 0;
         const MIN_COMMENT_INTERVAL = 30000; // 30 seconds
 
-        // Auth state listener
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                showUserInfo(user);
-            } else {
-                showAuthButtons();
-            }
-        });
-
-        function showUserInfo(user) {
-            document.getElementById('userInfo').style.display = 'flex';
-            document.getElementById('commentForm').style.display = 'block';
-            
-            const userName = user.displayName || user.email.split('@')[0];
-            document.getElementById('userName').textContent = userName;
-            document.getElementById('userAvatar').textContent = userName.charAt(0).toUpperCase();
-            
-            // Show logout button instead of login/register buttons
-            const authButtons = document.getElementById('authButtons');
-            authButtons.innerHTML = '<button class="btn btn-danger" onclick="logout()">Đăng Xuất</button>';
-            authButtons.style.display = 'flex';
-        }
-
-        function showAuthButtons() {
-            document.getElementById('userInfo').style.display = 'none';
-            document.getElementById('commentForm').style.display = 'none';
-            
-            // Restore login/register buttons
-            const authButtons = document.getElementById('authButtons');
-            authButtons.innerHTML = `
-                <button class="btn btn-primary" onclick="showLogin()">Đăng Nhập</button>
-                <button class="btn btn-secondary" onclick="showRegister()">Đăng Ký</button>
-            `;
-            authButtons.style.display = 'flex';
-        }
-
-        window.showLogin = function() {
-            const email = prompt('Nhập email của bạn:');
-            if (!email) return;
-            
-            const password = prompt('Nhập mật khẩu:');
-            if (!password) return;
-
-            signInWithEmailAndPassword(auth, email, password)
-                .then(() => {
-                    showMessage('Đăng nhập thành công!', 'success');
-                })
-                .catch((error) => {
-                    showMessage('Lỗi đăng nhập: ' + error.message, 'error');
-                });
-        };
-
-        window.showRegister = function() {
-            const email = prompt('Nhập email của bạn:');
-            if (!email) return;
-            
-            const password = prompt('Nhập mật khẩu (ít nhất 6 ký tự):');
-            if (!password || password.length < 6) {
-                showMessage('Mật khẩu phải có ít nhất 6 ký tự!', 'error');
-                return;
-            }
-
-            createUserWithEmailAndPassword(auth, email, password)
-                .then(() => {
-                    showMessage('Đăng ký thành công!', 'success');
-                })
-                .catch((error) => {
-                    showMessage('Lỗi đăng ký: ' + error.message, 'error');
-                });
-        };
-
-        window.logout = function() {
-            signOut(auth)
-                .then(() => {
-                    showMessage('Đã đăng xuất!', 'success');
-                })
-                .catch((error) => {
-                    showMessage('Lỗi đăng xuất: ' + error.message, 'error');
-                });
-        };
-
         window.submitComment = async function() {
-            const user = auth.currentUser;
-            if (!user) {
-                showMessage('Vui lòng đăng nhập để bình luận!', 'error');
+            const userName = document.getElementById('userNameInput').value.trim();
+            const commentText = document.getElementById('commentText').value.trim();
+            
+            if (!userName) {
+                showMessage('Vui lòng nhập tên của bạn!', 'error');
                 return;
             }
 
-            const commentText = document.getElementById('commentText').value.trim();
+            if (userName.length < 2) {
+                showMessage('Tên phải có ít nhất 2 ký tự!', 'error');
+                return;
+            }
+
+            if (userName.length > 50) {
+                showMessage('Tên không được vượt quá 50 ký tự!', 'error');
+                return;
+            }
             
             if (!commentText) {
                 showMessage('Vui lòng nhập nội dung bình luận!', 'error');
@@ -453,7 +363,13 @@
                 return;
             }
 
-            // Check bad words
+            // Check bad words in name
+            if (containsBadWords(userName)) {
+                showMessage('Tên chứa từ ngữ không phù hợp!', 'error');
+                return;
+            }
+
+            // Check bad words in comment
             if (containsBadWords(commentText)) {
                 showMessage('Bình luận chứa từ ngữ không phù hợp!', 'error');
                 return;
@@ -466,12 +382,11 @@
             }
 
             try {
-                const userName = user.displayName || user.email.split('@')[0];
+                // Save name to localStorage
+                localStorage.setItem('commenterName', userName);
                 
                 await addDoc(collection(db, 'comments'), {
-                    userId: user.uid,
                     userName: userName,
-                    userEmail: user.email,
                     content: commentText,
                     timestamp: serverTimestamp(),
                     createdAt: new Date().toISOString()
