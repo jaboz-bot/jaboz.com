@@ -15,11 +15,11 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
+            padding: 20px 20px 80px 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
         }
         
         .container {
@@ -46,26 +46,96 @@
             gap: 10px;
         }
         
+        .date-input-section {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+        }
+        
+        .date-input-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .date-input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        
+        .date-input-group input,
+        .date-input-group select {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s;
+        }
+        
+        .date-input-group input:focus,
+        .date-input-group select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .date-input-group input {
+            width: 80px;
+            text-align: center;
+        }
+        
+        .date-input-group select {
+            width: 120px;
+        }
+        
+        .convert-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .convert-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
         .back-btn {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(255, 255, 255, 0.9);
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
             color: #667eea;
             border: 2px solid #667eea;
-            padding: 10px 20px;
+            padding: 12px 25px;
             border-radius: 25px;
             text-decoration: none;
             font-weight: bold;
             transition: all 0.3s;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
         }
         
         .back-btn:hover {
             background: #667eea;
             color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+            transform: translateX(-50%) translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
         }
         
         .calendar-display {
@@ -197,8 +267,36 @@
         }
         
         @media (max-width: 600px) {
+            body {
+                padding: 15px 15px 80px 15px;
+            }
+            
             .container {
                 padding: 20px;
+            }
+            
+            .date-input-section {
+                padding: 15px;
+            }
+            
+            .date-input-section h3 {
+                font-size: 16px;
+            }
+            
+            .date-input-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .date-input-group input,
+            .date-input-group select {
+                width: 100%;
+                max-width: 200px;
+            }
+            
+            .convert-btn {
+                width: 100%;
+                max-width: 200px;
             }
             
             .header h1 {
@@ -217,11 +315,38 @@
                 padding: 10px 4px;
                 font-size: 12px;
             }
+            
+            .back-btn {
+                bottom: 15px;
+                padding: 10px 20px;
+                font-size: 14px;
+            }
         }
     </style>
 </head>
 <body>
-    <a href="index.html" class="back-btn">← Về Trang Chủ</a>
+    <div class="date-input-section">
+        <h3>📅 Chọn ngày để chuyển đổi</h3>
+        <div class="date-input-group">
+            <input type="number" id="inputDay" placeholder="Ngày" min="1" max="31" value="">
+            <select id="inputMonth">
+                <option value="1">Tháng 1</option>
+                <option value="2">Tháng 2</option>
+                <option value="3">Tháng 3</option>
+                <option value="4">Tháng 4</option>
+                <option value="5">Tháng 5</option>
+                <option value="6">Tháng 6</option>
+                <option value="7">Tháng 7</option>
+                <option value="8">Tháng 8</option>
+                <option value="9">Tháng 9</option>
+                <option value="10">Tháng 10</option>
+                <option value="11">Tháng 11</option>
+                <option value="12">Tháng 12</option>
+            </select>
+            <input type="number" id="inputYear" placeholder="Năm" min="1900" max="2100" value="">
+            <button class="convert-btn" id="convertBtn">Tra cứu</button>
+        </div>
+    </div>
     
     <div class="container">
         <div class="header">
@@ -605,18 +730,83 @@
             }
         });
         
+        // Hàm chuyển đổi ngày được chọn
+        async function convertSelectedDate() {
+            const day = parseInt(document.getElementById('inputDay').value);
+            const month = parseInt(document.getElementById('inputMonth').value);
+            const year = parseInt(document.getElementById('inputYear').value);
+            
+            // Kiểm tra dữ liệu hợp lệ
+            if (!day || !month || !year) {
+                alert('Vui lòng nhập đầy đủ ngày, tháng, năm!');
+                return;
+            }
+            
+            // Kiểm tra ngày hợp lệ
+            const date = new Date(year, month - 1, day);
+            if (date.getDate() !== day || date.getMonth() !== month - 1 || date.getFullYear() !== year) {
+                alert('Ngày tháng năm không hợp lệ!');
+                return;
+            }
+            
+            // Cập nhật currentDate
+            currentDate = date;
+            
+            // Hiển thị kết quả
+            if (isLunarMode) {
+                await displayLunarCalendar();
+            } else {
+                await displaySolarCalendar();
+            }
+        }
+        
+        // Thiết lập giá trị mặc định cho input
+        function setDefaultDateInputs() {
+            const now = new Date();
+            document.getElementById('inputDay').value = now.getDate();
+            document.getElementById('inputMonth').value = now.getMonth() + 1;
+            document.getElementById('inputYear').value = now.getFullYear();
+        }
+        
+        // Event listener cho nút chuyển đổi
+        document.getElementById('convertBtn').addEventListener('click', convertSelectedDate);
+        
+        // Event listener cho Enter key
+        document.getElementById('inputDay').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') convertSelectedDate();
+        });
+        document.getElementById('inputMonth').addEventListener('change', convertSelectedDate);
+        document.getElementById('inputYear').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') convertSelectedDate();
+        });
+        
         // Initialize
+        setDefaultDateInputs();
         displaySolarCalendar();
         
         // Update every minute
         setInterval(() => {
-            currentDate = new Date();
-            if (isLunarMode) {
-                displayLunarCalendar();
-            } else {
-                displaySolarCalendar();
+            const now = new Date();
+            // Chỉ cập nhật nếu không có ngày được chọn thủ công
+            const inputDay = document.getElementById('inputDay').value;
+            const inputMonth = document.getElementById('inputMonth').value;
+            const inputYear = document.getElementById('inputYear').value;
+            
+            // Nếu ngày hiện tại khác với ngày được chọn, cập nhật
+            if (!inputDay || !inputMonth || !inputYear || 
+                (parseInt(inputDay) === now.getDate() && 
+                 parseInt(inputMonth) === now.getMonth() + 1 && 
+                 parseInt(inputYear) === now.getFullYear())) {
+                currentDate = now;
+                if (isLunarMode) {
+                    displayLunarCalendar();
+                } else {
+                    displaySolarCalendar();
+                }
             }
         }, 60000);
     </script>
+    
+    <a href="index.html" class="back-btn">← Về Trang Chủ</a>
 </body>
 </html>
