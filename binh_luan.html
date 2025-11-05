@@ -413,7 +413,7 @@
         // Admin list - THÊM EMAIL ADMIN VÀO ĐÂY
         const adminList = [
             'jaboz.bot@gmail.com', // Thêm email admin vào đây
-            'admin',
+            
             // Thêm các email admin khác nếu cần
         ];
 
@@ -447,6 +447,19 @@
         const savedEmail = localStorage.getItem('commenterEmail');
         if (savedEmail) {
             document.getElementById('userEmailInput').value = savedEmail;
+        }
+        
+        // Add admin link if user is admin
+        const currentUserEmail = savedEmail || '';
+        if (currentUserEmail && isAdmin(currentUserEmail)) {
+            const header = document.querySelector('.header');
+            const adminLink = document.createElement('a');
+            adminLink.href = 'admin_binh_luan.html';
+            adminLink.textContent = '🔧 Quản Lý Bình Luận';
+            adminLink.style.cssText = 'display: inline-block; margin-top: 15px; padding: 10px 20px; background: linear-gradient(45deg, #FF9800, #F57C00); color: white; text-decoration: none; border-radius: 8px; font-weight: bold; transition: transform 0.2s;';
+            adminLink.onmouseover = function() { this.style.transform = 'translateY(-2px)'; };
+            adminLink.onmouseout = function() { this.style.transform = 'translateY(0)'; };
+            header.appendChild(adminLink);
         }
 
         // Bad words filter (Vietnamese)
