@@ -150,6 +150,24 @@
             font-size: 14px;
             font-weight: bold;
         }
+        .comment-link {
+            background: linear-gradient(45deg, #E91E63, #C2185B);
+            padding: 8px 20px;
+            font-size: 14px;
+            width: auto;
+            display: inline-block;
+            border-radius: 8px;
+            color: white;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .comment-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
     </style>
 </head>
 <body>
@@ -180,6 +198,7 @@
 
 <div class="settings-area">
     <button class="settings-link" id="installButton">📲 Trang Chủ</button>
+    <a href="binh_luan.html" class="comment-link">💬 Đóng góp ý kiến</a>
     <div class="visitor-counter">
         <span>👥 Lượt truy cập trong ngày:</span>
         <span class="counter-number" id="visitorCount">0</span>
