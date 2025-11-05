@@ -470,17 +470,25 @@ table tr td:empty{background-color:#dddddd;cursor:default}
 
             <label data-i18n="gps_location">📍 Vị trí GPS (cho chấm công tự động):</label>
 
-            <div style="display:flex;gap:5px;margin-bottom:5px;">
+            <div style="display:flex;gap:5px;margin-bottom:5px;align-items:flex-start;">
 
-                <input type="number" id="jobLat" step="any" data-i18n-placeholder="gps_lat_placeholder" placeholder="Vĩ độ (Lat)" style="flex:1;">
+                <input type="number" id="jobLat" step="any" data-i18n-placeholder="gps_lat_placeholder" placeholder="Vĩ độ (Lat)" style="flex:1;padding:8px;border:1px solid #ccc;border-radius:5px;box-sizing:border-box;">
 
-                <input type="number" id="jobLng" step="any" data-i18n-placeholder="gps_lng_placeholder" placeholder="Kinh độ (Lng)" style="flex:1;">
+                <input type="number" id="jobLng" step="any" data-i18n-placeholder="gps_lng_placeholder" placeholder="Kinh độ (Lng)" style="flex:1;padding:8px;border:1px solid #ccc;border-radius:5px;box-sizing:border-box;">
 
-                <button type="button" id="getCurrentLocation" style="padding:8px 12px;background:#3498db;color:#fff;border:none;border-radius:5px;cursor:pointer;white-space:nowrap;" data-i18n="get_location">Lấy vị trí</button>
+                <button type="button" id="getCurrentLocation" style="padding:8px 12px;background:#3498db;color:#fff;border:none;border-radius:5px;cursor:pointer;white-space:nowrap;height:38px;align-self:flex-start;" data-i18n="get_location">Lấy vị trí</button>
 
             </div>
 
-            <input type="number" id="jobRadius" min="10" max="1000" value="100" data-i18n-placeholder="gps_radius_placeholder" placeholder="Bán kính (mét)" style="width:100%;">
+            <div id="locationAddressDisplay" style="margin-top:8px;padding:10px;background:#f0f8ff;border-radius:5px;border-left:4px solid #3498db;display:none;">
+
+                <div style="font-weight:bold;color:#2980b9;margin-bottom:5px;" data-i18n="location_address_label">📍 Địa chỉ:</div>
+
+                <div id="locationAddressText" style="color:#555;font-size:0.95em;line-height:1.4;"></div>
+
+            </div>
+
+            <input type="number" id="jobRadius" min="10" max="1000" value="100" data-i18n-placeholder="gps_radius_placeholder" placeholder="Bán kính (mét)" style="width:100%;margin-top:10px;">
 
             <small style="color:#7f8c8d;font-size:0.85em;" data-i18n="gps_radius_hint">Bán kính cho phép chấm công tự động (mét). Mặc định: 100m</small>
 
@@ -527,6 +535,76 @@ table tr td:empty{background-color:#dddddd;cursor:default}
             <button class="cancel" id="autoCheckinOff" data-i18n="auto_checkin_off">✗ Tắt</button>
 
             <button class="save" id="autoCheckinOn" data-i18n="auto_checkin_on">✓ Bật</button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Modal Xác nhận chấm công tự động -->
+
+<div class="modal" id="confirmCheckinModal">
+
+    <div class="modal-content" style="max-width:420px;">
+
+        <h3 data-i18n="confirm_checkin_title">✅ Xác nhận chấm công tự động</h3>
+
+        <div style="margin-bottom:20px;">
+
+            <p style="color:#555;line-height:1.6;margin-bottom:15px;" id="confirmCheckinMessage">
+
+                Đã tự động chấm công vào lúc <strong id="confirmCheckinTime"></strong>
+
+            </p>
+
+            <div style="background:#f0f8ff;padding:15px;border-radius:8px;border-left:4px solid #3498db;">
+
+                <div style="margin-bottom:10px;">
+
+                    <strong data-i18n="checkin_date_label">Ngày:</strong> <span id="confirmCheckinDate"></span>
+
+                </div>
+
+                <div style="margin-bottom:8px;">
+
+                    <strong data-i18n="checkin_type">Loại:</strong> <span id="confirmCheckinType"></span>
+
+                </div>
+
+                <div style="margin-bottom:8px;">
+
+                    <strong data-i18n="checkin_time_label">Giờ vào:</strong> <span id="confirmCheckinTimeDetail"></span>
+
+                </div>
+
+                <div id="confirmCheckinOutTime" style="display:none;margin-bottom:8px;">
+
+                    <strong data-i18n="checkout_time_label">Giờ ra:</strong> <span id="confirmCheckoutTimeDetail"></span>
+
+                </div>
+
+                <div id="confirmCheckinHours" style="display:none;">
+
+                    <strong data-i18n="total_hours_label">Tổng giờ:</strong> <span id="confirmTotalHoursDetail"></span>
+
+                </div>
+
+            </div>
+
+            <p style="color:#888;font-size:0.9em;margin-top:10px;" data-i18n="confirm_checkin_hint">
+
+                Vui lòng kiểm tra thông tin trên. Nếu có sai sót, nhấn "Sửa lại" để chỉnh sửa.
+
+            </p>
+
+        </div>
+
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px;">
+
+            <button class="cancel" id="editCheckinBtn" data-i18n="edit_checkin">✏️ Sửa lại</button>
+
+            <button class="save" id="confirmCheckinOkBtn" data-i18n="ok_button">✓ OK</button>
 
         </div>
 
@@ -724,6 +802,8 @@ const translations = {
 
         gps_radius_hint: 'Bán kính cho phép chấm công tự động (mét). Mặc định: 100m',
 
+        location_address_label: '📍 Địa chỉ:',
+
         notification_checkin: '✅ Đã tự động chấm công vào',
 
         notification_checkout: '✅ Đã tự động chấm công ra',
@@ -738,9 +818,27 @@ const translations = {
 
         auto_checkin_description: 'Đây là tính năng chấm công tự động sử dụng GPS. Khi bật, hệ thống sẽ tự động kiểm tra vị trí của bạn và chấm công vào/ra khi bạn đến hoặc rời khỏi nơi làm việc.',
 
-        custom_notification_label: 'Thông báo tùy chỉnh:',
+        confirm_checkin_title: '✅ Xác nhận chấm công tự động',
 
-        custom_notification_hint: 'Để trống để sử dụng thông báo mặc định'
+        checkin_type: 'Loại:',
+
+        checkin_date_label: 'Ngày:',
+
+        checkin_time_label: 'Giờ vào:',
+
+        checkout_time_label: 'Giờ ra:',
+
+        total_hours_label: 'Tổng giờ:',
+
+        confirm_checkin_hint: 'Vui lòng kiểm tra thông tin trên. Nếu có sai sót, nhấn "Sửa lại" để chỉnh sửa.',
+
+        edit_checkin: '✏️ Sửa lại',
+
+        ok_button: '✓ OK',
+
+        checkin_type_in: 'Chấm công vào',
+
+        checkin_type_out: 'Chấm công ra'
 
     },
 
@@ -838,6 +936,8 @@ const translations = {
 
         gps_radius_hint: '자동 출퇴근 허용 반경 (미터). 기본값: 100m',
 
+        location_address_label: '📍 주소:',
+
         notification_checkin: '✅ 자동 출근 기록됨',
 
         notification_checkout: '✅ 자동 퇴근 기록됨',
@@ -852,9 +952,27 @@ const translations = {
 
         auto_checkin_description: '이것은 GPS를 사용하는 자동 출퇴근 기능입니다. 활성화하면 시스템이 귀하의 위치를 자동으로 확인하고 직장에 도착하거나 떠날 때 자동으로 출퇴근을 기록합니다.',
 
-        custom_notification_label: '사용자 정의 알림:',
+        confirm_checkin_title: '✅ 자동 출퇴근 확인',
 
-        custom_notification_hint: '기본 알림을 사용하려면 비워두세요'
+        checkin_type: '유형:',
+
+        checkin_date_label: '날짜:',
+
+        checkin_time_label: '출근 시간:',
+
+        checkout_time_label: '퇴근 시간:',
+
+        total_hours_label: '총 시간:',
+
+        confirm_checkin_hint: '위 정보를 확인해주세요. 오류가 있으면 "수정"을 눌러 편집하세요.',
+
+        edit_checkin: '✏️ 수정',
+
+        ok_button: '✓ 확인',
+
+        checkin_type_in: '출근',
+
+        checkin_type_out: '퇴근'
 
     }
 
@@ -1073,6 +1191,18 @@ function openJobModal(jobId = null){
 
         set('jobRadius', job.radius || 100);
 
+        // Hiển thị địa chỉ nếu có GPS location
+
+        if (job.lat && job.lng) {
+
+            getAddressFromCoordinates(parseFloat(job.lat), parseFloat(job.lng));
+
+        } else {
+
+            document.getElementById('locationAddressDisplay').style.display = 'none';
+
+        }
+
     } else {
 
         set('jobName',''); set('jobAddress','');
@@ -1090,6 +1220,10 @@ function openJobModal(jobId = null){
         set('jobLat',''); set('jobLng','');
 
         set('jobRadius', 100);
+
+        // Ẩn địa chỉ khi tạo mới
+
+        document.getElementById('locationAddressDisplay').style.display = 'none';
 
     }
 
@@ -1967,6 +2101,10 @@ function checkLocationOnOpen(position) {
 
         localStorage.setItem('workData', JSON.stringify(workData));
 
+        // Hiển thị popup xác nhận
+
+        showConfirmCheckinModal('in', currentTime, '', 0, todayKey);
+
         showNotification(getTranslation('notification_checkin'));
 
         renderCalendar();
@@ -1998,6 +2136,10 @@ function checkLocationOnOpen(position) {
         };
 
         localStorage.setItem('workData', JSON.stringify(workData));
+
+        // Hiển thị popup xác nhận
+
+        showConfirmCheckinModal('out', todayJobData.in, currentTime, hrs, todayKey);
 
         showNotification(getTranslation('notification_checkout'));
 
@@ -2065,6 +2207,10 @@ function checkAutoCheckin(position) {
 
             lastCheckinStatus = 'in';
 
+            // Hiển thị popup xác nhận
+
+            showConfirmCheckinModal('in', currentTime, '', 0, todayKey);
+
             showNotification(getTranslation('notification_checkin'));
 
             renderCalendar();
@@ -2098,6 +2244,10 @@ function checkAutoCheckin(position) {
         localStorage.setItem('workData', JSON.stringify(workData));
 
         lastCheckinStatus = 'out';
+
+        // Hiển thị popup xác nhận
+
+        showConfirmCheckinModal('out', todayJobData.in, currentTime, hrs, todayKey);
 
         showNotification(getTranslation('notification_checkout'));
 
@@ -2196,6 +2346,86 @@ function showNotification(message) {
     // Fallback: hiển thị alert nếu không có notification
 
     console.log(message);
+
+}
+
+// Hiển thị popup xác nhận chấm công tự động
+
+function showConfirmCheckinModal(type, timeIn, timeOut, hours, dateKey) {
+
+    const confirmModal = document.getElementById('confirmCheckinModal');
+
+    const confirmMessage = document.getElementById('confirmCheckinMessage');
+
+    const confirmTime = document.getElementById('confirmCheckinTime');
+
+    const confirmType = document.getElementById('confirmCheckinType');
+
+    const confirmTimeDetail = document.getElementById('confirmCheckinTimeDetail');
+
+    const confirmOutTimeDiv = document.getElementById('confirmCheckinOutTime');
+
+    const confirmOutTimeDetail = document.getElementById('confirmCheckoutTimeDetail');
+
+    const confirmHoursDiv = document.getElementById('confirmCheckinHours');
+
+    const confirmTotalHoursDetail = document.getElementById('confirmTotalHoursDetail');
+
+    const confirmDate = document.getElementById('confirmCheckinDate');
+
+    // Lấy thông tin ngày từ dateKey
+
+    const [y, m, d] = dateKey.split('-').map(Number);
+
+    const dateStr = `${pad(d)}/${pad(m)}/${y}`;
+
+    confirmDate.textContent = dateStr;
+
+    // Thiết lập thông tin
+
+    if (type === 'in') {
+
+        confirmMessage.innerHTML = `Đã tự động chấm công vào lúc <strong>${timeIn}</strong> ngày ${dateStr}`;
+
+        confirmTime.textContent = timeIn;
+
+        confirmType.textContent = getTranslation('checkin_type_in');
+
+        confirmTimeDetail.textContent = timeIn;
+
+        confirmOutTimeDiv.style.display = 'none';
+
+        confirmHoursDiv.style.display = 'none';
+
+    } else if (type === 'out') {
+
+        confirmMessage.innerHTML = `Đã tự động chấm công ra lúc <strong>${timeOut}</strong> ngày ${dateStr}`;
+
+        confirmTime.textContent = timeOut;
+
+        confirmType.textContent = getTranslation('checkin_type_out');
+
+        confirmTimeDetail.textContent = timeIn;
+
+        confirmOutTimeDiv.style.display = 'block';
+
+        confirmOutTimeDetail.textContent = timeOut;
+
+        confirmHoursDiv.style.display = 'block';
+
+        confirmTotalHoursDetail.textContent = formatHoursToTime(hours);
+
+    }
+
+    // Hiển thị modal
+
+    confirmModal.style.display = 'flex';
+
+    // Lưu thông tin để xử lý khi sửa
+
+    confirmModal.dataset.dateKey = dateKey;
+
+    confirmModal.dataset.type = type;
 
 }
 
@@ -2391,6 +2621,172 @@ autoCheckinOffBtn.onclick = () => {
 
 };
 
+// Modal Xác nhận chấm công
+
+const confirmCheckinModal = document.getElementById('confirmCheckinModal');
+
+const confirmCheckinOkBtn = document.getElementById('confirmCheckinOkBtn');
+
+const editCheckinBtn = document.getElementById('editCheckinBtn');
+
+// Nút OK - Xác nhận và đóng modal
+
+confirmCheckinOkBtn.onclick = () => {
+
+    confirmCheckinModal.style.display = 'none';
+
+};
+
+// Nút Sửa lại - Mở modal chỉnh sửa giờ
+
+editCheckinBtn.onclick = () => {
+
+    const dateKey = confirmCheckinModal.dataset.dateKey;
+
+    if (dateKey) {
+
+        // Đóng modal xác nhận
+
+        confirmCheckinModal.style.display = 'none';
+
+        // Mở modal chỉnh sửa giờ
+
+        openModal(dateKey);
+
+    }
+
+};
+
+// Đóng modal xác nhận khi click ra ngoài
+
+confirmCheckinModal.addEventListener('click', (e) => {
+
+    if (e.target === confirmCheckinModal) {
+
+        confirmCheckinModal.style.display = 'none';
+
+    }
+
+});
+
+// Lấy địa chỉ từ tọa độ GPS (Reverse Geocoding)
+
+function getAddressFromCoordinates(lat, lng) {
+
+    const addressDisplay = document.getElementById('locationAddressDisplay');
+
+    const addressText = document.getElementById('locationAddressText');
+
+    addressText.textContent = 'Đang tải địa chỉ...';
+
+    addressDisplay.style.display = 'block';
+
+    // Sử dụng Nominatim API (OpenStreetMap) - miễn phí
+
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`, {
+
+        headers: {
+
+            'User-Agent': 'ChamCongApp/1.0'
+
+        }
+
+    })
+
+    .then(response => response.json())
+
+    .then(data => {
+
+        if (data && data.address) {
+
+            const addr = data.address;
+
+            let addressParts = [];
+
+            // Xây dựng địa chỉ từ các thành phần
+
+            if (addr.road || addr.street) addressParts.push(addr.road || addr.street);
+
+            if (addr.house_number) addressParts.push(addr.house_number);
+
+            if (addr.ward || addr.suburb) addressParts.push(addr.ward || addr.suburb);
+
+            if (addr.district || addr.city_district) addressParts.push(addr.district || addr.city_district);
+
+            if (addr.city || addr.town || addr.village) addressParts.push(addr.city || addr.town || addr.village);
+
+            if (addr.state || addr.province) addressParts.push(addr.state || addr.province);
+
+            if (addr.country) {
+
+                const countryName = addr.country === 'Việt Nam' || addr.country === 'Vietnam' ? 'Việt Nam' : addr.country;
+
+                addressParts.push(countryName);
+
+            }
+
+            const fullAddress = addressParts.length > 0 ? addressParts.join(', ') : data.display_name || 'Không xác định được địa chỉ';
+
+            addressText.textContent = fullAddress;
+
+        } else {
+
+            addressText.textContent = 'Không thể lấy địa chỉ. Vĩ độ: ' + lat + ', Kinh độ: ' + lng;
+
+        }
+
+    })
+
+    .catch(error => {
+
+        console.error('Lỗi khi lấy địa chỉ:', error);
+
+        addressText.textContent = 'Không thể lấy địa chỉ. Vĩ độ: ' + lat + ', Kinh độ: ' + lng;
+
+    });
+
+}
+
+// Tự động lấy địa chỉ khi người dùng nhập tọa độ thủ công
+
+const jobLatInput = document.getElementById('jobLat');
+
+const jobLngInput = document.getElementById('jobLng');
+
+let addressUpdateTimeout = null;
+
+function updateAddressFromInputs() {
+
+    clearTimeout(addressUpdateTimeout);
+
+    addressUpdateTimeout = setTimeout(() => {
+
+        const lat = parseFloat(jobLatInput.value);
+
+        const lng = parseFloat(jobLngInput.value);
+
+        if (!isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0) {
+
+            getAddressFromCoordinates(lat, lng);
+
+        } else {
+
+            document.getElementById('locationAddressDisplay').style.display = 'none';
+
+        }
+
+    }, 1000); // Đợi 1 giây sau khi người dùng ngừng nhập
+
+}
+
+if (jobLatInput && jobLngInput) {
+
+    jobLatInput.addEventListener('input', updateAddressFromInputs);
+
+    jobLngInput.addEventListener('input', updateAddressFromInputs);
+
+}
+
 // Nút lấy vị trí hiện tại
 
 document.getElementById('getCurrentLocation').onclick = () => {
@@ -2427,15 +2823,15 @@ document.getElementById('getCurrentLocation').onclick = () => {
 
             document.getElementById('jobLng').value = lng;
 
+            // Lấy địa chỉ từ tọa độ (Reverse Geocoding)
+
+            getAddressFromCoordinates(parseFloat(lat), parseFloat(lng));
+
             // Khôi phục nút
 
             btn.textContent = originalText;
 
             btn.disabled = false;
-
-            // Hiển thị thông báo thành công
-
-            alert(`Đã lấy vị trí thành công!\nVĩ độ: ${lat}\nKinh độ: ${lng}`);
 
             console.log('Vị trí đã được lấy:', lat, lng);
 
