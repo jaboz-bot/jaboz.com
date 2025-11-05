@@ -69,6 +69,9 @@
         
         .exchange-box {
             margin-bottom: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         
         .currency-selector {
@@ -209,6 +212,8 @@
             box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
             -webkit-tap-highlight-color: transparent;
             touch-action: manipulation;
+            align-self: center;
+            flex-shrink: 0;
         }
         
         .swap-button:hover {
@@ -403,6 +408,7 @@
                 height: 45px;
                 font-size: 20px;
                 margin: 8px auto;
+                align-self: center;
             }
             
             .result-box {
@@ -499,6 +505,14 @@
             .amount-input {
                 font-size: 15px;
                 padding: 6px 7px;
+            }
+            
+            .swap-button {
+                width: 42px;
+                height: 42px;
+                font-size: 18px;
+                margin: 7px auto;
+                align-self: center;
             }
             
             .currency-list {
