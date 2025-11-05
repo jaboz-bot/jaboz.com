@@ -247,45 +247,38 @@ table tr td:empty{background-color:#dddddd;cursor:default}
 
 .calc-grid button.back{background:#f39c12;color:#fff}
 
+/* Inline styles -> CSS classes */
+.flex-gap{display:flex;gap:10px}
+.flex-end{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+.flex-between{display:flex;justify-content:space-between;align-items:center}
+.mb-10{margin-bottom:10px}
+.mb-20{margin-bottom:20px}
+.mt-10{margin-top:10px}
+.m-0{margin:0}
+.mr-5{margin-right:5px}
+.ml-auto{margin-left:auto}
+.text-gray{color:#555;line-height:1.6}
+.text-gray-light{color:#888;font-size:0.9em}
+.info-box{background:#f0f8ff;padding:15px;border-radius:8px;border-left:4px solid #3498db}
+.info-title{font-weight:bold;color:#2980b9;margin-bottom:8px;font-size:1.05em}
+.info-text{color:#555;font-size:1em;line-height:1.6;word-wrap:break-word}
+.search-btn{width:100%;padding:12px;background:#2ecc71;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:1em;box-shadow:0 2px 5px rgba(0,0,0,.2);transition:all 0.3s}
+.search-btn:hover{background:#27ae60;transform:translateY(-2px);box-shadow:0 4px 8px rgba(0,0,0,.3)}
+.modal-wide{max-width:450px}
+.modal-medium{max-width:420px}
+.grid-span-2{grid-column:span 2}
+.empty-job-msg{color:#999;font-size:0.9em;min-width:100%;text-align:center;padding:15px}
+
 /* Media query cho mobile */
 @media (max-width: 768px) {
-    .container {
-        margin: 10px auto;
-        padding: 12px;
-    }
-    
-    .top-controls {
-        padding-bottom: 8px;
-        margin-bottom: 5px;
-    }
-    
-    #jobCarousel {
-        padding: 8px;
-        margin-bottom: 12px;
-    }
-    
-    .header {
-        padding-bottom: 8px;
-    }
-    
-    .summary {
-        padding: 8px;
-        margin-top: 15px;
-    }
-    
-    .modal-content {
-        padding: 15px;
-    }
-    
-    th, td {
-        padding: 3px;
-        font-size: 0.8em;
-    }
-    
-    .day {
-        height: 70px;
-        padding-top: 15px;
-    }
+    .container{margin:10px auto;padding:12px}
+    .top-controls{padding-bottom:8px;margin-bottom:5px}
+    #jobCarousel{padding:8px;margin-bottom:12px}
+    .header{padding-bottom:8px}
+    .summary{padding:8px;margin-top:15px}
+    .modal-content{padding:15px}
+    th,td{padding:3px;font-size:0.8em}
+    .day{height:70px;padding-top:15px}
 }
 
 </style>
@@ -398,7 +391,7 @@ table tr td:empty{background-color:#dddddd;cursor:default}
 
         <div class="button-group">
 
-            <div style="display:flex;gap:10px;margin-left:auto;">
+            <div class="flex-gap ml-auto">
 
                 <button class="delete" id="deleteTime" data-i18n="delete">Xóa</button>
 
@@ -446,10 +439,10 @@ table tr td:empty{background-color:#dddddd;cursor:default}
 
         <div class="input-group">
 
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
-                <label for="jobEndDate" data-i18n="job_end_date" style="margin:0;">Ngày nghỉ việc:</label>
-                <label style="display:flex;align-items:center;margin:0;cursor:pointer;">
-                    <input type="checkbox" id="jobIsCurrent" data-i18n-placeholder="job_is_current" style="margin-right:5px;"> 
+            <div class="flex-between mb-10">
+                <label for="jobEndDate" data-i18n="job_end_date" class="m-0">Ngày nghỉ việc:</label>
+                <label class="flex-gap m-0" style="cursor:pointer;">
+                    <input type="checkbox" id="jobIsCurrent" data-i18n-placeholder="job_is_current" class="mr-5"> 
                     <span data-i18n="job_is_current">Đang làm</span>
                 </label>
             </div>
@@ -470,17 +463,17 @@ table tr td:empty{background-color:#dddddd;cursor:default}
 
             <label data-i18n="gps_location">📍 Vị trí GPS (cho chấm công tự động):</label>
 
-            <div style="margin-bottom:10px;">
+            <div class="mb-10">
 
-                <button type="button" id="searchAddressBtn" style="width:100%;padding:12px;background:#2ecc71;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:1em;box-shadow:0 2px 5px rgba(0,0,0,.2);transition:all 0.3s;" data-i18n="search_address" onmouseover="this.style.background='#27ae60';this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 8px rgba(0,0,0,.3)'" onmouseout="this.style.background='#2ecc71';this.style.transform='translateY(0)';this.style.boxShadow='0 2px 5px rgba(0,0,0,.2)'">🔍 Tìm kiếm vị trí đã nhập</button>
+                <button type="button" id="searchAddressBtn" class="search-btn" data-i18n="search_address">🔍 Tìm kiếm vị trí đã nhập</button>
 
             </div>
 
-            <div id="locationAddressDisplay" style="margin-top:10px;padding:15px;background:#f0f8ff;border-radius:8px;border-left:4px solid #3498db;display:none;">
+            <div id="locationAddressDisplay" class="info-box mt-10" style="display:none;">
 
-                <div style="font-weight:bold;color:#2980b9;margin-bottom:8px;font-size:1.05em;" data-i18n="location_address_label">📍 Địa chỉ:</div>
+                <div class="info-title" data-i18n="location_address_label">📍 Địa chỉ:</div>
 
-                <div id="locationAddressText" style="color:#555;font-size:1em;line-height:1.6;word-wrap:break-word;"></div>
+                <div id="locationAddressText" class="info-text"></div>
 
             </div>
 
@@ -494,7 +487,7 @@ table tr td:empty{background-color:#dddddd;cursor:default}
 
         </div>
 
-        <div class="job-button-group" style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;">
+        <div class="job-button-group flex-between mt-10">
 
             <button class="delete" id="deleteJob" data-i18n="delete">Xóa</button>
 
@@ -516,13 +509,13 @@ table tr td:empty{background-color:#dddddd;cursor:default}
 
 <div class="modal" id="autoCheckinModal">
 
-    <div class="modal-content" style="max-width:450px;">
+    <div class="modal-content modal-wide">
 
         <h3 data-i18n="auto_checkin_modal_title">⚙️ Chấm công tự động</h3>
 
-        <div style="margin-bottom:20px;">
+        <div class="mb-20">
 
-            <p style="color:#555;line-height:1.6;margin-bottom:15px;" data-i18n="auto_checkin_description">
+            <p class="text-gray mb-10" data-i18n="auto_checkin_description">
 
                 Đây là tính năng chấm công tự động sử dụng GPS. Khi bật, hệ thống sẽ tự động kiểm tra vị trí của bạn và chấm công vào/ra khi bạn đến hoặc rời khỏi nơi làm việc.
 
@@ -530,7 +523,7 @@ table tr td:empty{background-color:#dddddd;cursor:default}
 
         </div>
 
-        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px;">
+        <div class="flex-end">
 
             <button class="cancel" id="autoCheckinOff" data-i18n="auto_checkin_off">✗ Tắt</button>
 
@@ -546,39 +539,39 @@ table tr td:empty{background-color:#dddddd;cursor:default}
 
 <div class="modal" id="confirmCheckinModal">
 
-    <div class="modal-content" style="max-width:420px;">
+    <div class="modal-content modal-medium">
 
         <h3 data-i18n="confirm_checkin_title">✅ Xác nhận chấm công tự động</h3>
 
-        <div style="margin-bottom:20px;">
+        <div class="mb-20">
 
-            <p style="color:#555;line-height:1.6;margin-bottom:15px;" id="confirmCheckinMessage">
+            <p class="text-gray mb-10" id="confirmCheckinMessage">
 
                 Đã tự động chấm công vào lúc <strong id="confirmCheckinTime"></strong>
 
             </p>
 
-            <div style="background:#f0f8ff;padding:15px;border-radius:8px;border-left:4px solid #3498db;">
+            <div class="info-box">
 
-                <div style="margin-bottom:10px;">
+                <div class="mb-10">
 
                     <strong data-i18n="checkin_date_label">Ngày:</strong> <span id="confirmCheckinDate"></span>
 
                 </div>
 
-                <div style="margin-bottom:8px;">
+                <div class="mb-10">
 
                     <strong data-i18n="checkin_type">Loại:</strong> <span id="confirmCheckinType"></span>
 
                 </div>
 
-                <div style="margin-bottom:8px;">
+                <div class="mb-10">
 
                     <strong data-i18n="checkin_time_label">Giờ vào:</strong> <span id="confirmCheckinTimeDetail"></span>
 
                 </div>
 
-                <div id="confirmCheckinOutTime" style="display:none;margin-bottom:8px;">
+                <div id="confirmCheckinOutTime" style="display:none;" class="mb-10">
 
                     <strong data-i18n="checkout_time_label">Giờ ra:</strong> <span id="confirmCheckoutTimeDetail"></span>
 
@@ -592,7 +585,7 @@ table tr td:empty{background-color:#dddddd;cursor:default}
 
             </div>
 
-            <p style="color:#888;font-size:0.9em;margin-top:10px;" data-i18n="confirm_checkin_hint">
+            <p class="text-gray-light mt-10" data-i18n="confirm_checkin_hint">
 
                 Vui lòng kiểm tra thông tin trên. Nếu có sai sót, nhấn "Sửa lại" để chỉnh sửa.
 
@@ -600,7 +593,7 @@ table tr td:empty{background-color:#dddddd;cursor:default}
 
         </div>
 
-        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px;">
+        <div class="flex-end">
 
             <button class="cancel" id="editCheckinBtn" data-i18n="edit_checkin">✏️ Sửa lại</button>
 
@@ -660,7 +653,7 @@ table tr td:empty{background-color:#dddddd;cursor:default}
 
             <button class="back" data-action="back">←</button>
 
-            <button class="cancel" id="closeCalc" style="grid-column: span 2;" data-i18n="close">Đóng</button>
+            <button class="cancel grid-span-2" id="closeCalc" data-i18n="close">Đóng</button>
 
         </div>
 
@@ -1450,7 +1443,7 @@ function renderJobList(){
 
     if (jobs.length === 0){
 
-        jobCarouselDiv.innerHTML = `<div style="color:#999;font-size:0.9em; min-width: 100%; text-align: center; padding: 15px;">${getTranslation('job_name')} (${getTranslation('modal_job_add_title').toLowerCase()})</div>`;
+        jobCarouselDiv.innerHTML = `<div class="empty-job-msg">${getTranslation('job_name')} (${getTranslation('modal_job_add_title').toLowerCase()})</div>`;
 
         jobCarouselDiv.style.border='1px dashed #ccc';
 
