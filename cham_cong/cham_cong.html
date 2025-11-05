@@ -2694,12 +2694,12 @@ function getAddressFromCoordinates(lat, lng) {
 
     addressDisplay.style.display = 'block';
     
-    // Lấy địa chỉ đã nhập từ input để ưu tiên số nhà
+    // Lấy địa chỉ đã nhập từ input để hiển thị nếu API không trả về
     const inputAddress = document.getElementById('jobAddress').value.trim();
 
     // Sử dụng Nominatim API (OpenStreetMap) - miễn phí
 
-    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1&accept-language=ko`, {
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`, {
 
         headers: {
 
@@ -2713,74 +2713,19 @@ function getAddressFromCoordinates(lat, lng) {
 
     .then(data => {
 
-        if (data && data.address) {
+        if (data && data.display_name) {
 
-            const addr = data.address;
+            // Hiển thị địa chỉ từ API (hoặc địa chỉ đã nhập nếu không có)
+            const displayAddress = data.display_name || inputAddress || `Vĩ độ: ${lat}, Kinh độ: ${lng}`;
 
-            let addressParts = [];
-
-            // Xây dựng địa chỉ theo cấu trúc Hàn Quốc (từ lớn đến nhỏ)
-            // Quốc gia → Tỉnh/Thành phố lớn → Thành phố → Quận/Huyện → Phường/Xã → Đường → Số nhà
-
-            if (addr.country) {
-                const countryName = addr.country === 'Việt Nam' || addr.country === 'Vietnam' ? 'Việt Nam' : addr.country;
-                addressParts.push(countryName);
-            }
-
-            if (addr.state || addr.province) addressParts.push(addr.state || addr.province);
-
-            if (addr.city || addr.town || addr.village) addressParts.push(addr.city || addr.town || addr.village);
-
-            if (addr.district || addr.city_district) addressParts.push(addr.district || addr.city_district);
-
-            if (addr.ward || addr.suburb) addressParts.push(addr.ward || addr.suburb);
-
-            if (addr.road || addr.street) addressParts.push(addr.road || addr.street);
-
-            // Ưu tiên số nhà từ địa chỉ đã nhập nếu có
-            if (inputAddress) {
-                const hasHouseNumber = /\d+/.test(inputAddress);
-                if (hasHouseNumber) {
-                    // Tìm số nhà từ địa chỉ đã nhập
-                    const addressTrimmed = inputAddress;
-                    const koreanHouseNumberPatternEnd = /(\d+-\d+)\s*$/;
-                    let koreanMatch = addressTrimmed.match(koreanHouseNumberPatternEnd);
-                    
-                    let houseNumber = null;
-                    if (koreanMatch) {
-                        houseNumber = koreanMatch[1];
-                    } else {
-                        const koreanHouseNumberPatternAny = /\d+-\d+/;
-                        koreanMatch = addressTrimmed.match(koreanHouseNumberPatternAny);
-                        if (koreanMatch) {
-                            houseNumber = koreanMatch[0];
-                        } else {
-                            const numbers = addressTrimmed.match(/\d+/g);
-                            if (numbers && numbers.length > 0) {
-                                houseNumber = numbers[numbers.length - 1];
-                            }
-                        }
-                    }
-                    
-                    if (houseNumber) {
-                        addressParts.push(houseNumber);
-                    } else if (addr.house_number) {
-                        addressParts.push(addr.house_number);
-                    }
-                } else if (addr.house_number) {
-                    addressParts.push(addr.house_number);
-                }
-            } else if (addr.house_number) {
-                addressParts.push(addr.house_number);
-            }
-
-            const fullAddress = addressParts.length > 0 ? addressParts.join(' - ') : data.display_name || 'Không xác định được địa chỉ';
-
-            addressText.textContent = fullAddress;
+            addressText.textContent = displayAddress;
 
         } else {
 
-            addressText.textContent = 'Không thể lấy địa chỉ. Vĩ độ: ' + lat + ', Kinh độ: ' + lng;
+            // Nếu API không trả về địa chỉ, dùng địa chỉ đã nhập hoặc tọa độ
+            const displayAddress = inputAddress || `Vĩ độ: ${lat}, Kinh độ: ${lng}`;
+
+            addressText.textContent = displayAddress;
 
         }
 
@@ -2790,7 +2735,10 @@ function getAddressFromCoordinates(lat, lng) {
 
         console.error('Lỗi khi lấy địa chỉ:', error);
 
-        addressText.textContent = 'Không thể lấy địa chỉ. Vĩ độ: ' + lat + ', Kinh độ: ' + lng;
+        // Nếu có lỗi, hiển thị địa chỉ đã nhập hoặc tọa độ
+        const displayAddress = inputAddress || `Vĩ độ: ${lat}, Kinh độ: ${lng}`;
+
+        addressText.textContent = displayAddress;
 
     });
 
@@ -2825,17 +2773,9 @@ function getCoordinatesFromAddress(address) {
     searchBtn.disabled = true;
 
     // Sử dụng Nominatim API (OpenStreetMap) - Geocoding
-    // Tăng limit để tìm kết quả khớp nhất với địa chỉ chi tiết
-
     const encodedAddress = encodeURIComponent(address.trim());
-    
-    // Kiểm tra xem địa chỉ có chứa số (có thể là số nhà) không
-    const hasHouseNumber = /\d+/.test(address.trim());
-    
-    // Nếu có số nhà, tăng limit để tìm kết quả chính xác hơn
-    const limit = hasHouseNumber ? 10 : 1;
 
-    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodedAddress}&limit=${limit}&addressdetails=1&accept-language=ko`, {
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodedAddress}&limit=1&addressdetails=1`, {
 
         headers: {
 
@@ -2855,149 +2795,20 @@ function getCoordinatesFromAddress(address) {
 
         if (data && data.length > 0) {
 
-            // Nếu địa chỉ có số nhà, tìm kết quả khớp chính xác nhất với số nhà đã nhập
-            let result = data[0];
-            if (hasHouseNumber) {
-                // Lấy số nhà từ địa chỉ đã nhập
-                const addressTrimmed = address.trim();
-                const koreanHouseNumberPatternEnd = /(\d+-\d+)\s*$/;
-                let koreanMatch = addressTrimmed.match(koreanHouseNumberPatternEnd);
-                
-                let inputHouseNumber = null;
-                if (koreanMatch) {
-                    inputHouseNumber = koreanMatch[1];
-                } else {
-                    const koreanHouseNumberPatternAny = /\d+-\d+/;
-                    koreanMatch = addressTrimmed.match(koreanHouseNumberPatternAny);
-                    if (koreanMatch) {
-                        inputHouseNumber = koreanMatch[0];
-                    } else {
-                        const numbers = addressTrimmed.match(/\d+/g);
-                        if (numbers && numbers.length > 0) {
-                            inputHouseNumber = numbers[numbers.length - 1];
-                        }
-                    }
-                }
-                
-                // Tìm kết quả có số nhà khớp với số nhà đã nhập
-                if (inputHouseNumber) {
-                    const exactMatch = data.find(r => {
-                        if (!r.address || !r.address.house_number) return false;
-                        const apiHouseNumber = String(r.address.house_number).trim();
-                        return apiHouseNumber === String(inputHouseNumber).trim() || 
-                               apiHouseNumber.includes(String(inputHouseNumber).trim()) ||
-                               String(inputHouseNumber).trim().includes(apiHouseNumber);
-                    });
-                    
-                    if (exactMatch) {
-                        result = exactMatch;
-                    } else {
-                        // Nếu không tìm thấy khớp chính xác, tìm kết quả tốt nhất
-                        // Sắp xếp theo: có house_number > importance cao nhất
-                        const sortedResults = data.sort((a, b) => {
-                            const aHasHouse = a.address && a.address.house_number ? 1 : 0;
-                            const bHasHouse = b.address && b.address.house_number ? 1 : 0;
-                            if (aHasHouse !== bHasHouse) return bHasHouse - aHasHouse;
-                            return (b.importance || 0) - (a.importance || 0);
-                        });
-                        result = sortedResults[0];
-                    }
-                } else {
-                    // Nếu không tìm thấy số nhà, ưu tiên kết quả có house_number
-                    const resultWithHouseNumber = data.find(r => r.address && r.address.house_number);
-                    if (resultWithHouseNumber) {
-                        result = resultWithHouseNumber;
-                    } else if (data.length > 1) {
-                        result = data.sort((a, b) => (b.importance || 0) - (a.importance || 0))[0];
-                    }
-                }
-            }
+            const result = data[0];
 
             const lat = parseFloat(result.lat);
 
             const lng = parseFloat(result.lon);
 
-            // Lưu tọa độ vào hidden inputs (đảm bảo GPS chính xác với địa chỉ đã nhập)
+            // Lưu tọa độ vào hidden inputs
 
             document.getElementById('jobLat').value = lat.toFixed(6);
 
             document.getElementById('jobLng').value = lng.toFixed(6);
-            
-            // Log để kiểm tra GPS có chính xác không
-            console.log('GPS đã lưu:', lat, lng, 'Từ kết quả:', result.display_name, 'Số nhà API:', result.address?.house_number);
 
-            // Hiển thị địa chỉ theo cấu trúc Hàn Quốc (từ lớn đến nhỏ)
-            let displayAddress = address;
-            
-            if (result.address) {
-                const addr = result.address;
-                let addressParts = [];
-
-                // Xây dựng địa chỉ theo cấu trúc Hàn Quốc (từ lớn đến nhỏ)
-                // Quốc gia → Tỉnh/Thành phố lớn → Thành phố → Quận/Huyện → Phường/Xã → Đường → Số nhà
-
-                if (addr.country) {
-                    const countryName = addr.country === 'Việt Nam' || addr.country === 'Vietnam' ? 'Việt Nam' : addr.country;
-                    addressParts.push(countryName);
-                }
-
-                if (addr.state || addr.province) addressParts.push(addr.state || addr.province);
-
-                if (addr.city || addr.town || addr.village) addressParts.push(addr.city || addr.town || addr.village);
-
-                if (addr.district || addr.city_district) addressParts.push(addr.district || addr.city_district);
-
-                if (addr.ward || addr.suburb) addressParts.push(addr.ward || addr.suburb);
-
-                if (addr.road || addr.street) addressParts.push(addr.road || addr.street);
-
-                // Ưu tiên hiển thị số nhà từ địa chỉ đã nhập nếu có, nếu không thì dùng từ API
-                if (hasHouseNumber) {
-                    // Lấy số nhà từ địa chỉ đã nhập (có thể là dạng "29-9" hoặc số thường)
-                    // Tìm số nhà ở cuối địa chỉ (có thể có dấu gạch ngang)
-                    let houseNumber = null;
-                    const addressTrimmed = address.trim();
-                    
-                    // Tìm số nhà dạng Hàn Quốc (có thể có dấu gạch ngang, ví dụ: 29-9, 123-45)
-                    // Ưu tiên tìm số nhà ở cuối địa chỉ trước
-                    const koreanHouseNumberPatternEnd = /(\d+-\d+)\s*$/;
-                    let koreanMatch = addressTrimmed.match(koreanHouseNumberPatternEnd);
-                    
-                    if (koreanMatch) {
-                        // Tìm thấy số nhà dạng Hàn Quốc ở cuối (ví dụ: 29-9)
-                        houseNumber = koreanMatch[1];
-                    } else {
-                        // Nếu không tìm thấy ở cuối, tìm bất kỳ đâu trong địa chỉ
-                        const koreanHouseNumberPatternAny = /\d+-\d+/;
-                        koreanMatch = addressTrimmed.match(koreanHouseNumberPatternAny);
-                        if (koreanMatch) {
-                            houseNumber = koreanMatch[0];
-                        } else {
-                            // Nếu không tìm thấy dạng số-số, tìm số cuối cùng trong địa chỉ
-                            const numbers = addressTrimmed.match(/\d+/g);
-                            if (numbers && numbers.length > 0) {
-                                // Lấy số cuối cùng (thường là số nhà)
-                                houseNumber = numbers[numbers.length - 1];
-                            }
-                        }
-                    }
-                    
-                    // Nếu có số nhà từ địa chỉ đã nhập, dùng nó
-                    if (houseNumber) {
-                        addressParts.push(houseNumber);
-                    } else if (addr.house_number) {
-                        // Nếu không tìm thấy, dùng từ API
-                        addressParts.push(addr.house_number);
-                    }
-                } else if (addr.house_number) {
-                    // Nếu địa chỉ không có số, dùng từ API nếu có
-                    addressParts.push(addr.house_number);
-                }
-
-                displayAddress = addressParts.length > 0 ? addressParts.join(' - ') : (result.display_name || address);
-            } else {
-                displayAddress = result.display_name || address;
-            }
+            // Hiển thị địa chỉ từ kết quả tìm kiếm (hoặc địa chỉ đã nhập nếu không có)
+            const displayAddress = result.display_name || address.trim();
 
             addressText.textContent = displayAddress;
 
@@ -3005,9 +2816,11 @@ function getCoordinatesFromAddress(address) {
 
         } else {
 
-            addressText.textContent = 'Không tìm thấy địa chỉ. Vui lòng thử lại với địa chỉ khác.';
+            // Nếu không tìm thấy, hiển thị địa chỉ đã nhập
 
-            console.log('Không tìm thấy địa chỉ cho:', address);
+            addressText.textContent = address.trim();
+
+            console.log('Không tìm thấy địa chỉ cho:', address, '- Sử dụng địa chỉ đã nhập');
 
         }
 
@@ -3021,7 +2834,11 @@ function getCoordinatesFromAddress(address) {
 
         searchBtn.disabled = false;
 
-        addressText.textContent = 'Lỗi khi tìm kiếm địa chỉ. Vui lòng thử lại.';
+        // Nếu có lỗi, hiển thị địa chỉ đã nhập
+
+        addressText.textContent = address.trim();
+
+        console.log('Lỗi khi tìm kiếm - Sử dụng địa chỉ đã nhập:', address);
 
     });
 
