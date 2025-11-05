@@ -2,7 +2,7 @@
     "name": "Trang Chủ",
     "short_name": "Trang Chủ",
     "description": "Trung tâm điều khiển và truy cập các ứng dụng chính.",
-    "start_url": "/index.html",
+    "start_url": "/trang_chu.html",
     "display": "standalone",
     "background_color": "#e3f2fd",
     "theme_color": "#1976D2",
