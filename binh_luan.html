@@ -199,6 +199,40 @@
             margin-top: 10px;
             padding-left: 47px;
         }
+        .replies-section {
+            margin-top: 15px;
+            padding-left: 47px;
+            border-left: 3px solid #e0e0e0;
+            margin-left: 10px;
+        }
+        .reply-item {
+            padding: 12px;
+            margin-bottom: 10px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            border-left: 3px solid #1976D2;
+        }
+        .reply-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+        .reply-author {
+            font-weight: bold;
+            color: #1976D2;
+            font-size: 14px;
+        }
+        .reply-date {
+            color: #757575;
+            font-size: 12px;
+            margin-left: auto;
+        }
+        .reply-content {
+            color: #424242;
+            line-height: 1.5;
+            font-size: 14px;
+        }
         .comment-actions {
             display: flex;
             gap: 10px;
@@ -381,7 +415,7 @@
     <script type="module">
         // Import Firebase modules
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, query, orderBy, onSnapshot, serverTimestamp, limit } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, query, orderBy, onSnapshot, serverTimestamp, limit, where, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
         // Firebase configuration - THAY ĐỔI THÔNG TIN NÀY VỚI THÔNG TIN CỦA BẠN
         const firebaseConfig = {
@@ -711,6 +745,9 @@
                             commentItem.appendChild(actionsDiv);
                         }
                         
+                        // Load and display replies
+                        loadReplies(commentId, commentItem);
+                        
                         commentsList.appendChild(commentItem);
                     });
                 }, (error) => {
@@ -758,6 +795,93 @@
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
+        }
+
+        // Load replies for a comment
+        async function loadReplies(commentId, commentItem) {
+            if (!firebaseInitialized || !db) return;
+            
+            try {
+                const repliesRef = collection(db, 'replies');
+                const q = query(repliesRef, where('parentCommentId', '==', commentId), orderBy('timestamp', 'desc'), limit(50));
+                
+                const snapshot = await getDocs(q);
+                
+                if (!snapshot.empty) {
+                    const repliesSection = document.createElement('div');
+                    repliesSection.className = 'replies-section';
+                    
+                    snapshot.forEach((docSnap) => {
+                        const replyData = docSnap.data();
+                        const replyItem = document.createElement('div');
+                        replyItem.className = 'reply-item';
+                        
+                        const replyUserName = replyData.userName || 'Admin';
+                        const replyContent = replyData.content || '';
+                        
+                        let replyDate = new Date();
+                        if (replyData.createdAt) {
+                            replyDate = new Date(replyData.createdAt);
+                        } else if (replyData.timestamp && replyData.timestamp.toDate) {
+                            replyDate = replyData.timestamp.toDate();
+                        }
+                        
+                        replyItem.innerHTML = `
+                            <div class="reply-header">
+                                <span class="reply-author">${escapeHtml(replyUserName)}</span>
+                                <span class="reply-date">${formatDate(replyDate)}</span>
+                            </div>
+                            <div class="reply-content">${escapeHtml(replyContent)}</div>
+                        `;
+                        
+                        repliesSection.appendChild(replyItem);
+                    });
+                    
+                    commentItem.appendChild(repliesSection);
+                }
+            } catch (error) {
+                console.error('Error loading replies:', error);
+                // If query fails (e.g., no index), try without orderBy
+                try {
+                    const repliesRef = collection(db, 'replies');
+                    const q = query(repliesRef, where('parentCommentId', '==', commentId), limit(50));
+                    
+                    const snapshot = await getDocs(q);
+                    
+                    if (!snapshot.empty) {
+                        const repliesSection = document.createElement('div');
+                        repliesSection.className = 'replies-section';
+                        
+                        snapshot.forEach((docSnap) => {
+                            const replyData = docSnap.data();
+                            const replyItem = document.createElement('div');
+                            replyItem.className = 'reply-item';
+                            
+                            const replyUserName = replyData.userName || 'Admin';
+                            const replyContent = replyData.content || '';
+                            
+                            let replyDate = new Date();
+                            if (replyData.createdAt) {
+                                replyDate = new Date(replyData.createdAt);
+                            }
+                            
+                            replyItem.innerHTML = `
+                                <div class="reply-header">
+                                    <span class="reply-author">${escapeHtml(replyUserName)}</span>
+                                    <span class="reply-date">${formatDate(replyDate)}</span>
+                                </div>
+                                <div class="reply-content">${escapeHtml(replyContent)}</div>
+                            `;
+                            
+                            repliesSection.appendChild(replyItem);
+                        });
+                        
+                        commentItem.appendChild(repliesSection);
+                    }
+                } catch (e) {
+                    console.error('Error loading replies (fallback):', e);
+                }
+            }
         }
 
         // Edit comment
