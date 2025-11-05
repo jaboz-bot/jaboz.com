@@ -86,8 +86,6 @@ html,body{height:100%;margin:0;font-family:Arial,sans-serif;background:#f6f8f9}
 
 .month-nav{display:flex;align-items:center;gap:8px;font-weight:bold;color:#27ae60}
 
-#monthYear{font-size:1.2em;color:#27ae60;font-weight:bold}
-
 .arrow{cursor:pointer;user-select:none;font-size:1.3em}
 
 #calendarTable{position:relative;overflow:hidden}
@@ -335,13 +333,13 @@ table tr td:empty{background-color:#dddddd;cursor:default}
 
     <div class="summary">
 
-        <div id="paydayNotice" class="notice">Vui lòng nhập ngày trả lương để có thu nhập chính xác</div>
+        <div id="paydayNotice" class="notice" data-i18n="payday_notice">Vui lòng nhập ngày trả lương để có thu nhập chính xác</div>
 
-        ✅ <span id="totalHoursLabel">Tổng giờ tháng 00:</span> <span id="totalHours">0</span> <span class="green-unit">GIỜ</span><br>
+        ✅ <span id="totalHoursLabel">Tổng giờ tháng 00:</span> <span id="totalHours">0</span> <span class="green-unit" data-i18n="hours_unit">GIỜ</span><br>
 
         💵 <span id="totalPayLabel">Thu nhập tháng 00:</span> <span id="totalPay">0</span> <span class="red-unit" data-i18n="unit_vnd">VND</span>
 
-        <button class="calc-open-btn" id="openCalc">🧮 Máy tính</button>
+        <button class="calc-open-btn" id="openCalc" data-i18n="calculator_button">🧮 Máy tính</button>
 
     </div>
 
@@ -397,7 +395,7 @@ table tr td:empty{background-color:#dddddd;cursor:default}
 
             <label for="jobName" data-i18n="job_name">Tên Nơi làm việc:</label>
 
-            <input type="text" id="jobName" placeholder="Tên công ty/Dự án..." required>
+            <input type="text" id="jobName" data-i18n-placeholder="job_name_placeholder" placeholder="Tên công ty/Dự án..." required>
 
         </div>
 
@@ -405,7 +403,7 @@ table tr td:empty{background-color:#dddddd;cursor:default}
 
             <label for="jobAddress" data-i18n="job_address">Địa chỉ:</label>
 
-            <input type="text" id="jobAddress" placeholder="Địa chỉ nơi làm việc (VD: 123 đường ABC)">
+            <input type="text" id="jobAddress" data-i18n-placeholder="job_address_placeholder" placeholder="Địa chỉ nơi làm việc (VD: 123 đường ABC)">
 
         </div>
 
@@ -433,9 +431,9 @@ table tr td:empty{background-color:#dddddd;cursor:default}
 
         <div class="input-group">
 
-            <label for="jobPayday">Ngày trả lương (1-31):</label>
+            <label for="jobPayday" data-i18n="job_payday_label">Ngày trả lương (1-31):</label>
 
-            <input type="number" id="jobPayday" min="1" max="31" placeholder="VD: 10">
+            <input type="number" id="jobPayday" min="1" max="31" data-i18n-placeholder="job_payday_placeholder" placeholder="VD: 10">
 
         </div>
 
@@ -463,7 +461,7 @@ table tr td:empty{background-color:#dddddd;cursor:default}
 
     <div class="modal-content calc-content">
 
-        <h3>Máy tính</h3>
+        <h3 data-i18n="calculator_title">Máy tính</h3>
 
         <input id="calcDisplay" class="calc-display" type="text" value="" readonly>
 
@@ -505,7 +503,7 @@ table tr td:empty{background-color:#dddddd;cursor:default}
 
             <button class="back" data-action="back">←</button>
 
-            <button class="cancel" id="closeCalc" style="grid-column: span 2;">Đóng</button>
+            <button class="cancel" id="closeCalc" style="grid-column: span 2;" data-i18n="close">Đóng</button>
 
         </div>
 
@@ -613,7 +611,25 @@ const translations = {
 
         job_start_date_note: 'Bắt đầu',
 
-        job_end_date_note: 'Nghỉ việc'
+        job_end_date_note: 'Nghỉ việc',
+
+        job_payday_label: 'Ngày trả lương (1-31):',
+
+        job_name_placeholder: 'Tên công ty/Dự án...',
+
+        job_address_placeholder: 'Địa chỉ nơi làm việc (VD: 123 đường ABC)',
+
+        job_payday_placeholder: 'VD: 10',
+
+        calculator_title: 'Máy tính',
+
+        calculator_button: 'Máy tính',
+
+        close: 'Đóng',
+
+        payday_notice: 'Vui lòng nhập ngày trả lương để có thu nhập chính xác',
+
+        hours_unit: 'GIỜ'
 
     },
 
@@ -677,7 +693,25 @@ const translations = {
 
         job_start_date_note: '시작일',
 
-        job_end_date_note: '퇴직일'
+        job_end_date_note: '퇴직일',
+
+        job_payday_label: '급여일 (1-31):',
+
+        job_name_placeholder: '회사명/프로젝트명...',
+
+        job_address_placeholder: '직장 주소 (예: 123 ABC 거리)',
+
+        job_payday_placeholder: '예: 10',
+
+        calculator_title: '계산기',
+
+        calculator_button: '계산기',
+
+        close: '닫기',
+
+        payday_notice: '정확한 수입을 위해 급여일을 입력해주세요',
+
+        hours_unit: '시간'
 
     }
 
@@ -748,6 +782,23 @@ function setLanguage(lang){
         } else {
 
             el.textContent = getTranslation(key);
+
+        }
+
+    });
+
+    // Xử lý placeholder cho input
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+
+        const key = el.getAttribute('data-i18n-placeholder');
+
+        if (el.tagName === 'INPUT') {
+
+            el.placeholder = getTranslation(key);
+
+        } else if (el.tagName === 'LABEL') {
+
+            el.title = getTranslation(key);
 
         }
 
