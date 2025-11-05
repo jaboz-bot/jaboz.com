@@ -93,7 +93,7 @@
         
         .flag-select {
             position: absolute;
-            left: 8px;
+            right: 8px;
             top: 50%;
             transform: translateY(-50%);
             width: 28px;
@@ -128,7 +128,7 @@
         .currency-select {
             flex: 1;
             width: 100%;
-            padding: 8px 10px 8px 42px;
+            padding: 8px 42px 8px 10px;
             border: 2px solid #e0e0e0;
             border-radius: 8px;
             font-size: 14px;
@@ -141,11 +141,18 @@
             -moz-appearance: none;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
-            background-position: right 8px center;
-            padding-right: 30px;
+            background-position: left 10px center;
+            padding-left: 42px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            text-align: right;
+            direction: ltr;
+        }
+        
+        .currency-select option {
+            direction: ltr;
+            text-align: left;
         }
         
         .currency-select:focus {
@@ -190,36 +197,6 @@
             outline: none;
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-        
-        .swap-button {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            color: white;
-            font-size: 20px;
-            font-weight: bold;
-            cursor: pointer;
-            display: block;
-            margin: 10px auto;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-            -webkit-tap-highlight-color: transparent;
-            touch-action: manipulation;
-            line-height: 50px;
-            text-align: center;
-            padding: 0;
-        }
-        
-        .swap-button:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
-        }
-        
-        .swap-button:active {
-            transform: scale(0.95);
         }
         
         .result-box {
@@ -393,8 +370,12 @@
             
             .currency-select {
                 font-size: 13px;
-                padding: 7px 8px 7px 36px;
-                padding-right: 25px;
+                padding: 7px 36px 7px 8px;
+                padding-left: 36px;
+            }
+            
+            .flag-select {
+                right: 6px;
             }
             
             .amount-input {
@@ -402,14 +383,6 @@
                 padding: 7px 8px;
                 min-width: 0;
                 flex: 1 1 auto;
-            }
-            
-            .swap-button {
-                width: 45px;
-                height: 45px;
-                font-size: 18px;
-                margin: 8px auto;
-                line-height: 45px;
             }
             
             .result-box {
@@ -486,7 +459,7 @@
             .flag-select {
                 width: 22px;
                 height: 22px;
-                left: 6px;
+                right: 5px;
             }
             
             .flag-icon {
@@ -499,21 +472,13 @@
             
             .currency-select {
                 font-size: 12px;
-                padding: 6px 7px 6px 32px;
-                padding-right: 22px;
+                padding: 6px 32px 6px 7px;
+                padding-left: 32px;
             }
             
             .amount-input {
                 font-size: 15px;
                 padding: 6px 7px;
-            }
-            
-            .swap-button {
-                width: 42px;
-                height: 42px;
-                font-size: 16px;
-                margin: 7px auto;
-                line-height: 42px;
             }
             
             .currency-list {
@@ -548,6 +513,7 @@
     <div class="container">
         <div class="exchange-box">
             <div class="currency-selector">
+                <input type="number" class="amount-input" id="fromAmount" value="1" placeholder="0" min="0" step="0.01">
                 <div class="currency-flag-select">
                     <div class="flag-select" id="fromFlag" data-type="from">
                         <div class="flag-icon" id="fromFlagIcon">🇺🇸</div>
@@ -570,12 +536,10 @@
                         <option value="INR" data-flag="🇮🇳">INR</option>
                     </select>
                 </div>
-                <input type="number" class="amount-input" id="fromAmount" value="1" placeholder="0" min="0" step="0.01">
             </div>
             
-            <button class="swap-button" id="swapButton">⇄</button>
-            
             <div class="currency-selector">
+                <input type="number" class="amount-input" id="toAmount" value="" placeholder="0" readonly>
                 <div class="currency-flag-select">
                     <div class="flag-select" id="toFlag" data-type="to">
                         <div class="flag-icon" id="toFlagIcon">🇻🇳</div>
@@ -598,7 +562,6 @@
                         <option value="INR" data-flag="🇮🇳">INR</option>
                     </select>
                 </div>
-                <input type="number" class="amount-input" id="toAmount" value="" placeholder="0" readonly>
             </div>
         </div>
         
@@ -664,7 +627,6 @@
         const toAmount = document.getElementById('toAmount');
         const fromFlagIcon = document.getElementById('fromFlagIcon');
         const toFlagIcon = document.getElementById('toFlagIcon');
-        const swapButton = document.getElementById('swapButton');
         const resultBox = document.getElementById('resultBox');
         const resultAmount = document.getElementById('resultAmount');
         const resultRate = document.getElementById('resultRate');
@@ -764,23 +726,6 @@
                 <small style="color: #f39c12; font-size: 11px;">⚠️ <strong>Lưu ý:</strong> Đây là tỷ giá tham khảo từ API. Tỷ giá thực tế khi giao dịch có thể cao hơn do spread và phí của ngân hàng/tổ chức tài chính.</small>
             `;
         }
-        
-        // Đổi chỗ
-        swapButton.addEventListener('click', () => {
-            const tempCurrency = fromCurrency.value;
-            const tempAmount = fromAmount.value;
-            
-            fromCurrency.value = toCurrency.value;
-            toCurrency.value = tempCurrency;
-            
-            fromAmount.value = toAmount.value;
-            toAmount.value = tempAmount;
-            
-            updateFlagIcon('from');
-            updateFlagIcon('to');
-            
-            convert();
-        });
         
         // Event listeners
         fromCurrency.addEventListener('change', () => {
