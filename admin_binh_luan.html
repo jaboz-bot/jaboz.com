@@ -383,8 +383,8 @@
         <div class="login-modal-content">
             <h2>🔐 Đăng Nhập Admin</h2>
             <div id="loginError" style="display: none; background: #ffebee; color: #c62828; padding: 10px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #c62828;"></div>
-            <label for="adminEmailInput">Email Admin:</label>
-            <input type="email" id="adminEmailInput" placeholder="Nhập email admin">
+            <label for="adminNameInput">Tên Admin:</label>
+            <input type="text" id="adminNameInput" placeholder="Nhập tên admin (tối thiểu 5 ký tự)" maxlength="50">
             <label for="adminPasswordInput">Mật Khẩu:</label>
             <input type="password" id="adminPasswordInput" placeholder="Nhập mật khẩu">
             <div class="login-modal-actions">
@@ -422,7 +422,7 @@
         </div>
 
         <div class="controls">
-            <input type="text" class="search-input" id="searchInput" placeholder="🔍 Tìm kiếm theo email hoặc nội dung...">
+            <input type="text" class="search-input" id="searchInput" placeholder="🔍 Tìm kiếm theo tên hoặc nội dung...">
             <button class="filter-btn active" onclick="filterComments('all')">Tất Cả</button>
             <button class="filter-btn" onclick="filterComments('today')">Hôm Nay</button>
             <button class="filter-btn" onclick="filterComments('week')">Tuần Này</button>
@@ -478,26 +478,32 @@
 
         // Admin configuration - THAY ĐỔI THÔNG TIN NÀY
         const adminConfig = {
-            email: 'jaboz.bot@gmail.com', // Email admin
+            name: 'Admin', // Tên admin (PHẢI GIỐNG VỚI binh_luan.html)
             password: 'admin123' // Mật khẩu admin - THAY ĐỔI MẬT KHẨU NÀY!
         };
 
-        // Check admin email and password
-        function isAdmin(email, password) {
-            return email.toLowerCase() === adminConfig.email.toLowerCase() && 
+        // Admin list - PHẢI GIỐNG VỚI binh_luan.html
+        const adminList = [
+            'Admin',
+            'admin',
+        ];
+
+        // Check admin name and password
+        function isAdmin(name, password) {
+            return adminList.some(admin => name.toLowerCase() === admin.toLowerCase()) &&
                    password === adminConfig.password;
         }
 
         // Check if already logged in
         const adminSession = sessionStorage.getItem('adminLoggedIn');
-        const adminSessionEmail = sessionStorage.getItem('adminEmail');
+        const adminSessionName = sessionStorage.getItem('adminName');
         
         // Check if user is already logged in
-        if (adminSession === 'true' && adminSessionEmail === adminConfig.email) {
+        if (adminSession === 'true' && adminSessionName && adminList.some(admin => adminSessionName.toLowerCase() === admin.toLowerCase())) {
             // User is logged in, show admin panel
             document.getElementById('loginModal').style.display = 'none';
             document.getElementById('adminPanel').style.display = 'block';
-            document.getElementById('adminEmail').textContent = 'Admin: Admin';
+            document.getElementById('adminEmail').textContent = `Admin: ${adminSessionName}`;
             
             // Continue with admin panel code below...
             let allComments = [];
@@ -585,9 +591,9 @@
                 // Filter comments
                 let filtered = allComments.filter(comment => {
                     // Search filter
-                    const email = (comment.userEmail || comment.userName || '').toLowerCase();
+                    const userName = (comment.userName || comment.userEmail || '').toLowerCase();
                     const content = (comment.content || '').toLowerCase();
-                    const matchesSearch = !searchTerm || email.includes(searchTerm) || content.includes(searchTerm);
+                    const matchesSearch = !searchTerm || userName.includes(searchTerm) || content.includes(searchTerm);
 
                     // Date filter
                     let commentDate = new Date();
@@ -619,7 +625,7 @@
 
                 commentsList.innerHTML = '';
                 filtered.forEach(comment => {
-                    const userEmail = comment.userEmail || comment.userName || 'N/A';
+                    const userName = comment.userName || comment.userEmail || 'N/A';
                     const content = comment.content || '';
                     
                     let commentDate = new Date();
@@ -634,14 +640,14 @@
                     commentItem.innerHTML = `
                         <div class="comment-header-admin">
                             <div class="comment-info">
-                                <span class="comment-email">${escapeHtml(userEmail)}</span>
+                                <span class="comment-email">${escapeHtml(userName)}</span>
                                 <span class="comment-date">${formatDate(commentDate)}</span>
                                 <span class="comment-id">ID: ${comment.id.substring(0, 8)}...</span>
                             </div>
                         </div>
                         <div class="comment-content-admin">${escapeHtml(content)}</div>
                         <div class="comment-actions-admin">
-                            <button class="btn-admin btn-reply-admin" onclick="replyToComment('${comment.id}', '${escapeHtml(userEmail).replace(/'/g, "\\'")}', '${escapeHtml(content).substring(0, 50).replace(/'/g, "\\'")}')">💬 Trả Lời</button>
+                            <button class="btn-admin btn-reply-admin" onclick="replyToComment('${comment.id}', '${escapeHtml(userName).replace(/'/g, "\\'")}', '${escapeHtml(content).substring(0, 50).replace(/'/g, "\\'")}')">💬 Trả Lời</button>
                             <button class="btn-admin btn-edit-admin" onclick="editComment('${comment.id}', '${escapeHtml(content).replace(/'/g, "\\'")}')">✏️ Sửa</button>
                             <button class="btn-admin btn-delete-admin" onclick="deleteComment('${comment.id}')">🗑️ Xóa</button>
                         </div>
@@ -671,9 +677,9 @@
                 document.getElementById('editCommentText').value = '';
             };
 
-            window.replyToComment = function(commentId, userEmail, content) {
+            window.replyToComment = function(commentId, userName, content) {
                 replyingToCommentId = commentId;
-                document.getElementById('replyToComment').innerHTML = `<strong>Trả lời cho:</strong> ${escapeHtml(userEmail)}<br><em>"${escapeHtml(content)}${content.length > 50 ? '...' : ''}"</em>`;
+                document.getElementById('replyToComment').innerHTML = `<strong>Trả lời cho:</strong> ${escapeHtml(userName)}<br><em>"${escapeHtml(content)}${content.length > 50 ? '...' : ''}"</em>`;
                 document.getElementById('replyText').value = '';
                 document.getElementById('replyModal').classList.add('active');
             };
@@ -699,7 +705,6 @@
                     // Save reply to Firestore
                     const replyData = {
                         parentCommentId: replyingToCommentId,
-                        userEmail: adminConfig.email,
                         userName: 'Admin',
                         content: replyContent,
                         timestamp: serverTimestamp(),
@@ -759,7 +764,7 @@
             window.logoutAdmin = function() {
                 if (confirm('Bạn có muốn đăng xuất?')) {
                     sessionStorage.removeItem('adminLoggedIn');
-                    sessionStorage.removeItem('adminEmail');
+                    sessionStorage.removeItem('adminName');
                     window.location.href = 'binh_luan.html';
                 }
             };
@@ -801,23 +806,29 @@
 
         // Admin login function
         window.checkAdminLogin = function() {
-            const email = document.getElementById('adminEmailInput').value.trim();
+            const name = document.getElementById('adminNameInput').value.trim();
             const password = document.getElementById('adminPasswordInput').value;
             const errorDiv = document.getElementById('loginError');
             
-            if (!email || !password) {
-                errorDiv.textContent = 'Vui lòng nhập đầy đủ email và mật khẩu!';
+            if (!name || !password) {
+                errorDiv.textContent = 'Vui lòng nhập đầy đủ tên và mật khẩu!';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            if (name.length < 5) {
+                errorDiv.textContent = 'Tên phải có ít nhất 5 ký tự!';
                 errorDiv.style.display = 'block';
                 return;
             }
             
-            if (isAdmin(email, password)) {
+            if (isAdmin(name, password)) {
                 // Login successful
                 sessionStorage.setItem('adminLoggedIn', 'true');
-                sessionStorage.setItem('adminEmail', email);
+                sessionStorage.setItem('adminName', name);
                 location.reload(); // Reload page to show admin panel
             } else {
-                errorDiv.textContent = 'Email hoặc mật khẩu không đúng!';
+                errorDiv.textContent = 'Tên hoặc mật khẩu không đúng!';
                 errorDiv.style.display = 'block';
                 document.getElementById('adminPasswordInput').value = '';
             }
