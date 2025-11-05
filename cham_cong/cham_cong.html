@@ -2703,7 +2703,7 @@ function getAddressFromCoordinates(lat, lng) {
 
     // Sử dụng Nominatim API (OpenStreetMap) - miễn phí
 
-    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`, {
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1&accept-language=ko`, {
 
         headers: {
 
@@ -2799,7 +2799,7 @@ function getCoordinatesFromAddress(address) {
 
     const encodedAddress = encodeURIComponent(address.trim());
 
-    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodedAddress}&limit=1&addressdetails=1`, {
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodedAddress}&limit=1&addressdetails=1&accept-language=ko`, {
 
         headers: {
 
