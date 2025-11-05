@@ -517,23 +517,24 @@
             INR: { flag: '🇮🇳', name: 'Rupee Ấn Độ' }
         };
         
-        // Tỷ giá mặc định (sẽ được cập nhật từ API)
+        // Tỷ giá mặc định (sẽ được cập nhật từ API - tỷ giá tham khảo)
+        // Lưu ý: Tỷ giá thực tế khi giao dịch có thể cao hơn do spread và phí
         let exchangeRates = {
             USD: 1,
-            VND: 25000,
-            EUR: 0.92,
+            VND: 25200,  // Tỷ giá tham khảo, tỷ giá thực tế có thể ~25,300-25,400
+            EUR: 0.93,
             KRW: 1350,
-            JPY: 150,
-            CNY: 7.2,
-            GBP: 0.79,
-            AUD: 1.52,
-            CAD: 1.36,
-            SGD: 1.34,
-            THB: 35.5,
-            MYR: 4.7,
-            IDR: 15700,
-            PHP: 56,
-            INR: 83
+            JPY: 151,
+            CNY: 7.25,
+            GBP: 0.80,
+            AUD: 1.53,
+            CAD: 1.37,
+            SGD: 1.35,
+            THB: 36.0,
+            MYR: 4.75,
+            IDR: 15800,
+            PHP: 56.5,
+            INR: 83.5
         };
         
         // Biến lưu loại tiền tệ hiện tại
@@ -727,9 +728,10 @@
             const decimals = to === 'JPY' || to === 'KRW' || to === 'VND' || to === 'IDR' ? 0 : 4;
             
             rateInfo.innerHTML = `
-                <strong>Tỷ giá hiện tại:</strong><br>
+                <strong>Tỷ giá tham khảo:</strong><br>
                 1 ${from} = ${rate.toFixed(decimals)} ${to}<br>
-                <small style="color: #999;">Cập nhật: ${new Date().toLocaleString('vi-VN')}</small>
+                <small style="color: #999;">Cập nhật: ${new Date().toLocaleString('vi-VN')}</small><br>
+                <small style="color: #f39c12; font-size: 11px;">⚠️ <strong>Lưu ý:</strong> Đây là tỷ giá tham khảo từ API. Tỷ giá thực tế khi giao dịch có thể cao hơn do spread và phí của ngân hàng/tổ chức tài chính.</small>
             `;
         }
         
@@ -782,8 +784,9 @@
                     const updateTime = new Date().toLocaleString('vi-VN');
                     rateInfo.innerHTML = `
                         <div class="loading" style="color: #27ae60;">
-                            ✅ Tỷ giá đã được cập nhật! (${updatedCount} loại tiền tệ)<br>
-                            <small style="color: #999; font-size: 11px;">Cập nhật lúc: ${updateTime}</small>
+                            ✅ Tỷ giá tham khảo đã được cập nhật! (${updatedCount} loại tiền tệ)<br>
+                            <small style="color: #999; font-size: 11px;">Cập nhật lúc: ${updateTime}</small><br>
+                            <small style="color: #f39c12; font-size: 10px;">⚠️ Tỷ giá thực tế có thể cao hơn do spread và phí</small>
                         </div>
                     `;
                     
