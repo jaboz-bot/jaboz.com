@@ -443,23 +443,52 @@
             return commentUserId === currentUserId;
         }
 
+        // Function to show/hide admin link
+        function updateAdminLink() {
+            const header = document.querySelector('.header');
+            let existingLink = header.querySelector('.admin-link');
+            
+            // Get current email from input or localStorage
+            const emailInput = document.getElementById('userEmailInput');
+            const currentEmail = emailInput ? emailInput.value.trim() : (localStorage.getItem('commenterEmail') || '');
+            
+            // Remove existing link
+            if (existingLink) {
+                existingLink.remove();
+            }
+            
+            // Add admin link if user is admin
+            if (currentEmail && isValidEmail(currentEmail) && isAdmin(currentEmail)) {
+                const adminLink = document.createElement('a');
+                adminLink.className = 'admin-link';
+                adminLink.href = 'admin_binh_luan.html';
+                adminLink.textContent = '🔧 Quản Lý Bình Luận';
+                adminLink.style.cssText = 'display: inline-block; margin-top: 15px; padding: 10px 20px; background: linear-gradient(45deg, #FF9800, #F57C00); color: white; text-decoration: none; border-radius: 8px; font-weight: bold; transition: transform 0.2s; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);';
+                adminLink.onmouseover = function() { this.style.transform = 'translateY(-2px)'; this.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.3)'; };
+                adminLink.onmouseout = function() { this.style.transform = 'translateY(0)'; this.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.2)'; };
+                header.appendChild(adminLink);
+            }
+        }
+
         // Load saved email from localStorage
         const savedEmail = localStorage.getItem('commenterEmail');
         if (savedEmail) {
             document.getElementById('userEmailInput').value = savedEmail;
         }
         
-        // Add admin link if user is admin
-        const currentUserEmail = savedEmail || '';
-        if (currentUserEmail && isAdmin(currentUserEmail)) {
-            const header = document.querySelector('.header');
-            const adminLink = document.createElement('a');
-            adminLink.href = 'admin_binh_luan.html';
-            adminLink.textContent = '🔧 Quản Lý Bình Luận';
-            adminLink.style.cssText = 'display: inline-block; margin-top: 15px; padding: 10px 20px; background: linear-gradient(45deg, #FF9800, #F57C00); color: white; text-decoration: none; border-radius: 8px; font-weight: bold; transition: transform 0.2s;';
-            adminLink.onmouseover = function() { this.style.transform = 'translateY(-2px)'; };
-            adminLink.onmouseout = function() { this.style.transform = 'translateY(0)'; };
-            header.appendChild(adminLink);
+        // Check admin link on page load
+        updateAdminLink();
+        
+        // Check admin link when email input changes
+        const emailInput = document.getElementById('userEmailInput');
+        if (emailInput) {
+            emailInput.addEventListener('input', function() {
+                // Debounce: check after user stops typing
+                clearTimeout(emailInput.checkTimeout);
+                emailInput.checkTimeout = setTimeout(updateAdminLink, 500);
+            });
+            
+            emailInput.addEventListener('blur', updateAdminLink);
         }
 
         // Bad words filter (Vietnamese)
@@ -572,6 +601,9 @@
                 document.getElementById('commentText').value = '';
                 lastCommentTime = now;
                 showMessage('Bình luận đã được gửi thành công!', 'success');
+                
+                // Update admin link after submitting comment
+                updateAdminLink();
             } catch (error) {
                 console.error('Lỗi khi gửi bình luận:', error);
                 showMessage('Lỗi khi gửi bình luận: ' + error.message, 'error');
