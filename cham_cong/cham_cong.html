@@ -432,7 +432,7 @@ table tr td:empty{background-color:#dddddd;cursor:default}
 
             <label for="jobAddress" data-i18n="job_address">Địa chỉ:</label>
 
-            <input type="text" id="jobAddress" data-i18n-placeholder="job_address_placeholder" placeholder="Địa chỉ nơi làm việc (VD: 123 đường ABC)">
+            <input type="text" id="jobAddress" data-i18n-placeholder="job_address_placeholder" placeholder="Nhập địa chỉ chính xác để tìm GPS cho chấm công tự động">
 
         </div>
 
@@ -470,11 +470,9 @@ table tr td:empty{background-color:#dddddd;cursor:default}
 
             <label data-i18n="gps_location">📍 Vị trí GPS (cho chấm công tự động):</label>
 
-            <div style="margin-bottom:10px;display:flex;gap:8px;flex-direction:column;">
+            <div style="margin-bottom:10px;">
 
-                <input type="text" id="jobAddressInput" placeholder="Nhập địa chỉ chính xác..." style="width:100%;padding:12px;border:1px solid #ccc;border-radius:8px;font-size:1em;box-sizing:border-box;" data-i18n-placeholder="enter_address_placeholder">
-
-                <button type="button" id="searchAddressBtn" style="width:100%;padding:12px;background:#2ecc71;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:1em;box-shadow:0 2px 5px rgba(0,0,0,.2);transition:all 0.3s;" data-i18n="search_address" onmouseover="this.style.background='#27ae60';this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 8px rgba(0,0,0,.3)'" onmouseout="this.style.background='#2ecc71';this.style.transform='translateY(0)';this.style.boxShadow='0 2px 5px rgba(0,0,0,.2)'">🔍 Tìm kiếm</button>
+                <button type="button" id="searchAddressBtn" style="width:100%;padding:12px;background:#2ecc71;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:1em;box-shadow:0 2px 5px rgba(0,0,0,.2);transition:all 0.3s;" data-i18n="search_address" onmouseover="this.style.background='#27ae60';this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 8px rgba(0,0,0,.3)'" onmouseout="this.style.background='#2ecc71';this.style.transform='translateY(0)';this.style.boxShadow='0 2px 5px rgba(0,0,0,.2)'">🔍 Tìm kiếm vị trí đã nhập</button>
 
             </div>
 
@@ -776,7 +774,7 @@ const translations = {
 
         job_name_placeholder: 'Tên công ty/Dự án...',
 
-        job_address_placeholder: 'Địa chỉ nơi làm việc (VD: 123 đường ABC)',
+        job_address_placeholder: 'Nhập địa chỉ chính xác để tìm GPS cho chấm công tự động',
 
         job_payday_placeholder: 'VD: 10',
 
@@ -802,9 +800,7 @@ const translations = {
 
         location_address_label: '📍 Địa chỉ:',
 
-        enter_address_placeholder: 'Nhập địa chỉ chính xác...',
-
-        search_address: '🔍 Tìm kiếm',
+        search_address: '🔍 Tìm kiếm vị trí đã nhập',
 
         notification_checkin: '✅ Đã tự động chấm công vào',
 
@@ -910,7 +906,7 @@ const translations = {
 
         job_name_placeholder: '회사명/프로젝트명...',
 
-        job_address_placeholder: '직장 주소 (예: 123 ABC 거리)',
+        job_address_placeholder: '정확한 주소를 입력하여 자동 출퇴근용 GPS 검색',
 
         job_payday_placeholder: '예: 10',
 
@@ -936,9 +932,7 @@ const translations = {
 
         location_address_label: '📍 주소:',
 
-        enter_address_placeholder: '정확한 주소 입력...',
-
-        search_address: '🔍 검색',
+        search_address: '🔍 입력한 위치 검색',
 
         notification_checkin: '✅ 자동 출근 기록됨',
 
@@ -1193,21 +1187,15 @@ function openJobModal(jobId = null){
 
         set('jobRadius', job.radius || 100);
 
-        // Hiển thị địa chỉ nếu có GPS location
+        // Hiển thị địa chỉ GPS nếu có GPS location
 
         if (job.lat && job.lng) {
 
             getAddressFromCoordinates(parseFloat(job.lat), parseFloat(job.lng));
 
-            // Xóa input địa chỉ khi load job
-
-            document.getElementById('jobAddressInput').value = '';
-
         } else {
 
             document.getElementById('locationAddressDisplay').style.display = 'none';
-
-            document.getElementById('jobAddressInput').value = '';
 
         }
 
@@ -1229,11 +1217,9 @@ function openJobModal(jobId = null){
 
         set('jobRadius', 100);
 
-        // Ẩn địa chỉ khi tạo mới
+        // Ẩn địa chỉ GPS khi tạo mới
 
         document.getElementById('locationAddressDisplay').style.display = 'none';
-
-        document.getElementById('jobAddressInput').value = '';
 
     }
 
@@ -2853,21 +2839,29 @@ function getCoordinatesFromAddress(address) {
 
 }
 
-// Nút tìm kiếm địa chỉ
+// Nút tìm kiếm địa chỉ (sử dụng ô Địa chỉ chính)
 
 document.getElementById('searchAddressBtn').onclick = () => {
 
-    const addressInput = document.getElementById('jobAddressInput');
+    const addressInput = document.getElementById('jobAddress');
 
     const address = addressInput.value.trim();
+
+    if (!address) {
+
+        alert('Vui lòng nhập địa chỉ vào ô "Địa chỉ" ở trên trước khi tìm kiếm.');
+
+        return;
+
+    }
 
     getCoordinatesFromAddress(address);
 
 };
 
-// Cho phép nhấn Enter để tìm kiếm
+// Cho phép nhấn Enter trong ô Địa chỉ để tìm kiếm
 
-document.getElementById('jobAddressInput').addEventListener('keypress', (e) => {
+document.getElementById('jobAddress').addEventListener('keypress', (e) => {
 
     if (e.key === 'Enter') {
 
