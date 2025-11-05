@@ -364,7 +364,7 @@ table tr td:empty{background-color:#dddddd;cursor:default}
 
         <div id="paydayNotice" class="notice" data-i18n="payday_notice">Vui lòng nhập ngày trả lương để có thu nhập chính xác</div>
 
-        ✅ <span id="totalHoursLabel">Tổng giờ tháng 00:</span> <span id="totalHours">0</span> <span class="green-unit" data-i18n="hours_unit">GIỜ</span><br>
+        ✅ <span id="totalHoursLabel">Tổng giờ tháng 00:</span> <span id="totalHours">0</span><br>
 
         💵 <span id="totalPayLabel">Thu nhập tháng 00:</span> <span id="totalPay">0</span> <span class="red-unit" data-i18n="unit_vnd">VND</span>
 
@@ -788,6 +788,10 @@ const translations = {
 
         hours_unit: 'GIỜ',
 
+        hour: 'giờ',
+
+        minute: 'phút',
+
         auto_checkin: '📍 Chấm công tự động',
 
         gps_location: '📍 Vị trí GPS (cho chấm công tự động):',
@@ -920,6 +924,10 @@ const translations = {
 
         hours_unit: '시간',
 
+        hour: '시간',
+
+        minute: '분',
+
         auto_checkin: '📍 자동 출퇴근',
 
         gps_location: '📍 GPS 위치 (자동 출퇴근용):',
@@ -988,6 +996,21 @@ function formatHoursToTime(hours) {
     const m = minutes % 60;
     const finalHours = h + Math.floor(minutes / 60);
     return `${finalHours}:${pad(m)}`;
+}
+
+function formatHoursToText(hours) {
+    const h = Math.floor(hours);
+    const minutes = Math.round((hours - h) * 60);
+    const m = minutes % 60;
+    const finalHours = h + Math.floor(minutes / 60);
+    
+    const hourText = getTranslation('hour');
+    const minuteText = getTranslation('minute');
+    
+    if (m === 0) {
+        return `${finalHours} ${hourText}`;
+    }
+    return `${finalHours} ${hourText} ${m} ${minuteText}`;
 }
 
 function formatHoursToWorkTime(hours) {
@@ -1554,7 +1577,7 @@ function updateSummary(){
 
     }
 
-    document.getElementById('totalHours').textContent = formatHoursToTime(totalHours);
+    document.getElementById('totalHours').textContent = formatHoursToText(totalHours);
 
     const totalPayAmount = totalHours * rate;
     document.getElementById('totalPay').textContent = formatPayAmount(totalPayAmount, locale);
@@ -2410,7 +2433,7 @@ function showConfirmCheckinModal(type, timeIn, timeOut, hours, dateKey) {
 
         confirmHoursDiv.style.display = 'block';
 
-        confirmTotalHoursDetail.textContent = formatHoursToTime(hours);
+        confirmTotalHoursDetail.textContent = formatHoursToText(hours);
 
     }
 
