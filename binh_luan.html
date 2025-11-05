@@ -628,9 +628,25 @@
                 
                 // Update admin link after submitting comment
                 updateAdminLink();
+                
+                // Cập nhật nút sửa/xóa sau khi submit
+                setTimeout(() => {
+                    updateCommentButtons();
+                }, 500);
             } catch (error) {
                 console.error('Lỗi khi gửi bình luận:', error);
-                showMessage('Lỗi khi gửi bình luận: ' + error.message, 'error');
+                let errorMsg = 'Lỗi khi gửi bình luận: ' + error.message;
+                
+                // Provide more specific error messages
+                if (error.code === 'permission-denied') {
+                    errorMsg = '⚠️ Lỗi quyền truy cập. Vui lòng kiểm tra Firestore Rules trong Firebase Console. Đảm bảo rules cho phép tạo bình luận với userName (không phải userEmail).';
+                } else if (error.code === 'unavailable') {
+                    errorMsg = '⚠️ Firebase không khả dụng. Vui lòng kiểm tra kết nối internet.';
+                } else if (error.code === 'invalid-argument') {
+                    errorMsg = '⚠️ Dữ liệu không hợp lệ. Vui lòng thử lại.';
+                }
+                
+                showMessage(errorMsg, 'error');
             }
         };
 
@@ -686,7 +702,8 @@
                         const commentUserId = data.userId || '';
                         
                         // Check if user can edit/delete
-                        const canEdit = isAdmin(currentUserName) || ownsComment(commentUserId, currentUserId);
+                        const isAdminUser = isAdmin(currentUserName);
+                        const isOwner = ownsComment(commentUserId, currentUserId);
                         
                         // Handle date properly
                         let date = new Date();
@@ -703,23 +720,65 @@
                             date = new Date();
                         }
                         
+                        // Calculate time difference in milliseconds
+                        const now = new Date();
+                        const timeDiff = now - date;
+                        const oneMinute = 60 * 1000; // 1 phút = 60,000 ms
+                        const tenMinutes = 10 * 60 * 1000; // 10 phút = 600,000 ms
+                        
+                        // Determine which buttons to show
+                        let canEdit = false;
+                        let canDelete = false;
+                        
+                        if (isAdminUser) {
+                            // Admin luôn có thể sửa/xóa
+                            canEdit = true;
+                            canDelete = true;
+                        } else if (isOwner) {
+                            // Người dùng thường: kiểm tra thời gian
+                            if (timeDiff < oneMinute) {
+                                // < 1 phút: có thể sửa và xóa
+                                canEdit = true;
+                                canDelete = true;
+                            } else if (timeDiff < tenMinutes) {
+                                // >= 1 phút nhưng < 10 phút: chỉ có thể sửa
+                                canEdit = true;
+                                canDelete = false;
+                            } else {
+                                // >= 10 phút: không thể sửa/xóa
+                                canEdit = false;
+                                canDelete = false;
+                            }
+                        }
+                        
                         // Create actions section
                         const actionsDiv = document.createElement('div');
-                        if (canEdit) {
+                        if (canEdit || canDelete) {
                             actionsDiv.className = 'comment-actions';
-                            const editBtn = document.createElement('button');
-                            editBtn.className = 'btn-edit';
-                            editBtn.textContent = '✏️ Sửa';
-                            editBtn.onclick = () => editComment(commentId, content);
                             
-                            const deleteBtn = document.createElement('button');
-                            deleteBtn.className = 'btn-delete';
-                            deleteBtn.textContent = '🗑️ Xóa';
-                            deleteBtn.onclick = () => deleteComment(commentId);
+                            if (canEdit) {
+                                const editBtn = document.createElement('button');
+                                editBtn.className = 'btn-edit';
+                                editBtn.textContent = '✏️ Sửa';
+                                editBtn.onclick = () => editComment(commentId, content);
+                                actionsDiv.appendChild(editBtn);
+                            }
                             
-                            actionsDiv.appendChild(editBtn);
-                            actionsDiv.appendChild(deleteBtn);
+                            if (canDelete) {
+                                const deleteBtn = document.createElement('button');
+                                deleteBtn.className = 'btn-delete';
+                                deleteBtn.textContent = '🗑️ Xóa';
+                                deleteBtn.onclick = () => deleteComment(commentId);
+                                actionsDiv.appendChild(deleteBtn);
+                            }
                         }
+                        
+                        // Lưu thời gian tạo comment vào data attribute để cập nhật thời gian thực
+                        commentItem.setAttribute('data-comment-id', commentId);
+                        commentItem.setAttribute('data-comment-date', date.getTime());
+                        commentItem.setAttribute('data-is-admin', isAdminUser ? 'true' : 'false');
+                        commentItem.setAttribute('data-is-owner', isOwner ? 'true' : 'false');
+                        commentItem.setAttribute('data-comment-content', content);
                         
                         commentItem.innerHTML = `
                             <div class="comment-header">
@@ -730,8 +789,10 @@
                             <div class="comment-content" id="content-${commentId}">${escapeHtml(content)}</div>
                         `;
                         
-                        if (canEdit) {
+                        if (canEdit || canDelete) {
                             commentItem.appendChild(actionsDiv);
+                            // Thêm ID cho actionsDiv để có thể cập nhật sau
+                            actionsDiv.id = `actions-${commentId}`;
                         }
                         
                         // Load and display replies
@@ -757,6 +818,139 @@
 
         // Start loading comments
         loadComments();
+
+        // Hàm cập nhật nút sửa/xóa theo thời gian thực
+        function updateCommentButtons() {
+            const commentsList = document.getElementById('commentsList');
+            if (!commentsList) return;
+            
+            const commentItems = commentsList.querySelectorAll('.comment-item');
+            const currentUserId = getUserId();
+            const savedName = localStorage.getItem('commenterName') || '';
+            const currentUserName = savedName;
+            
+            commentItems.forEach((commentItem) => {
+                const commentId = commentItem.getAttribute('data-comment-id');
+                if (!commentId) return;
+                
+                const commentDate = parseInt(commentItem.getAttribute('data-comment-date'));
+                const isAdminUser = commentItem.getAttribute('data-is-admin') === 'true';
+                const isOwner = commentItem.getAttribute('data-is-owner') === 'true';
+                const content = commentItem.getAttribute('data-comment-content') || '';
+                
+                if (!isAdminUser && !isOwner) return; // Không phải admin và không phải chủ sở hữu
+                
+                const date = new Date(commentDate);
+                const now = new Date();
+                const timeDiff = now - date;
+                const oneMinute = 60 * 1000;
+                const tenMinutes = 10 * 60 * 1000;
+                
+                // Tìm actionsDiv hiện tại
+                let actionsDiv = commentItem.querySelector(`#actions-${commentId}`);
+                const oldActionsDiv = commentItem.querySelector('.comment-actions');
+                
+                // Xác định nút nào được hiển thị
+                let canEdit = false;
+                let canDelete = false;
+                
+                if (isAdminUser) {
+                    canEdit = true;
+                    canDelete = true;
+                } else if (isOwner) {
+                    if (timeDiff < oneMinute) {
+                        canEdit = true;
+                        canDelete = true;
+                    } else if (timeDiff < tenMinutes) {
+                        canEdit = true;
+                        canDelete = false;
+                    } else {
+                        canEdit = false;
+                        canDelete = false;
+                    }
+                }
+                
+                // Tạo actionsDiv mới nếu cần
+                if (canEdit || canDelete) {
+                    if (!actionsDiv || oldActionsDiv !== actionsDiv) {
+                        // Xóa actionsDiv cũ nếu có
+                        if (oldActionsDiv) {
+                            oldActionsDiv.remove();
+                        }
+                        
+                        // Tạo actionsDiv mới
+                        actionsDiv = document.createElement('div');
+                        actionsDiv.className = 'comment-actions';
+                        actionsDiv.id = `actions-${commentId}`;
+                        
+                        if (canEdit) {
+                            const editBtn = document.createElement('button');
+                            editBtn.className = 'btn-edit';
+                            editBtn.textContent = '✏️ Sửa';
+                            editBtn.onclick = () => editComment(commentId, content);
+                            actionsDiv.appendChild(editBtn);
+                        }
+                        
+                        if (canDelete) {
+                            const deleteBtn = document.createElement('button');
+                            deleteBtn.className = 'btn-delete';
+                            deleteBtn.textContent = '🗑️ Xóa';
+                            deleteBtn.onclick = () => deleteComment(commentId);
+                            actionsDiv.appendChild(deleteBtn);
+                        }
+                        
+                        commentItem.appendChild(actionsDiv);
+                    } else {
+                        // Cập nhật nút trong actionsDiv hiện có
+                        actionsDiv.innerHTML = '';
+                        
+                        if (canEdit) {
+                            const editBtn = document.createElement('button');
+                            editBtn.className = 'btn-edit';
+                            editBtn.textContent = '✏️ Sửa';
+                            editBtn.onclick = () => editComment(commentId, content);
+                            actionsDiv.appendChild(editBtn);
+                        }
+                        
+                        if (canDelete) {
+                            const deleteBtn = document.createElement('button');
+                            deleteBtn.className = 'btn-delete';
+                            deleteBtn.textContent = '🗑️ Xóa';
+                            deleteBtn.onclick = () => deleteComment(commentId);
+                            actionsDiv.appendChild(deleteBtn);
+                        }
+                    }
+                } else {
+                    // Xóa actionsDiv nếu không còn nút nào
+                    if (oldActionsDiv) {
+                        oldActionsDiv.remove();
+                    }
+                }
+            });
+        }
+
+        // Cập nhật nút theo thời gian thực mỗi 10 giây
+        let buttonUpdateInterval = null;
+        
+        function startButtonUpdateInterval() {
+            // Xóa interval cũ nếu có
+            if (buttonUpdateInterval) {
+                clearInterval(buttonUpdateInterval);
+            }
+            
+            // Chạy ngay lập tức
+            updateCommentButtons();
+            
+            // Sau đó chạy mỗi 10 giây
+            buttonUpdateInterval = setInterval(() => {
+                updateCommentButtons();
+            }, 10000); // 10 giây
+        }
+        
+        // Bắt đầu cập nhật sau khi load comments (có delay nhỏ để đảm bảo DOM đã render)
+        setTimeout(() => {
+            startButtonUpdateInterval();
+        }, 1000);
 
         function formatDate(date) {
             const now = new Date();
@@ -924,6 +1118,11 @@
 
                 closeEditModal();
                 showMessage('Bình luận đã được cập nhật!', 'success');
+                
+                // Cập nhật nút sửa/xóa sau khi sửa
+                setTimeout(() => {
+                    updateCommentButtons();
+                }, 500);
             } catch (error) {
                 console.error('Lỗi khi sửa bình luận:', error);
                 showMessage('Lỗi khi sửa bình luận: ' + error.message, 'error');
@@ -944,6 +1143,11 @@
                 const commentRef = doc(db, 'comments', commentId);
                 await deleteDoc(commentRef);
                 showMessage('Bình luận đã được xóa!', 'success');
+                
+                // Cập nhật nút sửa/xóa sau khi xóa
+                setTimeout(() => {
+                    updateCommentButtons();
+                }, 500);
             } catch (error) {
                 console.error('Lỗi khi xóa bình luận:', error);
                 showMessage('Lỗi khi xóa bình luận: ' + error.message, 'error');
