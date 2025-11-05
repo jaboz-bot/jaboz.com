@@ -3029,37 +3029,69 @@ function getCoordinatesFromAddress(address) {
 
 // Nút tìm kiếm địa chỉ (sử dụng ô Địa chỉ chính)
 
-document.getElementById('searchAddressBtn').onclick = () => {
+const searchAddressBtn = document.getElementById('searchAddressBtn');
 
-    const addressInput = document.getElementById('jobAddress');
+if (searchAddressBtn) {
 
-    const address = addressInput.value.trim();
+    searchAddressBtn.onclick = () => {
 
-    if (!address) {
+        const addressInput = document.getElementById('jobAddress');
 
-        alert('Vui lòng nhập địa chỉ vào ô "Địa chỉ" ở trên trước khi tìm kiếm.');
+        if (!addressInput) {
 
-        return;
+            console.error('Không tìm thấy ô nhập địa chỉ (jobAddress)');
 
-    }
+            alert('Lỗi: Không tìm thấy ô nhập địa chỉ. Vui lòng thử lại.');
 
-    getCoordinatesFromAddress(address);
+            return;
 
-};
+        }
+
+        const address = addressInput.value.trim();
+
+        if (!address) {
+
+            alert('Vui lòng nhập địa chỉ vào ô "Địa chỉ" ở trên trước khi tìm kiếm.');
+
+            // Focus vào ô nhập địa chỉ để người dùng dễ nhập
+
+            addressInput.focus();
+
+            return;
+
+        }
+
+        getCoordinatesFromAddress(address);
+
+    };
+
+}
 
 // Cho phép nhấn Enter trong ô Địa chỉ để tìm kiếm
 
-document.getElementById('jobAddress').addEventListener('keypress', (e) => {
+const jobAddressInput = document.getElementById('jobAddress');
 
-    if (e.key === 'Enter') {
+if (jobAddressInput) {
 
-        e.preventDefault();
+    jobAddressInput.addEventListener('keypress', (e) => {
 
-        document.getElementById('searchAddressBtn').click();
+        if (e.key === 'Enter') {
 
-    }
+            e.preventDefault();
 
-});
+            const searchBtn = document.getElementById('searchAddressBtn');
+
+            if (searchBtn) {
+
+                searchBtn.click();
+
+            }
+
+        }
+
+    });
+
+}
 
 // Các input tọa độ đã được ẩn, không cần logic tự động cập nhật từ input nữa
 
