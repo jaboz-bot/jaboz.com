@@ -264,6 +264,8 @@ table tr td:empty{background-color:#dddddd;cursor:default}
 .info-text{color:#555;font-size:1em;line-height:1.6;word-wrap:break-word}
 .search-btn{width:100%;padding:12px;background:#2ecc71;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:1em;box-shadow:0 2px 5px rgba(0,0,0,.2);transition:all 0.3s}
 .search-btn:hover{background:#27ae60;transform:translateY(-2px);box-shadow:0 4px 8px rgba(0,0,0,.3)}
+#locationMapLink{display:inline-block;padding:12px 20px;background:#3498db;color:#fff;text-decoration:none;border-radius:8px;font-weight:600;transition:all 0.3s;box-shadow:0 2px 5px rgba(0,0,0,.2)}
+#locationMapLink:hover{background:#2980b9;transform:translateY(-2px);box-shadow:0 4px 8px rgba(0,0,0,.3)}
 .modal-wide{max-width:450px}
 .modal-medium{max-width:420px}
 .grid-span-2{grid-column:span 2}
@@ -477,17 +479,11 @@ table tr td:empty{background-color:#dddddd;cursor:default}
 
             </div>
 
-            <!-- Bản đồ hiển thị địa chỉ -->
+            <!-- Link KakaoMap tham chiếu -->
             <div id="locationMapContainer" class="mt-10" style="display:none;">
-                <div class="info-title mb-10" data-i18n="map_label">🗺️ Bản đồ:</div>
-                <iframe id="locationMap" 
-                        src="" 
-                        style="width:100%; height:250px; border:1px solid #ddd; border-radius:8px;"
-                        frameborder="0"
-                        allowfullscreen>
-                </iframe>
-                <div class="mt-10" style="text-align:center;">
-                    <a id="locationMapLink" href="#" target="_blank" style="color:#3498db; text-decoration:none; font-size:0.9em; display:none;">
+                <div class="info-title mb-10" data-i18n="map_label">🗺️ Tham chiếu bản đồ:</div>
+                <div style="text-align:center;">
+                    <a id="locationMapLink" href="#" target="_blank">
                         📍 Mở trong KakaoMap →
                     </a>
                 </div>
@@ -953,7 +949,7 @@ const translations = {
 
         search_address: '🔍 입력한 위치 검색',
 
-        map_label: '🗺️ 지도:',
+        map_label: '🗺️ 지도 참조:',
 
         notification_checkin: '✅ 자동 출근 기록됨',
 
@@ -2714,30 +2710,33 @@ confirmCheckinModal.addEventListener('click', (e) => {
 
 });
 
-// Hiển thị bản đồ KakaoMap
+// Hiển thị link KakaoMap tham chiếu
 function showKakaoMap(lat, lng, address = '') {
     const mapContainer = document.getElementById('locationMapContainer');
-    const mapIframe = document.getElementById('locationMap');
-    
-    if (!mapContainer || !mapIframe) return;
-    
-    // Sử dụng OpenStreetMap để hiển thị bản đồ (tương tự như KakaoMap)
-    // Tạo URL embed cho bản đồ OpenStreetMap với tọa độ
-    const mapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${lng-0.01},${lat-0.01},${lng+0.01},${lat+0.01}&layer=mapnik&marker=${lat},${lng}`;
-    
-    mapIframe.src = mapUrl;
-    mapContainer.style.display = 'block';
-    
-    // Thêm link mở KakaoMap trong tab mới
     const mapLink = document.getElementById('locationMapLink');
-    if (mapLink) {
-        // Tạo URL cho KakaoMap với tọa độ
-        // Format: https://map.kakao.com/link/map/장소명,위도,경도 hoặc https://map.kakao.com/?map_type=TYPE_MAP&q=위도,경도
-        const encodedAddress = encodeURIComponent(address.substring(0, 50) || `${lat},${lng}`);
-        mapLink.href = `https://map.kakao.com/?map_type=TYPE_MAP&q=${lat},${lng}`;
-        mapLink.style.display = 'inline-block';
-        mapLink.textContent = currentLang === 'vi' ? '📍 Mở trong KakaoMap →' : '📍 카카오맵에서 열기 →';
+    
+    if (!mapContainer || !mapLink) return;
+    
+    // Tạo URL cho KakaoMap với tọa độ
+    // Sử dụng tọa độ để tìm kiếm chính xác trên KakaoMap
+    let kakaoMapUrl = '';
+    
+    if (lat && lng) {
+        // Nếu có tọa độ, sử dụng tọa độ để tìm kiếm
+        kakaoMapUrl = `https://map.kakao.com/?map_type=TYPE_MAP&q=${lat},${lng}`;
+    } else if (address) {
+        // Nếu không có tọa độ nhưng có địa chỉ, tìm kiếm theo địa chỉ
+        const encodedAddress = encodeURIComponent(address.trim());
+        kakaoMapUrl = `https://map.kakao.com/?q=${encodedAddress}`;
+    } else {
+        // Nếu không có gì, ẩn container
+        mapContainer.style.display = 'none';
+        return;
     }
+    
+    mapLink.href = kakaoMapUrl;
+    mapLink.textContent = currentLang === 'vi' ? '📍 Mở trong KakaoMap →' : '📍 카카오맵에서 열기 →';
+    mapContainer.style.display = 'block';
 }
 
 // Lấy địa chỉ từ tọa độ GPS (Reverse Geocoding)
@@ -2890,11 +2889,8 @@ function getCoordinatesFromAddress(address) {
 
             console.log('Không tìm thấy địa chỉ cho:', address, '- Sử dụng địa chỉ đã nhập');
             
-            // Ẩn bản đồ nếu không tìm thấy tọa độ
-            const mapContainer = document.getElementById('locationMapContainer');
-            if (mapContainer) {
-                mapContainer.style.display = 'none';
-            }
+            // Hiển thị link KakaoMap với địa chỉ đã nhập (không có tọa độ)
+            showKakaoMap(null, null, address.trim());
 
         }
 
@@ -2914,11 +2910,8 @@ function getCoordinatesFromAddress(address) {
 
         console.log('Lỗi khi tìm kiếm - Sử dụng địa chỉ đã nhập:', address);
         
-        // Ẩn bản đồ nếu có lỗi
-        const mapContainer = document.getElementById('locationMapContainer');
-        if (mapContainer) {
-            mapContainer.style.display = 'none';
-        }
+        // Hiển thị link KakaoMap với địa chỉ đã nhập (không có tọa độ)
+        showKakaoMap(null, null, address.trim());
 
     });
 
