@@ -72,19 +72,20 @@
         .currency-selector {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 15px;
+            gap: 8px;
+            margin-bottom: 12px;
         }
         
         .flag-select {
             position: relative;
-            width: 60px;
-            height: 50px;
-            border-radius: 10px;
+            width: 50px;
+            height: 45px;
+            border-radius: 8px;
             overflow: hidden;
             cursor: pointer;
             border: 2px solid #e0e0e0;
             transition: all 0.3s ease;
+            flex-shrink: 0;
         }
         
         .flag-select:hover {
@@ -92,16 +93,6 @@
             transform: scale(1.05);
         }
         
-        /* Ẩn hoàn toàn tất cả select elements */
-        select {
-            display: none !important;
-            visibility: hidden !important;
-            opacity: 0 !important;
-            width: 0 !important;
-            height: 0 !important;
-            position: absolute !important;
-            left: -9999px !important;
-        }
         
         .flag-icon {
             position: absolute;
@@ -114,21 +105,54 @@
             justify-content: center;
             font-size: 32px;
             pointer-events: none;
+            z-index: 10;
         }
+        
         
         .currency-code {
             font-weight: bold;
             color: #333;
-            font-size: 18px;
-            min-width: 60px;
+            font-size: 16px;
+            min-width: 50px;
+            flex-shrink: 0;
+        }
+        
+        .currency-select {
+            flex: 1;
+            min-width: 120px;
+            padding: 10px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            padding-right: 35px;
+        }
+        
+        .currency-select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .currency-select:hover {
+            border-color: #667eea;
         }
         
         .amount-input {
             flex: 1;
-            padding: 15px;
+            padding: 12px;
             border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 24px;
+            border-radius: 8px;
+            font-size: 20px;
             font-weight: 600;
             text-align: right;
             transition: all 0.3s ease;
@@ -453,6 +477,7 @@
                 gap: 6px !important;
             }
         }
+        
     </style>
 </head>
 <body>
@@ -467,7 +492,23 @@
                 <div class="flag-select" id="fromFlag" data-type="from">
                     <div class="flag-icon" id="fromFlagIcon">🇺🇸</div>
                 </div>
-                <span class="currency-code" id="fromCode">USD</span>
+                <select class="currency-select" id="fromCurrency">
+                    <option value="VND" data-flag="🇻🇳">VND - Việt Nam Đồng</option>
+                    <option value="USD" data-flag="🇺🇸" selected>USD - US Dollar</option>
+                    <option value="EUR" data-flag="🇪🇺">EUR - Euro</option>
+                    <option value="KRW" data-flag="🇰🇷">KRW - Won Hàn Quốc</option>
+                    <option value="JPY" data-flag="🇯🇵">JPY - Yên Nhật</option>
+                    <option value="CNY" data-flag="🇨🇳">CNY - Nhân Dân Tệ</option>
+                    <option value="GBP" data-flag="🇬🇧">GBP - Bảng Anh</option>
+                    <option value="AUD" data-flag="🇦🇺">AUD - Đô la Úc</option>
+                    <option value="CAD" data-flag="🇨🇦">CAD - Đô la Canada</option>
+                    <option value="SGD" data-flag="🇸🇬">SGD - Đô la Singapore</option>
+                    <option value="THB" data-flag="🇹🇭">THB - Bạt Thái</option>
+                    <option value="MYR" data-flag="🇲🇾">MYR - Ringgit Malaysia</option>
+                    <option value="IDR" data-flag="🇮🇩">IDR - Rupiah Indonesia</option>
+                    <option value="PHP" data-flag="🇵🇭">PHP - Peso Philippines</option>
+                    <option value="INR" data-flag="🇮🇳">INR - Rupee Ấn Độ</option>
+                </select>
                 <input type="number" class="amount-input" id="fromAmount" value="1" placeholder="0" min="0" step="0.01">
             </div>
             
@@ -477,7 +518,23 @@
                 <div class="flag-select" id="toFlag" data-type="to">
                     <div class="flag-icon" id="toFlagIcon">🇻🇳</div>
                 </div>
-                <span class="currency-code" id="toCode">VND</span>
+                <select class="currency-select" id="toCurrency">
+                    <option value="VND" data-flag="🇻🇳" selected>VND - Việt Nam Đồng</option>
+                    <option value="USD" data-flag="🇺🇸">USD - US Dollar</option>
+                    <option value="EUR" data-flag="🇪🇺">EUR - Euro</option>
+                    <option value="KRW" data-flag="🇰🇷">KRW - Won Hàn Quốc</option>
+                    <option value="JPY" data-flag="🇯🇵">JPY - Yên Nhật</option>
+                    <option value="CNY" data-flag="🇨🇳">CNY - Nhân Dân Tệ</option>
+                    <option value="GBP" data-flag="🇬🇧">GBP - Bảng Anh</option>
+                    <option value="AUD" data-flag="🇦🇺">AUD - Đô la Úc</option>
+                    <option value="CAD" data-flag="🇨🇦">CAD - Đô la Canada</option>
+                    <option value="SGD" data-flag="🇸🇬">SGD - Đô la Singapore</option>
+                    <option value="THB" data-flag="🇹🇭">THB - Bạt Thái</option>
+                    <option value="MYR" data-flag="🇲🇾">MYR - Ringgit Malaysia</option>
+                    <option value="IDR" data-flag="🇮🇩">IDR - Rupiah Indonesia</option>
+                    <option value="PHP" data-flag="🇵🇭">PHP - Peso Philippines</option>
+                    <option value="INR" data-flag="🇮🇳">INR - Rupee Ấn Độ</option>
+                </select>
                 <input type="number" class="amount-input" id="toAmount" value="" placeholder="0" readonly>
             </div>
         </div>
@@ -537,19 +594,13 @@
             INR: 83.5
         };
         
-        // Biến lưu loại tiền tệ hiện tại
-        let currentFromCurrency = 'USD';
-        let currentToCurrency = 'VND';
-        
         // Elements
-        const fromFlag = document.getElementById('fromFlag');
-        const toFlag = document.getElementById('toFlag');
+        const fromCurrency = document.getElementById('fromCurrency');
+        const toCurrency = document.getElementById('toCurrency');
         const fromAmount = document.getElementById('fromAmount');
         const toAmount = document.getElementById('toAmount');
         const fromFlagIcon = document.getElementById('fromFlagIcon');
         const toFlagIcon = document.getElementById('toFlagIcon');
-        const fromCode = document.getElementById('fromCode');
-        const toCode = document.getElementById('toCode');
         const swapButton = document.getElementById('swapButton');
         const resultBox = document.getElementById('resultBox');
         const resultAmount = document.getElementById('resultAmount');
@@ -568,9 +619,8 @@
                     <div class="code">${code}</div>
                 `;
                 item.addEventListener('click', () => {
-                    currentToCurrency = code;
+                    toCurrency.value = code;
                     updateFlagIcon('to');
-                    updateCode('to');
                     convert();
                 });
                 currencyList.appendChild(item);
@@ -579,100 +629,17 @@
         
         // Cập nhật cờ
         function updateFlagIcon(type) {
-            const currency = type === 'from' ? currentFromCurrency : currentToCurrency;
+            const select = type === 'from' ? fromCurrency : toCurrency;
             const icon = type === 'from' ? fromFlagIcon : toFlagIcon;
-            icon.textContent = currencies[currency]?.flag || '🏳️';
+            const selectedOption = select.options[select.selectedIndex];
+            const flag = selectedOption.getAttribute('data-flag');
+            icon.textContent = flag || currencies[select.value]?.flag || '🏳️';
         }
-        
-        // Cập nhật mã tiền tệ
-        function updateCode(type) {
-            const currency = type === 'from' ? currentFromCurrency : currentToCurrency;
-            const codeEl = type === 'from' ? fromCode : toCode;
-            codeEl.textContent = currency;
-        }
-        
-        // Mở modal chọn currency
-        let currentSelectingType = null;
-        const currencyModal = document.createElement('div');
-        currencyModal.style.cssText = 'display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center;';
-        currencyModal.style.display = 'none';
-        currencyModal.style.position = 'fixed';
-        currencyModal.style.top = '0';
-        currencyModal.style.left = '0';
-        currencyModal.style.width = '100%';
-        currencyModal.style.height = '100%';
-        currencyModal.style.background = 'rgba(0,0,0,0.5)';
-        currencyModal.style.zIndex = '2000';
-        currencyModal.style.justifyContent = 'center';
-        currencyModal.style.alignItems = 'center';
-        currencyModal.innerHTML = `
-            <div style="background: white; border-radius: 20px; padding: 20px; max-width: 90%; max-height: 80vh; overflow-y: auto; width: 400px;">
-                <h3 style="margin: 0 0 20px 0; text-align: center; color: #667eea;">Chọn loại tiền tệ</h3>
-                <div id="currencyModalList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px;"></div>
-                <button id="closeCurrencyModal" style="margin-top: 20px; width: 100%; padding: 12px; background: #667eea; color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer;">Đóng</button>
-            </div>
-        `;
-        document.body.appendChild(currencyModal);
-        
-        function openCurrencyModal(type) {
-            currentSelectingType = type;
-            const modalList = document.getElementById('currencyModalList');
-            modalList.innerHTML = '';
-            
-            Object.keys(currencies).forEach(code => {
-                const item = document.createElement('div');
-                item.style.cssText = 'padding: 15px; border: 2px solid #e0e0e0; border-radius: 10px; text-align: center; cursor: pointer; transition: all 0.3s ease; background: white;';
-                item.innerHTML = `
-                    <div style="font-size: 32px; margin-bottom: 5px;">${currencies[code].flag}</div>
-                    <div style="font-size: 14px; font-weight: 600;">${code}</div>
-                    <div style="font-size: 12px; color: #666; margin-top: 5px;">${currencies[code].name}</div>
-                `;
-                item.addEventListener('click', () => {
-                    if (type === 'from') {
-                        currentFromCurrency = code;
-                    } else {
-                        currentToCurrency = code;
-                    }
-                    updateFlagIcon(type);
-                    updateCode(type);
-                    convert();
-                    currencyModal.style.display = 'none';
-                });
-                item.addEventListener('mouseenter', () => {
-                    item.style.borderColor = '#667eea';
-                    item.style.transform = 'translateY(-2px)';
-                    item.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.2)';
-                });
-                item.addEventListener('mouseleave', () => {
-                    item.style.borderColor = '#e0e0e0';
-                    item.style.transform = 'translateY(0)';
-                    item.style.boxShadow = 'none';
-                });
-                modalList.appendChild(item);
-            });
-            
-            currencyModal.style.display = 'flex';
-            currencyModal.style.flexDirection = 'column';
-        }
-        
-        document.getElementById('closeCurrencyModal').addEventListener('click', () => {
-            currencyModal.style.display = 'none';
-        });
-        
-        currencyModal.addEventListener('click', (e) => {
-            if (e.target === currencyModal) {
-                currencyModal.style.display = 'none';
-            }
-        });
-        
-        // Click vào flag để chọn currency
-        fromFlag.addEventListener('click', () => openCurrencyModal('from'));
-        toFlag.addEventListener('click', () => openCurrencyModal('to'));
         
         // Chuyển đổi tiền tệ
         function convert() {
-            const from = currentFromCurrency;
-            const to = currentToCurrency;
+            const from = fromCurrency.value;
+            const to = toCurrency.value;
             const amount = parseFloat(fromAmount.value) || 0;
             
             if (amount <= 0) {
@@ -720,8 +687,8 @@
         
         // Cập nhật thông tin tỷ giá
         function updateRateInfo() {
-            const from = currentFromCurrency;
-            const to = currentToCurrency;
+            const from = fromCurrency.value;
+            const to = toCurrency.value;
             const fromRate = exchangeRates[from] || 1;
             const toRate = exchangeRates[to] || 1;
             const rate = (toRate / fromRate);
@@ -737,20 +704,29 @@
         
         // Đổi chỗ
         swapButton.addEventListener('click', () => {
-            const tempCurrency = currentFromCurrency;
+            const tempCurrency = fromCurrency.value;
             const tempAmount = fromAmount.value;
             
-            currentFromCurrency = currentToCurrency;
-            currentToCurrency = tempCurrency;
+            fromCurrency.value = toCurrency.value;
+            toCurrency.value = tempCurrency;
             
             fromAmount.value = toAmount.value;
             toAmount.value = tempAmount;
             
             updateFlagIcon('from');
             updateFlagIcon('to');
-            updateCode('from');
-            updateCode('to');
             
+            convert();
+        });
+        
+        // Event listeners
+        fromCurrency.addEventListener('change', () => {
+            updateFlagIcon('from');
+            convert();
+        });
+        
+        toCurrency.addEventListener('change', () => {
+            updateFlagIcon('to');
             convert();
         });
         
@@ -759,8 +735,6 @@
         // Khởi tạo
         updateFlagIcon('from');
         updateFlagIcon('to');
-        updateCode('from');
-        updateCode('to');
         createCurrencyList();
         
         // Tải tỷ giá từ API (sử dụng exchangerate-api.com - API phổ biến nhất)
