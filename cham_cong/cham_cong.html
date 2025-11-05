@@ -477,6 +477,22 @@ table tr td:empty{background-color:#dddddd;cursor:default}
 
             </div>
 
+            <!-- Bản đồ hiển thị địa chỉ -->
+            <div id="locationMapContainer" class="mt-10" style="display:none;">
+                <div class="info-title mb-10" data-i18n="map_label">🗺️ Bản đồ:</div>
+                <iframe id="locationMap" 
+                        src="" 
+                        style="width:100%; height:250px; border:1px solid #ddd; border-radius:8px;"
+                        frameborder="0"
+                        allowfullscreen>
+                </iframe>
+                <div class="mt-10" style="text-align:center;">
+                    <a id="locationMapLink" href="#" target="_blank" style="color:#3498db; text-decoration:none; font-size:0.9em; display:none;">
+                        📍 Mở trong KakaoMap →
+                    </a>
+                </div>
+            </div>
+
             <!-- Ẩn các input để lưu tọa độ (không hiển thị cho người dùng) -->
 
             <input type="hidden" id="jobLat" step="any">
@@ -799,6 +815,8 @@ const translations = {
 
         search_address: '🔍 Tìm kiếm vị trí đã nhập',
 
+        map_label: '🗺️ Bản đồ:',
+
         notification_checkin: '✅ Đã tự động chấm công vào',
 
         notification_checkout: '✅ Đã tự động chấm công ra',
@@ -934,6 +952,8 @@ const translations = {
         location_address_label: '📍 주소:',
 
         search_address: '🔍 입력한 위치 검색',
+
+        map_label: '🗺️ 지도:',
 
         notification_checkin: '✅ 자동 출근 기록됨',
 
@@ -1212,6 +1232,12 @@ function openJobModal(jobId = null){
         } else {
 
             document.getElementById('locationAddressDisplay').style.display = 'none';
+            
+            // Ẩn bản đồ khi không có GPS location
+            const mapContainer = document.getElementById('locationMapContainer');
+            if (mapContainer) {
+                mapContainer.style.display = 'none';
+            }
 
         }
 
@@ -1236,6 +1262,12 @@ function openJobModal(jobId = null){
         // Ẩn địa chỉ GPS khi tạo mới
 
         document.getElementById('locationAddressDisplay').style.display = 'none';
+        
+        // Ẩn bản đồ khi tạo mới
+        const mapContainer = document.getElementById('locationMapContainer');
+        if (mapContainer) {
+            mapContainer.style.display = 'none';
+        }
 
     }
 
@@ -2682,6 +2714,32 @@ confirmCheckinModal.addEventListener('click', (e) => {
 
 });
 
+// Hiển thị bản đồ KakaoMap
+function showKakaoMap(lat, lng, address = '') {
+    const mapContainer = document.getElementById('locationMapContainer');
+    const mapIframe = document.getElementById('locationMap');
+    
+    if (!mapContainer || !mapIframe) return;
+    
+    // Sử dụng OpenStreetMap để hiển thị bản đồ (tương tự như KakaoMap)
+    // Tạo URL embed cho bản đồ OpenStreetMap với tọa độ
+    const mapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${lng-0.01},${lat-0.01},${lng+0.01},${lat+0.01}&layer=mapnik&marker=${lat},${lng}`;
+    
+    mapIframe.src = mapUrl;
+    mapContainer.style.display = 'block';
+    
+    // Thêm link mở KakaoMap trong tab mới
+    const mapLink = document.getElementById('locationMapLink');
+    if (mapLink) {
+        // Tạo URL cho KakaoMap với tọa độ
+        // Format: https://map.kakao.com/link/map/장소명,위도,경도 hoặc https://map.kakao.com/?map_type=TYPE_MAP&q=위도,경도
+        const encodedAddress = encodeURIComponent(address.substring(0, 50) || `${lat},${lng}`);
+        mapLink.href = `https://map.kakao.com/?map_type=TYPE_MAP&q=${lat},${lng}`;
+        mapLink.style.display = 'inline-block';
+        mapLink.textContent = currentLang === 'vi' ? '📍 Mở trong KakaoMap →' : '📍 카카오맵에서 열기 →';
+    }
+}
+
 // Lấy địa chỉ từ tọa độ GPS (Reverse Geocoding)
 
 function getAddressFromCoordinates(lat, lng) {
@@ -2713,21 +2771,25 @@ function getAddressFromCoordinates(lat, lng) {
 
     .then(data => {
 
+        let displayAddress = '';
         if (data && data.display_name) {
 
             // Hiển thị địa chỉ từ API (hoặc địa chỉ đã nhập nếu không có)
-            const displayAddress = data.display_name || inputAddress || `Vĩ độ: ${lat}, Kinh độ: ${lng}`;
+            displayAddress = data.display_name || inputAddress || `Vĩ độ: ${lat}, Kinh độ: ${lng}`;
 
             addressText.textContent = displayAddress;
 
         } else {
 
             // Nếu API không trả về địa chỉ, dùng địa chỉ đã nhập hoặc tọa độ
-            const displayAddress = inputAddress || `Vĩ độ: ${lat}, Kinh độ: ${lng}`;
+            displayAddress = inputAddress || `Vĩ độ: ${lat}, Kinh độ: ${lng}`;
 
             addressText.textContent = displayAddress;
 
         }
+        
+        // Hiển thị bản đồ với tọa độ
+        showKakaoMap(lat, lng, displayAddress);
 
     })
 
@@ -2739,6 +2801,9 @@ function getAddressFromCoordinates(lat, lng) {
         const displayAddress = inputAddress || `Vĩ độ: ${lat}, Kinh độ: ${lng}`;
 
         addressText.textContent = displayAddress;
+        
+        // Hiển thị bản đồ với tọa độ ngay cả khi có lỗi
+        showKakaoMap(lat, lng, displayAddress);
 
     });
 
@@ -2813,6 +2878,9 @@ function getCoordinatesFromAddress(address) {
             addressText.textContent = displayAddress;
 
             console.log('Đã tìm thấy địa chỉ:', displayAddress, 'Tọa độ:', lat, lng);
+            
+            // Hiển thị bản đồ với tọa độ đã tìm được
+            showKakaoMap(lat, lng, displayAddress);
 
         } else {
 
@@ -2821,6 +2889,12 @@ function getCoordinatesFromAddress(address) {
             addressText.textContent = address.trim();
 
             console.log('Không tìm thấy địa chỉ cho:', address, '- Sử dụng địa chỉ đã nhập');
+            
+            // Ẩn bản đồ nếu không tìm thấy tọa độ
+            const mapContainer = document.getElementById('locationMapContainer');
+            if (mapContainer) {
+                mapContainer.style.display = 'none';
+            }
 
         }
 
@@ -2839,6 +2913,12 @@ function getCoordinatesFromAddress(address) {
         addressText.textContent = address.trim();
 
         console.log('Lỗi khi tìm kiếm - Sử dụng địa chỉ đã nhập:', address);
+        
+        // Ẩn bản đồ nếu có lỗi
+        const mapContainer = document.getElementById('locationMapContainer');
+        if (mapContainer) {
+            mapContainer.style.display = 'none';
+        }
 
     });
 
