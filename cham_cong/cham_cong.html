@@ -2787,10 +2787,17 @@ function getCoordinatesFromAddress(address) {
     searchBtn.disabled = true;
 
     // Sử dụng Nominatim API (OpenStreetMap) - Geocoding
+    // Tăng limit để tìm kết quả khớp nhất với địa chỉ chi tiết
 
     const encodedAddress = encodeURIComponent(address.trim());
+    
+    // Kiểm tra xem địa chỉ có chứa số (có thể là số nhà) không
+    const hasHouseNumber = /\d+/.test(address.trim());
+    
+    // Nếu có số nhà, tăng limit để tìm kết quả chính xác hơn
+    const limit = hasHouseNumber ? 5 : 1;
 
-    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodedAddress}&limit=1&addressdetails=1&accept-language=ko`, {
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodedAddress}&limit=${limit}&addressdetails=1&accept-language=ko`, {
 
         headers: {
 
@@ -2810,7 +2817,18 @@ function getCoordinatesFromAddress(address) {
 
         if (data && data.length > 0) {
 
-            const result = data[0];
+            // Nếu địa chỉ có số nhà, ưu tiên kết quả có house_number trong address
+            let result = data[0];
+            if (hasHouseNumber) {
+                const resultWithHouseNumber = data.find(r => r.address && r.address.house_number);
+                if (resultWithHouseNumber) {
+                    result = resultWithHouseNumber;
+                }
+                // Nếu không tìm thấy kết quả có house_number, ưu tiên kết quả có importance cao nhất
+                else if (data.length > 1) {
+                    result = data.sort((a, b) => (b.importance || 0) - (a.importance || 0))[0];
+                }
+            }
 
             const lat = parseFloat(result.lat);
 
@@ -2822,9 +2840,14 @@ function getCoordinatesFromAddress(address) {
 
             document.getElementById('jobLng').value = lng.toFixed(6);
 
-            // Hiển thị địa chỉ đã tìm thấy theo cấu trúc Hàn Quốc (từ lớn đến nhỏ)
+            // Nếu địa chỉ đã nhập có số nhà, ưu tiên hiển thị địa chỉ đã nhập để đảm bảo chính xác
             let displayAddress = address;
-            if (result.address) {
+            
+            if (hasHouseNumber) {
+                // Nếu địa chỉ đã nhập chi tiết có số nhà, hiển thị địa chỉ đã nhập
+                displayAddress = address.trim();
+            } else if (result.address) {
+                // Nếu không có số nhà, hiển thị địa chỉ đã được format lại
                 const addr = result.address;
                 let addressParts = [];
 
