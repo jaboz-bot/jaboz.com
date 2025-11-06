@@ -226,6 +226,86 @@
         .close-game-btn:active {
             transform: scale(0.95);
         }
+        .confirm-popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 10002;
+            align-items: center;
+            justify-content: center;
+        }
+        .confirm-popup.active {
+            display: flex;
+        }
+        .confirm-popup-content {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            animation: popupSlideIn 0.3s ease-out;
+        }
+        @keyframes popupSlideIn {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        .confirm-popup-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .confirm-popup-message {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .confirm-popup-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        .confirm-btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            min-width: 100px;
+        }
+        .confirm-btn-yes {
+            background: linear-gradient(45deg, #f44336, #d32f2f);
+            color: white;
+        }
+        .confirm-btn-yes:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
+        }
+        .confirm-btn-no {
+            background: linear-gradient(45deg, #9e9e9e, #757575);
+            color: white;
+        }
+        .confirm-btn-no:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(158, 158, 158, 0.4);
+        }
+        .confirm-btn:active {
+            transform: scale(0.95);
+        }
     </style>
 </head>
 <body>
@@ -275,17 +355,40 @@
     </div>
 </div>
 
+<!-- Popup xác nhận thoát game -->
+<div id="confirmPopup" class="confirm-popup">
+    <div class="confirm-popup-content">
+        <div class="confirm-popup-title">⚠️ Xác nhận</div>
+        <div class="confirm-popup-message">Bạn muốn thoát Game?</div>
+        <div class="confirm-popup-buttons">
+            <button class="confirm-btn confirm-btn-yes" id="confirmYes">Có</button>
+            <button class="confirm-btn confirm-btn-no" id="confirmNo">Không</button>
+        </div>
+    </div>
+</div>
+
 <script>
     // Mở game trong iframe để ẩn URL - Full màn hình
     const gameLink = document.getElementById('gameLink');
     const gameModal = document.getElementById('gameModal');
     const gameIframe = document.getElementById('gameIframe');
     const closeGameBtn = document.getElementById('closeGameBtn');
+    const confirmPopup = document.getElementById('confirmPopup');
+    const confirmYes = document.getElementById('confirmYes');
+    const confirmNo = document.getElementById('confirmNo');
     
     function closeGameModal() {
         gameModal.classList.remove('active');
         gameIframe.src = '';
         document.body.style.overflow = '';
+    }
+    
+    function showConfirmPopup() {
+        confirmPopup.classList.add('active');
+    }
+    
+    function hideConfirmPopup() {
+        confirmPopup.classList.remove('active');
     }
     
     gameLink.addEventListener('click', () => {
@@ -296,16 +399,32 @@
     });
     
     closeGameBtn.addEventListener('click', () => {
-        if (confirm('Bạn muốn thoát Game?')) {
-            closeGameModal();
+        showConfirmPopup();
+    });
+    
+    confirmYes.addEventListener('click', () => {
+        hideConfirmPopup();
+        closeGameModal();
+    });
+    
+    confirmNo.addEventListener('click', () => {
+        hideConfirmPopup();
+    });
+    
+    // Đóng popup khi click ra ngoài
+    confirmPopup.addEventListener('click', (e) => {
+        if (e.target === confirmPopup) {
+            hideConfirmPopup();
         }
     });
     
     // Đóng modal bằng phím ESC
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && gameModal.classList.contains('active')) {
-            if (confirm('Bạn muốn thoát Game?')) {
-                closeGameModal();
+            if (!confirmPopup.classList.contains('active')) {
+                showConfirmPopup();
+            } else {
+                hideConfirmPopup();
             }
         }
     });
