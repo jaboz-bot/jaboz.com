@@ -168,6 +168,52 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
+        .game-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 10000;
+        }
+        .game-modal.active {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .game-modal-content {
+            width: 95%;
+            height: 95%;
+            position: relative;
+        }
+        .game-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 8px;
+        }
+        .close-game-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            z-index: 10001;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        .close-game-btn:hover {
+            background: #d32f2f;
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body>
@@ -181,7 +227,7 @@
                 💬 Máy Hỗ Trợ Giọng Nói
             </a>
             
-            <div id="gameLink" class="app-item game-link" style="cursor: default; opacity: 0.7;">
+            <div id="gameLink" class="app-item game-link">
                 🎮 Chơi Game              
             </div>
             
@@ -209,12 +255,38 @@
     </div>
 </div>
 
+<!-- Modal để mở game và ẩn URL -->
+<div id="gameModal" class="game-modal">
+    <div class="game-modal-content">
+        <button class="close-game-btn" id="closeGameBtn">✕ Đóng</button>
+        <iframe id="gameIframe" class="game-iframe" src=""></iframe>
+    </div>
+</div>
 
 <script>
-    // Chuyển hướng Game - Đã ẩn link
-    // document.getElementById('gameLink').addEventListener('click', () => {
-    //     window.location.href = 'https://gamesnacks.com/';
-    // });
+    // Mở game trong iframe để ẩn URL
+    const gameLink = document.getElementById('gameLink');
+    const gameModal = document.getElementById('gameModal');
+    const gameIframe = document.getElementById('gameIframe');
+    const closeGameBtn = document.getElementById('closeGameBtn');
+    
+    gameLink.addEventListener('click', () => {
+        gameIframe.src = 'https://gamesnacks.com/';
+        gameModal.classList.add('active');
+    });
+    
+    closeGameBtn.addEventListener('click', () => {
+        gameModal.classList.remove('active');
+        gameIframe.src = '';
+    });
+    
+    // Đóng modal khi click ra ngoài
+    gameModal.addEventListener('click', (e) => {
+        if (e.target === gameModal) {
+            gameModal.classList.remove('active');
+            gameIframe.src = '';
+        }
+    });
 
 
     // Logic PWA
