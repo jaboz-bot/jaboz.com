@@ -496,10 +496,17 @@
                     lang = selectedVoice.lang;
                 }
                 
-                // Chuyển đổi lang code cho Google TTS (vi-VN -> vi_VN)
-                const googleLang = lang.replace('-', '_').split('_')[0];
+                // Chuyển đổi lang code cho Google TTS
+                let googleLang = 'vi';
+                if (lang.includes('vi') || lang.includes('VN')) {
+                    googleLang = 'vi';
+                } else if (lang.includes('en')) {
+                    googleLang = 'en';
+                } else {
+                    googleLang = lang.split('-')[0] || 'vi';
+                }
                 
-                // Chia văn bản thành các đoạn nhỏ (Google TTS có giới hạn độ dài)
+                // Chia văn bản thành các đoạn nhỏ (Google TTS có giới hạn độ dài ~200 ký tự)
                 const maxLength = 200;
                 const textParts = [];
                 let currentPart = '';
@@ -519,33 +526,89 @@
                     textParts.push(currentPart);
                 }
                 
-                // Tải từng phần và ghép lại
-                const audioBlobs = [];
+                // Sử dụng Web Audio API để ghép audio đúng cách
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const audioBuffers = [];
+                
+                // Tải và decode từng phần audio
                 for (let i = 0; i < textParts.length; i++) {
                     showStatus(`Đang tải phần ${i + 1}/${textParts.length}...`, 'active');
                     
-                    const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${googleLang}&client=tw-ob&q=${encodeURIComponent(textParts[i])}`;
-                    
-                    const response = await fetch(ttsUrl);
-                    if (!response.ok) {
-                        throw new Error(`Không thể tải audio phần ${i + 1}`);
-                    }
-                    
-                    const blob = await response.blob();
-                    audioBlobs.push(blob);
-                    
-                    // Thêm delay nhỏ giữa các request để tránh bị chặn
-                    if (i < textParts.length - 1) {
-                        await new Promise(resolve => setTimeout(resolve, 300));
+                    try {
+                        // Thử nhiều endpoint khác nhau
+                        const ttsUrls = [
+                            `https://translate.google.com/translate_tts?ie=UTF-8&tl=${googleLang}&client=tw-ob&q=${encodeURIComponent(textParts[i])}`,
+                            `https://translate.google.com/translate_tts?ie=UTF-8&tl=${googleLang}&client=gtx&q=${encodeURIComponent(textParts[i])}`,
+                            `https://translate.google.com/translate_tts?ie=UTF-8&tl=${googleLang}&q=${encodeURIComponent(textParts[i])}`
+                        ];
+                        
+                        let response = null;
+                        let blob = null;
+                        
+                        for (const url of ttsUrls) {
+                            try {
+                                response = await fetch(url, {
+                                    headers: {
+                                        'Referer': 'https://translate.google.com/',
+                                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                                    }
+                                });
+                                
+                                if (response.ok) {
+                                    blob = await response.blob();
+                                    break;
+                                }
+                            } catch (e) {
+                                continue;
+                            }
+                        }
+                        
+                        if (!blob || !response || !response.ok) {
+                            throw new Error(`Không thể tải audio phần ${i + 1}. Có thể do CORS hoặc API đã thay đổi.`);
+                        }
+                        
+                        // Decode audio blob thành AudioBuffer
+                        const arrayBuffer = await blob.arrayBuffer();
+                        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                        audioBuffers.push(audioBuffer);
+                        
+                        // Thêm delay nhỏ giữa các request để tránh bị chặn
+                        if (i < textParts.length - 1) {
+                            await new Promise(resolve => setTimeout(resolve, 500));
+                        }
+                    } catch (partError) {
+                        throw new Error(`Lỗi ở phần ${i + 1}: ${partError.message}`);
                     }
                 }
                 
-                // Ghép các audio blob lại với nhau
-                const combinedBlob = new Blob(audioBlobs, { type: 'audio/mpeg' });
-                const url = URL.createObjectURL(combinedBlob);
+                // Ghép các AudioBuffer lại với nhau
+                showStatus('Đang ghép audio...', 'active');
+                
+                const totalLength = audioBuffers.reduce((sum, buffer) => sum + buffer.length, 0);
+                const sampleRate = audioBuffers[0].sampleRate;
+                const numberOfChannels = audioBuffers[0].numberOfChannels;
+                
+                const mergedBuffer = audioContext.createBuffer(numberOfChannels, totalLength, sampleRate);
+                
+                let offset = 0;
+                for (const buffer of audioBuffers) {
+                    for (let channel = 0; channel < numberOfChannels; channel++) {
+                        const channelData = mergedBuffer.getChannelData(channel);
+                        const sourceData = buffer.getChannelData(channel);
+                        channelData.set(sourceData, offset);
+                    }
+                    offset += buffer.length;
+                }
+                
+                // Chuyển AudioBuffer thành WAV file
+                const wav = audioBufferToWav(mergedBuffer);
+                const wavBlob = new Blob([wav], { type: 'audio/wav' });
+                
+                // Tải file về
+                const url = URL.createObjectURL(wavBlob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `doc_van_ban_${Date.now()}.mp3`;
+                a.download = `doc_van_ban_${Date.now()}.wav`;
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
@@ -560,6 +623,48 @@
                 console.error('Error:', error);
             }
         });
+
+        // Hàm chuyển AudioBuffer thành WAV
+        function audioBufferToWav(buffer) {
+            const length = buffer.length;
+            const numberOfChannels = buffer.numberOfChannels;
+            const sampleRate = buffer.sampleRate;
+            const arrayBuffer = new ArrayBuffer(44 + length * numberOfChannels * 2);
+            const view = new DataView(arrayBuffer);
+            
+            // WAV header
+            const writeString = (offset, string) => {
+                for (let i = 0; i < string.length; i++) {
+                    view.setUint8(offset + i, string.charCodeAt(i));
+                }
+            };
+            
+            writeString(0, 'RIFF');
+            view.setUint32(4, 36 + length * numberOfChannels * 2, true);
+            writeString(8, 'WAVE');
+            writeString(12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
+            view.setUint16(22, numberOfChannels, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * numberOfChannels * 2, true);
+            view.setUint16(32, numberOfChannels * 2, true);
+            view.setUint16(34, 16, true);
+            writeString(36, 'data');
+            view.setUint32(40, length * numberOfChannels * 2, true);
+            
+            // Audio data
+            let offset = 44;
+            for (let i = 0; i < length; i++) {
+                for (let channel = 0; channel < numberOfChannels; channel++) {
+                    const sample = Math.max(-1, Math.min(1, buffer.getChannelData(channel)[i]));
+                    view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7FFF, true);
+                    offset += 2;
+                }
+            }
+            
+            return arrayBuffer;
+        }
 
         // Xóa văn bản
         clearBtn.addEventListener('click', () => {
