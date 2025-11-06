@@ -121,6 +121,7 @@
             border-radius: 50%;
             background: #667eea;
             cursor: pointer;
+            border: none;
         }
         input[type="range"]::-moz-range-thumb {
             width: 20px;
@@ -186,6 +187,17 @@
             box-shadow: 0 5px 20px rgba(158, 158, 158, 0.4);
         }
         .btn-clear:active {
+            transform: translateY(0);
+        }
+        .btn-download {
+            background: linear-gradient(45deg, #4caf50, #388e3c);
+            color: white;
+        }
+        .btn-download:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(76, 175, 80, 0.4);
+        }
+        .btn-download:active {
             transform: translateY(0);
         }
         button:disabled {
@@ -295,6 +307,9 @@
             <button id="stopBtn" class="btn-stop" disabled>
                 ⏹️ Dừng
             </button>
+            <button id="downloadBtn" class="btn-download">
+                💾 Tải về
+            </button>
             <button id="clearBtn" class="btn-clear">
                 🗑️ Xóa
             </button>
@@ -314,6 +329,7 @@
         const volumeValue = document.getElementById('volumeValue');
         const playBtn = document.getElementById('playBtn');
         const stopBtn = document.getElementById('stopBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
         const clearBtn = document.getElementById('clearBtn');
         const status = document.getElementById('status');
 
@@ -456,6 +472,92 @@
                 showStatus('Đã dừng phát giọng nói', 'active');
                 playBtn.disabled = false;
                 stopBtn.disabled = true;
+            }
+        });
+
+        // Tải giọng nói về
+        downloadBtn.addEventListener('click', async () => {
+            const text = textInput.value.trim();
+            
+            if (!text) {
+                showStatus('Vui lòng nhập văn bản cần đọc!', 'error');
+                textInput.focus();
+                return;
+            }
+
+            try {
+                showStatus('Đang tạo file audio...', 'active');
+                downloadBtn.disabled = true;
+
+                // Lấy thông tin giọng đọc
+                const selectedVoice = voices.find(voice => voice.name === voiceSelect.value);
+                let lang = 'vi-VN';
+                if (selectedVoice) {
+                    lang = selectedVoice.lang;
+                }
+                
+                // Chuyển đổi lang code cho Google TTS (vi-VN -> vi_VN)
+                const googleLang = lang.replace('-', '_').split('_')[0];
+                
+                // Chia văn bản thành các đoạn nhỏ (Google TTS có giới hạn độ dài)
+                const maxLength = 200;
+                const textParts = [];
+                let currentPart = '';
+                
+                const words = text.split(' ');
+                for (const word of words) {
+                    if ((currentPart + ' ' + word).length <= maxLength) {
+                        currentPart += (currentPart ? ' ' : '') + word;
+                    } else {
+                        if (currentPart) {
+                            textParts.push(currentPart);
+                        }
+                        currentPart = word;
+                    }
+                }
+                if (currentPart) {
+                    textParts.push(currentPart);
+                }
+                
+                // Tải từng phần và ghép lại
+                const audioBlobs = [];
+                for (let i = 0; i < textParts.length; i++) {
+                    showStatus(`Đang tải phần ${i + 1}/${textParts.length}...`, 'active');
+                    
+                    const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${googleLang}&client=tw-ob&q=${encodeURIComponent(textParts[i])}`;
+                    
+                    const response = await fetch(ttsUrl);
+                    if (!response.ok) {
+                        throw new Error(`Không thể tải audio phần ${i + 1}`);
+                    }
+                    
+                    const blob = await response.blob();
+                    audioBlobs.push(blob);
+                    
+                    // Thêm delay nhỏ giữa các request để tránh bị chặn
+                    if (i < textParts.length - 1) {
+                        await new Promise(resolve => setTimeout(resolve, 300));
+                    }
+                }
+                
+                // Ghép các audio blob lại với nhau
+                const combinedBlob = new Blob(audioBlobs, { type: 'audio/mpeg' });
+                const url = URL.createObjectURL(combinedBlob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `doc_van_ban_${Date.now()}.mp3`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showStatus('Đã tải file audio thành công!', 'active');
+                downloadBtn.disabled = false;
+
+            } catch (error) {
+                showStatus('Lỗi: ' + error.message + '. Vui lòng thử lại sau.', 'error');
+                downloadBtn.disabled = false;
+                console.error('Error:', error);
             }
         });
 
