@@ -242,11 +242,11 @@
             display: flex;
         }
         .confirm-popup-content {
-            background: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border-radius: 16px;
             padding: 30px;
-            max-width: 400px;
-            width: 90%;
+            max-width: 320px;
+            width: 85%;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
             text-align: center;
             animation: popupSlideIn 0.3s ease-out;
@@ -264,12 +264,12 @@
         .confirm-popup-title {
             font-size: 22px;
             font-weight: bold;
-            color: #333;
+            color: white;
             margin-bottom: 20px;
         }
         .confirm-popup-message {
             font-size: 16px;
-            color: #666;
+            color: rgba(255, 255, 255, 0.95);
             margin-bottom: 30px;
         }
         .confirm-popup-buttons {
@@ -361,8 +361,8 @@
         <div class="confirm-popup-title">⚠️ Xác nhận</div>
         <div class="confirm-popup-message">Bạn muốn thoát Game?</div>
         <div class="confirm-popup-buttons">
-            <button class="confirm-btn confirm-btn-yes" id="confirmYes">Có</button>
             <button class="confirm-btn confirm-btn-no" id="confirmNo">Không</button>
+            <button class="confirm-btn confirm-btn-yes" id="confirmYes">Có</button>
         </div>
     </div>
 </div>
