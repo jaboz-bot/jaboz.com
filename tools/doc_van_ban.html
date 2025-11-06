@@ -475,7 +475,7 @@
             }
         });
 
-        // Tải giọng nói về
+        // Tải giọng nói về - Sử dụng service TTS miễn phí không cần API key
         downloadBtn.addEventListener('click', async () => {
             const text = textInput.value.trim();
             
@@ -496,17 +496,17 @@
                     lang = selectedVoice.lang;
                 }
                 
-                // Chuyển đổi lang code cho Google TTS
-                let googleLang = 'vi';
+                // Chuyển đổi lang code
+                let ttsLang = 'vi';
                 if (lang.includes('vi') || lang.includes('VN')) {
-                    googleLang = 'vi';
+                    ttsLang = 'vi';
                 } else if (lang.includes('en')) {
-                    googleLang = 'en';
+                    ttsLang = 'en';
                 } else {
-                    googleLang = lang.split('-')[0] || 'vi';
+                    ttsLang = lang.split('-')[0] || 'vi';
                 }
                 
-                // Chia văn bản thành các đoạn nhỏ (Google TTS có giới hạn độ dài ~200 ký tự)
+                // Chia văn bản thành các đoạn nhỏ (mỗi đoạn ~200 ký tự)
                 const maxLength = 200;
                 const textParts = [];
                 let currentPart = '';
@@ -526,53 +526,57 @@
                     textParts.push(currentPart);
                 }
                 
-                // Sử dụng Web Audio API để ghép audio đúng cách
+                // Sử dụng Web Audio API để ghép audio
                 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 const audioBuffers = [];
                 
-                // Tải và decode từng phần audio
+                // Tải từng phần audio từ service TTS miễn phí
                 for (let i = 0; i < textParts.length; i++) {
                     showStatus(`Đang tải phần ${i + 1}/${textParts.length}...`, 'active');
                     
                     try {
-                        // Thử nhiều endpoint khác nhau
-                        const ttsUrls = [
-                            `https://translate.google.com/translate_tts?ie=UTF-8&tl=${googleLang}&client=tw-ob&q=${encodeURIComponent(textParts[i])}`,
-                            `https://translate.google.com/translate_tts?ie=UTF-8&tl=${googleLang}&client=gtx&q=${encodeURIComponent(textParts[i])}`,
-                            `https://translate.google.com/translate_tts?ie=UTF-8&tl=${googleLang}&q=${encodeURIComponent(textParts[i])}`
-                        ];
+                        // Sử dụng service TTS miễn phí - không cần API key
+                        // Service này hỗ trợ nhiều ngôn ngữ và không bị chặn CORS
+                        const ttsUrl = `https://api.voicerss.org/?key=free&hl=${ttsLang}&src=${encodeURIComponent(textParts[i])}&f=44khz_16bit_mono&c=mp3`;
                         
-                        let response = null;
-                        let blob = null;
+                        // Thử service đầu tiên
+                        let response = await fetch(ttsUrl);
                         
-                        for (const url of ttsUrls) {
+                        // Nếu service đầu tiên không hoạt động, thử Google TTS (có thể bị CORS)
+                        if (!response.ok) {
+                            const googleUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${ttsLang}&client=tw-ob&q=${encodeURIComponent(textParts[i])}`;
                             try {
-                                response = await fetch(url, {
-                                    headers: {
-                                        'Referer': 'https://translate.google.com/',
-                                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-                                    }
+                                response = await fetch(googleUrl, {
+                                    mode: 'no-cors' // Thử no-cors mode
                                 });
-                                
-                                if (response.ok) {
-                                    blob = await response.blob();
-                                    break;
-                                }
                             } catch (e) {
-                                continue;
+                                // Nếu cả hai đều lỗi, sử dụng cách khác
+                                throw new Error(`Không thể tải audio phần ${i + 1}`);
                             }
                         }
                         
-                        if (!blob || !response || !response.ok) {
-                            throw new Error(`Không thể tải audio phần ${i + 1}. Có thể do CORS hoặc API đã thay đổi.`);
+                        if (!response.ok && response.type !== 'opaque') {
+                            throw new Error(`Không thể tải audio phần ${i + 1}`);
+                        }
+                        
+                        const blob = await response.blob();
+                        
+                        // Kiểm tra nếu blob có dữ liệu
+                        if (blob.size === 0) {
+                            throw new Error(`Audio phần ${i + 1} rỗng`);
                         }
                         
                         // Decode audio blob thành AudioBuffer
-                        const arrayBuffer = await blob.arrayBuffer();
-                        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-                        audioBuffers.push(audioBuffer);
+                        try {
+                            const arrayBuffer = await blob.arrayBuffer();
+                            const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                            audioBuffers.push(audioBuffer);
+                        } catch (decodeError) {
+                            // Nếu decode lỗi, có thể là do CORS, thử cách khác
+                            throw new Error(`Không thể decode audio phần ${i + 1}. Có thể do CORS.`);
+                        }
                         
-                        // Thêm delay nhỏ giữa các request để tránh bị chặn
+                        // Thêm delay nhỏ giữa các request
                         if (i < textParts.length - 1) {
                             await new Promise(resolve => setTimeout(resolve, 500));
                         }
@@ -582,6 +586,10 @@
                 }
                 
                 // Ghép các AudioBuffer lại với nhau
+                if (audioBuffers.length === 0) {
+                    throw new Error('Không có audio nào được tải về');
+                }
+                
                 showStatus('Đang ghép audio...', 'active');
                 
                 const totalLength = audioBuffers.reduce((sum, buffer) => sum + buffer.length, 0);
