@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đọc Văn Bản - Jaboz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.5s ease-out;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        .input-group {
+            margin-bottom: 25px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+        select {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+            font-family: inherit;
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .slider-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        input[type="range"] {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: #e0e0e0;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: none;
+        }
+        .value-display {
+            min-width: 50px;
+            text-align: center;
+            font-weight: 600;
+            color: #667eea;
+        }
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        button {
+            flex: 1;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .btn-play {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+        .btn-play:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        .btn-play:active {
+            transform: translateY(0);
+        }
+        .btn-stop {
+            background: linear-gradient(45deg, #f44336, #d32f2f);
+            color: white;
+        }
+        .btn-stop:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(244, 67, 54, 0.4);
+        }
+        .btn-stop:active {
+            transform: translateY(0);
+        }
+        .btn-clear {
+            background: linear-gradient(45deg, #9e9e9e, #757575);
+            color: white;
+        }
+        .btn-clear:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(158, 158, 158, 0.4);
+        }
+        .btn-clear:active {
+            transform: translateY(0);
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .status {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: 600;
+            display: none;
+        }
+        .status.active {
+            display: block;
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        .status.error {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .back-link {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: white;
+            color: #667eea;
+            padding: 12px 24px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s;
+            z-index: 1000;
+        }
+        .back-link:hover {
+            transform: translateY(-2px);
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px;
+            }
+            h1 {
+                font-size: 24px;
+            }
+            .controls {
+                grid-template-columns: 1fr;
+            }
+            .button-group {
+                flex-direction: column;
+            }
+            .back-link {
+                top: 10px;
+                left: 10px;
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="back-link">← Về Trang Chủ</a>
+    
+    <div class="container">
+        <h1>🔊 Đọc Văn Bản</h1>
+        <p class="subtitle">Nhập văn bản và nghe giọng nói tự động</p>
+        
+        <div class="input-group">
+            <label for="textInput">Văn bản cần đọc:</label>
+            <textarea id="textInput" placeholder="Nhập văn bản bạn muốn chuyển thành giọng nói..."></textarea>
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label for="voiceSelect">Giọng đọc:</label>
+                <select id="voiceSelect"></select>
+            </div>
+            <div class="control-group">
+                <label>Tốc độ đọc:</label>
+                <div class="slider-group">
+                    <input type="range" id="rateSlider" min="0.5" max="2" step="0.1" value="1">
+                    <span class="value-display" id="rateValue">1.0</span>
+                </div>
+            </div>
+            <div class="control-group">
+                <label>Độ cao giọng:</label>
+                <div class="slider-group">
+                    <input type="range" id="pitchSlider" min="0" max="2" step="0.1" value="1">
+                    <span class="value-display" id="pitchValue">1.0</span>
+                </div>
+            </div>
+            <div class="control-group">
+                <label>Âm lượng:</label>
+                <div class="slider-group">
+                    <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="1">
+                    <span class="value-display" id="volumeValue">1.0</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="button-group">
+            <button id="playBtn" class="btn-play">
+                ▶️ Phát
+            </button>
+            <button id="stopBtn" class="btn-stop" disabled>
+                ⏹️ Dừng
+            </button>
+            <button id="clearBtn" class="btn-clear">
+                🗑️ Xóa
+            </button>
+        </div>
+        
+        <div id="status" class="status"></div>
+    </div>
+
+    <script>
+        const textInput = document.getElementById('textInput');
+        const voiceSelect = document.getElementById('voiceSelect');
+        const rateSlider = document.getElementById('rateSlider');
+        const pitchSlider = document.getElementById('pitchSlider');
+        const volumeSlider = document.getElementById('volumeSlider');
+        const rateValue = document.getElementById('rateValue');
+        const pitchValue = document.getElementById('pitchValue');
+        const volumeValue = document.getElementById('volumeValue');
+        const playBtn = document.getElementById('playBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const status = document.getElementById('status');
+
+        let synth = window.speechSynthesis;
+        let voices = [];
+        let currentUtterance = null;
+
+        // Kiểm tra hỗ trợ Web Speech API
+        if (!('speechSynthesis' in window)) {
+            showStatus('Trình duyệt của bạn không hỗ trợ chức năng này. Vui lòng sử dụng trình duyệt khác.', 'error');
+            playBtn.disabled = true;
+        }
+
+        // Load danh sách giọng đọc
+        function loadVoices() {
+            voices = synth.getVoices();
+            
+            // Lọc giọng tiếng Việt và tiếng Anh
+            const vietnameseVoices = voices.filter(voice => 
+                voice.lang.includes('vi') || voice.lang.includes('VN')
+            );
+            const englishVoices = voices.filter(voice => 
+                voice.lang.includes('en')
+            );
+            const allVoices = [...vietnameseVoices, ...englishVoices, ...voices];
+            
+            // Xóa các option cũ
+            voiceSelect.innerHTML = '';
+            
+            // Thêm giọng tiếng Việt
+            if (vietnameseVoices.length > 0) {
+                const optgroup = document.createElement('optgroup');
+                optgroup.label = 'Tiếng Việt';
+                vietnameseVoices.forEach(voice => {
+                    const option = document.createElement('option');
+                    option.value = voice.name;
+                    option.textContent = `${voice.name} (${voice.lang})`;
+                    optgroup.appendChild(option);
+                });
+                voiceSelect.appendChild(optgroup);
+            }
+            
+            // Thêm giọng tiếng Anh
+            if (englishVoices.length > 0) {
+                const optgroup = document.createElement('optgroup');
+                optgroup.label = 'Tiếng Anh';
+                englishVoices.forEach(voice => {
+                    const option = document.createElement('option');
+                    option.value = voice.name;
+                    option.textContent = `${voice.name} (${voice.lang})`;
+                    optgroup.appendChild(option);
+                });
+                voiceSelect.appendChild(optgroup);
+            }
+            
+            // Chọn giọng tiếng Việt đầu tiên nếu có
+            if (vietnameseVoices.length > 0) {
+                voiceSelect.value = vietnameseVoices[0].name;
+            }
+        }
+
+        // Load voices khi sẵn sàng
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = loadVoices;
+        }
+        loadVoices();
+
+        // Cập nhật giá trị hiển thị
+        rateSlider.addEventListener('input', (e) => {
+            rateValue.textContent = parseFloat(e.target.value).toFixed(1);
+        });
+
+        pitchSlider.addEventListener('input', (e) => {
+            pitchValue.textContent = parseFloat(e.target.value).toFixed(1);
+        });
+
+        volumeSlider.addEventListener('input', (e) => {
+            volumeValue.textContent = parseFloat(e.target.value).toFixed(1);
+        });
+
+        // Phát giọng nói
+        playBtn.addEventListener('click', () => {
+            const text = textInput.value.trim();
+            
+            if (!text) {
+                showStatus('Vui lòng nhập văn bản cần đọc!', 'error');
+                textInput.focus();
+                return;
+            }
+
+            // Dừng giọng nói hiện tại nếu có
+            if (synth.speaking) {
+                synth.cancel();
+            }
+
+            // Tạo utterance mới
+            currentUtterance = new SpeechSynthesisUtterance(text);
+            
+            // Chọn giọng đọc
+            const selectedVoice = voices.find(voice => voice.name === voiceSelect.value);
+            if (selectedVoice) {
+                currentUtterance.voice = selectedVoice;
+            }
+            
+            // Thiết lập các thông số
+            currentUtterance.rate = parseFloat(rateSlider.value);
+            currentUtterance.pitch = parseFloat(pitchSlider.value);
+            currentUtterance.volume = parseFloat(volumeSlider.value);
+            currentUtterance.lang = selectedVoice ? selectedVoice.lang : 'vi-VN';
+
+            // Sự kiện khi bắt đầu phát
+            currentUtterance.onstart = () => {
+                showStatus('Đang phát giọng nói...', 'active');
+                playBtn.disabled = true;
+                stopBtn.disabled = false;
+            };
+
+            // Sự kiện khi kết thúc
+            currentUtterance.onend = () => {
+                showStatus('Đã phát xong!', 'active');
+                playBtn.disabled = false;
+                stopBtn.disabled = true;
+            };
+
+            // Sự kiện khi có lỗi
+            currentUtterance.onerror = (event) => {
+                showStatus('Có lỗi xảy ra: ' + event.error, 'error');
+                playBtn.disabled = false;
+                stopBtn.disabled = true;
+            };
+
+            // Phát giọng nói
+            synth.speak(currentUtterance);
+        });
+
+        // Dừng giọng nói
+        stopBtn.addEventListener('click', () => {
+            if (synth.speaking) {
+                synth.cancel();
+                showStatus('Đã dừng phát giọng nói', 'active');
+                playBtn.disabled = false;
+                stopBtn.disabled = true;
+            }
+        });
+
+        // Xóa văn bản
+        clearBtn.addEventListener('click', () => {
+            textInput.value = '';
+            textInput.focus();
+            if (synth.speaking) {
+                synth.cancel();
+                playBtn.disabled = false;
+                stopBtn.disabled = true;
+            }
+        });
+
+        // Hiển thị thông báo
+        function showStatus(message, type = 'active') {
+            status.textContent = message;
+            status.className = 'status ' + type;
+            status.classList.add('active');
+            
+            setTimeout(() => {
+                status.classList.remove('active');
+            }, 3000);
+        }
+
+        // Phím tắt
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    playBtn.click();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+
