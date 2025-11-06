@@ -204,7 +204,7 @@
     <button class="settings-link" id="installButton">📲 Trang Chủ</button>
     <a href="binh_luan/binh_luan.html" class="comment-link">💬 Đóng góp ý kiến</a>
     <div class="visitor-counter">
-        <span>👥 Lượt truy cập trong ngày:</span>
+        <span>👥 Tổng lượt truy cập:</span>
         <span class="counter-number" id="visitorCount">0</span>
     </div>
 </div>
@@ -255,91 +255,125 @@
     
     updateInstallButtonVisibility();
     
-    // Bộ đếm lượt truy cập trong ngày với animation - Đếm chính xác
+    // Bộ đếm lượt truy cập cộng dồn với Firebase - Đếm chính xác từ tất cả người dùng
     (function() {
-        const TODAY_KEY = 'jaboz_today_visitors';
-        const VISIT_KEY = 'jaboz_visit_today';
         const counterEl = document.getElementById('visitorCount');
-        
         if (!counterEl) return;
         
         let currentCount = 0;
         let targetCount = 0;
+        let db = null;
+        let firebaseInitialized = false;
         
-        function getTodayKey() {
-            const now = new Date();
-            const today = new Date(now);
-            today.setHours(0, 0, 0, 0);
-            return today.toISOString().split('T')[0];
+        // Firebase configuration - Sử dụng cùng config với binh_luan.html
+        const firebaseConfig = {
+            apiKey: "AIzaSyBMv04BBtq623wHq5ANafgZTLWB6eI21MQ",
+            authDomain: "giang-cdd21.firebaseapp.com",
+            projectId: "giang-cdd21",
+            storageBucket: "giang-cdd21.firebasestorage.app",
+            messagingSenderId: "625032066181",
+            appId: "1:625032066181:web:18619aeab6d81207ee65ec",
+            measurementId: "G-T77QP608PB"
+        };
+        
+        // Khởi tạo Firebase
+        let firestoreModule = null;
+        
+        async function initFirebase() {
+            try {
+                const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
+                firestoreModule = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                const { getFirestore } = firestoreModule;
+                
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                firebaseInitialized = true;
+                
+                // Tăng lượt truy cập khi trang được tải
+                await incrementVisitorCount();
+                
+                // Lắng nghe thay đổi từ Firestore để hiển thị real-time
+                listenToVisitorCount();
+                
+                return true;
+            } catch (error) {
+                console.error('Lỗi khởi tạo Firebase:', error);
+                // Fallback: hiển thị số 0 nếu Firebase không hoạt động
+                counterEl.textContent = '0';
+                return false;
+            }
         }
         
-        function incrementVisitorCount() {
-            const todayKey = getTodayKey();
+        // Tăng lượt truy cập trong Firestore (cộng dồn)
+        async function incrementVisitorCount() {
+            if (!firebaseInitialized || !db || !firestoreModule) return;
             
-            // Lấy số lượt truy cập đã lưu cho ngày hôm nay
-            const savedData = localStorage.getItem(TODAY_KEY);
-            let savedCount = 0;
-            let savedDate = '';
-            
-            if (savedData) {
-                const data = JSON.parse(savedData);
-                savedDate = data.date;
-                savedCount = data.count || 0;
-            }
-            
-            // Kiểm tra xem đã đếm lượt truy cập này chưa (tránh đếm trùng khi refresh)
-            const visitData = sessionStorage.getItem(VISIT_KEY);
-            let hasVisitedToday = false;
-            
-            if (visitData) {
-                const visit = JSON.parse(visitData);
-                if (visit.date === todayKey) {
-                    hasVisitedToday = true;
+            try {
+                const { doc, getDoc, setDoc, updateDoc, increment, serverTimestamp } = firestoreModule;
+                const VISIT_KEY = 'jaboz_visit_session';
+                const TOTAL_COUNT_DOC_ID = 'total';
+                const visitDocRef = doc(db, 'visitor_count', TOTAL_COUNT_DOC_ID);
+                
+                // Kiểm tra xem đã đếm lượt truy cập này chưa (tránh đếm trùng khi refresh)
+                const visitData = sessionStorage.getItem(VISIT_KEY);
+                let hasVisited = false;
+                
+                if (visitData) {
+                    hasVisited = true;
                 }
+                
+                // Chỉ tăng lượt truy cập nếu chưa đếm trong session này
+                if (!hasVisited) {
+                    const visitDoc = await getDoc(visitDocRef);
+                    
+                    if (visitDoc.exists()) {
+                        // Document đã tồn tại, tăng số đếm bằng updateDoc với increment
+                        await updateDoc(visitDocRef, {
+                            count: increment(1),
+                            lastUpdated: serverTimestamp()
+                        });
+                    } else {
+                        // Document chưa tồn tại, tạo mới với count = 1
+                        await setDoc(visitDocRef, {
+                            count: 1,
+                            lastUpdated: serverTimestamp()
+                        });
+                    }
+                    
+                    // Đánh dấu đã đếm lượt truy cập này
+                    sessionStorage.setItem(VISIT_KEY, JSON.stringify({
+                        timestamp: Date.now()
+                    }));
+                }
+            } catch (error) {
+                console.error('Lỗi tăng lượt truy cập:', error);
             }
-            
-            // Nếu là ngày mới, reset về 0
-            if (savedDate !== todayKey) {
-                savedCount = 0;
-                savedDate = todayKey;
-                hasVisitedToday = false; // Reset flag khi ngày mới
-            }
-            
-            // Chỉ tăng lượt truy cập nếu chưa đếm trong session này
-            if (!hasVisitedToday) {
-                savedCount += 1;
-                // Đánh dấu đã đếm lượt truy cập này
-                sessionStorage.setItem(VISIT_KEY, JSON.stringify({
-                    date: todayKey,
-                    timestamp: Date.now()
-                }));
-            }
-            
-            // Lưu lại số hiện tại
-            localStorage.setItem(TODAY_KEY, JSON.stringify({
-                date: todayKey,
-                count: savedCount
-            }));
-            
-            return savedCount;
         }
         
-        function getCurrentVisitorCount() {
-            const todayKey = getTodayKey();
-            const savedData = localStorage.getItem(TODAY_KEY);
+        // Lắng nghe thay đổi từ Firestore
+        function listenToVisitorCount() {
+            if (!firebaseInitialized || !db || !firestoreModule) return;
             
-            if (!savedData) {
-                return 0;
+            try {
+                const { doc, onSnapshot } = firestoreModule;
+                const TOTAL_COUNT_DOC_ID = 'total';
+                const visitDocRef = doc(db, 'visitor_count', TOTAL_COUNT_DOC_ID);
+                
+                onSnapshot(visitDocRef, (snapshot) => {
+                    if (snapshot.exists()) {
+                        const data = snapshot.data();
+                        targetCount = data.count || 0;
+                        updateCounter();
+                    } else {
+                        targetCount = 0;
+                        updateCounter();
+                    }
+                }, (error) => {
+                    console.error('Lỗi lắng nghe Firestore:', error);
+                });
+            } catch (error) {
+                console.error('Lỗi thiết lập listener:', error);
             }
-            
-            const data = JSON.parse(savedData);
-            
-            // Nếu là ngày mới, trả về 0
-            if (data.date !== todayKey) {
-                return 0;
-            }
-            
-            return data.count || 0;
         }
         
         function animateCount() {
@@ -357,7 +391,6 @@
         }
         
         function updateCounter() {
-            targetCount = getCurrentVisitorCount();
             function animate() {
                 animateCount();
                 if (currentCount !== targetCount) {
@@ -369,21 +402,8 @@
             requestAnimationFrame(animate);
         }
         
-        // Tăng lượt truy cập khi trang được tải
-        targetCount = incrementVisitorCount();
-        currentCount = 0;
-        
-        // Hiển thị với animation
-        updateCounter();
-        
-        // Kiểm tra và reset khi qua ngày mới (kiểm tra mỗi phút)
-        setInterval(() => {
-            const newCount = getCurrentVisitorCount();
-            if (newCount !== targetCount) {
-                targetCount = newCount;
-                updateCounter();
-            }
-        }, 60000); // Kiểm tra mỗi phút
+        // Khởi tạo Firebase và bắt đầu đếm
+        initFirebase();
     })();
 </script>
 
