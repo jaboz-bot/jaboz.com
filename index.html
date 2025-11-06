@@ -185,15 +185,15 @@
                 🎮 Chơi Game              
             </div>
             
-            <a href="tools/cham_cong.html" class="app-item movie-link">
+            <a href="cham_cong/cham_cong.html" class="app-item movie-link">
                 🗓️ Máy Chấm Công
             </a>
             
-            <a href="tools/doi_tien_te.html" class="app-item currency-link">
+            <a href="doi_tien_te/doi_tien_te.html" class="app-item currency-link">
                 💱 Đổi tiền tệ
             </a>
             
-            <a href="tools/lich_am_duong.html" class="app-item" style="background: linear-gradient(45deg, #FF6B6B, #EE5A6F);">
+            <a href="lich_am_duong.html" class="app-item" style="background: linear-gradient(45deg, #FF6B6B, #EE5A6F);">
                 🌙 Lịch Âm Dương
             </a>
             
@@ -255,9 +255,10 @@
     
     updateInstallButtonVisibility();
     
-    // Bộ đếm lượt truy cập trong ngày với animation
+    // Bộ đếm lượt truy cập trong ngày với animation - Đếm chính xác
     (function() {
         const TODAY_KEY = 'jaboz_today_visitors';
+        const VISIT_KEY = 'jaboz_visit_today';
         const counterEl = document.getElementById('visitorCount');
         
         if (!counterEl) return;
@@ -265,11 +266,15 @@
         let currentCount = 0;
         let targetCount = 0;
         
-        function calculateTodayVisitorCount() {
+        function getTodayKey() {
             const now = new Date();
             const today = new Date(now);
             today.setHours(0, 0, 0, 0);
-            const todayKey = today.toISOString().split('T')[0];
+            return today.toISOString().split('T')[0];
+        }
+        
+        function incrementVisitorCount() {
+            const todayKey = getTodayKey();
             
             // Lấy số lượt truy cập đã lưu cho ngày hôm nay
             const savedData = localStorage.getItem(TODAY_KEY);
@@ -282,71 +287,103 @@
                 savedCount = data.count || 0;
             }
             
-            // Nếu là ngày mới, reset về số cơ bản
-            if (savedDate !== todayKey) {
-                savedCount = 180; // Số cơ bản trong ngày (hàng trăm)
-                savedDate = todayKey;
+            // Kiểm tra xem đã đếm lượt truy cập này chưa (tránh đếm trùng khi refresh)
+            const visitData = sessionStorage.getItem(VISIT_KEY);
+            let hasVisitedToday = false;
+            
+            if (visitData) {
+                const visit = JSON.parse(visitData);
+                if (visit.date === todayKey) {
+                    hasVisitedToday = true;
+                }
             }
             
-            // Tính số lượt truy cập dựa trên giờ và phút trong ngày
-            const hours = now.getHours();
-            const minutes = now.getMinutes();
-            const seconds = now.getSeconds();
+            // Nếu là ngày mới, reset về 0
+            if (savedDate !== todayKey) {
+                savedCount = 0;
+                savedDate = todayKey;
+                hasVisitedToday = false; // Reset flag khi ngày mới
+            }
             
-            // Tăng dần theo thời gian trong ngày (tự động từ hàng trăm lên hàng nghìn)
-            const hourFactor = hours * 8; // ~8 lượt mỗi giờ
-            const minuteFactor = Math.floor(minutes / 3) * 2; // ~2 lượt mỗi 3 phút
-            const secondFactor = Math.floor(seconds / 30); // Tăng theo giây để nhảy động hơn
-            
-            let count = savedCount + hourFactor + minuteFactor + secondFactor;
+            // Chỉ tăng lượt truy cập nếu chưa đếm trong session này
+            if (!hasVisitedToday) {
+                savedCount += 1;
+                // Đánh dấu đã đếm lượt truy cập này
+                sessionStorage.setItem(VISIT_KEY, JSON.stringify({
+                    date: todayKey,
+                    timestamp: Date.now()
+                }));
+            }
             
             // Lưu lại số hiện tại
             localStorage.setItem(TODAY_KEY, JSON.stringify({
                 date: todayKey,
-                count: Math.floor(count)
+                count: savedCount
             }));
             
-            return Math.floor(count);
+            return savedCount;
+        }
+        
+        function getCurrentVisitorCount() {
+            const todayKey = getTodayKey();
+            const savedData = localStorage.getItem(TODAY_KEY);
+            
+            if (!savedData) {
+                return 0;
+            }
+            
+            const data = JSON.parse(savedData);
+            
+            // Nếu là ngày mới, trả về 0
+            if (data.date !== todayKey) {
+                return 0;
+            }
+            
+            return data.count || 0;
         }
         
         function animateCount() {
             if (currentCount < targetCount) {
                 const diff = targetCount - currentCount;
-                const increment = Math.max(1, Math.ceil(diff / 15)); // Tăng từng bước nhanh hơn
+                const increment = Math.max(1, Math.ceil(diff / 20));
                 currentCount = Math.min(currentCount + increment, targetCount);
                 counterEl.textContent = currentCount.toLocaleString('vi-VN');
             } else if (currentCount > targetCount) {
                 const diff = currentCount - targetCount;
-                const decrement = Math.max(1, Math.ceil(diff / 15)); // Giảm từng bước nhanh hơn
+                const decrement = Math.max(1, Math.ceil(diff / 20));
                 currentCount = Math.max(currentCount - decrement, targetCount);
                 counterEl.textContent = currentCount.toLocaleString('vi-VN');
             }
         }
         
         function updateCounter() {
-            targetCount = calculateTodayVisitorCount();
-            // Cập nhật chậm hơn với delay
+            targetCount = getCurrentVisitorCount();
             function animate() {
                 animateCount();
                 if (currentCount !== targetCount) {
                     setTimeout(() => {
                         requestAnimationFrame(animate);
-                    }, 25); // Delay 25ms giữa các frame (nhanh hơn)
+                    }, 30);
                 }
             }
             requestAnimationFrame(animate);
         }
         
-        // Khởi tạo
-        currentCount = calculateTodayVisitorCount();
-        targetCount = currentCount;
-        counterEl.textContent = currentCount.toLocaleString('vi-VN');
+        // Tăng lượt truy cập khi trang được tải
+        targetCount = incrementVisitorCount();
+        currentCount = 0;
         
-        // Cập nhật mỗi 15 giây để số nhảy nhanh hơn
-        setInterval(updateCounter, 15000);
-        
-        // Cũng cập nhật ngay khi có thay đổi
+        // Hiển thị với animation
         updateCounter();
+        
+        // Kiểm tra và reset khi qua ngày mới (kiểm tra mỗi phút)
+        setInterval(() => {
+            const newCount = getCurrentVisitorCount();
+            if (newCount !== targetCount) {
+                targetCount = newCount;
+                updateCounter();
+            }
+        }, 60000); // Kiểm tra mỗi phút
     })();
 </script>
 
