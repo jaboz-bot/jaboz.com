@@ -342,7 +342,7 @@
     <button class="settings-link" id="installButton">📲 Trang Chủ</button>
     <a href="binh_luan/binh_luan.html" class="comment-link">💬 Đóng góp ý kiến</a>
     <div class="visitor-counter">
-        <span>👥 Tổng lượt truy cập:</span>
+        <span>👥 Lượt truy cập:</span>
         <span class="counter-number" id="visitorCount">0</span>
     </div>
 </div>
@@ -494,6 +494,7 @@
         
         async function initFirebase() {
             try {
+                console.log('🔵 Đang khởi tạo Firebase...');
                 const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
                 firestoreModule = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
                 const { getFirestore } = firestoreModule;
@@ -501,6 +502,7 @@
                 const app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 firebaseInitialized = true;
+                console.log('✅ Firebase đã khởi tạo thành công');
                 
                 // Tăng lượt truy cập khi trang được tải
                 await incrementVisitorCount();
@@ -510,7 +512,8 @@
                 
                 return true;
             } catch (error) {
-                console.error('Lỗi khởi tạo Firebase:', error);
+                console.error('❌ Lỗi khởi tạo Firebase:', error);
+                console.error('Chi tiết lỗi:', error.message, error.stack);
                 // Fallback: hiển thị số 0 nếu Firebase không hoạt động
                 counterEl.textContent = '0';
                 return false;
@@ -519,7 +522,10 @@
         
         // Tăng lượt truy cập trong Firestore (cộng dồn)
         async function incrementVisitorCount() {
-            if (!firebaseInitialized || !db || !firestoreModule) return;
+            if (!firebaseInitialized || !db || !firestoreModule) {
+                console.warn('⚠️ Firebase chưa được khởi tạo, không thể tăng lượt truy cập');
+                return;
+            }
             
             try {
                 const { doc, getDoc, setDoc, updateDoc, increment, serverTimestamp } = firestoreModule;
@@ -533,24 +539,31 @@
                 
                 if (visitData) {
                     hasVisited = true;
+                    console.log('ℹ️ Đã đếm lượt truy cập trong session này rồi');
                 }
                 
                 // Chỉ tăng lượt truy cập nếu chưa đếm trong session này
                 if (!hasVisited) {
+                    console.log('🔵 Đang kiểm tra document visitor_count/total...');
                     const visitDoc = await getDoc(visitDocRef);
                     
                     if (visitDoc.exists()) {
+                        const currentCount = visitDoc.data().count || 0;
+                        console.log(`📊 Số lượt truy cập hiện tại: ${currentCount}`);
                         // Document đã tồn tại, tăng số đếm bằng updateDoc với increment
                         await updateDoc(visitDocRef, {
                             count: increment(1),
                             lastUpdated: serverTimestamp()
                         });
+                        console.log('✅ Đã tăng lượt truy cập lên:', currentCount + 1);
                     } else {
+                        console.log('📝 Tạo document mới với count = 1');
                         // Document chưa tồn tại, tạo mới với count = 1
                         await setDoc(visitDocRef, {
                             count: 1,
                             lastUpdated: serverTimestamp()
                         });
+                        console.log('✅ Đã tạo document mới với count = 1');
                     }
                     
                     // Đánh dấu đã đếm lượt truy cập này
@@ -559,33 +572,51 @@
                     }));
                 }
             } catch (error) {
-                console.error('Lỗi tăng lượt truy cập:', error);
+                console.error('❌ Lỗi tăng lượt truy cập:', error);
+                console.error('Chi tiết lỗi:', error.message);
+                console.error('Code lỗi:', error.code);
+                if (error.code === 'permission-denied') {
+                    console.error('⚠️ Lỗi quyền truy cập! Vui lòng kiểm tra Firestore Rules');
+                    console.error('📋 Đảm bảo rules cho visitor_count cho phép read và write');
+                }
             }
         }
         
         // Lắng nghe thay đổi từ Firestore
         function listenToVisitorCount() {
-            if (!firebaseInitialized || !db || !firestoreModule) return;
+            if (!firebaseInitialized || !db || !firestoreModule) {
+                console.warn('⚠️ Firebase chưa được khởi tạo, không thể lắng nghe thay đổi');
+                return;
+            }
             
             try {
                 const { doc, onSnapshot } = firestoreModule;
                 const TOTAL_COUNT_DOC_ID = 'total';
                 const visitDocRef = doc(db, 'visitor_count', TOTAL_COUNT_DOC_ID);
                 
+                console.log('👂 Đang lắng nghe thay đổi từ Firestore...');
                 onSnapshot(visitDocRef, (snapshot) => {
                     if (snapshot.exists()) {
                         const data = snapshot.data();
                         targetCount = data.count || 0;
+                        console.log('📊 Nhận được số lượt truy cập mới:', targetCount);
                         updateCounter();
                     } else {
+                        console.log('⚠️ Document visitor_count/total chưa tồn tại');
                         targetCount = 0;
                         updateCounter();
                     }
                 }, (error) => {
-                    console.error('Lỗi lắng nghe Firestore:', error);
+                    console.error('❌ Lỗi lắng nghe Firestore:', error);
+                    console.error('Chi tiết lỗi:', error.message);
+                    console.error('Code lỗi:', error.code);
+                    if (error.code === 'permission-denied') {
+                        console.error('⚠️ Lỗi quyền truy cập! Vui lòng kiểm tra Firestore Rules');
+                        console.error('📋 Đảm bảo rules cho visitor_count cho phép read');
+                    }
                 });
             } catch (error) {
-                console.error('Lỗi thiết lập listener:', error);
+                console.error('❌ Lỗi thiết lập listener:', error);
             }
         }
         
