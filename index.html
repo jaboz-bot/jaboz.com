@@ -296,13 +296,17 @@
     });
     
     closeGameBtn.addEventListener('click', () => {
-        closeGameModal();
+        if (confirm('Bạn muốn thoát Game?')) {
+            closeGameModal();
+        }
     });
     
     // Đóng modal bằng phím ESC
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && gameModal.classList.contains('active')) {
-            closeGameModal();
+            if (confirm('Bạn muốn thoát Game?')) {
+                closeGameModal();
+            }
         }
     });
 
