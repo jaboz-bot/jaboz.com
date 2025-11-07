@@ -82,6 +82,11 @@
             gap: 15px;
             margin-bottom: 25px;
         }
+        @media (max-width: 600px) {
+            .controls {
+                grid-template-columns: 1fr;
+            }
+        }
         .control-group {
             display: flex;
             flex-direction: column;
@@ -245,9 +250,6 @@
             h1 {
                 font-size: 24px;
             }
-            .controls {
-                grid-template-columns: 1fr;
-            }
             .button-group {
                 flex-direction: column;
             }
@@ -276,20 +278,6 @@
             <div class="control-group">
                 <label for="voiceSelect">Giọng đọc:</label>
                 <select id="voiceSelect"></select>
-            </div>
-            <div class="control-group">
-                <label>Tốc độ đọc:</label>
-                <div class="slider-group">
-                    <input type="range" id="rateSlider" min="0.5" max="2" step="0.1" value="1">
-                    <span class="value-display" id="rateValue">1.0</span>
-                </div>
-            </div>
-            <div class="control-group">
-                <label>Độ cao giọng:</label>
-                <div class="slider-group">
-                    <input type="range" id="pitchSlider" min="0" max="2" step="0.1" value="1">
-                    <span class="value-display" id="pitchValue">1.0</span>
-                </div>
             </div>
             <div class="control-group">
                 <label>Âm lượng:</label>
@@ -321,11 +309,7 @@
     <script>
         const textInput = document.getElementById('textInput');
         const voiceSelect = document.getElementById('voiceSelect');
-        const rateSlider = document.getElementById('rateSlider');
-        const pitchSlider = document.getElementById('pitchSlider');
         const volumeSlider = document.getElementById('volumeSlider');
-        const rateValue = document.getElementById('rateValue');
-        const pitchValue = document.getElementById('pitchValue');
         const volumeValue = document.getElementById('volumeValue');
         const playBtn = document.getElementById('playBtn');
         const stopBtn = document.getElementById('stopBtn');
@@ -397,15 +381,7 @@
         }
         loadVoices();
 
-        // Cập nhật giá trị hiển thị
-        rateSlider.addEventListener('input', (e) => {
-            rateValue.textContent = parseFloat(e.target.value).toFixed(1);
-        });
-
-        pitchSlider.addEventListener('input', (e) => {
-            pitchValue.textContent = parseFloat(e.target.value).toFixed(1);
-        });
-
+        // Cập nhật giá trị hiển thị âm lượng
         volumeSlider.addEventListener('input', (e) => {
             volumeValue.textContent = parseFloat(e.target.value).toFixed(1);
         });
@@ -435,8 +411,8 @@
             }
             
             // Thiết lập các thông số
-            currentUtterance.rate = parseFloat(rateSlider.value);
-            currentUtterance.pitch = parseFloat(pitchSlider.value);
+            currentUtterance.rate = 1; // Tốc độ mặc định
+            currentUtterance.pitch = 1; // Cao giọng mặc định
             currentUtterance.volume = parseFloat(volumeSlider.value);
             currentUtterance.lang = selectedVoice ? selectedVoice.lang : 'vi-VN';
 
