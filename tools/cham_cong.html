@@ -164,8 +164,6 @@ th{background:#eaf2f8}
 .summary{position:sticky;bottom:0;margin-top:20px;background:#ecf9ff;padding:10px;border-radius:5px;z-index:100;box-shadow:0 -2px 10px rgba(0,0,0,0.1)}
 
 .summary .notice{color:#e74c3c;font-style:italic;display:none;margin-bottom:4px}
-.payday-notice-link{color:#2980b9;text-decoration:underline;cursor:pointer;font-weight:bold;transition:all 0.2s}
-.payday-notice-link:hover{color:#3498db;text-decoration:underline}
 
 #totalHours{font-weight:bold;color:#2ecc71;font-size:1.1em}
 
@@ -266,10 +264,6 @@ table tr td:empty{background-color:#dddddd;cursor:default}
 .info-text{color:#555;font-size:1em;line-height:1.6;word-wrap:break-word}
 .search-btn{width:100%;padding:12px;background:#2ecc71;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:1em;box-shadow:0 2px 5px rgba(0,0,0,.2);transition:all 0.3s}
 .search-btn:hover{background:#27ae60;transform:translateY(-2px);box-shadow:0 4px 8px rgba(0,0,0,.3)}
-#locationMapLink{display:inline-block;padding:12px 20px;background:#3498db;color:#fff;text-decoration:none;border-radius:8px;font-weight:600;transition:all 0.3s;box-shadow:0 2px 5px rgba(0,0,0,.2)}
-#locationMapLink:hover{background:#2980b9;transform:translateY(-2px);box-shadow:0 4px 8px rgba(0,0,0,.3)}
-a[data-i18n="feedback_button"]{display:inline-block;padding:8px 16px;background:#ffc107;color:#333;text-decoration:none;border-radius:6px;font-weight:600;font-size:0.9em;transition:all 0.3s;box-shadow:0 2px 4px rgba(0,0,0,.15)}
-a[data-i18n="feedback_button"]:hover{background:#ffb300;transform:translateY(-2px);box-shadow:0 4px 8px rgba(0,0,0,.25)}
 .modal-wide{max-width:450px}
 .modal-medium{max-width:420px}
 .grid-span-2{grid-column:span 2}
@@ -300,8 +294,6 @@ a[data-i18n="feedback_button"]:hover{background:#ffb300;transform:translateY(-2p
         <div class="control-group">
 
             <button class="add-job-btn" id="openJobModal" data-i18n="manage_jobs">➕ Thêm Nơi làm việc</button>
-
-            <button class="auto-checkin-btn" id="openAutoCheckinModal">Auto</button>
 
         </div>
 
@@ -361,11 +353,7 @@ a[data-i18n="feedback_button"]:hover{background:#ffb300;transform:translateY(-2p
 
     <div class="summary">
 
-        <div id="paydayNotice" class="notice">
-            <span data-i18n="payday_notice_text">Hãy nhập </span>
-            <span id="paydayNoticeLink" class="payday-notice-link" data-i18n="payday_notice_link">ngày trả lương</span>
-            <span data-i18n="payday_notice_suffix"> để có thu nhập chính xác</span>
-        </div>
+        <div id="paydayNotice" class="notice" data-i18n="payday_notice">Hãy nhập ngày trả lương để có thu nhập chính xác</div>
 
         ✅ <span id="totalHoursLabel">Tổng giờ tháng 00:</span> <span id="totalHours">0</span><br>
 
@@ -487,16 +475,6 @@ a[data-i18n="feedback_button"]:hover{background:#ffb300;transform:translateY(-2p
 
             </div>
 
-            <!-- Link KakaoMap tham chiếu -->
-            <div id="locationMapContainer" class="mt-10" style="display:none;">
-                <div class="info-title mb-10" data-i18n="map_label">🗺️ Tham chiếu bản đồ:</div>
-                <div style="text-align:center;">
-                    <a id="locationMapLink" href="#" target="_blank">
-                        📍 Mở trong KakaoMap →
-                    </a>
-                </div>
-            </div>
-
             <!-- Ẩn các input để lưu tọa độ (không hiển thị cho người dùng) -->
 
             <input type="hidden" id="jobLat" step="any">
@@ -505,6 +483,10 @@ a[data-i18n="feedback_button"]:hover{background:#ffb300;transform:translateY(-2p
 
             <input type="hidden" id="jobRadius" value="100">
 
+        </div>
+
+        <div class="input-group mt-10">
+            <button class="auto-checkin-btn" id="openAutoCheckinModal" style="width: 100%;">Auto</button>
         </div>
 
         <div class="job-button-group flex-between mt-10">
@@ -540,17 +522,6 @@ a[data-i18n="feedback_button"]:hover{background:#ffb300;transform:translateY(-2p
                 Đây là tính năng chấm công tự động sử dụng GPS. Khi bật, hệ thống sẽ tự động kiểm tra vị trí của bạn và chấm công vào/ra khi bạn đến hoặc rời khỏi nơi làm việc.
 
             </p>
-
-            <div class="info-box mt-10" style="background:#fff3cd; border-left-color:#ffc107;">
-                <p class="text-gray mb-10" style="margin:0;" data-i18n="auto_checkin_beta_notice">
-                    ⚠️ Tính năng đang thử nghiệm, mong nhận được ý kiến đóng góp.
-                </p>
-                <div style="text-align:center; margin-top:10px;">
-                    <a href="binh_luan.html" target="_blank" style="display:inline-block; padding:8px 16px; background:#ffc107; color:#333; text-decoration:none; border-radius:6px; font-weight:600; font-size:0.9em; transition:all 0.3s;" data-i18n="feedback_button">
-                        💬 Đóng góp ý kiến
-                    </a>
-                </div>
-            </div>
 
         </div>
 
@@ -809,9 +780,6 @@ const translations = {
         close: 'Đóng',
 
         payday_notice: 'Hãy nhập ngày trả lương để có thu nhập chính xác',
-        payday_notice_text: 'Hãy nhập ',
-        payday_notice_link: 'ngày trả lương',
-        payday_notice_suffix: ' để có thu nhập chính xác',
 
         hours_unit: 'GIỜ',
 
@@ -833,8 +801,6 @@ const translations = {
 
         search_address: '🔍 Tìm kiếm vị trí đã nhập',
 
-        map_label: '🗺️ Bản đồ:',
-
         notification_checkin: '✅ Đã tự động chấm công vào',
 
         notification_checkout: '✅ Đã tự động chấm công ra',
@@ -848,10 +814,6 @@ const translations = {
         auto_checkin_modal_title: '⚙️ Chấm công tự động',
 
         auto_checkin_description: 'Đây là tính năng chấm công tự động sử dụng GPS. Khi bật, hệ thống sẽ tự động kiểm tra vị trí của bạn và chấm công vào/ra khi bạn đến hoặc rời khỏi nơi làm việc.',
-
-        auto_checkin_beta_notice: '⚠️ Tính năng đang thử nghiệm, mong nhận được ý kiến đóng góp.',
-
-        feedback_button: '💬 Đóng góp ý kiến',
 
         confirm_checkin_title: '✅ Xác nhận chấm công tự động',
 
@@ -954,9 +916,6 @@ const translations = {
         close: '닫기',
 
         payday_notice: '정확한 수입을 위해 급여일을 입력해주세요',
-        payday_notice_text: '정확한 수입을 위해 ',
-        payday_notice_link: '급여일',
-        payday_notice_suffix: '을 입력해주세요',
 
         hours_unit: '시간',
 
@@ -978,8 +937,6 @@ const translations = {
 
         search_address: '🔍 입력한 위치 검색',
 
-        map_label: '🗺️ 지도 참조:',
-
         notification_checkin: '✅ 자동 출근 기록됨',
 
         notification_checkout: '✅ 자동 퇴근 기록됨',
@@ -993,10 +950,6 @@ const translations = {
         auto_checkin_modal_title: '⚙️ 자동 출퇴근',
 
         auto_checkin_description: '이것은 GPS를 사용하는 자동 출퇴근 기능입니다. 활성화하면 시스템이 귀하의 위치를 자동으로 확인하고 직장에 도착하거나 떠날 때 자동으로 출퇴근을 기록합니다.',
-
-        auto_checkin_beta_notice: '⚠️ 이 기능은 테스트 중이며 의견을 환영합니다.',
-
-        feedback_button: '💬 의견 제출',
 
         confirm_checkin_title: '✅ 자동 출퇴근 확인',
 
@@ -1261,12 +1214,6 @@ function openJobModal(jobId = null){
         } else {
 
             document.getElementById('locationAddressDisplay').style.display = 'none';
-            
-            // Ẩn bản đồ khi không có GPS location
-            const mapContainer = document.getElementById('locationMapContainer');
-            if (mapContainer) {
-                mapContainer.style.display = 'none';
-            }
 
         }
 
@@ -1291,12 +1238,6 @@ function openJobModal(jobId = null){
         // Ẩn địa chỉ GPS khi tạo mới
 
         document.getElementById('locationAddressDisplay').style.display = 'none';
-        
-        // Ẩn bản đồ khi tạo mới
-        const mapContainer = document.getElementById('locationMapContainer');
-        if (mapContainer) {
-            mapContainer.style.display = 'none';
-        }
 
     }
 
@@ -2743,35 +2684,6 @@ confirmCheckinModal.addEventListener('click', (e) => {
 
 });
 
-// Hiển thị link KakaoMap tham chiếu
-function showKakaoMap(lat, lng, address = '') {
-    const mapContainer = document.getElementById('locationMapContainer');
-    const mapLink = document.getElementById('locationMapLink');
-    
-    if (!mapContainer || !mapLink) return;
-    
-    // Tạo URL cho KakaoMap với tọa độ
-    // Sử dụng tọa độ để tìm kiếm chính xác trên KakaoMap
-    let kakaoMapUrl = '';
-    
-    if (lat && lng) {
-        // Nếu có tọa độ, sử dụng tọa độ để tìm kiếm
-        kakaoMapUrl = `https://map.kakao.com/?map_type=TYPE_MAP&q=${lat},${lng}`;
-    } else if (address) {
-        // Nếu không có tọa độ nhưng có địa chỉ, tìm kiếm theo địa chỉ
-        const encodedAddress = encodeURIComponent(address.trim());
-        kakaoMapUrl = `https://map.kakao.com/?q=${encodedAddress}`;
-    } else {
-        // Nếu không có gì, ẩn container
-        mapContainer.style.display = 'none';
-        return;
-    }
-    
-    mapLink.href = kakaoMapUrl;
-    mapLink.textContent = currentLang === 'vi' ? '📍 Mở trong KakaoMap →' : '📍 카카오맵에서 열기 →';
-    mapContainer.style.display = 'block';
-}
-
 // Lấy địa chỉ từ tọa độ GPS (Reverse Geocoding)
 
 function getAddressFromCoordinates(lat, lng) {
@@ -2784,12 +2696,12 @@ function getAddressFromCoordinates(lat, lng) {
 
     addressDisplay.style.display = 'block';
     
-    // Lấy địa chỉ đã nhập từ input để hiển thị nếu API không trả về
+    // Lấy địa chỉ đã nhập từ input để ưu tiên số nhà
     const inputAddress = document.getElementById('jobAddress').value.trim();
 
     // Sử dụng Nominatim API (OpenStreetMap) - miễn phí
 
-    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`, {
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1&accept-language=ko`, {
 
         headers: {
 
@@ -2803,25 +2715,76 @@ function getAddressFromCoordinates(lat, lng) {
 
     .then(data => {
 
-        let displayAddress = '';
-        if (data && data.display_name) {
+        if (data && data.address) {
 
-            // Hiển thị địa chỉ từ API (hoặc địa chỉ đã nhập nếu không có)
-            displayAddress = data.display_name || inputAddress || `Vĩ độ: ${lat}, Kinh độ: ${lng}`;
+            const addr = data.address;
 
-            addressText.textContent = displayAddress;
+            let addressParts = [];
+
+            // Xây dựng địa chỉ theo cấu trúc Hàn Quốc (từ lớn đến nhỏ)
+            // Quốc gia → Tỉnh/Thành phố lớn → Thành phố → Quận/Huyện → Phường/Xã → Đường → Số nhà
+
+            if (addr.country) {
+                const countryName = addr.country === 'Việt Nam' || addr.country === 'Vietnam' ? 'Việt Nam' : addr.country;
+                addressParts.push(countryName);
+            }
+
+            if (addr.state || addr.province) addressParts.push(addr.state || addr.province);
+
+            if (addr.city || addr.town || addr.village) addressParts.push(addr.city || addr.town || addr.village);
+
+            if (addr.district || addr.city_district) addressParts.push(addr.district || addr.city_district);
+
+            if (addr.ward || addr.suburb) addressParts.push(addr.ward || addr.suburb);
+
+            if (addr.road || addr.street) addressParts.push(addr.road || addr.street);
+
+            // Ưu tiên số nhà từ địa chỉ đã nhập nếu có
+            if (inputAddress) {
+                const hasHouseNumber = /\d+/.test(inputAddress);
+                if (hasHouseNumber) {
+                    // Tìm số nhà từ địa chỉ đã nhập
+                    const addressTrimmed = inputAddress;
+                    const koreanHouseNumberPatternEnd = /(\d+-\d+)\s*$/;
+                    let koreanMatch = addressTrimmed.match(koreanHouseNumberPatternEnd);
+                    
+                    let houseNumber = null;
+                    if (koreanMatch) {
+                        houseNumber = koreanMatch[1];
+                    } else {
+                        const koreanHouseNumberPatternAny = /\d+-\d+/;
+                        koreanMatch = addressTrimmed.match(koreanHouseNumberPatternAny);
+                        if (koreanMatch) {
+                            houseNumber = koreanMatch[0];
+                        } else {
+                            const numbers = addressTrimmed.match(/\d+/g);
+                            if (numbers && numbers.length > 0) {
+                                houseNumber = numbers[numbers.length - 1];
+                            }
+                        }
+                    }
+                    
+                    if (houseNumber) {
+                        addressParts.push(houseNumber);
+                    } else if (addr.house_number) {
+                        addressParts.push(addr.house_number);
+                    }
+                } else if (addr.house_number) {
+                    addressParts.push(addr.house_number);
+                }
+            } else if (addr.house_number) {
+                addressParts.push(addr.house_number);
+            }
+
+            const fullAddress = addressParts.length > 0 ? addressParts.join(' - ') : data.display_name || 'Không xác định được địa chỉ';
+
+            addressText.textContent = fullAddress;
 
         } else {
 
-            // Nếu API không trả về địa chỉ, dùng địa chỉ đã nhập hoặc tọa độ
-            displayAddress = inputAddress || `Vĩ độ: ${lat}, Kinh độ: ${lng}`;
-
-            addressText.textContent = displayAddress;
+            addressText.textContent = 'Không thể lấy địa chỉ. Vĩ độ: ' + lat + ', Kinh độ: ' + lng;
 
         }
-        
-        // Hiển thị bản đồ với tọa độ
-        showKakaoMap(lat, lng, displayAddress);
 
     })
 
@@ -2829,13 +2792,7 @@ function getAddressFromCoordinates(lat, lng) {
 
         console.error('Lỗi khi lấy địa chỉ:', error);
 
-        // Nếu có lỗi, hiển thị địa chỉ đã nhập hoặc tọa độ
-        const displayAddress = inputAddress || `Vĩ độ: ${lat}, Kinh độ: ${lng}`;
-
-        addressText.textContent = displayAddress;
-        
-        // Hiển thị bản đồ với tọa độ ngay cả khi có lỗi
-        showKakaoMap(lat, lng, displayAddress);
+        addressText.textContent = 'Không thể lấy địa chỉ. Vĩ độ: ' + lat + ', Kinh độ: ' + lng;
 
     });
 
@@ -2870,9 +2827,17 @@ function getCoordinatesFromAddress(address) {
     searchBtn.disabled = true;
 
     // Sử dụng Nominatim API (OpenStreetMap) - Geocoding
-    const encodedAddress = encodeURIComponent(address.trim());
+    // Tăng limit để tìm kết quả khớp nhất với địa chỉ chi tiết
 
-    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodedAddress}&limit=1&addressdetails=1`, {
+    const encodedAddress = encodeURIComponent(address.trim());
+    
+    // Kiểm tra xem địa chỉ có chứa số (có thể là số nhà) không
+    const hasHouseNumber = /\d+/.test(address.trim());
+    
+    // Nếu có số nhà, tăng limit để tìm kết quả chính xác hơn
+    const limit = hasHouseNumber ? 10 : 1;
+
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodedAddress}&limit=${limit}&addressdetails=1&accept-language=ko`, {
 
         headers: {
 
@@ -2892,38 +2857,159 @@ function getCoordinatesFromAddress(address) {
 
         if (data && data.length > 0) {
 
-            const result = data[0];
+            // Nếu địa chỉ có số nhà, tìm kết quả khớp chính xác nhất với số nhà đã nhập
+            let result = data[0];
+            if (hasHouseNumber) {
+                // Lấy số nhà từ địa chỉ đã nhập
+                const addressTrimmed = address.trim();
+                const koreanHouseNumberPatternEnd = /(\d+-\d+)\s*$/;
+                let koreanMatch = addressTrimmed.match(koreanHouseNumberPatternEnd);
+                
+                let inputHouseNumber = null;
+                if (koreanMatch) {
+                    inputHouseNumber = koreanMatch[1];
+                } else {
+                    const koreanHouseNumberPatternAny = /\d+-\d+/;
+                    koreanMatch = addressTrimmed.match(koreanHouseNumberPatternAny);
+                    if (koreanMatch) {
+                        inputHouseNumber = koreanMatch[0];
+                    } else {
+                        const numbers = addressTrimmed.match(/\d+/g);
+                        if (numbers && numbers.length > 0) {
+                            inputHouseNumber = numbers[numbers.length - 1];
+                        }
+                    }
+                }
+                
+                // Tìm kết quả có số nhà khớp với số nhà đã nhập
+                if (inputHouseNumber) {
+                    const exactMatch = data.find(r => {
+                        if (!r.address || !r.address.house_number) return false;
+                        const apiHouseNumber = String(r.address.house_number).trim();
+                        return apiHouseNumber === String(inputHouseNumber).trim() || 
+                               apiHouseNumber.includes(String(inputHouseNumber).trim()) ||
+                               String(inputHouseNumber).trim().includes(apiHouseNumber);
+                    });
+                    
+                    if (exactMatch) {
+                        result = exactMatch;
+                    } else {
+                        // Nếu không tìm thấy khớp chính xác, tìm kết quả tốt nhất
+                        // Sắp xếp theo: có house_number > importance cao nhất
+                        const sortedResults = data.sort((a, b) => {
+                            const aHasHouse = a.address && a.address.house_number ? 1 : 0;
+                            const bHasHouse = b.address && b.address.house_number ? 1 : 0;
+                            if (aHasHouse !== bHasHouse) return bHasHouse - aHasHouse;
+                            return (b.importance || 0) - (a.importance || 0);
+                        });
+                        result = sortedResults[0];
+                    }
+                } else {
+                    // Nếu không tìm thấy số nhà, ưu tiên kết quả có house_number
+                    const resultWithHouseNumber = data.find(r => r.address && r.address.house_number);
+                    if (resultWithHouseNumber) {
+                        result = resultWithHouseNumber;
+                    } else if (data.length > 1) {
+                        result = data.sort((a, b) => (b.importance || 0) - (a.importance || 0))[0];
+                    }
+                }
+            }
 
             const lat = parseFloat(result.lat);
 
             const lng = parseFloat(result.lon);
 
-            // Lưu tọa độ vào hidden inputs
+            // Lưu tọa độ vào hidden inputs (đảm bảo GPS chính xác với địa chỉ đã nhập)
 
             document.getElementById('jobLat').value = lat.toFixed(6);
 
             document.getElementById('jobLng').value = lng.toFixed(6);
+            
+            // Log để kiểm tra GPS có chính xác không
+            console.log('GPS đã lưu:', lat, lng, 'Từ kết quả:', result.display_name, 'Số nhà API:', result.address?.house_number);
 
-            // Hiển thị địa chỉ từ kết quả tìm kiếm (hoặc địa chỉ đã nhập nếu không có)
-            const displayAddress = result.display_name || address.trim();
+            // Hiển thị địa chỉ theo cấu trúc Hàn Quốc (từ lớn đến nhỏ)
+            let displayAddress = address;
+            
+            if (result.address) {
+                const addr = result.address;
+                let addressParts = [];
+
+                // Xây dựng địa chỉ theo cấu trúc Hàn Quốc (từ lớn đến nhỏ)
+                // Quốc gia → Tỉnh/Thành phố lớn → Thành phố → Quận/Huyện → Phường/Xã → Đường → Số nhà
+
+                if (addr.country) {
+                    const countryName = addr.country === 'Việt Nam' || addr.country === 'Vietnam' ? 'Việt Nam' : addr.country;
+                    addressParts.push(countryName);
+                }
+
+                if (addr.state || addr.province) addressParts.push(addr.state || addr.province);
+
+                if (addr.city || addr.town || addr.village) addressParts.push(addr.city || addr.town || addr.village);
+
+                if (addr.district || addr.city_district) addressParts.push(addr.district || addr.city_district);
+
+                if (addr.ward || addr.suburb) addressParts.push(addr.ward || addr.suburb);
+
+                if (addr.road || addr.street) addressParts.push(addr.road || addr.street);
+
+                // Ưu tiên hiển thị số nhà từ địa chỉ đã nhập nếu có, nếu không thì dùng từ API
+                if (hasHouseNumber) {
+                    // Lấy số nhà từ địa chỉ đã nhập (có thể là dạng "29-9" hoặc số thường)
+                    // Tìm số nhà ở cuối địa chỉ (có thể có dấu gạch ngang)
+                    let houseNumber = null;
+                    const addressTrimmed = address.trim();
+                    
+                    // Tìm số nhà dạng Hàn Quốc (có thể có dấu gạch ngang, ví dụ: 29-9, 123-45)
+                    // Ưu tiên tìm số nhà ở cuối địa chỉ trước
+                    const koreanHouseNumberPatternEnd = /(\d+-\d+)\s*$/;
+                    let koreanMatch = addressTrimmed.match(koreanHouseNumberPatternEnd);
+                    
+                    if (koreanMatch) {
+                        // Tìm thấy số nhà dạng Hàn Quốc ở cuối (ví dụ: 29-9)
+                        houseNumber = koreanMatch[1];
+                    } else {
+                        // Nếu không tìm thấy ở cuối, tìm bất kỳ đâu trong địa chỉ
+                        const koreanHouseNumberPatternAny = /\d+-\d+/;
+                        koreanMatch = addressTrimmed.match(koreanHouseNumberPatternAny);
+                        if (koreanMatch) {
+                            houseNumber = koreanMatch[0];
+                        } else {
+                            // Nếu không tìm thấy dạng số-số, tìm số cuối cùng trong địa chỉ
+                            const numbers = addressTrimmed.match(/\d+/g);
+                            if (numbers && numbers.length > 0) {
+                                // Lấy số cuối cùng (thường là số nhà)
+                                houseNumber = numbers[numbers.length - 1];
+                            }
+                        }
+                    }
+                    
+                    // Nếu có số nhà từ địa chỉ đã nhập, dùng nó
+                    if (houseNumber) {
+                        addressParts.push(houseNumber);
+                    } else if (addr.house_number) {
+                        // Nếu không tìm thấy, dùng từ API
+                        addressParts.push(addr.house_number);
+                    }
+                } else if (addr.house_number) {
+                    // Nếu địa chỉ không có số, dùng từ API nếu có
+                    addressParts.push(addr.house_number);
+                }
+
+                displayAddress = addressParts.length > 0 ? addressParts.join(' - ') : (result.display_name || address);
+            } else {
+                displayAddress = result.display_name || address;
+            }
 
             addressText.textContent = displayAddress;
 
             console.log('Đã tìm thấy địa chỉ:', displayAddress, 'Tọa độ:', lat, lng);
-            
-            // Hiển thị bản đồ với tọa độ đã tìm được
-            showKakaoMap(lat, lng, displayAddress);
 
         } else {
 
-            // Nếu không tìm thấy, hiển thị địa chỉ đã nhập
+            addressText.textContent = 'Không tìm thấy địa chỉ. Vui lòng thử lại với địa chỉ khác.';
 
-            addressText.textContent = address.trim();
-
-            console.log('Không tìm thấy địa chỉ cho:', address, '- Sử dụng địa chỉ đã nhập');
-            
-            // Hiển thị link KakaoMap với địa chỉ đã nhập (không có tọa độ)
-            showKakaoMap(null, null, address.trim());
+            console.log('Không tìm thấy địa chỉ cho:', address);
 
         }
 
@@ -2937,14 +3023,7 @@ function getCoordinatesFromAddress(address) {
 
         searchBtn.disabled = false;
 
-        // Nếu có lỗi, hiển thị địa chỉ đã nhập
-
-        addressText.textContent = address.trim();
-
-        console.log('Lỗi khi tìm kiếm - Sử dụng địa chỉ đã nhập:', address);
-        
-        // Hiển thị link KakaoMap với địa chỉ đã nhập (không có tọa độ)
-        showKakaoMap(null, null, address.trim());
+        addressText.textContent = 'Lỗi khi tìm kiếm địa chỉ. Vui lòng thử lại.';
 
     });
 
@@ -2952,69 +3031,37 @@ function getCoordinatesFromAddress(address) {
 
 // Nút tìm kiếm địa chỉ (sử dụng ô Địa chỉ chính)
 
-const searchAddressBtn = document.getElementById('searchAddressBtn');
+document.getElementById('searchAddressBtn').onclick = () => {
 
-if (searchAddressBtn) {
+    const addressInput = document.getElementById('jobAddress');
 
-    searchAddressBtn.onclick = () => {
+    const address = addressInput.value.trim();
 
-        const addressInput = document.getElementById('jobAddress');
+    if (!address) {
 
-        if (!addressInput) {
+        alert('Vui lòng nhập địa chỉ vào ô "Địa chỉ" ở trên trước khi tìm kiếm.');
 
-            console.error('Không tìm thấy ô nhập địa chỉ (jobAddress)');
+        return;
 
-            alert('Lỗi: Không tìm thấy ô nhập địa chỉ. Vui lòng thử lại.');
+    }
 
-            return;
+    getCoordinatesFromAddress(address);
 
-        }
-
-        const address = addressInput.value.trim();
-
-        if (!address) {
-
-            alert('Vui lòng nhập địa chỉ vào ô "Địa chỉ" ở trên trước khi tìm kiếm.');
-
-            // Focus vào ô nhập địa chỉ để người dùng dễ nhập
-
-            addressInput.focus();
-
-            return;
-
-        }
-
-        getCoordinatesFromAddress(address);
-
-    };
-
-}
+};
 
 // Cho phép nhấn Enter trong ô Địa chỉ để tìm kiếm
 
-const jobAddressInput = document.getElementById('jobAddress');
+document.getElementById('jobAddress').addEventListener('keypress', (e) => {
 
-if (jobAddressInput) {
+    if (e.key === 'Enter') {
 
-    jobAddressInput.addEventListener('keypress', (e) => {
+        e.preventDefault();
 
-        if (e.key === 'Enter') {
+        document.getElementById('searchAddressBtn').click();
 
-            e.preventDefault();
+    }
 
-            const searchBtn = document.getElementById('searchAddressBtn');
-
-            if (searchBtn) {
-
-                searchBtn.click();
-
-            }
-
-        }
-
-    });
-
-}
+});
 
 // Các input tọa độ đã được ẩn, không cần logic tự động cập nhật từ input nữa
 
@@ -3163,20 +3210,6 @@ function initApp(){
     }
 
     // Vuốt tháng đã được đăng ký qua document.addEventListener
-
-    // Click vào "ngày trả lương" trong thông báo để mở modal job
-    const paydayNoticeLink = document.getElementById('paydayNoticeLink');
-    if (paydayNoticeLink) {
-        paydayNoticeLink.onclick = () => {
-            // Lấy job hiện tại, nếu có thì mở modal chỉnh sửa, nếu không thì mở modal thêm mới
-            const currentJobId = getCurrentJobId();
-            if (currentJobId) {
-                openJobModal(currentJobId);
-            } else {
-                openJobModal();
-            }
-        };
-    }
 
 }
 
