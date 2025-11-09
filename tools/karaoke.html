@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Karaoke Công Khai - Jaboz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .back-link {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 20px;
+            border-radius: 8px;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .back-link:hover {
+            background: rgba(0, 0, 0, 0.9);
+            transform: translateY(-2px);
+        }
+        .karaoke-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .room-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding: 10px 0;
+            scrollbar-width: thin;
+            scrollbar-color: #4a90e2 #1a1a2e;
+        }
+        .room-selector::-webkit-scrollbar {
+            height: 8px;
+        }
+        .room-selector::-webkit-scrollbar-track {
+            background: #1a1a2e;
+        }
+        .room-selector::-webkit-scrollbar-thumb {
+            background: #4a90e2;
+            border-radius: 4px;
+        }
+        .room-tab {
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+            font-weight: bold;
+            min-width: 150px;
+            text-align: center;
+        }
+        .room-tab.active {
+            background: linear-gradient(45deg, #4a90e2, #357abd);
+            border-color: #4a90e2;
+            box-shadow: 0 4px 15px rgba(74, 144, 226, 0.5);
+        }
+        .room-tab:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        .room-tab.active:hover {
+            background: linear-gradient(45deg, #5aa0f2, #4590cd);
+        }
+        .main-content {
+            display: flex;
+            gap: 20px;
+            flex: 1;
+            flex-wrap: wrap;
+        }
+        .tv-section {
+            flex: 1;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .tv-frame {
+            background: #000;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5),
+                        inset 0 0 50px rgba(255, 255, 255, 0.1);
+            position: relative;
+            aspect-ratio: 16/9;
+        }
+        .tv-screen {
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #000;
+            position: relative;
+        }
+        #youtube-player {
+            width: 100%;
+            height: 100%;
+        }
+        .tv-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+            display: flex;
+            gap: 10px;
+        }
+        .search-box input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 14px;
+        }
+        .search-box input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        .search-box input:focus {
+            outline: none;
+            border-color: #4a90e2;
+            background: rgba(255, 255, 255, 0.15);
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: white;
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, #4a90e2, #357abd);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(74, 144, 226, 0.4);
+        }
+        .btn-success {
+            background: linear-gradient(45deg, #4caf50, #388e3c);
+        }
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+        }
+        .btn-danger {
+            background: linear-gradient(45deg, #f44336, #d32f2f);
+        }
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(244, 67, 54, 0.4);
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .controls-section {
+            flex: 0 0 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .control-panel {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+        .control-panel h3 {
+            margin-bottom: 15px;
+            color: #4a90e2;
+            font-size: 18px;
+        }
+        .queue-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+        .queue-item {
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .queue-item.current {
+            background: rgba(74, 144, 226, 0.3);
+            border: 2px solid #4a90e2;
+        }
+        .queue-item-name {
+            flex: 1;
+            font-size: 14px;
+        }
+        .queue-item-singer {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-left: 10px;
+        }
+        .microphone-control {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .mic-status {
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .mic-status.active {
+            background: rgba(76, 175, 80, 0.3);
+            color: #4caf50;
+        }
+        .mic-status.inactive {
+            background: rgba(244, 67, 54, 0.3);
+            color: #f44336;
+        }
+        .mic-volume {
+            width: 100%;
+            margin: 10px 0;
+        }
+        .comments-section {
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            max-height: 300px;
+            display: flex;
+            flex-direction: column;
+        }
+        .comments-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .comments-header h3 {
+            color: #4a90e2;
+            font-size: 18px;
+        }
+        .comments-list {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            padding-right: 10px;
+        }
+        .comment-item {
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        .comment-author {
+            font-weight: bold;
+            color: #4a90e2;
+            margin-right: 8px;
+        }
+        .comment-form {
+            display: flex;
+            gap: 10px;
+        }
+        .comment-form input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 14px;
+        }
+        .comment-form input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        .comment-form input:focus {
+            outline: none;
+            border-color: #4a90e2;
+        }
+        .now-playing {
+            text-align: center;
+            padding: 15px;
+            background: rgba(74, 144, 226, 0.2);
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .now-playing-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .now-playing-singer {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        .swipe-hint {
+            text-align: center;
+            padding: 10px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            .controls-section {
+                flex: 1;
+            }
+            .room-selector {
+                padding: 10px 5px;
+            }
+            .room-tab {
+                min-width: 120px;
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-link">← Trang Chủ</a>
+    
+    <div class="karaoke-container">
+        <div class="swipe-hint">👆 Vuốt ngang để chuyển phòng</div>
+        
+        <div class="room-selector" id="roomSelector">
+            <!-- Room tabs will be dynamically generated -->
+        </div>
+        
+        <div class="main-content">
+            <div class="tv-section">
+                <div class="tv-frame">
+                    <div class="tv-screen">
+                        <div id="youtube-player"></div>
+                    </div>
+                </div>
+                
+                <div class="now-playing" id="nowPlaying">
+                    <div class="now-playing-title">Chưa có bài hát</div>
+                    <div class="now-playing-singer">Hãy thêm bài hát vào queue</div>
+                </div>
+                
+                <div class="tv-controls">
+                    <div class="search-box">
+                        <input type="text" id="youtubeUrl" placeholder="Nhập link YouTube hoặc tìm kiếm...">
+                        <button class="btn btn-primary" onclick="searchAndAddSong()">Tìm Kiếm</button>
+                    </div>
+                </div>
+                
+                <div class="controls-section" style="flex: 1; margin-top: 15px;">
+                    <div class="control-panel">
+                        <h3>🎤 Đăng Ký Hát</h3>
+                        <input type="text" id="singerName" placeholder="Tên của bạn" style="width: 100%; padding: 10px; margin-bottom: 10px; border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 8px; background: rgba(255, 255, 255, 0.1); color: white;">
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn btn-success" onclick="registerToSing()" style="flex: 1;">Đăng Ký Hát</button>
+                            <button class="btn btn-danger" onclick="cancelSinging()" style="flex: 1;">Hủy Bỏ</button>
+                        </div>
+                    </div>
+                    
+                    <div class="control-panel">
+                        <h3>🎵 Danh Sách Hát</h3>
+                        <div class="queue-list" id="queueList">
+                            <div class="empty-state">Chưa có bài hát nào</div>
+                        </div>
+                    </div>
+                    
+                    <div class="control-panel">
+                        <h3>🎙️ Microphone</h3>
+                        <div class="microphone-control">
+                            <div class="mic-status inactive" id="micStatus">Microphone: Tắt</div>
+                            <button class="btn btn-primary" onclick="toggleMicrophone()" id="micToggleBtn">Bật Microphone</button>
+                            <input type="range" min="0" max="100" value="50" class="mic-volume" id="micVolume" onchange="updateMicVolume(this.value)">
+                            <div style="text-align: center; font-size: 12px; color: rgba(255, 255, 255, 0.7);">Âm lượng: <span id="micVolumeValue">50%</span></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="comments-section">
+                    <div class="comments-header">
+                        <h3>💬 Bình Luận</h3>
+                    </div>
+                    <div class="comments-list" id="commentsList">
+                        <div class="empty-state">Chưa có bình luận nào</div>
+                    </div>
+                    <div class="comment-form">
+                        <input type="text" id="commentInput" placeholder="Nhập bình luận..." onkeypress="if(event.key === 'Enter') sendComment()">
+                        <button class="btn btn-primary" onclick="sendComment()">Gửi</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- YouTube IFrame API -->
+    <script src="https://www.youtube.com/iframe_api"></script>
+    
+    <script type="module">
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyD-5Cv61zM34WECJrKazQ5p6Eaam8tkttc",
+            authDomain: "jaboz-comments.firebaseapp.com",
+            projectId: "jaboz-comments",
+            storageBucket: "jaboz-comments.firebasestorage.app",
+            messagingSenderId: "58018946851",
+            appId: "1:58018946851:web:a539b49d6a65fcef24b696",
+            measurementId: "G-ZJLTNNNV6B"
+        };
+
+        // Import Firebase modules
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, collection, doc, setDoc, getDoc, updateDoc, deleteDoc, query, orderBy, onSnapshot, serverTimestamp, addDoc, limit, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Room configuration (will be populated by loadCustomRooms)
+        let ROOMS = [];
+        
+        // Load custom rooms from Firebase
+        async function loadCustomRooms() {
+            try {
+                const customRoomsRef = collection(db, 'karaoke_rooms');
+                // Try to get all rooms, if orderBy fails, get all without order
+                let snapshot;
+                try {
+                    const q = query(customRoomsRef, orderBy('createdAt', 'desc'));
+                    snapshot = await getDocs(q);
+                } catch (error) {
+                    // If orderBy fails (no index), get all without order
+                    snapshot = await getDocs(customRoomsRef);
+                }
+                
+                // Filter custom rooms (rooms that are not in default ROOMS)
+                const defaultRoomIds = ['pop', 'rock', 'ballad', 'vietnamese'];
+                const customRooms = [];
+                
+                snapshot.forEach(docSnap => {
+                    const roomId = docSnap.id;
+                    const data = docSnap.data();
+                    if (!defaultRoomIds.includes(roomId) && data.isCustom) {
+                        customRooms.push({
+                            id: roomId,
+                            name: data.name || 'Phòng Tùy Chỉnh',
+                            category: 'Custom',
+                            isCustom: true
+                        });
+                    }
+                });
+                
+                // Add custom rooms to ROOMS array (before create button)
+                ROOMS = [
+                    { id: 'pop', name: '🎵 Nhạc Pop', category: 'Pop' },
+                    { id: 'rock', name: '🎸 Nhạc Rock', category: 'Rock' },
+                    { id: 'ballad', name: '🎹 Nhạc Ballad', category: 'Ballad' },
+                    { id: 'vietnamese', name: '🇻🇳 Nhạc Việt', category: 'Vietnamese' },
+                    ...customRooms,
+                    { id: 'create_room', name: '➕ Tạo Phòng Mới', category: 'Create', isCreateButton: true }
+                ];
+            } catch (error) {
+                console.error('Error loading custom rooms:', error);
+                // Fallback to default rooms
+                ROOMS = [
+                    { id: 'pop', name: '🎵 Nhạc Pop', category: 'Pop' },
+                    { id: 'rock', name: '🎸 Nhạc Rock', category: 'Rock' },
+                    { id: 'ballad', name: '🎹 Nhạc Ballad', category: 'Ballad' },
+                    { id: 'vietnamese', name: '🇻🇳 Nhạc Việt', category: 'Vietnamese' },
+                    { id: 'create_room', name: '➕ Tạo Phòng Mới', category: 'Create', isCreateButton: true }
+                ];
+            }
+        }
+
+        let currentRoomId = 'pop';
+        let youtubePlayer = null;
+        let currentSongIndex = 0;
+        let queue = [];
+        let isRegistered = false;
+        let myQueuePosition = -1;
+        let microphoneStream = null;
+        let audioContext = null;
+        let microphoneGain = null;
+        let isMicrophoneOn = false;
+        let roomCleanupTimers = {};
+
+        // Initialize YouTube Player
+        window.onYouTubeIframeAPIReady = function() {
+            youtubePlayer = new YT.Player('youtube-player', {
+                height: '100%',
+                width: '100%',
+                playerVars: {
+                    autoplay: 0,
+                    controls: 1,
+                    rel: 0,
+                    showinfo: 0,
+                    modestbranding: 1,
+                    enablejsapi: 1
+                },
+                events: {
+                    onStateChange: onPlayerStateChange,
+                    onReady: function(event) {
+                        console.log('YouTube player ready');
+                    },
+                    onError: function(error) {
+                        console.error('YouTube player error:', error);
+                        alert('Lỗi khi phát video. Vui lòng kiểm tra link YouTube.');
+                    }
+                }
+            });
+        };
+
+        function onPlayerStateChange(event) {
+            if (event.data === YT.PlayerState.ENDED) {
+                // Song ended, play next song
+                playNextSong();
+            } else if (event.data === YT.PlayerState.PLAYING) {
+                // Song started playing
+                updateNowPlaying();
+            }
+        }
+
+        // Initialize rooms
+        function initRooms() {
+            const roomSelector = document.getElementById('roomSelector');
+            roomSelector.innerHTML = '';
+            
+            ROOMS.forEach(room => {
+                const roomTab = document.createElement('div');
+                roomTab.className = 'room-tab';
+                roomTab.textContent = room.name;
+                if (room.isCreateButton) {
+                    roomTab.onclick = () => createCustomRoom();
+                } else {
+                    roomTab.onclick = () => switchRoom(room.id);
+                }
+                if (room.id === currentRoomId) {
+                    roomTab.classList.add('active');
+                }
+                roomSelector.appendChild(roomTab);
+            });
+        }
+        
+        // Create custom room
+        async function createCustomRoom() {
+            const roomName = prompt('Nhập tên phòng mới:');
+            if (!roomName || roomName.trim() === '') {
+                return;
+            }
+            
+            const roomId = 'custom_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            
+            try {
+                const roomRef = doc(db, 'karaoke_rooms', roomId);
+                await setDoc(roomRef, {
+                    name: roomName.trim(),
+                    isCustom: true,
+                    queue: [],
+                    currentSongIndex: 0,
+                    createdAt: serverTimestamp(),
+                    lastActivity: serverTimestamp()
+                });
+                
+                // Reload custom rooms and reinitialize
+                await loadCustomRooms();
+                initRooms();
+                
+                // Switch to new room
+                await switchRoom(roomId);
+                
+                alert('Đã tạo phòng mới: ' + roomName);
+            } catch (error) {
+                console.error('Error creating custom room:', error);
+                alert('Lỗi khi tạo phòng: ' + error.message);
+            }
+        }
+
+        // Switch room
+        async function switchRoom(roomId) {
+            if (roomId === currentRoomId) return;
+            
+            // Save current room state
+            await saveRoomState();
+            
+            // Stop current playback
+            if (youtubePlayer) {
+                youtubePlayer.stopVideo();
+            }
+            
+            // Switch to new room
+            currentRoomId = roomId;
+            currentSongIndex = 0;
+            queue = [];
+            isRegistered = false;
+            myQueuePosition = -1;
+            
+            // Update UI - update all tabs
+            document.querySelectorAll('.room-tab').forEach((tab) => {
+                tab.classList.remove('active');
+                if (tab.textContent === ROOMS.find(r => r.id === roomId)?.name) {
+                    tab.classList.add('active');
+                }
+            });
+            
+            // Load new room data
+            await loadRoomData();
+        }
+
+        // Load room data from Firebase
+        async function loadRoomData() {
+            const roomRef = doc(db, 'karaoke_rooms', currentRoomId);
+            const roomSnap = await getDoc(roomRef);
+            
+            if (roomSnap.exists()) {
+                const data = roomSnap.data();
+                queue = data.queue || [];
+                currentSongIndex = data.currentSongIndex || 0;
+                updateQueueDisplay();
+                updateNowPlaying();
+                
+                // Don't auto-play when switching rooms - let user control playback
+                // The YouTube player will show the video but won't autoplay
+            } else {
+                // Create room if it doesn't exist (only for default rooms)
+                const room = ROOMS.find(r => r.id === currentRoomId);
+                if (room && !room.isCustom && !room.isCreateButton) {
+                    await setDoc(roomRef, {
+                        queue: [],
+                        currentSongIndex: 0,
+                        createdAt: serverTimestamp(),
+                        lastActivity: serverTimestamp()
+                    });
+                }
+                queue = [];
+                updateQueueDisplay();
+                updateNowPlaying();
+            }
+            
+            // Listen for room updates
+            listenToRoomUpdates();
+            listenToComments();
+            
+            // Reset room cleanup timer
+            resetRoomCleanupTimer();
+        }
+
+        // Listen to room updates
+        function listenToRoomUpdates() {
+            const roomRef = doc(db, 'karaoke_rooms', currentRoomId);
+            onSnapshot(roomRef, (snap) => {
+                if (snap.exists()) {
+                    const data = snap.data();
+                    const newQueue = data.queue || [];
+                    const newCurrentSongIndex = data.currentSongIndex || 0;
+                    
+                    // Check if queue or current song changed
+                    const queueChanged = JSON.stringify(queue) !== JSON.stringify(newQueue);
+                    const songIndexChanged = currentSongIndex !== newCurrentSongIndex;
+                    
+                    queue = newQueue;
+                    currentSongIndex = newCurrentSongIndex;
+                    updateQueueDisplay();
+                    updateNowPlaying();
+                    
+                    // Only update last activity if this is the current user's room
+                    // (to avoid spam updates from all listeners)
+                    const updateThreshold = 10000; // 10 seconds
+                    const lastUpdate = roomCleanupTimers[currentRoomId]?.lastUpdate || 0;
+                    if (Date.now() - lastUpdate > updateThreshold) {
+                        updateDoc(roomRef, {
+                            lastActivity: serverTimestamp()
+                        }).catch(err => console.error('Error updating activity:', err));
+                        if (roomCleanupTimers[currentRoomId]) {
+                            roomCleanupTimers[currentRoomId].lastUpdate = Date.now();
+                        }
+                    }
+                    
+                    resetRoomCleanupTimer();
+                }
+            });
+        }
+
+        // Listen to comments
+        function listenToComments() {
+            const commentsRef = collection(db, 'karaoke_rooms', currentRoomId, 'comments');
+            const q = query(commentsRef, orderBy('timestamp', 'desc'), limit(50));
+            
+            onSnapshot(q, (snapshot) => {
+                const commentsList = document.getElementById('commentsList');
+                commentsList.innerHTML = '';
+                
+                if (snapshot.empty) {
+                    commentsList.innerHTML = '<div class="empty-state">Chưa có bình luận nào</div>';
+                    return;
+                }
+                
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const commentItem = document.createElement('div');
+                    commentItem.className = 'comment-item';
+                    commentItem.innerHTML = `
+                        <span class="comment-author">${escapeHtml(data.userName || 'Ẩn danh')}:</span>
+                        <span>${escapeHtml(data.content)}</span>
+                    `;
+                    commentsList.appendChild(commentItem);
+                });
+            });
+        }
+
+        // Reset room cleanup timer
+        function resetRoomCleanupTimer() {
+            if (roomCleanupTimers[currentRoomId]) {
+                clearTimeout(roomCleanupTimers[currentRoomId]);
+            }
+            
+            roomCleanupTimers[currentRoomId] = setTimeout(async () => {
+                const roomRef = doc(db, 'karaoke_rooms', currentRoomId);
+                const roomSnap = await getDoc(roomRef);
+                
+                if (roomSnap.exists()) {
+                    const data = roomSnap.data();
+                    const queue = data.queue || [];
+                    
+                    // Check if room is empty (no active listeners)
+                    // Only delete custom rooms if empty and no activity
+                    const room = ROOMS.find(r => r.id === currentRoomId);
+                    if (room && room.isCustom) {
+                        // Check last activity
+                        const lastActivity = data.lastActivity;
+                        if (lastActivity) {
+                            const lastActivityTime = lastActivity.toDate ? lastActivity.toDate() : new Date(lastActivity);
+                            const now = new Date();
+                            const minutesSinceActivity = (now - lastActivityTime) / (1000 * 60);
+                            
+                            if (queue.length === 0 && minutesSinceActivity >= 5) {
+                                // Delete room and its subcollections
+                                try {
+                                    // Delete comments subcollection
+                                    const commentsRef = collection(db, 'karaoke_rooms', currentRoomId, 'comments');
+                                    const commentsSnapshot = await getDocs(commentsRef);
+                                    const deletePromises = commentsSnapshot.docs.map(docSnap => deleteDoc(docSnap.ref));
+                                    await Promise.all(deletePromises);
+                                    
+                                    // Delete room
+                                    await deleteDoc(roomRef);
+                                    console.log(`Room ${currentRoomId} deleted due to inactivity`);
+                                    
+                                    // Remove from ROOMS array
+                                    ROOMS = ROOMS.filter(r => r.id !== currentRoomId);
+                                    initRooms();
+                                    
+                                    // Switch to default room if current room was deleted
+                                    if (currentRoomId === room.id) {
+                                        await switchRoom('pop');
+                                    }
+                                } catch (error) {
+                                    console.error('Error deleting room:', error);
+                                }
+                            }
+                        }
+                    }
+                }
+            }, 5 * 60 * 1000); // 5 minutes
+        }
+
+        // Save room state
+        async function saveRoomState() {
+            const roomRef = doc(db, 'karaoke_rooms', currentRoomId);
+            await updateDoc(roomRef, {
+                queue: queue,
+                currentSongIndex: currentSongIndex,
+                lastActivity: serverTimestamp()
+            });
+        }
+
+        // Extract YouTube video ID from URL
+        function extractVideoId(url) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+
+        // Search and add song
+        window.searchAndAddSong = async function() {
+            const urlInput = document.getElementById('youtubeUrl').value.trim();
+            if (!urlInput) {
+                alert('Vui lòng nhập link YouTube');
+                return;
+            }
+            
+            let videoId = extractVideoId(urlInput);
+            
+            // If not a valid URL, show error
+            if (!videoId) {
+                alert('Link YouTube không hợp lệ. Vui lòng nhập link đầy đủ.\nVí dụ: https://www.youtube.com/watch?v=VIDEO_ID hoặc https://youtu.be/VIDEO_ID');
+                return;
+            }
+            
+            // Get singer name
+            const singerName = document.getElementById('singerName').value.trim() || 'Chưa đặt tên';
+            
+            // Try to get video title from YouTube (using oEmbed API as fallback)
+            let videoTitle = `Bài hát ${videoId}`;
+            try {
+                // Use oEmbed to get video title (no API key required)
+                const oEmbedUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`;
+                const response = await fetch(oEmbedUrl);
+                if (response.ok) {
+                    const data = await response.json();
+                    videoTitle = data.title;
+                }
+            } catch (error) {
+                console.log('Could not fetch video title, using default');
+            }
+            
+            // Add to queue
+            const song = {
+                videoId: videoId,
+                title: videoTitle,
+                singer: singerName,
+                addedAt: Date.now()
+            };
+            
+            queue.push(song);
+            await saveRoomState();
+            updateQueueDisplay();
+            
+            document.getElementById('youtubeUrl').value = '';
+            
+            // If this is the first song and no song is playing, play it
+            if (queue.length === 1) {
+                currentSongIndex = 0;
+                await saveRoomState();
+                // Wait a bit for YouTube player to be ready
+                setTimeout(() => {
+                    loadAndPlaySong(videoId);
+                }, 500);
+            }
+        };
+
+        // Load and play song
+        function loadAndPlaySong(videoId) {
+            if (youtubePlayer && youtubePlayer.loadVideoById) {
+                try {
+                    youtubePlayer.loadVideoById(videoId);
+                    updateNowPlaying();
+                } catch (error) {
+                    console.error('Error loading video:', error);
+                    alert('Lỗi khi tải video. Vui lòng thử lại.');
+                }
+            } else {
+                console.warn('YouTube player not ready yet');
+                // Retry after a short delay
+                setTimeout(() => {
+                    if (youtubePlayer && youtubePlayer.loadVideoById) {
+                        youtubePlayer.loadVideoById(videoId);
+                        updateNowPlaying();
+                    }
+                }, 1000);
+            }
+        }
+
+        // Play next song
+        async function playNextSong() {
+            if (currentSongIndex < queue.length - 1) {
+                currentSongIndex++;
+                await saveRoomState();
+                setTimeout(() => {
+                    loadAndPlaySong(queue[currentSongIndex].videoId);
+                }, 500);
+            } else {
+                // Queue finished
+                currentSongIndex = queue.length; // Set to out of bounds
+                await saveRoomState();
+                updateNowPlaying();
+                if (youtubePlayer) {
+                    youtubePlayer.stopVideo();
+                }
+            }
+        }
+
+        // Update queue display
+        function updateQueueDisplay() {
+            const queueList = document.getElementById('queueList');
+            queueList.innerHTML = '';
+            
+            if (queue.length === 0) {
+                queueList.innerHTML = '<div class="empty-state">Chưa có bài hát nào</div>';
+                return;
+            }
+            
+            queue.forEach((song, index) => {
+                const queueItem = document.createElement('div');
+                queueItem.className = 'queue-item';
+                if (index === currentSongIndex) {
+                    queueItem.classList.add('current');
+                }
+                queueItem.innerHTML = `
+                    <div>
+                        <div class="queue-item-name">${escapeHtml(song.title)}</div>
+                        <div class="queue-item-singer">Ca sĩ: ${escapeHtml(song.singer)}</div>
+                    </div>
+                `;
+                queueList.appendChild(queueItem);
+            });
+        }
+
+        // Update now playing
+        function updateNowPlaying() {
+            const nowPlaying = document.getElementById('nowPlaying');
+            if (queue.length > 0 && currentSongIndex < queue.length) {
+                const currentSong = queue[currentSongIndex];
+                nowPlaying.innerHTML = `
+                    <div class="now-playing-title">${escapeHtml(currentSong.title)}</div>
+                    <div class="now-playing-singer">Ca sĩ: ${escapeHtml(currentSong.singer)}</div>
+                `;
+            } else {
+                nowPlaying.innerHTML = `
+                    <div class="now-playing-title">Chưa có bài hát</div>
+                    <div class="now-playing-singer">Hãy thêm bài hát vào queue</div>
+                `;
+            }
+        }
+
+        // Register to sing
+        window.registerToSing = async function() {
+            const singerName = document.getElementById('singerName').value.trim();
+            if (!singerName) {
+                alert('Vui lòng nhập tên của bạn');
+                return;
+            }
+            
+            if (isRegistered) {
+                alert('Bạn đã đăng ký hát rồi!');
+                return;
+            }
+            
+            isRegistered = true;
+            myQueuePosition = queue.length;
+            alert(`Đã đăng ký hát! Vị trí của bạn: ${myQueuePosition + 1}`);
+        };
+
+        // Cancel singing
+        window.cancelSinging = function() {
+            if (!isRegistered) {
+                alert('Bạn chưa đăng ký hát');
+                return;
+            }
+            
+            isRegistered = false;
+            myQueuePosition = -1;
+            alert('Đã hủy đăng ký hát');
+        };
+
+        // Toggle microphone
+        window.toggleMicrophone = async function() {
+            if (!isMicrophoneOn) {
+                try {
+                    // Request microphone access
+                    const stream = await navigator.mediaDevices.getUserMedia({ 
+                        audio: {
+                            echoCancellation: true,
+                            noiseSuppression: true,
+                            autoGainControl: true
+                        } 
+                    });
+                    microphoneStream = stream;
+                    
+                    // Create audio context for microphone processing
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const source = audioContext.createMediaStreamSource(stream);
+                    microphoneGain = audioContext.createGain();
+                    const volumeValue = document.getElementById('micVolume').value / 100;
+                    microphoneGain.gain.value = volumeValue;
+                    source.connect(microphoneGain);
+                    
+                    // Create destination for mixed audio (microphone + YouTube)
+                    // Note: Browser security prevents direct mixing, but gain control works
+                    const destination = audioContext.destination;
+                    microphoneGain.connect(destination);
+                    
+                    isMicrophoneOn = true;
+                    document.getElementById('micStatus').textContent = 'Microphone: Bật';
+                    document.getElementById('micStatus').classList.remove('inactive');
+                    document.getElementById('micStatus').classList.add('active');
+                    document.getElementById('micToggleBtn').textContent = 'Tắt Microphone';
+                } catch (error) {
+                    console.error('Error accessing microphone:', error);
+                    if (error.name === 'NotAllowedError') {
+                        alert('Vui lòng cho phép truy cập microphone trong cài đặt trình duyệt.');
+                    } else if (error.name === 'NotFoundError') {
+                        alert('Không tìm thấy microphone. Vui lòng kiểm tra thiết bị.');
+                    } else {
+                        alert('Không thể truy cập microphone: ' + error.message);
+                    }
+                }
+            } else {
+                if (microphoneStream) {
+                    microphoneStream.getTracks().forEach(track => track.stop());
+                    microphoneStream = null;
+                }
+                if (audioContext && audioContext.state !== 'closed') {
+                    audioContext.close();
+                    audioContext = null;
+                }
+                microphoneGain = null;
+                isMicrophoneOn = false;
+                document.getElementById('micStatus').textContent = 'Microphone: Tắt';
+                document.getElementById('micStatus').classList.remove('active');
+                document.getElementById('micStatus').classList.add('inactive');
+                document.getElementById('micToggleBtn').textContent = 'Bật Microphone';
+            }
+        };
+
+        // Update microphone volume
+        window.updateMicVolume = function(value) {
+            document.getElementById('micVolumeValue').textContent = value + '%';
+            if (microphoneGain) {
+                microphoneGain.gain.value = value / 100;
+            }
+        };
+
+        // Send comment
+        window.sendComment = async function() {
+            const commentInput = document.getElementById('commentInput');
+            const content = commentInput.value.trim();
+            if (!content) {
+                alert('Vui lòng nhập nội dung bình luận');
+                return;
+            }
+            
+            const userName = document.getElementById('singerName').value.trim() || 'Ẩn danh';
+            
+            try {
+                const commentsRef = collection(db, 'karaoke_rooms', currentRoomId, 'comments');
+                await addDoc(commentsRef, {
+                    userName: userName,
+                    content: content,
+                    timestamp: serverTimestamp()
+                });
+                
+                commentInput.value = '';
+            } catch (error) {
+                console.error('Error sending comment:', error);
+                alert('Lỗi khi gửi bình luận: ' + error.message);
+            }
+        };
+
+        // Escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Swipe gesture
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const diff = touchStartX - touchEndX;
+            
+            if (Math.abs(diff) > swipeThreshold) {
+                // Filter out create button from navigation
+                const navigableRooms = ROOMS.filter(r => !r.isCreateButton);
+                const currentIndex = navigableRooms.findIndex(r => r.id === currentRoomId);
+                
+                if (diff > 0 && currentIndex < navigableRooms.length - 1) {
+                    // Swipe left - next room
+                    switchRoom(navigableRooms[currentIndex + 1].id);
+                } else if (diff < 0 && currentIndex > 0) {
+                    // Swipe right - previous room
+                    switchRoom(navigableRooms[currentIndex - 1].id);
+                }
+            }
+        }
+
+        // Mouse drag for desktop
+        let mouseStartX = 0;
+        let isDragging = false;
+
+        document.addEventListener('mousedown', (e) => {
+            mouseStartX = e.clientX;
+            isDragging = true;
+        });
+
+        document.addEventListener('mouseup', (e) => {
+            if (isDragging) {
+                const mouseEndX = e.clientX;
+                const diff = mouseStartX - mouseEndX;
+                const swipeThreshold = 50;
+                
+                if (Math.abs(diff) > swipeThreshold) {
+                    // Filter out create button from navigation
+                    const navigableRooms = ROOMS.filter(r => !r.isCreateButton);
+                    const currentIndex = navigableRooms.findIndex(r => r.id === currentRoomId);
+                    
+                    if (diff > 0 && currentIndex < navigableRooms.length - 1) {
+                        switchRoom(navigableRooms[currentIndex + 1].id);
+                    } else if (diff < 0 && currentIndex > 0) {
+                        switchRoom(navigableRooms[currentIndex - 1].id);
+                    }
+                }
+                
+                isDragging = false;
+            }
+        });
+
+        // Initialize
+        loadCustomRooms().then(() => {
+            initRooms();
+            loadRoomData();
+        });
+    </script>
+</body>
+</html>
