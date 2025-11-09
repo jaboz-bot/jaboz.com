@@ -336,6 +336,58 @@
             font-size: 12px;
             margin-bottom: 10px;
         }
+        .search-result-item {
+            display: flex;
+            gap: 15px;
+            padding: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .search-result-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+        .search-result-thumbnail {
+            width: 120px;
+            height: 90px;
+            border-radius: 8px;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+        .search-result-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .search-result-title {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: white;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .search-result-channel {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        .search-loading {
+            text-align: center;
+            padding: 20px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .search-empty {
+            text-align: center;
+            padding: 20px;
+            color: rgba(255, 255, 255, 0.5);
+        }
         @media (max-width: 768px) {
             .main-content {
                 flex-direction: column;
@@ -358,10 +410,11 @@
     <a href="index.html" class="back-link">← Trang Chủ</a>
     
     <div class="karaoke-container">
-        <div class="swipe-hint">👆 Vuốt ngang để chuyển phòng</div>
-        
-        <div class="room-selector" id="roomSelector">
-            <!-- Room tabs will be dynamically generated -->
+        <div class="room-selector" id="roomSelector" style="justify-content: space-between; margin-bottom: 20px;">
+            <div style="display: flex; gap: 15px; flex: 1;">
+                <div class="room-tab active" id="currentRoomTab">Phòng Karaoke</div>
+            </div>
+            <button class="btn btn-primary" onclick="createCustomRoom()" style="margin-left: auto;">➕ Tạo Phòng Mới</button>
         </div>
         
         <div class="main-content">
@@ -378,10 +431,11 @@
                 </div>
                 
                 <div class="tv-controls">
-                    <div class="search-box">
-                        <input type="text" id="youtubeUrl" placeholder="Nhập link YouTube hoặc tìm kiếm...">
-                        <button class="btn btn-primary" onclick="searchAndAddSong()">Tìm Kiếm</button>
+                    <div class="search-box" style="position: relative;">
+                        <input type="text" id="youtubeUrl" placeholder="Nhập tên bài hát để tìm kiếm..." onkeypress="if(event.key === 'Enter') searchYouTubeVideos()" oninput="handleSearchInput()">
+                        <button class="btn btn-primary" onclick="searchYouTubeVideos()">Tìm Kiếm</button>
                     </div>
+                    <div id="searchResults" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: rgba(26, 26, 46, 0.95); border-radius: 8px; margin-top: 10px; max-height: 400px; overflow-y: auto; z-index: 1000; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);"></div>
                 </div>
                 
                 <div class="controls-section" style="flex: 1; margin-top: 15px;">
@@ -451,63 +505,10 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Room configuration (will be populated by loadCustomRooms)
-        let ROOMS = [];
+        // YouTube Data API v3 - API key đã được cấu hình
+        const YOUTUBE_API_KEY = 'AIzaSyC3gvuiomtX_BK6n4yaBixjcVsPim3NpxA';
         
-        // Load custom rooms from Firebase
-        async function loadCustomRooms() {
-            try {
-                const customRoomsRef = collection(db, 'karaoke_rooms');
-                // Try to get all rooms, if orderBy fails, get all without order
-                let snapshot;
-                try {
-                    const q = query(customRoomsRef, orderBy('createdAt', 'desc'));
-                    snapshot = await getDocs(q);
-                } catch (error) {
-                    // If orderBy fails (no index), get all without order
-                    snapshot = await getDocs(customRoomsRef);
-                }
-                
-                // Filter custom rooms (rooms that are not in default ROOMS)
-                const defaultRoomIds = ['pop', 'rock', 'ballad', 'vietnamese'];
-                const customRooms = [];
-                
-                snapshot.forEach(docSnap => {
-                    const roomId = docSnap.id;
-                    const data = docSnap.data();
-                    if (!defaultRoomIds.includes(roomId) && data.isCustom) {
-                        customRooms.push({
-                            id: roomId,
-                            name: data.name || 'Phòng Tùy Chỉnh',
-                            category: 'Custom',
-                            isCustom: true
-                        });
-                    }
-                });
-                
-                // Add custom rooms to ROOMS array (before create button)
-                ROOMS = [
-                    { id: 'pop', name: '🎵 Nhạc Pop', category: 'Pop' },
-                    { id: 'rock', name: '🎸 Nhạc Rock', category: 'Rock' },
-                    { id: 'ballad', name: '🎹 Nhạc Ballad', category: 'Ballad' },
-                    { id: 'vietnamese', name: '🇻🇳 Nhạc Việt', category: 'Vietnamese' },
-                    ...customRooms,
-                    { id: 'create_room', name: '➕ Tạo Phòng Mới', category: 'Create', isCreateButton: true }
-                ];
-            } catch (error) {
-                console.error('Error loading custom rooms:', error);
-                // Fallback to default rooms
-                ROOMS = [
-                    { id: 'pop', name: '🎵 Nhạc Pop', category: 'Pop' },
-                    { id: 'rock', name: '🎸 Nhạc Rock', category: 'Rock' },
-                    { id: 'ballad', name: '🎹 Nhạc Ballad', category: 'Ballad' },
-                    { id: 'vietnamese', name: '🇻🇳 Nhạc Việt', category: 'Vietnamese' },
-                    { id: 'create_room', name: '➕ Tạo Phòng Mới', category: 'Create', isCreateButton: true }
-                ];
-            }
-        }
-
-        let currentRoomId = 'pop';
+        let currentRoomId = 'main_room';
         let youtubePlayer = null;
         let currentSongIndex = 0;
         let queue = [];
@@ -555,29 +556,24 @@
             }
         }
 
-        // Initialize rooms
-        function initRooms() {
-            const roomSelector = document.getElementById('roomSelector');
-            roomSelector.innerHTML = '';
-            
-            ROOMS.forEach(room => {
-                const roomTab = document.createElement('div');
-                roomTab.className = 'room-tab';
-                roomTab.textContent = room.name;
-                if (room.isCreateButton) {
-                    roomTab.onclick = () => createCustomRoom();
+        // Initialize room display
+        function initRoomDisplay() {
+            const roomTab = document.getElementById('currentRoomTab');
+            const roomRef = doc(db, 'karaoke_rooms', currentRoomId);
+            getDoc(roomRef).then(snap => {
+                if (snap.exists()) {
+                    const data = snap.data();
+                    roomTab.textContent = data.name || 'Phòng Karaoke';
                 } else {
-                    roomTab.onclick = () => switchRoom(room.id);
+                    roomTab.textContent = 'Phòng Karaoke';
                 }
-                if (room.id === currentRoomId) {
-                    roomTab.classList.add('active');
-                }
-                roomSelector.appendChild(roomTab);
+            }).catch(() => {
+                roomTab.textContent = 'Phòng Karaoke';
             });
         }
         
         // Create custom room
-        async function createCustomRoom() {
+        window.createCustomRoom = async function() {
             const roomName = prompt('Nhập tên phòng mới:');
             if (!roomName || roomName.trim() === '') {
                 return;
@@ -596,19 +592,16 @@
                     lastActivity: serverTimestamp()
                 });
                 
-                // Reload custom rooms and reinitialize
-                await loadCustomRooms();
-                initRooms();
-                
                 // Switch to new room
                 await switchRoom(roomId);
+                initRoomDisplay();
                 
                 alert('Đã tạo phòng mới: ' + roomName);
             } catch (error) {
                 console.error('Error creating custom room:', error);
                 alert('Lỗi khi tạo phòng: ' + error.message);
             }
-        }
+        };
 
         // Switch room
         async function switchRoom(roomId) {
@@ -629,13 +622,8 @@
             isRegistered = false;
             myQueuePosition = -1;
             
-            // Update UI - update all tabs
-            document.querySelectorAll('.room-tab').forEach((tab) => {
-                tab.classList.remove('active');
-                if (tab.textContent === ROOMS.find(r => r.id === roomId)?.name) {
-                    tab.classList.add('active');
-                }
-            });
+            // Update UI
+            initRoomDisplay();
             
             // Load new room data
             await loadRoomData();
@@ -652,20 +640,15 @@
                 currentSongIndex = data.currentSongIndex || 0;
                 updateQueueDisplay();
                 updateNowPlaying();
-                
-                // Don't auto-play when switching rooms - let user control playback
-                // The YouTube player will show the video but won't autoplay
             } else {
-                // Create room if it doesn't exist (only for default rooms)
-                const room = ROOMS.find(r => r.id === currentRoomId);
-                if (room && !room.isCustom && !room.isCreateButton) {
-                    await setDoc(roomRef, {
-                        queue: [],
-                        currentSongIndex: 0,
-                        createdAt: serverTimestamp(),
-                        lastActivity: serverTimestamp()
-                    });
-                }
+                // Create room if it doesn't exist
+                await setDoc(roomRef, {
+                    name: 'Phòng Karaoke',
+                    queue: [],
+                    currentSongIndex: 0,
+                    createdAt: serverTimestamp(),
+                    lastActivity: serverTimestamp()
+                });
                 queue = [];
                 updateQueueDisplay();
                 updateNowPlaying();
@@ -758,8 +741,7 @@
                     
                     // Check if room is empty (no active listeners)
                     // Only delete custom rooms if empty and no activity
-                    const room = ROOMS.find(r => r.id === currentRoomId);
-                    if (room && room.isCustom) {
+                    if (data.isCustom) {
                         // Check last activity
                         const lastActivity = data.lastActivity;
                         if (lastActivity) {
@@ -780,13 +762,9 @@
                                     await deleteDoc(roomRef);
                                     console.log(`Room ${currentRoomId} deleted due to inactivity`);
                                     
-                                    // Remove from ROOMS array
-                                    ROOMS = ROOMS.filter(r => r.id !== currentRoomId);
-                                    initRooms();
-                                    
-                                    // Switch to default room if current room was deleted
-                                    if (currentRoomId === room.id) {
-                                        await switchRoom('pop');
+                                    // Switch to main room if current room was deleted
+                                    if (currentRoomId !== 'main_room') {
+                                        await switchRoom('main_room');
                                     }
                                 } catch (error) {
                                     console.error('Error deleting room:', error);
@@ -815,43 +793,124 @@
             return (match && match[2].length === 11) ? match[2] : null;
         }
 
-        // Search and add song
-        window.searchAndAddSong = async function() {
-            const urlInput = document.getElementById('youtubeUrl').value.trim();
-            if (!urlInput) {
-                alert('Vui lòng nhập link YouTube');
+        // Search YouTube videos
+        let searchTimeout = null;
+        window.handleSearchInput = function() {
+            const searchInput = document.getElementById('youtubeUrl').value.trim();
+            const searchResults = document.getElementById('searchResults');
+            
+            // Clear previous timeout
+            if (searchTimeout) {
+                clearTimeout(searchTimeout);
+            }
+            
+            // Hide results if input is empty
+            if (!searchInput) {
+                searchResults.style.display = 'none';
                 return;
             }
             
-            let videoId = extractVideoId(urlInput);
-            
-            // If not a valid URL, show error
-            if (!videoId) {
-                alert('Link YouTube không hợp lệ. Vui lòng nhập link đầy đủ.\nVí dụ: https://www.youtube.com/watch?v=VIDEO_ID hoặc https://youtu.be/VIDEO_ID');
+            // Debounce search - wait 500ms after user stops typing
+            searchTimeout = setTimeout(() => {
+                if (searchInput.length >= 2) {
+                    searchYouTubeVideos();
+                }
+            }, 500);
+        };
+        
+        window.searchYouTubeVideos = async function() {
+            const searchInput = document.getElementById('youtubeUrl').value.trim();
+            if (!searchInput) {
+                alert('Vui lòng nhập tên bài hát để tìm kiếm');
                 return;
             }
+            
+            // Check if input is a YouTube URL
+            const videoId = extractVideoId(searchInput);
+            if (videoId) {
+                // If it's a YouTube URL, add directly
+                await selectVideo(videoId, '');
+                return;
+            }
+            
+            const searchResults = document.getElementById('searchResults');
+            searchResults.style.display = 'block';
+            searchResults.innerHTML = '<div class="search-loading">Đang tìm kiếm...</div>';
+            
+            try {
+                // Sử dụng YouTube Data API v3 để tìm kiếm
+                // Lưu ý: Cần YouTube Data API v3 key riêng từ Google Cloud Console
+                // Để lấy API key: https://console.cloud.google.com/apis/credentials
+                const searchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(searchInput)}&type=video&maxResults=10&key=${YOUTUBE_API_KEY}`;
+                
+                const response = await fetch(searchUrl);
+                
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    if (errorData.error && errorData.error.message) {
+                        throw new Error(errorData.error.message);
+                    }
+                    throw new Error('Lỗi khi tìm kiếm YouTube. Vui lòng kiểm tra API key.');
+                }
+                
+                const data = await response.json();
+                
+                if (!data.items || data.items.length === 0) {
+                    searchResults.innerHTML = '<div class="search-empty">Không tìm thấy kết quả nào</div>';
+                    return;
+                }
+                
+                // Display search results
+                searchResults.innerHTML = '';
+                data.items.forEach(item => {
+                    const resultItem = document.createElement('div');
+                    resultItem.className = 'search-result-item';
+                    resultItem.innerHTML = `
+                        <img src="${item.snippet.thumbnails.medium.url}" alt="${escapeHtml(item.snippet.title)}" class="search-result-thumbnail">
+                        <div class="search-result-info">
+                            <div class="search-result-title">${escapeHtml(item.snippet.title)}</div>
+                            <div class="search-result-channel">${escapeHtml(item.snippet.channelTitle)}</div>
+                        </div>
+                    `;
+                    resultItem.onclick = () => selectVideo(item.id.videoId, item.snippet.title);
+                    searchResults.appendChild(resultItem);
+                });
+            } catch (error) {
+                console.error('Error searching YouTube:', error);
+                searchResults.innerHTML = `<div class="search-empty">Lỗi khi tìm kiếm: ${error.message}. Vui lòng thử lại hoặc nhập link YouTube trực tiếp.</div>`;
+            }
+        };
+        
+        // Select video from search results
+        async function selectVideo(videoId, videoTitle) {
+            // Hide search results
+            document.getElementById('searchResults').style.display = 'none';
+            document.getElementById('youtubeUrl').value = '';
             
             // Get singer name
             const singerName = document.getElementById('singerName').value.trim() || 'Chưa đặt tên';
             
-            // Try to get video title from YouTube (using oEmbed API as fallback)
-            let videoTitle = `Bài hát ${videoId}`;
-            try {
-                // Use oEmbed to get video title (no API key required)
-                const oEmbedUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`;
-                const response = await fetch(oEmbedUrl);
-                if (response.ok) {
-                    const data = await response.json();
-                    videoTitle = data.title;
+            // If videoTitle is empty, try to get it from oEmbed
+            let finalTitle = videoTitle;
+            if (!finalTitle) {
+                try {
+                    const oEmbedUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`;
+                    const response = await fetch(oEmbedUrl);
+                    if (response.ok) {
+                        const data = await response.json();
+                        finalTitle = data.title;
+                    } else {
+                        finalTitle = `Bài hát ${videoId}`;
+                    }
+                } catch (error) {
+                    finalTitle = `Bài hát ${videoId}`;
                 }
-            } catch (error) {
-                console.log('Could not fetch video title, using default');
             }
             
             // Add to queue
             const song = {
                 videoId: videoId,
-                title: videoTitle,
+                title: finalTitle,
                 singer: singerName,
                 addedAt: Date.now()
             };
@@ -859,8 +918,6 @@
             queue.push(song);
             await saveRoomState();
             updateQueueDisplay();
-            
-            document.getElementById('youtubeUrl').value = '';
             
             // If this is the first song and no song is playing, play it
             if (queue.length === 1) {
@@ -871,7 +928,16 @@
                     loadAndPlaySong(videoId);
                 }, 500);
             }
-        };
+        }
+        
+        // Close search results when clicking outside
+        document.addEventListener('click', (e) => {
+            const searchResults = document.getElementById('searchResults');
+            const searchBox = document.querySelector('.search-box');
+            if (searchResults && searchBox && !searchBox.contains(e.target) && !searchResults.contains(e.target)) {
+                searchResults.style.display = 'none';
+            }
+        });
 
         // Load and play song
         function loadAndPlaySong(videoId) {
@@ -1088,74 +1154,9 @@
             return div.innerHTML;
         }
 
-        // Swipe gesture
-        let touchStartX = 0;
-        let touchEndX = 0;
-
-        document.addEventListener('touchstart', (e) => {
-            touchStartX = e.changedTouches[0].screenX;
-        });
-
-        document.addEventListener('touchend', (e) => {
-            touchEndX = e.changedTouches[0].screenX;
-            handleSwipe();
-        });
-
-        function handleSwipe() {
-            const swipeThreshold = 50;
-            const diff = touchStartX - touchEndX;
-            
-            if (Math.abs(diff) > swipeThreshold) {
-                // Filter out create button from navigation
-                const navigableRooms = ROOMS.filter(r => !r.isCreateButton);
-                const currentIndex = navigableRooms.findIndex(r => r.id === currentRoomId);
-                
-                if (diff > 0 && currentIndex < navigableRooms.length - 1) {
-                    // Swipe left - next room
-                    switchRoom(navigableRooms[currentIndex + 1].id);
-                } else if (diff < 0 && currentIndex > 0) {
-                    // Swipe right - previous room
-                    switchRoom(navigableRooms[currentIndex - 1].id);
-                }
-            }
-        }
-
-        // Mouse drag for desktop
-        let mouseStartX = 0;
-        let isDragging = false;
-
-        document.addEventListener('mousedown', (e) => {
-            mouseStartX = e.clientX;
-            isDragging = true;
-        });
-
-        document.addEventListener('mouseup', (e) => {
-            if (isDragging) {
-                const mouseEndX = e.clientX;
-                const diff = mouseStartX - mouseEndX;
-                const swipeThreshold = 50;
-                
-                if (Math.abs(diff) > swipeThreshold) {
-                    // Filter out create button from navigation
-                    const navigableRooms = ROOMS.filter(r => !r.isCreateButton);
-                    const currentIndex = navigableRooms.findIndex(r => r.id === currentRoomId);
-                    
-                    if (diff > 0 && currentIndex < navigableRooms.length - 1) {
-                        switchRoom(navigableRooms[currentIndex + 1].id);
-                    } else if (diff < 0 && currentIndex > 0) {
-                        switchRoom(navigableRooms[currentIndex - 1].id);
-                    }
-                }
-                
-                isDragging = false;
-            }
-        });
-
         // Initialize
-        loadCustomRooms().then(() => {
-            initRooms();
-            loadRoomData();
-        });
+        initRoomDisplay();
+        loadRoomData();
     </script>
 </body>
 </html>
