@@ -339,6 +339,10 @@
                 🔊 Đọc Văn Bản
             </a>
             
+            <a href="karaoke.html" class="app-item" style="background: linear-gradient(45deg, #E91E63, #C2185B);">
+                🎤 Karaoke Công Khai
+            </a>
+            
         </div>
     </div>
 
@@ -518,8 +522,19 @@
             } catch (error) {
                 console.error('❌ Lỗi khởi tạo Firebase:', error);
                 console.error('Chi tiết lỗi:', error.message, error.stack);
-                // Fallback: hiển thị số 0 nếu Firebase không hoạt động
-                counterEl.textContent = '0';
+                
+                // Hiển thị thông báo lỗi rõ ràng hơn
+                if (error.message.includes('project') || error.message.includes('not found') || error.code === 'not-found') {
+                    console.error('⚠️ Firebase project không tồn tại!');
+                    console.error('📋 Vui lòng tạo lại Firebase project và cập nhật config trong index.html');
+                    console.error('📖 Xem hướng dẫn: HUONG_DAN_CAU_HINH_LAI_FIREBASE.md');
+                    counterEl.textContent = '?';
+                    counterEl.title = 'Firebase project không tồn tại. Vui lòng cấu hình lại.';
+                } else {
+                    // Fallback: hiển thị số 0 nếu Firebase không hoạt động
+                    counterEl.textContent = '0';
+                    counterEl.title = 'Lỗi kết nối Firebase';
+                }
                 return false;
             }
         }
@@ -582,6 +597,11 @@
                 if (error.code === 'permission-denied') {
                     console.error('⚠️ Lỗi quyền truy cập! Vui lòng kiểm tra Firestore Rules');
                     console.error('📋 Đảm bảo rules cho visitor_count cho phép read và write');
+                    console.error('📖 Xem hướng dẫn: HUONG_DAN_CAU_HINH_LAI_FIREBASE.md');
+                } else if (error.code === 'not-found' || error.message.includes('project')) {
+                    console.error('⚠️ Firebase project không tồn tại!');
+                    console.error('📋 Vui lòng tạo lại Firebase project và cập nhật config');
+                    console.error('📖 Xem hướng dẫn: HUONG_DAN_CAU_HINH_LAI_FIREBASE.md');
                 }
             }
         }
@@ -617,6 +637,13 @@
                     if (error.code === 'permission-denied') {
                         console.error('⚠️ Lỗi quyền truy cập! Vui lòng kiểm tra Firestore Rules');
                         console.error('📋 Đảm bảo rules cho visitor_count cho phép read');
+                        console.error('📖 Xem hướng dẫn: HUONG_DAN_CAU_HINH_LAI_FIREBASE.md');
+                    } else if (error.code === 'not-found' || error.message.includes('project')) {
+                        console.error('⚠️ Firebase project không tồn tại!');
+                        console.error('📋 Vui lòng tạo lại Firebase project và cập nhật config');
+                        console.error('📖 Xem hướng dẫn: HUONG_DAN_CAU_HINH_LAI_FIREBASE.md');
+                        counterEl.textContent = '?';
+                        counterEl.title = 'Firebase project không tồn tại. Vui lòng cấu hình lại.';
                     }
                 });
             } catch (error) {
