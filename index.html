@@ -120,13 +120,18 @@
         }
 
         .tv-title {
-            max-width: 300px;
+            max-width: 250px;
+            width: 100%;
             height: auto;
             margin-bottom: 20px;
-            background: transparent !important;
+            padding: 0;
+            background: none !important;
+            background-color: transparent !important;
             border: none !important;
+            outline: none !important;
             box-shadow: none !important;
             display: block;
+            object-fit: contain;
             filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.5));
             animation: logoGlow 2s ease-in-out infinite alternate;
         }
@@ -683,8 +688,15 @@
             opacity: 0.5;
         }
 
-        /* Responsive */
-        @media (max-width: 900px) {
+        /* Responsive - Tablet */
+        @media (max-width: 900px) and (min-width: 600px) {
+            .tv-title {
+                max-width: 180px;
+            }
+        }
+
+        /* Responsive - Mobile */
+        @media (max-width: 599px) {
             .tv {
                 width: 90vw;
                 height: 67.5vw;
@@ -692,13 +704,14 @@
             }
 
             .welcome-banner {
-                font-size: 13px;
-                padding: 10px 15px;
-                margin-bottom: 15px;
+                font-size: 12px;
+                padding: 8px 12px;
+                margin-bottom: 12px;
             }
 
             .tv-title {
-                max-width: 200px;
+                max-width: 120px;
+                margin-bottom: 15px;
             }
 
             .tv-subtitle {
