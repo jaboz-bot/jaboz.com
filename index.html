@@ -1,682 +1,1571 @@
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trang Chủ Jaboz</title>
-    <link rel="manifest" href="dashboard.json">
-    <meta name="theme-color" content="#1976D2">
+    <title>Giao diện TV Karaoke</title>
     <style>
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background: #e3f2fd;
+        * {
             margin: 0;
-            padding: 20px 10px 70px 10px; 
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            justify-content: space-between;
+            padding: 0;
             box-sizing: border-box;
         }
-        .logo {
-            font-size: 42px;
-            font-weight: 900;
-            background: linear-gradient(135deg, #1976D2 0%, #42A5F5 50%, #66BB6A 100%);
-            background-size: 200% 200%;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            letter-spacing: 3px;
-            margin-bottom: 10px;
-            transition: transform 0.3s ease;
-            display: inline-block;
-            animation: gradientShift 3s ease infinite, glowPulse 2s ease-in-out infinite;
-            filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.6));
-        }
-        .logo:hover {
-            transform: scale(1.05);
-            filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.9)) drop-shadow(0 0 30px rgba(255, 235, 59, 0.7));
-        }
-        @keyframes gradientShift {
-            0%, 100% {
-                background-position: 0% 50%;
-            }
-            50% {
-                background-position: 100% 50%;
-            }
-        }
-        @keyframes glowPulse {
-            0%, 100% {
-                filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.6)) drop-shadow(0 0 15px rgba(255, 235, 59, 0.4));
-            }
-            50% {
-                filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.9)) drop-shadow(0 0 30px rgba(255, 235, 59, 0.7)) drop-shadow(0 0 40px rgba(255, 193, 7, 0.5));
-            }
-        }
-        @media (max-width: 600px) {
-            .logo {
-                font-size: 32px;
-                letter-spacing: 2px;
-            }
-        }
-        h1 {
-            color: #1976D2;
-            margin-top: 0;
-            margin-bottom: 20px;
-        }
-        .main-container {
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
             display: flex;
-            flex-wrap: wrap;
             justify-content: center;
-            gap: 20px;
-            max-width: 800px;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .tv-container {
+            perspective: 1000px;
+        }
+
+        .tv {
+            width: 800px;
+            height: 600px;
+            background: #1a1a1a;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.5),
+                inset 0 0 50px rgba(0, 0, 0, 0.3);
+            position: relative;
+            transform-style: preserve-3d;
+        }
+
+        /* TV Frame */
+        .tv::before {
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: -15px;
+            right: -15px;
+            bottom: -15px;
+            background: linear-gradient(145deg, #2a2a2a, #0a0a0a);
+            border-radius: 25px;
+            z-index: -1;
+        }
+
+        /* TV Screen */
+        .tv-screen {
             width: 100%;
-            margin-bottom: 50px;
-        }
-        .app-item {
-            text-decoration: none;
-            color: white;
-            padding: 30px 40px;
-            border-radius: 12px;
-            font-size: 20px;
-            font-weight: bold;
-            width: 250px;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            transition: transform 0.2s, box-shadow 0.2s;
-            cursor: pointer;
-        }
-        .app-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-        }
-        .voice-link {
-            background: linear-gradient(45deg, #2196F3, #1976D2);
-        }
-        .game-link {
-            background: linear-gradient(45deg, #4CAF50, #388E3C);
-        }
-        .movie-link {
-            background: linear-gradient(45deg, #FF9800, #F57C00);
-        }
-        .currency-link {
-            background: linear-gradient(45deg, #00BCD4, #0097A7);
-        }
-        .settings-area {
-            width: 100%;
-            text-align: center;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            z-index: 1000;
-            background: rgba(240, 248, 255, 0.95);
-            padding: 10px 0;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            height: 100%;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 
+                inset 0 0 30px rgba(0, 0, 0, 0.5),
+                0 0 20px rgba(0, 150, 255, 0.3);
             display: flex;
             flex-direction: column;
-            align-items: center;
-            gap: 5px;
+            position: relative;
+            overflow: hidden;
         }
-        .settings-link {
-            background: linear-gradient(45deg, #9C27B0, #7B1FA2);
-            padding: 15px 30px;
+
+        /* Screen glow effect */
+        .tv-screen::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        /* TV Stand */
+        .tv-stand {
+            width: 200px;
+            height: 30px;
+            background: linear-gradient(145deg, #2a2a2a, #0a0a0a);
+            margin: 20px auto 0;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .tv-stand::after {
+            content: '';
+            width: 300px;
+            height: 15px;
+            background: linear-gradient(145deg, #1a1a1a, #0a0a0a);
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-top: 15px;
+            border-radius: 0 0 15px 15px;
+        }
+
+        /* Content Area */
+        .tv-content {
+            z-index: 1;
+            text-align: center;
+            color: white;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow-y: auto;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .tv-content.has-search {
+            justify-content: flex-start;
+        }
+
+        .tv-title {
+            max-width: 300px;
+            height: auto;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.5));
+            animation: logoGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes logoGlow {
+            from {
+                filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.5));
+            }
+            to {
+                filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 40px rgba(100, 150, 255, 0.6));
+            }
+        }
+
+        .tv-subtitle {
+            font-size: 24px;
+            opacity: 0.9;
+            margin-bottom: 40px;
+        }
+
+        /* Search Section */
+        .search-section {
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+            margin: 0 auto;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+        
+        .search-section.sticky {
+            position: sticky;
+            top: 0;
+            background: rgba(30, 60, 114, 0.95);
+            backdrop-filter: blur(10px);
+            margin-bottom: 20px;
+        }
+
+        .search-container {
+            display: flex;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .search-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            padding: 12px 20px;
+            color: white;
             font-size: 16px;
-            width: auto;
-            display: inline-block;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .search-input:focus {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+
+
+        .search-results {
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .search-results.active {
+            display: block;
+        }
+
+        .youtube-search-iframe {
+            width: 100%;
+            height: 400px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Custom Scrollbar */
+        .search-results::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .search-results::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .search-results::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+        }
+
+        .search-results::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .song-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .song-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-left-color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .song-thumbnail {
+            width: 120px;
+            height: 90px;
             border-radius: 8px;
+            object-fit: cover;
+            flex-shrink: 0;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .song-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .song-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .song-artist {
+            font-size: 14px;
+            opacity: 0.8;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Video Player */
+        .video-player-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            display: none;
+            background: #000;
+            border-radius: 10px;
+        }
+
+        .video-player-container.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .video-player-wrapper {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .video-player-wrapper iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 10px;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            z-index: 11;
+            background: rgba(0, 0, 0, 0.7);
             color: white;
             border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
             cursor: pointer;
-            text-decoration: none;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-        }
-        .settings-link:hover {
-             transform: translateY(-2px);
-             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        }
-        .visitor-counter {
-            margin-top: 0;
-            padding: 5px;
-            color: #1976D2;
-            font-size: 14px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .visitor-counter .counter-number {
             font-size: 14px;
             font-weight: bold;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
         }
-        .comment-link {
-            background: linear-gradient(45deg, #E91E63, #C2185B);
-            padding: 8px 20px;
-            font-size: 14px;
-            width: auto;
-            display: inline-block;
-            border-radius: 8px;
-            color: white;
-            border: none;
-            cursor: pointer;
-            text-decoration: none;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .comment-link:hover {
+
+        .back-button:hover {
+            background: rgba(0, 0, 0, 0.9);
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
-        .game-modal {
+
+        .no-results {
+            text-align: center;
+            padding: 20px;
+            opacity: 0.7;
+            font-style: italic;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Audio Control Button */
+        .audio-control-button {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%) translateY(50%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 24px;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 100;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .audio-control-button:hover {
+            transform: translateX(-50%) translateY(calc(50% - 2px));
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .audio-control-button:active {
+            transform: translateX(-50%) translateY(50%);
+        }
+
+        /* Audio Control Popup */
+        .audio-control-popup {
             display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: #000;
-            z-index: 10000;
-            margin: 0;
-            padding: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
         }
-        .game-modal.active {
-            display: block;
+
+        .audio-control-popup.active {
+            display: flex;
         }
-        .game-modal-content {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            margin: 0;
-            padding: 0;
+
+        .audio-control-content {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: slideIn 0.3s ease;
         }
-        .game-iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            margin: 0;
-            padding: 0;
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-        .close-game-btn {
-            position: fixed;
-            top: 10px;
-            right: 23px;
-            width: 35px;
-            height: 35px;
-            background: #f44336;
+
+        .audio-control-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .audio-control-header h2 {
             color: white;
+            font-size: 24px;
+            margin: 0;
+        }
+
+        .close-button {
+            background: rgba(255, 255, 255, 0.2);
             border: none;
             border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            color: white;
+            font-size: 24px;
             cursor: pointer;
-            font-size: 20px;
-            font-weight: bold;
-            z-index: 10001;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
             line-height: 1;
-            padding: 0;
-            transition: transform 0.2s, background 0.2s;
         }
-        .close-game-btn:hover {
-            background: #d32f2f;
-            transform: scale(1.1);
+
+        .close-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
         }
-        .close-game-btn:active {
-            transform: scale(0.95);
+
+        .audio-control-body {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
-        .confirm-popup {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            z-index: 10002;
+
+        .audio-control-item {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .audio-control-item label {
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .slider-container {
+            display: flex;
             align-items: center;
-            justify-content: center;
-        }
-        .confirm-popup.active {
-            display: flex;
-        }
-        .confirm-popup-content {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 16px;
-            padding: 30px;
-            max-width: 320px;
-            width: 85%;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-            text-align: center;
-            animation: popupSlideIn 0.3s ease-out;
-        }
-        @keyframes popupSlideIn {
-            from {
-                transform: scale(0.8);
-                opacity: 0;
-            }
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-        .confirm-popup-title {
-            font-size: 22px;
-            font-weight: bold;
-            color: white;
-            margin-bottom: 20px;
-        }
-        .confirm-popup-message {
-            font-size: 16px;
-            color: rgba(255, 255, 255, 0.95);
-            margin-bottom: 30px;
-        }
-        .confirm-popup-buttons {
-            display: flex;
             gap: 15px;
-            justify-content: center;
         }
-        .confirm-btn {
-            padding: 12px 30px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
+
+        .eq-slider-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .eq-labels {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            position: relative;
+            margin-bottom: 5px;
+        }
+
+        .eq-label-left {
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+        .eq-label-center {
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            opacity: 0.9;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .eq-label-right {
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+        .eq-slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: linear-gradient(to right, 
+                rgba(100, 200, 255, 0.3) 0%, 
+                rgba(255, 255, 255, 0.2) 50%, 
+                rgba(255, 200, 100, 0.3) 100%);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .eq-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            min-width: 100px;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.5);
+            transition: all 0.2s ease;
         }
-        .confirm-btn-yes {
-            background: linear-gradient(45deg, #f44336, #d32f2f);
+
+        .eq-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 3px 12px rgba(102, 126, 234, 0.7);
+        }
+
+        .eq-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.5);
+            transition: all 0.2s ease;
+        }
+
+        .eq-slider::-moz-range-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 3px 12px rgba(102, 126, 234, 0.7);
+        }
+
+        .eq-values {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .eq-value {
+            display: flex;
+            gap: 5px;
+        }
+
+        .volume-slider {
+            flex: 1;
+            height: 8px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .volume-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.6);
+        }
+
+        .volume-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .volume-slider::-moz-range-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.6);
+        }
+
+        .volume-value {
             color: white;
+            font-size: 14px;
+            font-weight: bold;
+            min-width: 45px;
+            text-align: right;
         }
-        .confirm-btn-yes:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
+
+        .volume-slider:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
-        .confirm-btn-no {
-            background: linear-gradient(45deg, #9e9e9e, #757575);
-            color: white;
+
+        .volume-slider:disabled::-webkit-slider-thumb {
+            cursor: not-allowed;
         }
-        .confirm-btn-no:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(158, 158, 158, 0.4);
+
+        .volume-slider:disabled::-moz-range-thumb {
+            cursor: not-allowed;
         }
-        .confirm-btn:active {
-            transform: scale(0.95);
+
+        .audio-control-item.disabled label {
+            opacity: 0.5;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .tv {
+                width: 90vw;
+                height: 67.5vw;
+                max-height: 600px;
+            }
+
+            .tv-title {
+                max-width: 200px;
+            }
+
+            .tv-subtitle {
+                font-size: 18px;
+            }
+
+            .search-container {
+                border-radius: 20px;
+            }
+
+            .search-input {
+                width: 100%;
+            }
+
+            .search-section {
+                max-width: 100%;
+                padding: 10px;
+            }
+
+            .song-thumbnail {
+                width: 80px;
+                height: 60px;
+            }
+
+            .song-title {
+                font-size: 14px;
+            }
+
+            .song-artist {
+                font-size: 12px;
+            }
+
+            .audio-control-button {
+                padding: 10px 18px;
+                font-size: 12px;
+                bottom: 0;
+                left: 50%;
+                transform: translateX(-50%) translateY(50%);
+            }
+
+            .audio-control-button:hover {
+                transform: translateX(-50%) translateY(calc(50% - 2px));
+            }
+
+            .audio-control-button:active {
+                transform: translateX(-50%) translateY(50%);
+            }
+
+            .audio-control-content {
+                padding: 20px;
+                max-width: 90%;
+            }
+
+            .audio-control-header h2 {
+                font-size: 20px;
+            }
         }
     </style>
 </head>
 <body>
-    
-    <div style="width: 100%; display: flex; flex-direction: column; align-items: center;">
-        <div class="logo">JABOZ</div>
-        <h1>Công Cụ Tiện Ích</h1>
-        <div class="main-container">
+    <div class="tv-container">
+        <div class="tv">
+            <button class="audio-control-button" onclick="toggleAudioControl()">Chỉnh âm</button>
             
-            <a href="tools/may-ho-tro-giong-noi/may-voice.html" class="app-item voice-link">
-                💬 Máy Hỗ Trợ Giọng Nói
-            </a>
-            
-            <div id="gameLink" class="app-item game-link">
-                🎮 Chơi Game              
+            <div class="tv-screen">
+                <div class="video-player-container" id="videoPlayerContainer">
+                    <button class="back-button" onclick="closeVideo()">← Quay lại</button>
+                    <div class="video-player-wrapper">
+                        <iframe id="youtubePlayer" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                </div>
+                
+                <div class="tv-content" id="tvContent">
+                    <img src="logo.png" alt="Jaboz Karaoke" class="tv-title">
+                    <p class="tv-subtitle">Chào mừng bạn đến với hệ thống Karaoke Online</p>
+                    
+                    <div class="search-section">
+                        <div class="search-container">
+                            <input 
+                                type="text" 
+                                class="search-input" 
+                                id="searchInput"
+                                placeholder="Nhập tên bài hát để tìm kiếm..."
+                                onkeypress="handleKeyPress(event)"
+                                oninput="handleSearchInput(event)"
+                            >
+                        </div>
+                        <div class="search-results" id="searchResults"></div>
+                    </div>
+                </div>
             </div>
-            
-            <a href="tools/cham_cong.html" class="app-item movie-link">
-                🗓️ Máy Chấm Công
-            </a>
-            
-            <a href="tools/doi_tien_te.html" class="app-item currency-link">
-                💱 Đổi tiền tệ
-            </a>
-            
-            <a href="tools/lich_am_duong.html" class="app-item" style="background: linear-gradient(45deg, #FF6B6B, #EE5A6F);">
-                🌙 Lịch Âm Dương
-            </a>
-            
-            <a href="tools/doc_van_ban.html" class="app-item" style="background: linear-gradient(45deg, #9C27B0, #7B1FA2);">
-                🔊 Đọc Văn Bản
-            </a>
-            
+        </div>
+        <div class="tv-stand"></div>
+    </div>
+
+    <!-- Audio Control Popup -->
+    <div class="audio-control-popup" id="audioControlPopup">
+        <div class="audio-control-content">
+            <div class="audio-control-header">
+                <h2>Điều chỉnh âm lượng</h2>
+                <button class="close-button" onclick="toggleAudioControl()">×</button>
+            </div>
+            <div class="audio-control-body">
+                <div class="audio-control-item">
+                    <label>Nhạc</label>
+                    <div class="slider-container">
+                        <input type="range" class="volume-slider" id="musicVolume" min="0" max="100" value="80" oninput="updateVolume('music', this.value)">
+                        <span class="volume-value" id="musicValue">80%</span>
+                    </div>
+                </div>
+                <div class="audio-control-item disabled" id="micControlItem">
+                    <label>Mic <span style="font-size: 12px; opacity: 0.7;">(Cần kết nối tai nghe/bluetooth)</span></label>
+                    <div class="slider-container">
+                        <input type="range" class="volume-slider" id="micVolume" min="0" max="100" value="70" oninput="updateVolume('mic', this.value)" disabled>
+                        <span class="volume-value" id="micValue">70%</span>
+                    </div>
+                </div>
+                <div class="audio-control-item disabled" id="micEQControlItem">
+                    <div class="eq-slider-container">
+                        <div class="eq-labels">
+                            <span class="eq-label-left">Treble</span>
+                            <span class="eq-label-center">Mid</span>
+                            <span class="eq-label-right">Bass</span>
+                        </div>
+                        <input type="range" class="eq-slider" id="micEQSlider" min="-20" max="20" value="0" oninput="updateEQSlider(this.value)" disabled>
+                        <div class="eq-values">
+                            <span class="eq-value">Treble: <span id="micTrebleValue">0dB</span></span>
+                            <span class="eq-value">Mid: <span id="micMidValue">0dB</span></span>
+                            <span class="eq-value">Bass: <span id="micBassValue">0dB</span></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="audio-control-item disabled" id="echoControlItem">
+                    <label>Echo <span style="font-size: 12px; opacity: 0.7;">(Cần kết nối tai nghe/bluetooth)</span></label>
+                    <div class="slider-container">
+                        <input type="range" class="volume-slider" id="echoVolume" min="0" max="100" value="50" oninput="updateVolume('echo', this.value)" disabled>
+                        <span class="volume-value" id="echoValue">50%</span>
+                    </div>
+                </div>
+                <div class="audio-control-item disabled" id="ambientControlItem">
+                    <label>Ambient <span style="font-size: 12px; opacity: 0.7;">(Cần kết nối tai nghe/bluetooth)</span></label>
+                    <div class="slider-container">
+                        <input type="range" class="volume-slider" id="ambientVolume" min="0" max="100" value="60" oninput="updateVolume('ambient', this.value)" disabled>
+                        <span class="volume-value" id="ambientValue">60%</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-<div class="settings-area">
-    <button class="settings-link" id="installButton">📲 Trang Chủ</button>
-    <a href="binh_luan/binh_luan.html" class="comment-link">💬 Đóng góp ý kiến</a>
-    <div class="visitor-counter">
-        <span>👥 Lượt truy cập:</span>
-        <span class="counter-number" id="visitorCount">0</span>
-    </div>
-</div>
+    <script>
+        // Danh sách bài hát với YouTube Video IDs
+        const songs = [
+            { title: "Như Những Phút Ban Đầu", artist: "Tóc Tiên", videoId: "dQw4w9WgXcQ" },
+            { title: "Đừng Yêu Nữa Em Mệt Rồi", artist: "Minh Vương M4U", videoId: "9bZkp7q19f0" },
+            { title: "Sau Tất Cả", artist: "Erik", videoId: "kJQP7kiw5Fk" },
+            { title: "Chạy Ngay Đi", artist: "Sơn Tùng M-TP", videoId: "OPf0YbXqDm0" },
+            { title: "Lạc Trôi", artist: "Sơn Tùng M-TP", videoId: "FlJuC6E4Z6Y" },
+            { title: "Em Gái Mưa", artist: "Hương Tràm", videoId: "RgKAFK5djSk" },
+            { title: "Đừng Như Thói Quen", artist: "Only C", videoId: "fJ9rUzIMcZQ" },
+            { title: "Người Lạ Thoáng Qua", artist: "Đinh Mạnh Ninh", videoId: "kJQP7kiw5Fk" },
+            { title: "Có Chàng Trai Viết Lên Cây", artist: "Phan Mạnh Quỳnh", videoId: "9bZkp7q19f0" },
+            { title: "Đừng Hỏi Em", artist: "Mỹ Tâm", videoId: "dQw4w9WgXcQ" },
+            { title: "Người Ấy", artist: "Trịnh Thăng Bình", videoId: "OPf0YbXqDm0" },
+            { title: "Tình Yêu Màu Nắng", artist: "Đoàn Thúy Trang", videoId: "FlJuC6E4Z6Y" },
+            { title: "Vì Tôi Còn Sống", artist: "Tiên Tiên", videoId: "RgKAFK5djSk" },
+            { title: "Yêu Là Thế", artist: "Hồ Ngọc Hà", videoId: "fJ9rUzIMcZQ" }
+        ];
 
-<!-- Modal để mở game và ẩn URL - Full màn hình -->
-<div id="gameModal" class="game-modal">
-    <button class="close-game-btn" id="closeGameBtn">✕</button>
-    <div class="game-modal-content">
-        <iframe id="gameIframe" class="game-iframe" src=""></iframe>
-    </div>
-</div>
-
-<!-- Popup xác nhận thoát game -->
-<div id="confirmPopup" class="confirm-popup">
-    <div class="confirm-popup-content">
-        <div class="confirm-popup-title">⚠️ Xác nhận</div>
-        <div class="confirm-popup-message">Bạn muốn thoát Game?</div>
-        <div class="confirm-popup-buttons">
-            <button class="confirm-btn confirm-btn-no" id="confirmNo">Không</button>
-            <button class="confirm-btn confirm-btn-yes" id="confirmYes">Có</button>
-        </div>
-    </div>
-</div>
-
-<script>
-    // Mở game trong iframe để ẩn URL - Full màn hình
-    const gameLink = document.getElementById('gameLink');
-    const gameModal = document.getElementById('gameModal');
-    const gameIframe = document.getElementById('gameIframe');
-    const closeGameBtn = document.getElementById('closeGameBtn');
-    const confirmPopup = document.getElementById('confirmPopup');
-    const confirmYes = document.getElementById('confirmYes');
-    const confirmNo = document.getElementById('confirmNo');
-    
-    function closeGameModal() {
-        gameModal.classList.remove('active');
-        gameIframe.src = '';
-        document.body.style.overflow = '';
-    }
-    
-    function showConfirmPopup() {
-        confirmPopup.classList.add('active');
-    }
-    
-    function hideConfirmPopup() {
-        confirmPopup.classList.remove('active');
-    }
-    
-    gameLink.addEventListener('click', () => {
-        gameIframe.src = 'https://gamesnacks.com/';
-        gameModal.classList.add('active');
-        // Ẩn body scroll khi mở game
-        document.body.style.overflow = 'hidden';
-    });
-    
-    closeGameBtn.addEventListener('click', () => {
-        showConfirmPopup();
-    });
-    
-    confirmYes.addEventListener('click', () => {
-        hideConfirmPopup();
-        closeGameModal();
-    });
-    
-    confirmNo.addEventListener('click', () => {
-        hideConfirmPopup();
-    });
-    
-    // Đóng popup khi click ra ngoài
-    confirmPopup.addEventListener('click', (e) => {
-        if (e.target === confirmPopup) {
-            hideConfirmPopup();
+        // Hàm lấy video ID từ YouTube URL
+        function getYouTubeVideoId(url) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
         }
-    });
-    
-    // Đóng modal bằng phím ESC
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && gameModal.classList.contains('active')) {
-            if (!confirmPopup.classList.contains('active')) {
-                showConfirmPopup();
+
+        // Hàm tìm kiếm trên YouTube (không dùng API) - Tối ưu tốc độ
+        async function searchYouTube(query) {
+            // Kiểm tra nếu là YouTube URL
+            if (query.includes('youtube.com') || query.includes('youtu.be')) {
+                const videoId = getYouTubeVideoId(query);
+                if (videoId) {
+                    return [{
+                        title: "Video từ YouTube",
+                        artist: "YouTube",
+                        videoId: videoId
+                    }];
+                }
+            }
+            
+            // Bỏ qua nếu query quá ngắn
+            if (query.length < 2) {
+                return [];
+            }
+            
+            const searchQuery = encodeURIComponent(query);
+            
+            // Tạo AbortController với timeout 3 giây
+            const createFetchWithTimeout = (url, timeout = 3000) => {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), timeout);
+                return fetch(url, { signal: controller.signal })
+                    .then(response => {
+                        clearTimeout(timeoutId);
+                        return response;
+                    })
+                    .catch(err => {
+                        clearTimeout(timeoutId);
+                        throw err;
+                    });
+            };
+            
+            // Thử nhiều proxy cùng lúc, lấy kết quả nhanh nhất
+            const proxyPromises = [
+                createFetchWithTimeout(`https://api.allorigins.win/get?url=${encodeURIComponent(`https://www.youtube.com/results?search_query=${searchQuery}`)}`)
+                    .then(r => r.json())
+                    .then(d => d.contents || '')
+                    .catch(() => ''),
+                createFetchWithTimeout(`https://corsproxy.io/?${encodeURIComponent(`https://www.youtube.com/results?search_query=${searchQuery}`)}`)
+                    .then(r => r.text())
+                    .catch(() => '')
+            ];
+            
+            try {
+                // Lấy kết quả từ proxy nhanh nhất
+                const html = await Promise.race(proxyPromises);
+                
+                if (!html) return [];
+                
+                const results = [];
+                const seenIds = new Set();
+                
+                // Parse nhanh với regex - tìm pattern videoRenderer
+                const videoPattern = /"videoRenderer":\{[^}]*"videoId":"([^"]{11})"[^}]*"title":\{"runs":\[\{"text":"([^"]+)"\}[^}]*"ownerText":\{"runs":\[\{"text":"([^"]+)"\}/g;
+                
+                let match;
+                let count = 0;
+                while ((match = videoPattern.exec(html)) !== null && count < 10) {
+                    const videoId = match[1];
+                    if (!seenIds.has(videoId)) {
+                        seenIds.add(videoId);
+                        const title = match[2].replace(/\\u([0-9a-fA-F]{4})/g, (m, code) => String.fromCharCode(parseInt(code, 16)));
+                        const artist = match[3] ? match[3].replace(/\\u([0-9a-fA-F]{4})/g, (m, code) => String.fromCharCode(parseInt(code, 16))) : "YouTube";
+                        
+                        results.push({ title, artist, videoId });
+                        count++;
+                    }
+                }
+                
+                // Fallback: pattern đơn giản hơn
+                if (results.length === 0) {
+                    const videoIdRegex = /"videoId":"([^"]{11})"/g;
+                    const titleRegex = /"title":\{"runs":\[\{"text":"([^"]+)"\}/g;
+                    const ownerRegex = /"ownerText":\{"runs":\[\{"text":"([^"]+)"\}/g;
+                    
+                    const videoIds = [];
+                    const titles = [];
+                    const owners = [];
+                    
+                    let vidMatch;
+                    while ((vidMatch = videoIdRegex.exec(html)) !== null && videoIds.length < 15) {
+                        if (!seenIds.has(vidMatch[1])) {
+                            seenIds.add(vidMatch[1]);
+                            videoIds.push(vidMatch[1]);
+                        }
+                    }
+                    
+                    let titleMatch;
+                    while ((titleMatch = titleRegex.exec(html)) !== null && titles.length < videoIds.length) {
+                        titles.push(titleMatch[1].replace(/\\u([0-9a-fA-F]{4})/g, (m, code) => String.fromCharCode(parseInt(code, 16))));
+                    }
+                    
+                    let ownerMatch;
+                    while ((ownerMatch = ownerRegex.exec(html)) !== null && owners.length < videoIds.length) {
+                        owners.push(ownerMatch[1].replace(/\\u([0-9a-fA-F]{4})/g, (m, code) => String.fromCharCode(parseInt(code, 16))));
+                    }
+                    
+                    for (let i = 0; i < videoIds.length && i < 10; i++) {
+                        results.push({
+                            title: titles[i] || `Bài hát ${i + 1}`,
+                            artist: owners[i] || "YouTube",
+                            videoId: videoIds[i]
+                        });
+                    }
+                }
+                
+                return results;
+            } catch (error) {
+                console.error('Lỗi tìm kiếm YouTube:', error);
+                return [];
+            }
+        }
+
+        // Debounce timer cho tìm kiếm tự động
+        let searchTimeout = null;
+        let lastSearchQuery = '';
+        let searchCache = {};
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                if (searchTimeout) {
+                    clearTimeout(searchTimeout);
+                }
+                searchSong();
+            }
+        }
+
+        function handleSearchInput(event) {
+            const query = event.target.value.trim();
+            const searchSection = document.querySelector('.search-section');
+            const tvContent = document.getElementById('tvContent');
+            const searchResults = document.getElementById('searchResults');
+            
+            // Xóa timeout trước đó
+            if (searchTimeout) {
+                clearTimeout(searchTimeout);
+            }
+            
+            // Nếu ô input trống, ẩn kết quả và xóa class sticky
+            if (query === '') {
+                searchResults.classList.remove('active');
+                searchSection.classList.remove('sticky');
+                tvContent.classList.remove('has-search');
+                lastSearchQuery = '';
+                return;
+            }
+            
+            // Thêm class sticky và has-search khi có input
+            searchSection.classList.add('sticky');
+            tvContent.classList.add('has-search');
+            
+            // Kiểm tra cache trước
+            const cacheKey = query.toLowerCase();
+            if (searchCache[cacheKey]) {
+                displayResults(searchCache[cacheKey]);
+                return;
+            }
+            
+            // Hiển thị loading ngay lập tức
+            searchResults.innerHTML = '<div class="no-results"><span class="loading-spinner"></span>Đang tìm kiếm...</div>';
+            searchResults.classList.add('active');
+            
+            // Tìm kiếm ngay với debounce rất ngắn (50ms) để không lag khi gõ
+            searchTimeout = setTimeout(() => {
+                if (query !== lastSearchQuery && query.length >= 2) {
+                    lastSearchQuery = query;
+                    searchSong();
+                }
+            }, 50);
+        }
+
+        function displayResults(results) {
+            const searchResults = document.getElementById('searchResults');
+            
+            if (results.length > 0) {
+                searchResults.innerHTML = results.map(song => {
+                    const thumbnailUrl = `https://img.youtube.com/vi/${song.videoId}/maxresdefault.jpg`;
+                    const safeTitle = song.title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                    const safeArtist = song.artist.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                    return `
+                        <div class="song-item" onclick="playVideo('${song.videoId}', '${safeTitle}', '${safeArtist}')">
+                            <img src="${thumbnailUrl}" alt="${song.title}" class="song-thumbnail" loading="lazy" onerror="this.style.display='none'">
+                            <div class="song-info">
+                                <div class="song-title">${song.title}</div>
+                                <div class="song-artist">${song.artist}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
             } else {
-                hideConfirmPopup();
+                const query = document.getElementById('searchInput').value.trim();
+                const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
+                searchResults.innerHTML = `
+                    <div class="no-results">
+                        <div style="margin-bottom: 15px;">
+                            Không tìm thấy kết quả cho "${query}". Vui lòng thử lại với từ khóa khác.
+                        </div>
+                        <a href="${searchUrl}" target="_blank" style="color: #667eea; text-decoration: underline; font-weight: bold; display: inline-block; padding: 10px 20px; background: rgba(102, 126, 234, 0.2); border-radius: 25px; margin: 5px;">
+                            🔍 Tìm trên YouTube
+                        </a>
+                    </div>
+                `;
             }
+            
+            searchResults.classList.add('active');
         }
-    });
 
+        async function searchSong() {
+            const searchInput = document.getElementById('searchInput');
+            const searchResults = document.getElementById('searchResults');
+            const query = searchInput.value.trim();
 
-    // Logic PWA
-    let deferredPrompt = null;
-    const installButton = document.getElementById('installButton');
-    
-    function isRunningStandalone() {
-        return window.matchMedia('(display-mode: standalone)').matches;
-    }
-    
-    function updateInstallButtonVisibility() {
-        installButton.style.display = (!isRunningStandalone() && deferredPrompt) ? 'inline-block' : 'none';
-    }
-    
-    function installApp() {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice.then(() => {
-                deferredPrompt = null;
-                updateInstallButtonVisibility();
-            });
+            if (query === '' || query.length < 2) {
+                searchResults.classList.remove('active');
+                return;
+            }
+
+            // Kiểm tra cache
+            const cacheKey = query.toLowerCase();
+            if (searchCache[cacheKey]) {
+                displayResults(searchCache[cacheKey]);
+                return;
+            }
+
+            // Loading đã được hiển thị trong handleSearchInput
+            // Tìm kiếm ngay lập tức
+            const results = await searchYouTube(query);
+            
+            // Lưu vào cache
+            if (results.length > 0) {
+                searchCache[cacheKey] = results;
+                // Giới hạn cache tối đa 50 items
+                const cacheKeys = Object.keys(searchCache);
+                if (cacheKeys.length > 50) {
+                    delete searchCache[cacheKeys[0]];
+                }
+            }
+
+            // Hiển thị kết quả ngay
+            displayResults(results);
         }
-    }
-    
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        updateInstallButtonVisibility();
-        if (installButton.style.display !== 'none') {
-            installButton.addEventListener('click', installApp, { once: true });
+
+        function playVideo(videoId, title, artist) {
+            const videoPlayerContainer = document.getElementById('videoPlayerContainer');
+            const youtubePlayer = document.getElementById('youtubePlayer');
+            const tvContent = document.getElementById('tvContent');
+
+            // Ẩn nội dung chính
+            tvContent.style.display = 'none';
+            
+            // Hiển thị video player với enablejsapi để điều khiển volume
+            youtubePlayer.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&enablejsapi=1`;
+            videoPlayerContainer.classList.add('active');
+            
+            // Lưu reference
+            youtubePlayerInstance = youtubePlayer;
         }
-    });
-    
-    window.addEventListener('appinstalled', () => {
-        deferredPrompt = null;
-        updateInstallButtonVisibility();
-    });
-    
-    updateInstallButtonVisibility();
-    
-    // Bộ đếm lượt truy cập cộng dồn với Firebase - Đếm chính xác từ tất cả người dùng
-    (function() {
-        const counterEl = document.getElementById('visitorCount');
-        if (!counterEl) return;
-        
-        let currentCount = 0;
-        let targetCount = 0;
-        let db = null;
-        let firebaseInitialized = false;
-        
-        // Firebase configuration - Sử dụng cùng config với binh_luan.html
-         const firebaseConfig = {
-    apiKey: "AIzaSyD-5Cv61zM34WECJrKazQ5p6Eaam8tkttc",
-    authDomain: "jaboz-comments.firebaseapp.com",
-    projectId: "jaboz-comments",
-    storageBucket: "jaboz-comments.firebasestorage.app",
-    messagingSenderId: "58018946851",
-    appId: "1:58018946851:web:a539b49d6a65fcef24b696",
-    measurementId: "G-ZJLTNNNV6B"
-  };
-        
-        // Khởi tạo Firebase
-        let firestoreModule = null;
-        
-        async function initFirebase() {
-            try {
-                console.log('🔵 Đang khởi tạo Firebase...');
-                const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
-                firestoreModule = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
-                const { getFirestore } = firestoreModule;
-                
-                const app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                firebaseInitialized = true;
-                console.log('✅ Firebase đã khởi tạo thành công');
-                
-                // Tăng lượt truy cập khi trang được tải
-                await incrementVisitorCount();
-                
-                // Lắng nghe thay đổi từ Firestore để hiển thị real-time
-                listenToVisitorCount();
-                
-                return true;
-            } catch (error) {
-                console.error('❌ Lỗi khởi tạo Firebase:', error);
-                console.error('Chi tiết lỗi:', error.message, error.stack);
-                
-                // Hiển thị thông báo lỗi rõ ràng hơn
-                if (error.message.includes('project') || error.message.includes('not found') || error.code === 'not-found') {
-                    console.error('⚠️ Firebase project không tồn tại!');
-                    console.error('📋 Vui lòng tạo lại Firebase project và cập nhật config trong index.html');
-                    console.error('📖 Xem hướng dẫn: HUONG_DAN_CAU_HINH_LAI_FIREBASE.md');
-                    counterEl.textContent = '?';
-                    counterEl.title = 'Firebase project không tồn tại. Vui lòng cấu hình lại.';
+
+        function closeVideo() {
+            const videoPlayerContainer = document.getElementById('videoPlayerContainer');
+            const youtubePlayer = document.getElementById('youtubePlayer');
+            const tvContent = document.getElementById('tvContent');
+
+            // Dừng video
+            youtubePlayer.src = '';
+            
+            // Ẩn video player
+            videoPlayerContainer.classList.remove('active');
+            
+            // Hiển thị lại nội dung chính
+            tvContent.style.display = 'block';
+        }
+
+        // Audio Control Functions
+        let youtubePlayerInstance = null;
+        let audioContext = null;
+        let micStream = null;
+        let micGainNode = null;
+        let echoGainNode = null;
+        let ambientGainNode = null;
+        let micDestination = null;
+        let bassFilter = null;
+        let midFilter = null;
+        let trebleFilter = null;
+        let micSource = null;
+
+        function toggleAudioControl() {
+            const popup = document.getElementById('audioControlPopup');
+            popup.classList.toggle('active');
+            
+            if (popup.classList.contains('active')) {
+                checkAudioDevices();
+            }
+            // Không dừng mic khi đóng popup - giữ kết nối
+        }
+
+        async function updateVolume(type, value) {
+            const valueElement = document.getElementById(type + 'Value');
+            if (valueElement) {
+                valueElement.textContent = value + '%';
+            }
+            
+            if (type === 'music') {
+                // Điều chỉnh volume của YouTube video
+                const youtubePlayer = document.getElementById('youtubePlayer');
+                if (youtubePlayer && youtubePlayer.contentWindow) {
+                    try {
+                        // Gửi lệnh điều chỉnh volume qua postMessage
+                        youtubePlayer.contentWindow.postMessage(JSON.stringify({
+                            event: 'command',
+                            func: 'setVolume',
+                            args: [Math.round(value)]
+                        }), '*');
+                        
+                        // Hoặc điều chỉnh volume của iframe element (fallback)
+                        if (youtubePlayer.volume !== undefined) {
+                            youtubePlayer.volume = value / 100;
+                        }
+                    } catch (e) {
+                        console.error('Lỗi điều chỉnh volume YouTube:', e);
+                    }
+                }
+            } else if (type === 'mic') {
+                // Điều chỉnh volume của mic (setValueAtTime để giảm latency)
+                if (micGainNode && audioContext) {
+                    micGainNode.gain.setValueAtTime(value / 100, audioContext.currentTime);
                 } else {
-                    // Fallback: hiển thị số 0 nếu Firebase không hoạt động
-                    counterEl.textContent = '0';
-                    counterEl.title = 'Lỗi kết nối Firebase';
+                    // Khởi tạo mic nếu chưa có
+                    initMic();
                 }
-                return false;
-            }
-        }
-        
-        // Tăng lượt truy cập trong Firestore (cộng dồn)
-        async function incrementVisitorCount() {
-            if (!firebaseInitialized || !db || !firestoreModule) {
-                console.warn('⚠️ Firebase chưa được khởi tạo, không thể tăng lượt truy cập');
-                return;
-            }
-            
-            try {
-                const { doc, getDoc, setDoc, updateDoc, increment, serverTimestamp } = firestoreModule;
-                const VISIT_KEY = 'jaboz_visit_session';
-                const TOTAL_COUNT_DOC_ID = 'total';
-                const visitDocRef = doc(db, 'visitor_count', TOTAL_COUNT_DOC_ID);
-                
-                // Kiểm tra xem đã đếm lượt truy cập này chưa (tránh đếm trùng khi refresh)
-                const visitData = sessionStorage.getItem(VISIT_KEY);
-                let hasVisited = false;
-                
-                if (visitData) {
-                    hasVisited = true;
-                    console.log('ℹ️ Đã đếm lượt truy cập trong session này rồi');
-                }
-                
-                // Chỉ tăng lượt truy cập nếu chưa đếm trong session này
-                if (!hasVisited) {
-                    console.log('🔵 Đang kiểm tra document visitor_count/total...');
-                    const visitDoc = await getDoc(visitDocRef);
-                    
-                    if (visitDoc.exists()) {
-                        const currentCount = visitDoc.data().count || 0;
-                        console.log(`📊 Số lượt truy cập hiện tại: ${currentCount}`);
-                        // Document đã tồn tại, tăng số đếm bằng updateDoc với increment
-                        await updateDoc(visitDocRef, {
-                            count: increment(1),
-                            lastUpdated: serverTimestamp()
-                        });
-                        console.log('✅ Đã tăng lượt truy cập lên:', currentCount + 1);
-                    } else {
-                        console.log('📝 Tạo document mới với count = 1');
-                        // Document chưa tồn tại, tạo mới với count = 1
-                        await setDoc(visitDocRef, {
-                            count: 1,
-                            lastUpdated: serverTimestamp()
-                        });
-                        console.log('✅ Đã tạo document mới với count = 1');
+            } else if (type === 'echo') {
+                // Điều chỉnh echo effect
+                if (echoGainNode && audioContext) {
+                    echoGainNode.gain.setValueAtTime(value / 100, audioContext.currentTime);
+                } else {
+                    // Khởi tạo mic trước nếu chưa có
+                    if (!micStream) {
+                        await initMic();
                     }
-                    
-                    // Đánh dấu đã đếm lượt truy cập này
-                    sessionStorage.setItem(VISIT_KEY, JSON.stringify({
-                        timestamp: Date.now()
-                    }));
-                }
-            } catch (error) {
-                console.error('❌ Lỗi tăng lượt truy cập:', error);
-                console.error('Chi tiết lỗi:', error.message);
-                console.error('Code lỗi:', error.code);
-                if (error.code === 'permission-denied') {
-                    console.error('⚠️ Lỗi quyền truy cập! Vui lòng kiểm tra Firestore Rules');
-                    console.error('📋 Đảm bảo rules cho visitor_count cho phép read và write');
-                    console.error('📖 Xem hướng dẫn: HUONG_DAN_CAU_HINH_LAI_FIREBASE.md');
-                } else if (error.code === 'not-found' || error.message.includes('project')) {
-                    console.error('⚠️ Firebase project không tồn tại!');
-                    console.error('📋 Vui lòng tạo lại Firebase project và cập nhật config');
-                    console.error('📖 Xem hướng dẫn: HUONG_DAN_CAU_HINH_LAI_FIREBASE.md');
-                }
-            }
-        }
-        
-        // Lắng nghe thay đổi từ Firestore
-        function listenToVisitorCount() {
-            if (!firebaseInitialized || !db || !firestoreModule) {
-                console.warn('⚠️ Firebase chưa được khởi tạo, không thể lắng nghe thay đổi');
-                return;
-            }
-            
-            try {
-                const { doc, onSnapshot } = firestoreModule;
-                const TOTAL_COUNT_DOC_ID = 'total';
-                const visitDocRef = doc(db, 'visitor_count', TOTAL_COUNT_DOC_ID);
-                
-                console.log('👂 Đang lắng nghe thay đổi từ Firestore...');
-                onSnapshot(visitDocRef, (snapshot) => {
-                    if (snapshot.exists()) {
-                        const data = snapshot.data();
-                        targetCount = data.count || 0;
-                        console.log('📊 Nhận được số lượt truy cập mới:', targetCount);
-                        updateCounter();
-                    } else {
-                        console.log('⚠️ Document visitor_count/total chưa tồn tại');
-                        targetCount = 0;
-                        updateCounter();
+                    // Khởi tạo echo nếu mic đã chạy
+                    if (micStream) {
+                        initEcho();
+                        if (echoGainNode && audioContext) {
+                            echoGainNode.gain.setValueAtTime(value / 100, audioContext.currentTime);
+                        }
                     }
-                }, (error) => {
-                    console.error('❌ Lỗi lắng nghe Firestore:', error);
-                    console.error('Chi tiết lỗi:', error.message);
-                    console.error('Code lỗi:', error.code);
-                    if (error.code === 'permission-denied') {
-                        console.error('⚠️ Lỗi quyền truy cập! Vui lòng kiểm tra Firestore Rules');
-                        console.error('📋 Đảm bảo rules cho visitor_count cho phép read');
-                        console.error('📖 Xem hướng dẫn: HUONG_DAN_CAU_HINH_LAI_FIREBASE.md');
-                    } else if (error.code === 'not-found' || error.message.includes('project')) {
-                        console.error('⚠️ Firebase project không tồn tại!');
-                        console.error('📋 Vui lòng tạo lại Firebase project và cập nhật config');
-                        console.error('📖 Xem hướng dẫn: HUONG_DAN_CAU_HINH_LAI_FIREBASE.md');
-                        counterEl.textContent = '?';
-                        counterEl.title = 'Firebase project không tồn tại. Vui lòng cấu hình lại.';
+                }
+            } else if (type === 'ambient') {
+                // Điều chỉnh ambient sound
+                if (ambientGainNode && audioContext) {
+                    ambientGainNode.gain.setValueAtTime(value / 100, audioContext.currentTime);
+                } else {
+                    // Khởi tạo mic trước nếu chưa có
+                    if (!micStream) {
+                        await initMic();
                     }
-                });
-            } catch (error) {
-                console.error('❌ Lỗi thiết lập listener:', error);
-            }
-        }
-        
-        function animateCount() {
-            if (currentCount < targetCount) {
-                const diff = targetCount - currentCount;
-                const increment = Math.max(1, Math.ceil(diff / 20));
-                currentCount = Math.min(currentCount + increment, targetCount);
-                counterEl.textContent = currentCount.toLocaleString('vi-VN');
-            } else if (currentCount > targetCount) {
-                const diff = currentCount - targetCount;
-                const decrement = Math.max(1, Math.ceil(diff / 20));
-                currentCount = Math.max(currentCount - decrement, targetCount);
-                counterEl.textContent = currentCount.toLocaleString('vi-VN');
-            }
-        }
-        
-        function updateCounter() {
-            function animate() {
-                animateCount();
-                if (currentCount !== targetCount) {
-                    setTimeout(() => {
-                        requestAnimationFrame(animate);
-                    }, 30);
+                    // Có thể thêm logic cho ambient sound ở đây
                 }
             }
-            requestAnimationFrame(animate);
         }
-        
-        // Khởi tạo Firebase và bắt đầu đếm
-        initFirebase();
-    })();
-</script>
 
+        // Điều chỉnh EQ với slider duy nhất (Treble - Mid - Bass)
+        function updateEQSlider(value) {
+            const sliderValue = parseFloat(value);
+            let trebleValue, midValue, bassValue;
+            
+            if (sliderValue === 0) {
+                // Ở giữa (Mid): tất cả bằng nhau = 0
+                trebleValue = 0;
+                midValue = 0;
+                bassValue = 0;
+            } else if (sliderValue < 0) {
+                // Kéo về Bass (bên phải): tăng bass, giảm treble và mid
+                bassValue = -sliderValue; // Tăng bass
+                trebleValue = sliderValue; // Giảm treble
+                midValue = sliderValue; // Giảm mid
+            } else {
+                // Kéo về Treble (bên trái): tăng treble, giảm bass và mid
+                trebleValue = sliderValue; // Tăng treble
+                bassValue = -sliderValue; // Giảm bass
+                midValue = -sliderValue; // Giảm mid
+            }
+            
+            // Cập nhật hiển thị
+            const trebleValueElement = document.getElementById('micTrebleValue');
+            const midValueElement = document.getElementById('micMidValue');
+            const bassValueElement = document.getElementById('micBassValue');
+            
+            if (trebleValueElement) trebleValueElement.textContent = trebleValue.toFixed(1) + 'dB';
+            if (midValueElement) midValueElement.textContent = midValue.toFixed(1) + 'dB';
+            if (bassValueElement) bassValueElement.textContent = bassValue.toFixed(1) + 'dB';
+            
+            // Cập nhật audio filters
+            if (!audioContext) {
+                // Nếu chưa có audio context, khởi tạo mic
+                if (micStream) {
+                    initMic();
+                    setTimeout(() => {
+                        updateEQSlider(value);
+                    }, 100);
+                }
+                return;
+            }
+            
+            // Cập nhật filters
+            if (trebleFilter) {
+                trebleFilter.gain.setValueAtTime(trebleValue, audioContext.currentTime);
+            }
+            if (midFilter) {
+                midFilter.gain.setValueAtTime(midValue, audioContext.currentTime);
+            }
+            if (bassFilter) {
+                bassFilter.gain.setValueAtTime(bassValue, audioContext.currentTime);
+            }
+            
+            // Nếu filters chưa có nhưng mic đã chạy, khởi tạo lại
+            if (micStream && (!trebleFilter || !midFilter || !bassFilter)) {
+                initMic();
+                setTimeout(() => {
+                    updateEQSlider(value);
+                }, 100);
+            }
+        }
+
+        // Khởi tạo Audio Context với latency thấp
+        async function initAudioContext() {
+            if (!audioContext) {
+                // Tạo AudioContext với latency thấp nhất có thể
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                
+                // Thử tạo với latency thấp
+                try {
+                    audioContext = new AudioContextClass({
+                        latencyHint: 'interactive', // Latency thấp nhất
+                        sampleRate: 48000 // Sample rate cao hơn để giảm latency
+                    });
+                } catch (e) {
+                    // Fallback nếu không hỗ trợ options
+                    audioContext = new AudioContextClass();
+                }
+                
+                // Đặt buffer size nhỏ nhất có thể để giảm latency
+                if (audioContext.createScriptProcessor) {
+                    // Sử dụng buffer size nhỏ (256 samples thay vì mặc định 4096)
+                    try {
+                        const testNode = audioContext.createScriptProcessor(256, 1, 1);
+                        testNode.disconnect();
+                    } catch (e) {
+                        console.log('Không thể đặt buffer size nhỏ');
+                    }
+                }
+            }
+            // Resume context nếu bị suspended (do browser policy)
+            if (audioContext.state === 'suspended') {
+                await audioContext.resume();
+            }
+            return audioContext;
+        }
+
+        // Khởi tạo và bắt đầu mic
+        async function initMic() {
+            try {
+                // Dừng mic cũ nếu có
+                if (micStream) {
+                    stopMic();
+                }
+                
+                // Yêu cầu quyền truy cập microphone với latency thấp
+                micStream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: {
+                        echoCancellation: false, // Tắt echo cancellation để nghe được mic và giảm latency
+                        noiseSuppression: false, // Tắt để giảm latency
+                        autoGainControl: false, // Tắt để giảm latency
+                        latency: 0, // Yêu cầu latency thấp nhất
+                        sampleRate: 48000, // Sample rate cao để giảm latency
+                        channelCount: 1 // Mono để giảm xử lý
+                    } 
+                });
+                
+                // Khởi tạo audio context
+                const context = await initAudioContext();
+                
+                // Đảm bảo context đang chạy
+                if (context.state !== 'running') {
+                    await context.resume();
+                }
+                
+                // Tạo source từ mic stream
+                micSource = context.createMediaStreamSource(micStream);
+                
+                // Tạo EQ filters: Bass, Mid, Treble
+                // Bass filter (low shelf, 80Hz)
+                bassFilter = context.createBiquadFilter();
+                bassFilter.type = 'lowshelf';
+                bassFilter.frequency.setValueAtTime(80, context.currentTime);
+                bassFilter.gain.setValueAtTime(0, context.currentTime);
+                
+                // Mid filter (peaking, 1000Hz)
+                midFilter = context.createBiquadFilter();
+                midFilter.type = 'peaking';
+                midFilter.frequency.setValueAtTime(1000, context.currentTime);
+                midFilter.Q.setValueAtTime(1, context.currentTime);
+                midFilter.gain.setValueAtTime(0, context.currentTime);
+                
+                // Treble filter (high shelf, 5000Hz)
+                trebleFilter = context.createBiquadFilter();
+                trebleFilter.type = 'highshelf';
+                trebleFilter.frequency.setValueAtTime(5000, context.currentTime);
+                trebleFilter.gain.setValueAtTime(0, context.currentTime);
+                
+                // Tạo gain node cho mic volume với smoothing = 0 để giảm latency
+                micGainNode = context.createGain();
+                micGainNode.gain.setValueAtTime(0, context.currentTime); // Set ngay lập tức
+                
+                const micVolume = document.getElementById('micVolume');
+                if (micVolume) {
+                    const volume = parseInt(micVolume.value) / 100;
+                    micGainNode.gain.setValueAtTime(volume, context.currentTime); // Set ngay, không smooth
+                } else {
+                    micGainNode.gain.setValueAtTime(0.7, context.currentTime); // Mặc định 70%
+                }
+                
+                // Kết nối: micSource -> bass -> mid -> treble -> gain -> destination
+                micSource.connect(bassFilter);
+                bassFilter.connect(midFilter);
+                midFilter.connect(trebleFilter);
+                trebleFilter.connect(micGainNode);
+                micGainNode.connect(context.destination);
+                
+                micDestination = context.destination;
+                
+                // Tối ưu: Đảm bảo không có delay không cần thiết
+                console.log('Audio context latency:', context.baseLatency, 's');
+                console.log('Audio context output latency:', context.outputLatency, 's');
+                console.log('Sample rate:', context.sampleRate, 'Hz');
+                
+                // Hiển thị thông tin latency
+                const totalLatency = (context.baseLatency || 0) + (context.outputLatency || 0);
+                console.log('Tổng latency ước tính:', (totalLatency * 1000).toFixed(2), 'ms');
+                
+                console.log('Mic đã được kích hoạt với latency thấp nhất có thể');
+            } catch (error) {
+                console.error('Lỗi khởi tạo mic:', error);
+                const errorMsg = error.name === 'NotAllowedError' 
+                    ? 'Vui lòng cho phép truy cập microphone để sử dụng tính năng này.'
+                    : 'Không thể truy cập microphone. Vui lòng kiểm tra thiết bị và quyền truy cập.';
+                alert(errorMsg);
+            }
+        }
+
+        // Khởi tạo echo effect với delay tối thiểu
+        function initEcho() {
+            if (!audioContext || !micStream || echoGainNode) return;
+            
+            try {
+                const micSource = audioContext.createMediaStreamSource(micStream);
+                
+                // Tạo delay node cho echo với delay time ngắn hơn để giảm latency
+                const delayNode = audioContext.createDelay(0.5); // Giảm max delay
+                delayNode.delayTime.setValueAtTime(0.15, audioContext.currentTime); // 150ms delay thay vì 300ms
+                
+                // Tạo gain node cho echo
+                echoGainNode = audioContext.createGain();
+                const echoVolume = document.getElementById('echoVolume');
+                if (echoVolume) {
+                    echoGainNode.gain.setValueAtTime(parseInt(echoVolume.value) / 100, audioContext.currentTime);
+                } else {
+                    echoGainNode.gain.setValueAtTime(0.5, audioContext.currentTime); // Mặc định 50%
+                }
+                
+                // Kết nối: mic -> delay -> echo gain -> destination
+                micSource.connect(delayNode);
+                delayNode.connect(echoGainNode);
+                echoGainNode.connect(audioContext.destination);
+                
+                console.log('Echo effect đã được kích hoạt với delay 150ms');
+            } catch (error) {
+                console.error('Lỗi khởi tạo echo:', error);
+            }
+        }
+
+        // Dừng mic
+        function stopMic() {
+            if (micStream) {
+                micStream.getTracks().forEach(track => track.stop());
+                micStream = null;
+            }
+            if (micSource) {
+                micSource.disconnect();
+                micSource = null;
+            }
+            if (bassFilter) {
+                bassFilter.disconnect();
+                bassFilter = null;
+            }
+            if (midFilter) {
+                midFilter.disconnect();
+                midFilter = null;
+            }
+            if (trebleFilter) {
+                trebleFilter.disconnect();
+                trebleFilter = null;
+            }
+            if (micGainNode) {
+                micGainNode.disconnect();
+                micGainNode = null;
+            }
+            if (echoGainNode) {
+                echoGainNode.disconnect();
+                echoGainNode = null;
+            }
+            if (ambientGainNode) {
+                ambientGainNode.disconnect();
+                ambientGainNode = null;
+            }
+            micDestination = null;
+        }
+
+        // Kiểm tra thiết bị audio input
+        async function checkAudioDevices() {
+            try {
+                let hasPermission = false;
+                // Yêu cầu quyền truy cập microphone để có thể liệt kê thiết bị
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    hasPermission = true;
+                    // Dừng stream tạm thời, sẽ được khởi tạo lại trong initMic
+                    stream.getTracks().forEach(track => track.stop());
+                } catch (e) {
+                    // Người dùng từ chối quyền hoặc không có thiết bị
+                    console.log('Không có quyền truy cập microphone hoặc không có thiết bị');
+                }
+                
+                if (!hasPermission) {
+                    // Nếu không có quyền, disable tất cả
+                    const micSlider = document.getElementById('micVolume');
+                    const echoSlider = document.getElementById('echoVolume');
+                    const ambientSlider = document.getElementById('ambientVolume');
+                    const eqSlider = document.getElementById('micEQSlider');
+                    const micItem = document.getElementById('micControlItem');
+                    const echoItem = document.getElementById('echoControlItem');
+                    const ambientItem = document.getElementById('ambientControlItem');
+                    const eqItem = document.getElementById('micEQControlItem');
+                    
+                    if (micSlider) micSlider.disabled = true;
+                    if (echoSlider) echoSlider.disabled = true;
+                    if (ambientSlider) ambientSlider.disabled = true;
+                    if (eqSlider) eqSlider.disabled = true;
+                    if (micItem) micItem.classList.add('disabled');
+                    if (echoItem) echoItem.classList.add('disabled');
+                    if (ambientItem) ambientItem.classList.add('disabled');
+                    if (eqItem) eqItem.classList.add('disabled');
+                    return;
+                }
+                
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const audioInputDevices = devices.filter(device => device.kind === 'audioinput' && device.deviceId !== 'default');
+                
+                // Kiểm tra xem có thiết bị audio input không (mic, bluetooth, headphone)
+                const hasAudioInput = audioInputDevices.length > 0;
+                
+                // Enable/disable các slider dựa trên thiết bị
+                const micSlider = document.getElementById('micVolume');
+                const echoSlider = document.getElementById('echoVolume');
+                const ambientSlider = document.getElementById('ambientVolume');
+                const eqSlider = document.getElementById('micEQSlider');
+                const micItem = document.getElementById('micControlItem');
+                const echoItem = document.getElementById('echoControlItem');
+                const ambientItem = document.getElementById('ambientControlItem');
+                const eqItem = document.getElementById('micEQControlItem');
+                
+                if (hasAudioInput) {
+                    // Enable các slider
+                    if (micSlider) micSlider.disabled = false;
+                    if (echoSlider) echoSlider.disabled = false;
+                    if (ambientSlider) ambientSlider.disabled = false;
+                    if (eqSlider) eqSlider.disabled = false;
+                    if (micItem) micItem.classList.remove('disabled');
+                    if (echoItem) echoItem.classList.remove('disabled');
+                    if (ambientItem) ambientItem.classList.remove('disabled');
+                    if (eqItem) eqItem.classList.remove('disabled');
+                    
+                    // Cập nhật label
+                    const labels = document.querySelectorAll('#micControlItem label, #echoControlItem label, #ambientControlItem label');
+                    labels.forEach(label => {
+                        label.innerHTML = label.innerHTML.replace(/<span.*?<\/span>/, '<span style="font-size: 12px; opacity: 0.7;">(Đã kết nối)</span>');
+                    });
+                    
+                    // Tự động khởi tạo mic nếu chưa có (giữ kết nối)
+                    if (!micStream && !micGainNode) {
+                        await initMic();
+                    }
+                } else {
+                    // Disable các slider
+                    if (micSlider) micSlider.disabled = true;
+                    if (echoSlider) echoSlider.disabled = true;
+                    if (ambientSlider) ambientSlider.disabled = true;
+                    if (eqSlider) eqSlider.disabled = true;
+                    if (micItem) micItem.classList.add('disabled');
+                    if (echoItem) echoItem.classList.add('disabled');
+                    if (ambientItem) ambientItem.classList.add('disabled');
+                    if (eqItem) eqItem.classList.add('disabled');
+                }
+            } catch (error) {
+                console.error('Lỗi kiểm tra thiết bị audio:', error);
+                // Nếu không thể kiểm tra, giữ nguyên trạng thái disabled
+            }
+        }
+
+        // Đóng popup khi click ra ngoài
+        document.addEventListener('click', function(event) {
+            const popup = document.getElementById('audioControlPopup');
+            const button = document.querySelector('.audio-control-button');
+            const content = document.querySelector('.audio-control-content');
+            
+            if (popup.classList.contains('active')) {
+                if (!content.contains(event.target) && event.target !== button) {
+                    popup.classList.remove('active');
+                }
+            }
+        });
+    </script>
 </body>
 </html>
+
