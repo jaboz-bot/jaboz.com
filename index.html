@@ -136,6 +136,31 @@
             }
         }
 
+        .welcome-banner {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            animation: welcomePulse 3s ease-in-out infinite;
+        }
+
+        @keyframes welcomePulse {
+            0%, 100% {
+                opacity: 0.9;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.02);
+            }
+        }
+
         .tv-subtitle {
             font-size: 24px;
             opacity: 0.9;
@@ -662,6 +687,12 @@
                 max-height: 600px;
             }
 
+            .welcome-banner {
+                font-size: 13px;
+                padding: 10px 15px;
+                margin-bottom: 15px;
+            }
+
             .tv-title {
                 max-width: 200px;
             }
@@ -737,6 +768,7 @@
                 </div>
                 
                 <div class="tv-content" id="tvContent">
+                    <div class="welcome-banner">Trang web đang xây dựng</div>
                     <img src="images/logo.png" class="tv-title">
                     <p class="tv-subtitle">Chào mừng bạn đến với hệ thống Karaoke Online</p>
                     
