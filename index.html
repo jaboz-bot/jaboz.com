@@ -58,6 +58,16 @@
             z-index: -1;
         }
 
+        @media (max-width: 599px) {
+            .tv::before {
+                top: -5px;
+                left: -5px;
+                right: -5px;
+                bottom: -5px;
+                border-radius: 15px;
+            }
+        }
+
         /* TV Screen */
         .tv-screen {
             width: 100%;
@@ -705,20 +715,26 @@
         /* Responsive - Mobile */
         @media (max-width: 599px) {
             body {
-                padding: 10px;
+                padding: 5px;
             }
 
             .tv {
-                width: 95vw;
+                width: 98vw;
                 height: auto;
                 min-height: 500px;
-                max-height: 90vh;
-                padding: 15px;
+                max-height: 95vh;
+                padding: 8px;
+                border-radius: 12px;
             }
 
             .tv-screen {
-                padding: 10px;
+                padding: 8px;
                 min-height: 0;
+                border-radius: 8px;
+            }
+
+            .tv-stand {
+                display: none;
             }
 
             .tv-content {
