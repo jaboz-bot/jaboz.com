@@ -249,10 +249,19 @@
             max-height: 400px;
             overflow-y: auto;
             display: none;
+            width: 100%;
+            -webkit-overflow-scrolling: touch;
         }
 
         .search-results.active {
             display: block;
+        }
+
+        @media (max-width: 599px) {
+            .search-results {
+                max-height: 300px;
+                margin-top: 15px;
+            }
         }
 
         .youtube-search-iframe {
@@ -953,13 +962,17 @@
             
             const searchQuery = encodeURIComponent(query);
             
-            // Tạo AbortController với timeout 3 giây
-            const createFetchWithTimeout = (url, timeout = 3000) => {
+            // Tạo AbortController với timeout (dài hơn cho mobile)
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            const timeout = isMobile ? 8000 : 5000; // 8 giây cho mobile, 5 giây cho desktop
+            
+            const createFetchWithTimeout = (url, timeoutMs = timeout) => {
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), timeout);
+                const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
                 return fetch(url, { signal: controller.signal })
                     .then(response => {
                         clearTimeout(timeoutId);
+                        if (!response.ok) throw new Error('Network response was not ok');
                         return response;
                     })
                     .catch(err => {
@@ -973,17 +986,44 @@
                 createFetchWithTimeout(`https://api.allorigins.win/get?url=${encodeURIComponent(`https://www.youtube.com/results?search_query=${searchQuery}`)}`)
                     .then(r => r.json())
                     .then(d => d.contents || '')
-                    .catch(() => ''),
+                    .catch((e) => {
+                        console.log('Proxy 1 failed:', e);
+                        return '';
+                    }),
                 createFetchWithTimeout(`https://corsproxy.io/?${encodeURIComponent(`https://www.youtube.com/results?search_query=${searchQuery}`)}`)
                     .then(r => r.text())
-                    .catch(() => '')
+                    .catch((e) => {
+                        console.log('Proxy 2 failed:', e);
+                        return '';
+                    }),
+                createFetchWithTimeout(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(`https://www.youtube.com/results?search_query=${searchQuery}`)}`)
+                    .then(r => r.text())
+                    .catch((e) => {
+                        console.log('Proxy 3 failed:', e);
+                        return '';
+                    })
             ];
             
             try {
-                // Lấy kết quả từ proxy nhanh nhất
-                const html = await Promise.race(proxyPromises);
+                // Lấy kết quả từ proxy nhanh nhất, nếu tất cả fail thì thử Promise.allSettled
+                let html = '';
+                try {
+                    html = await Promise.race(proxyPromises);
+                } catch (raceError) {
+                    console.log('Promise.race failed, trying allSettled...');
+                    const settled = await Promise.allSettled(proxyPromises);
+                    for (const result of settled) {
+                        if (result.status === 'fulfilled' && result.value) {
+                            html = result.value;
+                            break;
+                        }
+                    }
+                }
                 
-                if (!html) return [];
+                if (!html || html.trim() === '') {
+                    console.log('No HTML content from proxies');
+                    return [];
+                }
                 
                 const results = [];
                 const seenIds = new Set();
@@ -1045,6 +1085,7 @@
                 return results;
             } catch (error) {
                 console.error('Lỗi tìm kiếm YouTube:', error);
+                // Trả về mảng rỗng, sẽ hiển thị thông báo "không tìm thấy"
                 return [];
             }
         }
@@ -1162,20 +1203,33 @@
 
             // Loading đã được hiển thị trong handleSearchInput
             // Tìm kiếm ngay lập tức
-            const results = await searchYouTube(query);
-            
-            // Lưu vào cache
-            if (results.length > 0) {
-                searchCache[cacheKey] = results;
-                // Giới hạn cache tối đa 50 items
-                const cacheKeys = Object.keys(searchCache);
-                if (cacheKeys.length > 50) {
-                    delete searchCache[cacheKeys[0]];
+            try {
+                const results = await searchYouTube(query);
+                
+                // Lưu vào cache
+                if (results.length > 0) {
+                    searchCache[cacheKey] = results;
+                    // Giới hạn cache tối đa 50 items
+                    const cacheKeys = Object.keys(searchCache);
+                    if (cacheKeys.length > 50) {
+                        delete searchCache[cacheKeys[0]];
+                    }
                 }
-            }
 
-            // Hiển thị kết quả ngay
-            displayResults(results);
+                // Hiển thị kết quả ngay
+                displayResults(results);
+            } catch (error) {
+                console.error('Lỗi trong searchSong:', error);
+                const searchResults = document.getElementById('searchResults');
+                searchResults.innerHTML = `
+                    <div class="no-results">
+                        <div style="margin-bottom: 15px;">
+                            Lỗi kết nối. Vui lòng kiểm tra kết nối mạng và thử lại.
+                        </div>
+                    </div>
+                `;
+                searchResults.classList.add('active');
+            }
         }
 
         function playVideo(videoId, title, artist) {
