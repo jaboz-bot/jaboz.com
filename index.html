@@ -334,10 +334,10 @@
 
         /* Audio Control Button */
         .audio-control-button {
-            position: absolute;
-            bottom: 0;
+            position: fixed;
+            bottom: 20px;
             left: 50%;
-            transform: translateX(-50%) translateY(50%);
+            transform: translateX(-50%);
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border: none;
             border-radius: 25px;
@@ -346,18 +346,18 @@
             font-size: 14px;
             font-weight: bold;
             cursor: pointer;
-            z-index: 100;
+            z-index: 1000;
             box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
             transition: all 0.3s ease;
         }
 
         .audio-control-button:hover {
-            transform: translateX(-50%) translateY(calc(50% - 2px));
+            transform: translateX(-50%) translateY(-2px);
             box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
         }
 
         .audio-control-button:active {
-            transform: translateX(-50%) translateY(50%);
+            transform: translateX(-50%) translateY(0);
         }
 
         /* Audio Control Popup */
@@ -706,17 +706,17 @@
             .audio-control-button {
                 padding: 10px 18px;
                 font-size: 12px;
-                bottom: 0;
+                bottom: 15px;
                 left: 50%;
-                transform: translateX(-50%) translateY(50%);
+                transform: translateX(-50%);
             }
 
             .audio-control-button:hover {
-                transform: translateX(-50%) translateY(calc(50% - 2px));
+                transform: translateX(-50%) translateY(-2px);
             }
 
             .audio-control-button:active {
-                transform: translateX(-50%) translateY(50%);
+                transform: translateX(-50%) translateY(0);
             }
 
             .audio-control-content {
