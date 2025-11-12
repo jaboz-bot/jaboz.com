@@ -45,29 +45,6 @@
             transform-style: preserve-3d;
         }
 
-        /* TV Frame */
-        .tv::before {
-            content: '';
-            position: absolute;
-            top: -15px;
-            left: -15px;
-            right: -15px;
-            bottom: -15px;
-            background: linear-gradient(145deg, #2a2a2a, #0a0a0a);
-            border-radius: 25px;
-            z-index: -1;
-        }
-
-        @media (max-width: 599px) {
-            .tv::before {
-                top: -5px;
-                left: -5px;
-                right: -5px;
-                bottom: -5px;
-                border-radius: 15px;
-            }
-        }
-
         /* TV Screen */
         .tv-screen {
             width: 100%;
