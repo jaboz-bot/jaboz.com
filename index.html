@@ -847,7 +847,7 @@
                                 type="text" 
                                 class="search-input" 
                                 id="searchInput"
-                                placeholder="Nhập tên bài hát để tìm kiếm..."
+                                placeholder="Nhập tên bài hát hoặc YouTube URL..."
                                 onkeypress="handleKeyPress(event)"
                                 oninput="handleSearchInput(event)"
                             >
@@ -982,24 +982,42 @@
             };
             
             // Thử nhiều proxy cùng lúc, lấy kết quả nhanh nhất
+            // Thêm nhiều proxy để tăng khả năng thành công trên mobile
             const proxyPromises = [
+                // Proxy 1: allorigins
                 createFetchWithTimeout(`https://api.allorigins.win/get?url=${encodeURIComponent(`https://www.youtube.com/results?search_query=${searchQuery}`)}`)
                     .then(r => r.json())
                     .then(d => d.contents || '')
                     .catch((e) => {
-                        console.log('Proxy 1 failed:', e);
+                        console.log('Proxy 1 (allorigins) failed:', e);
                         return '';
                     }),
+                // Proxy 2: corsproxy
                 createFetchWithTimeout(`https://corsproxy.io/?${encodeURIComponent(`https://www.youtube.com/results?search_query=${searchQuery}`)}`)
                     .then(r => r.text())
                     .catch((e) => {
-                        console.log('Proxy 2 failed:', e);
+                        console.log('Proxy 2 (corsproxy) failed:', e);
                         return '';
                     }),
+                // Proxy 3: codetabs
                 createFetchWithTimeout(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(`https://www.youtube.com/results?search_query=${searchQuery}`)}`)
                     .then(r => r.text())
                     .catch((e) => {
-                        console.log('Proxy 3 failed:', e);
+                        console.log('Proxy 3 (codetabs) failed:', e);
+                        return '';
+                    }),
+                // Proxy 4: cors-anywhere alternative
+                createFetchWithTimeout(`https://cors-anywhere.herokuapp.com/${encodeURIComponent(`https://www.youtube.com/results?search_query=${searchQuery}`)}`, 10000)
+                    .then(r => r.text())
+                    .catch((e) => {
+                        console.log('Proxy 4 (cors-anywhere) failed:', e);
+                        return '';
+                    }),
+                // Proxy 5: thingproxy
+                createFetchWithTimeout(`https://thingproxy.freeboard.io/fetch/${encodeURIComponent(`https://www.youtube.com/results?search_query=${searchQuery}`)}`)
+                    .then(r => r.text())
+                    .catch((e) => {
+                        console.log('Proxy 5 (thingproxy) failed:', e);
                         return '';
                     })
             ];
@@ -1172,10 +1190,15 @@
                 searchResults.innerHTML = `
                     <div class="no-results">
                         <div style="margin-bottom: 15px;">
-                            Không tìm thấy kết quả cho "${query}". Vui lòng thử lại với từ khóa khác.
+                            Không tìm thấy kết quả cho "${query}".
+                        </div>
+                        <div style="margin-bottom: 15px; font-size: 14px; opacity: 0.8;">
+                            💡 Bạn có thể:<br>
+                            1. Nhập trực tiếp YouTube URL (ví dụ: youtube.com/watch?v=...)<br>
+                            2. Hoặc mở YouTube để tìm kiếm
                         </div>
                         <a href="${searchUrl}" target="_blank" style="color: #667eea; text-decoration: underline; font-weight: bold; display: inline-block; padding: 10px 20px; background: rgba(102, 126, 234, 0.2); border-radius: 25px; margin: 5px;">
-                            🔍 Tìm trên YouTube
+                            🔍 Mở YouTube để tìm kiếm
                         </a>
                     </div>
                 `;
