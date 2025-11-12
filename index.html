@@ -212,6 +212,11 @@
             display: none;
             width: 100%;
             -webkit-overflow-scrolling: touch;
+            position: relative;
+            z-index: 100;
+            background: rgba(30, 60, 114, 0.95);
+            border-radius: 10px;
+            padding: 10px;
         }
 
         .search-results.active {
@@ -693,6 +698,19 @@
 
             .search-results {
                 max-height: 300px;
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                position: relative !important;
+                z-index: 100 !important;
+                margin-top: 15px !important;
+                padding: 10px !important;
+            }
+
+            .search-results.active {
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
             }
 
             .song-thumbnail {
@@ -942,6 +960,11 @@
                     }
                 }
                 
+                console.log('YouTube search completed. Found', results.length, 'results');
+                if (results.length > 0) {
+                    console.log('First result:', results[0]);
+                }
+                
                 return results;
             } catch (error) {
                 console.error('Lỗi tìm kiếm YouTube:', error);
@@ -1002,6 +1025,8 @@
         function displayResults(results) {
             const searchResults = document.getElementById('searchResults');
             
+            console.log('Display results:', results.length, 'items');
+            
             if (results.length > 0) {
                 searchResults.innerHTML = results.map(song => {
                     const thumbnailUrl = `https://img.youtube.com/vi/${song.videoId}/maxresdefault.jpg`;
@@ -1026,13 +1051,22 @@
                 `;
             }
             
+            // Đảm bảo hiển thị trên mobile
+            searchResults.style.display = 'block';
             searchResults.classList.add('active');
+            
+            // Force reflow để đảm bảo hiển thị
+            searchResults.offsetHeight;
+            
+            console.log('Search results displayed, active class:', searchResults.classList.contains('active'));
         }
 
         async function searchSong() {
             const searchInput = document.getElementById('searchInput');
             const searchResults = document.getElementById('searchResults');
             const query = searchInput.value.trim();
+
+            console.log('Search song called with query:', query);
 
             if (query === '' || query.length < 2) {
                 searchResults.classList.remove('active');
@@ -1042,12 +1076,15 @@
             // Kiểm tra cache
             const cacheKey = query.toLowerCase();
             if (searchCache[cacheKey]) {
+                console.log('Using cached results');
                 displayResults(searchCache[cacheKey]);
                 return;
             }
 
             try {
+                console.log('Searching YouTube for:', query);
                 const results = await searchYouTube(query);
+                console.log('Search completed, found:', results.length, 'results');
                 
                 // Lưu vào cache
                 if (results.length > 0) {
@@ -1067,6 +1104,7 @@
                         Lỗi kết nối. Vui lòng kiểm tra kết nối mạng và thử lại.
                     </div>
                 `;
+                searchResults.style.display = 'block';
                 searchResults.classList.add('active');
             }
         }
