@@ -121,16 +121,230 @@
         /* Content Area */
         .tv-content {
             z-index: 1;
+            text-align: center;
+            color: white;
             width: 100%;
+            display: flex;
+            flex-direction: column;
             height: 100%;
-            overflow: hidden;
+            overflow-y: auto;
+            align-items: center;
+            justify-content: center;
         }
 
-        .tv-content iframe {
+        .tv-title {
+            max-width: 250px;
+            width: 100%;
+            height: auto;
+            margin-bottom: 20px;
+            padding: 0;
+            background: none !important;
+            background-color: transparent !important;
+            border: none !important;
+            outline: none !important;
+            box-shadow: none !important;
+            display: block;
+            object-fit: contain;
+            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.5));
+            animation: logoGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes logoGlow {
+            from {
+                filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.5));
+            }
+            to {
+                filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 40px rgba(100, 150, 255, 0.6));
+            }
+        }
+
+        .tv-subtitle {
+            font-size: 24px;
+            opacity: 0.9;
+            margin-bottom: 40px;
+        }
+
+        /* Search Section */
+        .search-section {
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+            margin: 0 auto;
+            z-index: 10;
+        }
+
+        .search-container {
+            display: flex;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .search-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            padding: 12px 20px;
+            color: white;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .search-input:focus {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+
+        .search-results {
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            display: none;
+            width: 100%;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .search-results.active {
+            display: block;
+        }
+
+        .song-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .song-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-left-color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .song-thumbnail {
+            width: 120px;
+            height: 90px;
+            border-radius: 8px;
+            object-fit: cover;
+            flex-shrink: 0;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .song-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .song-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .song-artist {
+            font-size: 14px;
+            opacity: 0.8;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 20px;
+            opacity: 0.7;
+            font-style: italic;
+        }
+
+        /* Video Player */
+        .video-player-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            display: none;
+            background: #000;
+            border-radius: 10px;
+        }
+
+        .video-player-container.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .video-player-wrapper {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .video-player-wrapper iframe {
             width: 100%;
             height: 100%;
             border: none;
             border-radius: 10px;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            z-index: 11;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .back-button:hover {
+            background: rgba(0, 0, 0, 0.9);
+            transform: translateY(-2px);
         }
 
 
@@ -456,7 +670,42 @@
             }
 
             .tv-content {
-                overflow: hidden;
+                padding: 5px 0;
+                justify-content: flex-start;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .tv-title {
+                max-width: 100px;
+                margin-bottom: 10px;
+            }
+
+            .tv-subtitle {
+                font-size: 16px;
+                margin-bottom: 20px;
+            }
+
+            .search-section {
+                max-width: 100%;
+                padding: 10px;
+            }
+
+            .search-results {
+                max-height: 300px;
+            }
+
+            .song-thumbnail {
+                width: 80px;
+                height: 60px;
+            }
+
+            .song-title {
+                font-size: 14px;
+            }
+
+            .song-artist {
+                font-size: 12px;
             }
 
             .audio-control-button {
@@ -493,13 +742,29 @@
             
             <div class="tv-screen">
                 <div class="tv-content" id="tvContent">
-                    <iframe 
-                        id="youtubeFullPage" 
-                        src="https://www.youtube.com" 
-                        frameborder="0" 
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                        allowfullscreen
-                    ></iframe>
+                    <img src="images/logo.png" class="tv-title">
+                    <p class="tv-subtitle">Chào mừng bạn đến với hệ thống Karaoke Online</p>
+                    
+                    <div class="search-section">
+                        <div class="search-container">
+                            <input 
+                                type="text" 
+                                class="search-input" 
+                                id="searchInput"
+                                placeholder="Nhập tên bài hát để tìm kiếm..."
+                                onkeypress="handleKeyPress(event)"
+                                oninput="handleSearchInput(event)"
+                            >
+                        </div>
+                        <div class="search-results" id="searchResults"></div>
+                    </div>
+                </div>
+                
+                <div class="video-player-container" id="videoPlayerContainer">
+                    <button class="back-button" onclick="closeVideo()">← Quay lại</button>
+                    <div class="video-player-wrapper">
+                        <iframe id="youtubePlayer" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
                 </div>
             </div>
         </div>
@@ -562,6 +827,278 @@
     </div>
 
     <script>
+        // Hàm tìm kiếm trên YouTube (không dùng API - web scraping)
+        async function searchYouTube(query) {
+            if (!query || query.length < 2) {
+                return [];
+            }
+            
+            const searchQuery = encodeURIComponent(query);
+            
+            // Tạo AbortController với timeout (dài hơn cho mobile)
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            const timeout = isMobile ? 8000 : 5000;
+            
+            const createFetchWithTimeout = (url, timeoutMs = timeout) => {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+                return fetch(url, { signal: controller.signal })
+                    .then(response => {
+                        clearTimeout(timeoutId);
+                        if (!response.ok) throw new Error('Network response was not ok');
+                        return response;
+                    })
+                    .catch(err => {
+                        clearTimeout(timeoutId);
+                        throw err;
+                    });
+            };
+            
+            // Thử nhiều proxy cùng lúc
+            const proxyPromises = [
+                createFetchWithTimeout(`https://api.allorigins.win/get?url=${encodeURIComponent(`https://www.youtube.com/results?search_query=${searchQuery}`)}`)
+                    .then(r => r.json())
+                    .then(d => d.contents || '')
+                    .catch(() => ''),
+                createFetchWithTimeout(`https://corsproxy.io/?${encodeURIComponent(`https://www.youtube.com/results?search_query=${searchQuery}`)}`)
+                    .then(r => r.text())
+                    .catch(() => ''),
+                createFetchWithTimeout(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(`https://www.youtube.com/results?search_query=${searchQuery}`)}`)
+                    .then(r => r.text())
+                    .catch(() => '')
+            ];
+            
+            try {
+                let html = '';
+                try {
+                    html = await Promise.race(proxyPromises);
+                } catch (raceError) {
+                    const settled = await Promise.allSettled(proxyPromises);
+                    for (const result of settled) {
+                        if (result.status === 'fulfilled' && result.value) {
+                            html = result.value;
+                            break;
+                        }
+                    }
+                }
+                
+                if (!html || html.trim() === '') {
+                    return [];
+                }
+                
+                const results = [];
+                const seenIds = new Set();
+                
+                // Parse với regex - tìm pattern videoRenderer
+                const videoPattern = /"videoRenderer":\{[^}]*"videoId":"([^"]{11})"[^}]*"title":\{"runs":\[\{"text":"([^"]+)"\}[^}]*"ownerText":\{"runs":\[\{"text":"([^"]+)"\}/g;
+                
+                let match;
+                let count = 0;
+                while ((match = videoPattern.exec(html)) !== null && count < 10) {
+                    const videoId = match[1];
+                    if (!seenIds.has(videoId)) {
+                        seenIds.add(videoId);
+                        const title = match[2].replace(/\\u([0-9a-fA-F]{4})/g, (m, code) => String.fromCharCode(parseInt(code, 16)));
+                        const artist = match[3] ? match[3].replace(/\\u([0-9a-fA-F]{4})/g, (m, code) => String.fromCharCode(parseInt(code, 16))) : "YouTube";
+                        results.push({ title, artist, videoId });
+                        count++;
+                    }
+                }
+                
+                // Fallback: pattern đơn giản hơn
+                if (results.length === 0) {
+                    const videoIdRegex = /"videoId":"([^"]{11})"/g;
+                    const titleRegex = /"title":\{"runs":\[\{"text":"([^"]+)"\}/g;
+                    const ownerRegex = /"ownerText":\{"runs":\[\{"text":"([^"]+)"\}/g;
+                    
+                    const videoIds = [];
+                    const titles = [];
+                    const owners = [];
+                    
+                    let vidMatch;
+                    while ((vidMatch = videoIdRegex.exec(html)) !== null && videoIds.length < 15) {
+                        if (!seenIds.has(vidMatch[1])) {
+                            seenIds.add(vidMatch[1]);
+                            videoIds.push(vidMatch[1]);
+                        }
+                    }
+                    
+                    let titleMatch;
+                    while ((titleMatch = titleRegex.exec(html)) !== null && titles.length < videoIds.length) {
+                        titles.push(titleMatch[1].replace(/\\u([0-9a-fA-F]{4})/g, (m, code) => String.fromCharCode(parseInt(code, 16))));
+                    }
+                    
+                    let ownerMatch;
+                    while ((ownerMatch = ownerRegex.exec(html)) !== null && owners.length < videoIds.length) {
+                        owners.push(ownerMatch[1].replace(/\\u([0-9a-fA-F]{4})/g, (m, code) => String.fromCharCode(parseInt(code, 16))));
+                    }
+                    
+                    for (let i = 0; i < videoIds.length && i < 10; i++) {
+                        results.push({
+                            title: titles[i] || `Bài hát ${i + 1}`,
+                            artist: owners[i] || "YouTube",
+                            videoId: videoIds[i]
+                        });
+                    }
+                }
+                
+                return results;
+            } catch (error) {
+                console.error('Lỗi tìm kiếm YouTube:', error);
+                return [];
+            }
+        }
+
+        // Debounce timer cho tìm kiếm tự động
+        let searchTimeout = null;
+        let lastSearchQuery = '';
+        let searchCache = {};
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                if (searchTimeout) {
+                    clearTimeout(searchTimeout);
+                }
+                searchSong();
+            }
+        }
+
+        function handleSearchInput(event) {
+            const query = event.target.value.trim();
+            const searchResults = document.getElementById('searchResults');
+            
+            // Xóa timeout trước đó
+            if (searchTimeout) {
+                clearTimeout(searchTimeout);
+            }
+            
+            // Nếu ô input trống, ẩn kết quả
+            if (query === '') {
+                searchResults.classList.remove('active');
+                lastSearchQuery = '';
+                return;
+            }
+            
+            // Kiểm tra cache trước
+            const cacheKey = query.toLowerCase();
+            if (searchCache[cacheKey]) {
+                displayResults(searchCache[cacheKey]);
+                return;
+            }
+            
+            // Hiển thị loading
+            searchResults.innerHTML = '<div class="no-results"><span class="loading-spinner"></span>Đang tìm kiếm...</div>';
+            searchResults.classList.add('active');
+            
+            // Tìm kiếm với debounce
+            searchTimeout = setTimeout(() => {
+                if (query !== lastSearchQuery && query.length >= 2) {
+                    lastSearchQuery = query;
+                    searchSong();
+                }
+            }, 500);
+        }
+
+        function displayResults(results) {
+            const searchResults = document.getElementById('searchResults');
+            
+            if (results.length > 0) {
+                searchResults.innerHTML = results.map(song => {
+                    const thumbnailUrl = `https://img.youtube.com/vi/${song.videoId}/maxresdefault.jpg`;
+                    const safeTitle = song.title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                    const safeArtist = song.artist.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                    return `
+                        <div class="song-item" onclick="playVideo('${song.videoId}', '${safeTitle}', '${safeArtist}')">
+                            <img src="${thumbnailUrl}" alt="${song.title}" class="song-thumbnail" loading="lazy" onerror="this.style.display='none'">
+                            <div class="song-info">
+                                <div class="song-title">${song.title}</div>
+                                <div class="song-artist">${song.artist}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                const query = document.getElementById('searchInput').value.trim();
+                searchResults.innerHTML = `
+                    <div class="no-results">
+                        Không tìm thấy kết quả cho "${query}".
+                    </div>
+                `;
+            }
+            
+            searchResults.classList.add('active');
+        }
+
+        async function searchSong() {
+            const searchInput = document.getElementById('searchInput');
+            const searchResults = document.getElementById('searchResults');
+            const query = searchInput.value.trim();
+
+            if (query === '' || query.length < 2) {
+                searchResults.classList.remove('active');
+                return;
+            }
+
+            // Kiểm tra cache
+            const cacheKey = query.toLowerCase();
+            if (searchCache[cacheKey]) {
+                displayResults(searchCache[cacheKey]);
+                return;
+            }
+
+            try {
+                const results = await searchYouTube(query);
+                
+                // Lưu vào cache
+                if (results.length > 0) {
+                    searchCache[cacheKey] = results;
+                    // Giới hạn cache tối đa 50 items
+                    const cacheKeys = Object.keys(searchCache);
+                    if (cacheKeys.length > 50) {
+                        delete searchCache[cacheKeys[0]];
+                    }
+                }
+
+                displayResults(results);
+            } catch (error) {
+                console.error('Lỗi trong searchSong:', error);
+                searchResults.innerHTML = `
+                    <div class="no-results">
+                        Lỗi kết nối. Vui lòng kiểm tra kết nối mạng và thử lại.
+                    </div>
+                `;
+                searchResults.classList.add('active');
+            }
+        }
+
+        function playVideo(videoId, title, artist) {
+            const videoPlayerContainer = document.getElementById('videoPlayerContainer');
+            const youtubePlayer = document.getElementById('youtubePlayer');
+            const tvContent = document.getElementById('tvContent');
+
+            // Ẩn nội dung chính
+            tvContent.style.display = 'none';
+            
+            // Hiển thị video player với enablejsapi để điều khiển volume
+            youtubePlayer.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&enablejsapi=1`;
+            videoPlayerContainer.classList.add('active');
+        }
+
+        function closeVideo() {
+            const videoPlayerContainer = document.getElementById('videoPlayerContainer');
+            const youtubePlayer = document.getElementById('youtubePlayer');
+            const tvContent = document.getElementById('tvContent');
+
+            // Dừng video
+            youtubePlayer.src = '';
+            
+            // Ẩn video player
+            videoPlayerContainer.classList.remove('active');
+            
+            // Hiển thị lại nội dung chính
+            tvContent.style.display = 'block';
+        }
+
         // Audio Control Functions
         let audioContext = null;
         let micStream = null;
@@ -591,9 +1128,20 @@
             }
             
             if (type === 'music') {
-                // Lưu ý: Không thể điều khiển volume của YouTube iframe trực tiếp
-                // Người dùng cần điều chỉnh volume trên YouTube hoặc hệ thống
-                console.log('Volume nhạc:', value + '% - Vui lòng điều chỉnh volume trên YouTube hoặc hệ thống');
+                // Điều chỉnh volume của YouTube video
+                const youtubePlayer = document.getElementById('youtubePlayer');
+                if (youtubePlayer && youtubePlayer.contentWindow) {
+                    try {
+                        // Gửi lệnh điều chỉnh volume qua postMessage
+                        youtubePlayer.contentWindow.postMessage(JSON.stringify({
+                            event: 'command',
+                            func: 'setVolume',
+                            args: [Math.round(value)]
+                        }), '*');
+                    } catch (e) {
+                        console.error('Lỗi điều chỉnh volume YouTube:', e);
+                    }
+                }
             } else if (type === 'mic') {
                 // Điều chỉnh volume của mic (setValueAtTime để giảm latency)
                 if (micGainNode && audioContext) {
