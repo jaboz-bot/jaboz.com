@@ -18,11 +18,31 @@
       justify-content: center;
       padding: 32px 16px;
     }
-    .app {
+    .app { width: 100%; max-width: 420px; display: grid; gap: 16px; }
+    .player {
+      position: relative;
       width: 100%;
-      max-width: 420px;
+      padding-top: 56.25%;
+      border-radius: 16px;
+      overflow: hidden;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      box-shadow: 0 16px 32px rgba(15, 23, 42, 0.4);
+    }
+    .player iframe,
+    .player .placeholder {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      color: inherit;
       display: grid;
-      gap: 16px;
+      place-items: center;
+      font-size: 0.95rem;
+      text-align: center;
+      padding: 24px;
+      opacity: 0.75;
     }
     .search-box {
       display: block;
@@ -41,9 +61,7 @@
       font-size: 1.05rem;
       outline: none;
     }
-    .search-box input::placeholder {
-      color: rgba(226, 232, 240, 0.5);
-    }
+    .search-box input::placeholder { color: rgba(226, 232, 240, 0.5); }
     .results {
       list-style: none;
       margin: 0;
@@ -51,34 +69,31 @@
       display: grid;
       gap: 8px;
     }
-    .results li {
+    .results button,
+    .results li.empty {
+      width: 100%;
       background: rgba(15, 23, 42, 0.7);
       border-radius: 14px;
       border: 1px solid rgba(148, 163, 184, 0.25);
-      transition: transform 0.18s ease, border-color 0.18s ease;
-    }
-    .results li a,
-    .results li.empty {
-      display: block;
       padding: 14px 18px;
-      text-decoration: none;
       color: inherit;
       font-weight: 500;
+      text-align: left;
+      cursor: pointer;
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+      outline: none;
     }
-    .results li a:hover,
-    .results li a:focus-visible {
-      border-radius: 14px;
-      background: rgba(56, 189, 248, 0.12);
-    }
-    .results li:hover,
-    .results li:focus-within {
+    .results button:hover,
+    .results button:focus-visible {
       transform: translateY(-1px);
       border-color: rgba(56, 189, 248, 0.6);
+      background: rgba(56, 189, 248, 0.12);
     }
     .results li.empty {
       text-align: center;
       opacity: 0.6;
       font-weight: 400;
+      cursor: default;
     }
     @media (min-width: 640px) {
       body { padding: 48px 16px; }
@@ -87,6 +102,9 @@
 </head>
 <body>
   <main class="app">
+    <section class="player" id="player">
+      <div class="placeholder">Chọn bài hát để xem karaoke ngay tại đây.</div>
+    </section>
     <label class="search-box">
       <input
         type="search"
@@ -101,36 +119,95 @@
 
   <script>
     const songs = [
-      { title: "Karaoke Em Gái Mưa - Hương Tràm", url: "https://www.youtube.com/results?search_query=karaoke+em+g%C3%A1i+m%C6%B0a+h%C6%B0%C6%A1ng+tr%C3%A0m" },
-      { title: "Karaoke Người Lạ Ơi - Karik ft. Orange", url: "https://www.youtube.com/results?search_query=karaoke+ng%C6%B0%E1%BB%9Di+l%E1%BA%A1+%C6%A1i" },
-      { title: "Karaoke Sầu Hồng Gai - G5R Squad", url: "https://www.youtube.com/results?search_query=karaoke+s%E1%BA%A7u+h%E1%BB%93ng+gai" },
-      { title: "Karaoke Đừng Lo Anh Đợi Mà - Mr. Siro", url: "https://www.youtube.com/results?search_query=karaoke+%C4%91%E1%BB%ABng+lo+anh+%C4%91%E1%BB%A3i+m%C3%A0" },
-      { title: "Karaoke Waiting For You - Mono", url: "https://www.youtube.com/results?search_query=karaoke+waiting+for+you+mono" },
-      { title: "Karaoke Muộn Rồi Mà Sao Còn - Sơn Tùng M-TP", url: "https://www.youtube.com/results?search_query=karaoke+mu%E1%BB%99n+r%E1%BB%93i+m%C3%A0+sao+c%C3%B2n" },
-      { title: "Karaoke Có Chàng Trai Viết Lên Cây - Phan Mạnh Quỳnh", url: "https://www.youtube.com/results?search_query=karaoke+c%C3%B3+ch%C3%A0ng+trai+vi%E1%BA%BFt+l%C3%AAn+c%C3%A2y" },
-      { title: "Karaoke Lạc Trôi - Sơn Tùng M-TP", url: "https://www.youtube.com/results?search_query=karaoke+l%E1%BA%A1c+tr%C3%B4i" },
-      { title: "Karaoke Vùng Ký Ức - Chi Dân", url: "https://www.youtube.com/results?search_query=karaoke+v%C3%B9ng+k%C3%BD+%E1%BB%A9c" },
-      { title: "Karaoke Họ Yêu Ai Mất Rồi - Doãn Hiếu", url: "https://www.youtube.com/results?search_query=karaoke+h%E1%BB%8D+y%C3%AAu+ai+m%E1%BA%A5t+r%E1%BB%93i" },
-      { title: "Karaoke Thương Em Là Điều Anh Không Thể Ngờ - Noo Phước Thịnh", url: "https://www.youtube.com/results?search_query=karaoke+th%C6%B0%C6%A1ng+em+l%C3%A0+%C4%91i%E1%BB%81u+anh+kh%C3%B4ng+th%E1%BB%83+ng%E1%BB%9D" },
-      { title: "Karaoke Bên Trên Tầng Lầu - Tăng Duy Tân", url: "https://www.youtube.com/results?search_query=karaoke+b%C3%AAn+tr%C3%AAn+t%E1%BA%A7ng+l%E1%BA%A7u" },
-      { title: "Karaoke Hoa Nở Không Màu - Hoài Lâm", url: "https://www.youtube.com/results?search_query=karaoke+hoa+n%E1%BB%9F+kh%C3%B4ng+m%C3%A0u" },
-      { title: "Karaoke Cưới Thôi - Masew, BRay", url: "https://www.youtube.com/results?search_query=karaoke+c%C6%B0%E1%BB%9Bi+th%C3%B4i" },
-      { title: "Karaoke Yêu Là Cưới - Phát Hồ", url: "https://www.youtube.com/results?search_query=karaoke+y%C3%AAu+l%C3%A0+c%C6%B0%E1%BB%9Bi" }
+      { title: "Karaoke Em Gái Mưa - Hương Tràm", query: "karaoke em gái mưa hương tràm" },
+      { title: "Karaoke Người Lạ Ơi - Karik ft. Orange", query: "karaoke người lạ ơi karik orange" },
+      { title: "Karaoke Sầu Hồng Gai - G5R Squad", query: "karaoke sầu hồng gai g5r squad" },
+      { title: "Karaoke Đừng Lo Anh Đợi Mà - Mr. Siro", query: "karaoke đừng lo anh đợi mà mr siro" },
+      { title: "Karaoke Waiting For You - Mono", query: "karaoke waiting for you mono" },
+      { title: "Karaoke Muộn Rồi Mà Sao Còn - Sơn Tùng M-TP", query: "karaoke muộn rồi mà sao còn sơn tùng" },
+      { title: "Karaoke Có Chàng Trai Viết Lên Cây - Phan Mạnh Quỳnh", query: "karaoke có chàng trai viết lên cây phan mạnh quỳnh" },
+      { title: "Karaoke Lạc Trôi - Sơn Tùng M-TP", query: "karaoke lạc trôi sơn tùng" },
+      { title: "Karaoke Vùng Ký Ức - Chi Dân", query: "karaoke vùng ký ức chi dân" },
+      { title: "Karaoke Họ Yêu Ai Mất Rồi - Doãn Hiếu", query: "karaoke họ yêu ai mất rồi doãn hiếu" },
+      { title: "Karaoke Thương Em Là Điều Anh Không Thể Ngờ - Noo Phước Thịnh", query: "karaoke thương em là điều anh không thể ngờ noo phước thịnh" },
+      { title: "Karaoke Bên Trên Tầng Lầu - Tăng Duy Tân", query: "karaoke bên trên tầng lầu tăng duy tân" },
+      { title: "Karaoke Hoa Nở Không Màu - Hoài Lâm", query: "karaoke hoa nở không màu hoài lâm" },
+      { title: "Karaoke Cưới Thôi - Masew, BRay", query: "karaoke cưới thôi masew bray" },
+      { title: "Karaoke Yêu Là Cưới - Phát Hồ", query: "karaoke yêu là cưới phát hồ" }
     ];
 
     const searchInput = document.getElementById("search");
     const resultsList = document.getElementById("results");
+    const player = document.getElementById("player");
     const MIN_CHARS = 2;
+    const YT_FEED = "https://www.youtube.com/feeds/videos.xml?search_query=";
+
+    function ensureIframe() {
+      let iframe = player.querySelector("iframe");
+      if (!iframe) {
+        player.innerHTML = "";
+        iframe = document.createElement("iframe");
+        iframe.allow =
+          "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+        iframe.allowFullscreen = true;
+        player.appendChild(iframe);
+      }
+      return iframe;
+    }
+
+    function showMessage(message, query, allowOpen = true) {
+      player.innerHTML = "";
+      const container = document.createElement("div");
+      container.className = "placeholder";
+      container.textContent = message;
+      if (query && allowOpen) {
+        const open = document.createElement("button");
+        open.type = "button";
+        open.textContent = "Mở trên YouTube";
+        open.style.marginTop = "12px";
+        open.style.padding = "12px 18px";
+        open.style.borderRadius = "12px";
+        open.style.border = "1px solid rgba(148, 163, 184, 0.35)";
+        open.style.background = "rgba(56, 189, 248, 0.12)";
+        open.style.color = "inherit";
+        open.style.cursor = "pointer";
+        open.addEventListener("click", () => {
+          const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
+          window.open(searchUrl, "_blank");
+        });
+        container.appendChild(open);
+      }
+      player.appendChild(container);
+    }
 
     function createItem(song) {
       const li = document.createElement("li");
-      const link = document.createElement("a");
-      link.href = song.url;
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-      link.textContent = song.title;
-      li.appendChild(link);
+      const button = document.createElement("button");
+      button.type = "button";
+      button.textContent = song.title;
+      button.dataset.query = song.query;
+      button.addEventListener("click", () => playSong(song.query));
+      li.appendChild(button);
       return li;
+    }
+
+    async function playSong(query) {
+      showMessage("Đang tìm video karaoke phù hợp...", query, false);
+      const fallback = `https://www.youtube-nocookie.com/embed?listType=search&list=${encodeURIComponent(query)}&autoplay=1&rel=0&modestbranding=1&playsinline=1`;
+      try {
+        const videoId = await fetchFirstVideoId(query);
+        if (!videoId) {
+          const iframe = ensureIframe();
+          iframe.src = fallback;
+          return;
+        }
+        const iframe = ensureIframe();
+        iframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&playsinline=1`;
+      } catch (error) {
+        const iframe = ensureIframe();
+        iframe.src = fallback;
+        console.error(error);
+      }
     }
 
     function showEmpty() {
@@ -138,6 +215,23 @@
       li.className = "empty";
       li.textContent = "Không có kết quả.";
       return li;
+    }
+
+    async function fetchFirstVideoId(rawQuery) {
+      const keyword = rawQuery.toLowerCase().includes("karaoke")
+        ? rawQuery
+        : `${rawQuery} karaoke`;
+      const response = await fetch(`${YT_FEED}${encodeURIComponent(keyword)}`);
+      if (!response.ok) return null;
+      const xmlText = await response.text();
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(xmlText, "application/xml");
+      const entry = doc.getElementsByTagName("entry")[0];
+      if (!entry) return null;
+      const videoTag =
+        entry.getElementsByTagName("yt:videoId")[0] ||
+        entry.getElementsByTagName("videoId")[0];
+      return videoTag ? videoTag.textContent : null;
     }
 
     searchInput.addEventListener("input", () => {
