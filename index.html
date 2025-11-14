@@ -1047,9 +1047,16 @@
                 return results;
             }
             
-            console.error('All search methods failed');
-            console.log('Query was:', query, 'Enhanced query:', enhancedQuery);
-            return [];
+            // Fallback: Trả về kết quả đặc biệt để dùng YouTube Search Embed
+            console.log('Scraping failed, will use YouTube Search Embed fallback');
+            // Trả về một object đặc biệt để báo hiệu cần dùng embed
+            return [{ 
+                videoId: null, 
+                title: query, 
+                artist: 'YouTube Search',
+                useEmbed: true,
+                embedQuery: enhancedQuery
+            }];
         }
 
         // Debounce timer cho tìm kiếm tự động
@@ -1108,25 +1115,55 @@
             console.log('Display results:', results.length, 'items');
             
             if (results.length > 0) {
-                searchResults.innerHTML = results.map(song => {
-                    const thumbnailUrl = `https://img.youtube.com/vi/${song.videoId}/maxresdefault.jpg`;
-                    const safeTitle = song.title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                    const safeArtist = song.artist.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                    return `
-                        <div class="song-item" onclick="playVideo('${song.videoId}', '${safeTitle}', '${safeArtist}')">
-                            <img src="${thumbnailUrl}" alt="${song.title}" class="song-thumbnail" loading="lazy" onerror="this.style.display='none'">
-                            <div class="song-info">
-                                <div class="song-title">${song.title}</div>
-                                <div class="song-artist">${song.artist}</div>
+                // Kiểm tra nếu có kết quả dùng embed fallback
+                const embedResult = results.find(r => r.useEmbed);
+                if (embedResult) {
+                    // Hiển thị option để mở YouTube Search Embed
+                    const query = embedResult.embedQuery || embedResult.title;
+                    searchResults.innerHTML = `
+                        <div class="song-item" onclick="playVideoEmbed('${encodeURIComponent(query)}')" style="background: rgba(255, 193, 7, 0.2); border-left-color: #ffc107;">
+                            <div class="song-info" style="width: 100%;">
+                                <div class="song-title">📺 Mở danh sách tìm kiếm YouTube</div>
+                                <div class="song-artist">Tìm kiếm: "${embedResult.title}"</div>
+                                <div style="font-size: 12px; opacity: 0.7; margin-top: 5px;">
+                                    (Nhấn để xem danh sách karaoke từ YouTube)
+                                </div>
                             </div>
                         </div>
                     `;
-                }).join('');
+                } else {
+                    // Hiển thị kết quả bình thường
+                    searchResults.innerHTML = results.map(song => {
+                        const thumbnailUrl = `https://img.youtube.com/vi/${song.videoId}/maxresdefault.jpg`;
+                        const safeTitle = song.title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                        const safeArtist = song.artist.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                        return `
+                            <div class="song-item" onclick="playVideo('${song.videoId}', '${safeTitle}', '${safeArtist}')">
+                                <img src="${thumbnailUrl}" alt="${song.title}" class="song-thumbnail" loading="lazy" onerror="this.style.display='none'">
+                                <div class="song-info">
+                                    <div class="song-title">${song.title}</div>
+                                    <div class="song-artist">${song.artist}</div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                }
             } else {
                 const query = document.getElementById('searchInput').value.trim();
                 searchResults.innerHTML = `
                     <div class="no-results">
                         Không tìm thấy kết quả cho "${query}".
+                        <br><br>
+                        <button onclick="playVideoEmbed('${encodeURIComponent(query + ' karaoke')}')" style="
+                            background: rgba(255, 193, 7, 0.3);
+                            border: 1px solid #ffc107;
+                            color: white;
+                            padding: 10px 20px;
+                            border-radius: 20px;
+                            cursor: pointer;
+                            margin-top: 10px;
+                            font-weight: bold;
+                        ">📺 Thử tìm trên YouTube</button>
                     </div>
                 `;
             }
@@ -1197,10 +1234,24 @@
                 displayResults(results);
       } catch (error) {
                 console.error('Lỗi trong searchSong:', error);
+                const query = document.getElementById('searchInput').value.trim();
                 searchResults.innerHTML = `
                     <div class="no-results">
                         <p>Lỗi kết nối: ${error.message || 'Không thể kết nối đến YouTube'}</p>
                         <p style="margin-top: 10px; font-size: 12px; opacity: 0.8;">Vui lòng kiểm tra kết nối mạng và thử lại.</p>
+                        <br>
+                        <button onclick="playVideoEmbed('${encodeURIComponent(query + ' karaoke')}')" style="
+                            background: rgba(255, 193, 7, 0.3);
+                            border: 1px solid #ffc107;
+                            color: white;
+                            padding: 10px 20px;
+                            border-radius: 20px;
+                            cursor: pointer;
+                            margin-top: 10px;
+                            font-weight: bold;
+                            -webkit-tap-highlight-color: rgba(255, 193, 7, 0.3);
+                            touch-action: manipulation;
+                        ">📺 Thử tìm trên YouTube</button>
                     </div>
                 `;
                 searchResults.style.display = 'block';
@@ -1219,8 +1270,26 @@
             tvContent.style.display = 'none';
             
             // Hiển thị video player với enablejsapi để điều khiển volume
-            youtubePlayer.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&enablejsapi=1`;
+            youtubePlayer.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&enablejsapi=1&playsinline=1`;
             videoPlayerContainer.classList.add('active');
+        }
+
+        // Hàm phát video bằng YouTube Search Embed (fallback - luôn hoạt động)
+        function playVideoEmbed(query) {
+            const videoPlayerContainer = document.getElementById('videoPlayerContainer');
+            const youtubePlayer = document.getElementById('youtubePlayer');
+            const tvContent = document.getElementById('tvContent');
+
+            // Ẩn nội dung chính
+            tvContent.style.display = 'none';
+            
+            // Sử dụng YouTube Search Embed - luôn hoạt động, không cần videoId
+            // listType=search sẽ hiển thị danh sách phát tìm kiếm
+            const embedUrl = `https://www.youtube.com/embed?listType=search&list=${query}&autoplay=1&rel=0&modestbranding=1&enablejsapi=1&playsinline=1`;
+            youtubePlayer.src = embedUrl;
+            videoPlayerContainer.classList.add('active');
+            
+            console.log('Playing YouTube Search Embed for query:', query);
         }
 
         function closeVideo() {
