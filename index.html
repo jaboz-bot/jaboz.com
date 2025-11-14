@@ -825,39 +825,53 @@
             
             // Thêm từ khóa "karaoke" để tìm kiếm chính xác hơn
             const searchQuery = encodeURIComponent(query + ' karaoke');
+            const youtubeUrl = `https://www.youtube.com/results?search_query=${searchQuery}`;
             
-            // Tạo AbortController với timeout (dài hơn cho mobile)
+            // -------------------------------------------------------------------
+            // PHẦN SỬA LỖI QUAN TRỌNG: Dùng lại Promise.race với 3 proxy
+            // -------------------------------------------------------------------
+            
+            const proxies = [
+                `https://api.allorigins.win/raw?url=${encodeURIComponent(youtubeUrl)}`,
+                `https://corsproxy.io/?${encodeURIComponent(youtubeUrl)}`,
+                // Dùng một proxy phổ biến khác hoặc dùng lại cái cũ
+                `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(youtubeUrl)}`
+            ];
+
             const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            // Tăng timeout cho môi trường di động/kết nối chậm
-            const timeout = isMobile ? 12000 : 7000; 
-            
+            const timeout = isMobile ? 12000 : 7000; // Tăng timeout cho mobile
+
             const createFetchWithTimeout = (url, timeoutMs = timeout) => {
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+                const timeoutId = setTimeout(() => {
+                    console.warn(`Fetch to ${url} timed out.`);
+                    controller.abort();
+                }, timeoutMs);
+                
                 return fetch(url, { signal: controller.signal })
                     .then(response => {
                         clearTimeout(timeoutId);
-                        if (!response.ok) throw new Error('Network response was not ok');
-                        return response;
+                        if (!response.ok) {
+                            // Báo lỗi cho Promise.race biết
+                            throw new Error(`Proxy response not ok: ${response.status} from ${url}`);
+                        }
+                        return response.text();
                     })
                     .catch(err => {
                         clearTimeout(timeoutId);
-                        throw err;
+                        // Bắt AbortError và các lỗi khác để Promise.race tiếp tục
+                        throw new Error(`Fetch failed for ${url}: ${err.message}`);
                     });
             };
-            
-            // **CHỈ DÙNG 1 PROXY ỔN ĐỊNH NHẤT** để giảm sự phụ thuộc và tránh bị chặn đồng loạt
-            const youtubeUrl = `https://www.youtube.com/results?search_query=${searchQuery}`;
-            const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(youtubeUrl)}`;
 
             let html = '';
             try {
-                console.log('Fetching YouTube results via proxy:', proxyUrl);
-                const response = await createFetchWithTimeout(proxyUrl, timeout);
-                html = await response.text();
+                // Chạy Promise.race để proxy nào trả về nhanh nhất và thành công sẽ được chọn
+                const fetchPromises = proxies.map(url => createFetchWithTimeout(url));
+                html = await Promise.race(fetchPromises);
+                console.log('Fetch successful using one of the proxies.');
             } catch (error) {
-                console.error('Lỗi khi fetch qua proxy:', error);
-                // Thử lại với proxy khác nếu cần, nhưng tạm thời giữ đơn giản
+                console.error('Tất cả Proxies đều thất bại:', error);
                 return []; 
             }
             
@@ -869,8 +883,11 @@
             const results = [];
             const seenIds = new Set();
             
-            // Regex mới, thử tìm cấu trúc JSON data trong response
-            // Tìm phần 'ytInitialData' - nơi chứa thông tin video
+            // -------------------------------------------------------------------
+            // LOGIC TRÍCH XUẤT NÂNG CAO: Tăng cường tìm kiếm JSON (Ưu tiên)
+            // -------------------------------------------------------------------
+
+            // Bước 1: Tìm kiếm JSON Data (ổn định hơn HTML regex)
             const initialDataMatch = html.match(/ytInitialData"\] = (.+?);<\/script>/);
             let initialDataJson = null;
 
@@ -878,49 +895,56 @@
                 try {
                     // Cố gắng parse JSON
                     initialDataJson = JSON.parse(initialDataMatch[1]);
+                    console.log('Parsed ytInitialData JSON successfully.');
                 } catch (e) {
                     console.warn('Lỗi parse ytInitialData JSON:', e);
                 }
             }
 
             if (initialDataJson) {
-                // Logic trích xuất từ JSON (ổn định hơn regex HTML)
-                const contents = initialDataJson.contents?.twoColumnSearchResultsRenderer?.primaryContents?.sectionListRenderer?.contents;
+                // Duyệt qua cấu trúc JSON phức tạp và linh hoạt hơn
+                const items = initialDataJson.contents?.twoColumnSearchResultsRenderer?.primaryContents?.sectionListRenderer?.contents
+                    .flatMap(section => section.itemSectionRenderer?.contents || [])
+                    .concat(initialDataJson.contents?.sectionListRenderer?.contents
+                        .flatMap(section => section.itemSectionRenderer?.contents || [])
+                    )
+                    .filter(item => item && item.videoRenderer); // Chỉ giữ các object có videoRenderer
                 
-                if (contents) {
-                    for (const section of contents) {
-                        const items = section.itemSectionRenderer?.contents;
-                        if (items) {
-                            for (const item of items) {
-                                const renderer = item.videoRenderer;
-                                if (renderer && results.length < 10) {
-                                    const videoId = renderer.videoId;
-                                    const titleRuns = renderer.title?.runs;
-                                    const ownerRuns = renderer.ownerText?.runs;
-                                    
-                                    if (videoId && titleRuns && !seenIds.has(videoId)) {
-                                        seenIds.add(videoId);
-                                        const title = titleRuns.map(r => r.text).join('');
-                                        const artist = ownerRuns ? ownerRuns.map(r => r.text).join('') : "Kênh YouTube";
-                                        
-                                        // Giải mã Unicode
-                                        const decodedTitle = title.replace(/\\u([0-9a-fA-F]{4})/g, (m, code) => String.fromCharCode(parseInt(code, 16)));
-                                        const decodedArtist = artist.replace(/\\u([0-9a-fA-F]{4})/g, (m, code) => String.fromCharCode(parseInt(code, 16)));
-                                        
-                                        results.push({ title: decodedTitle, artist: decodedArtist, videoId });
-                                    }
-                                }
+                if (items) {
+                    for (const item of items) {
+                        const renderer = item.videoRenderer;
+                        if (renderer && results.length < 10) {
+                            const videoId = renderer.videoId;
+                            const titleRuns = renderer.title?.runs;
+                            const ownerRuns = renderer.ownerText?.runs;
+                            
+                            if (videoId && titleRuns && !seenIds.has(videoId)) {
+                                seenIds.add(videoId);
+                                // Lấy tiêu đề và nghệ sĩ (handle JSON escape sequence)
+                                const title = titleRuns.map(r => r.text).join('');
+                                const artist = ownerRuns ? ownerRuns.map(r => r.text).join('') : "Kênh YouTube";
+                                
+                                // Hàm giải mã Unicode
+                                const decodeUnicode = (text) => text.replace(/\\u([0-9a-fA-F]{4})/g, (m, code) => String.fromCharCode(parseInt(code, 16)));
+                                
+                                results.push({ 
+                                    title: decodeUnicode(title), 
+                                    artist: decodeUnicode(artist), 
+                                    videoId 
+                                });
                             }
                         }
                     }
                 }
             }
             
-            // Fallback: Nếu JSON parsing thất bại (thường xảy ra trên Mobile)
+            // -------------------------------------------------------------------
+            // Bước 2: Fallback Regex (Nếu JSON Parsing thất bại hoặc không tìm thấy)
+            // -------------------------------------------------------------------
             if (results.length === 0) {
                 console.log('JSON parsing failed or empty. Falling back to old Regex.');
                 
-                // Regex cũ (đã được tối ưu hóa nhẹ)
+                // Regex cũ (đã được tối ưu hóa) - tìm videoId, title, ownerText
                 const videoPattern = /"videoRenderer":\{[^}]*"videoId":"([^"]{11})"[^}]*"title":\{"runs":\[\{"text":"([^"]+)"\}[^}]*"ownerText":\{"runs":\[\{"text":"([^"]+)"\}/g;
                 
                 let match;
@@ -929,8 +953,11 @@
                     const videoId = match[1];
                     if (!seenIds.has(videoId)) {
                         seenIds.add(videoId);
+                        
+                        // Xử lý Unicode trong Title và Artist
                         const title = match[2].replace(/\\u([0-9a-fA-F]{4})/g, (m, code) => String.fromCharCode(parseInt(code, 16)));
                         const artist = match[3] ? match[3].replace(/\\u([0-9a-fA-F]{4})/g, (m, code) => String.fromCharCode(parseInt(code, 16))) : "Kênh YouTube";
+                        
                         results.push({ title, artist, videoId });
                         count++;
                     }
@@ -1004,7 +1031,8 @@
             
             if (results.length > 0) {
                 searchResults.innerHTML = results.map(song => {
-                    const thumbnailUrl = `https://img.youtube.com/vi/${song.videoId}/mqdefault.jpg`; // Dùng mqdefault.jpg (medium quality) để load nhanh hơn trên mobile
+                    // Dùng mqdefault.jpg (medium quality) để load nhanh hơn trên mobile
+                    const thumbnailUrl = `https://img.youtube.com/vi/${song.videoId}/mqdefault.jpg`; 
                     const safeTitle = song.title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
                     const safeArtist = song.artist.replace(/'/g, "\\'").replace(/"/g, '&quot;');
                     return `
@@ -1137,7 +1165,6 @@
             if (popup.classList.contains('active')) {
                 checkAudioDevices();
             }
-            // Không dừng mic khi đóng popup - giữ kết nối
         }
 
         async function updateVolume(type, value) {
@@ -1147,11 +1174,9 @@
             }
             
             if (type === 'music') {
-                // Điều chỉnh volume của YouTube video
                 const youtubePlayer = document.getElementById('youtubePlayer');
                 if (youtubePlayer && youtubePlayer.contentWindow) {
                     try {
-                        // Gửi lệnh điều chỉnh volume qua postMessage
                         youtubePlayer.contentWindow.postMessage(JSON.stringify({
                             event: 'command',
                             func: 'setVolume',
@@ -1162,26 +1187,21 @@
                     }
                 }
             } else if (type === 'mic') {
-                // Điều chỉnh volume của mic (setValueAtTime để giảm latency)
                 if (micGainNode && audioContext) {
                     micGainNode.gain.setValueAtTime(value / 100, audioContext.currentTime);
                 } else {
-                    // Khởi tạo mic nếu chưa có
                     await initMic();
                     if (micGainNode && audioContext) {
                         micGainNode.gain.setValueAtTime(value / 100, audioContext.currentTime);
                     }
                 }
             } else if (type === 'echo') {
-                // Điều chỉnh echo effect
                 if (echoGainNode && audioContext) {
                     echoGainNode.gain.setValueAtTime(value / 100, audioContext.currentTime);
                 } else {
-                    // Khởi tạo mic trước nếu chưa có
                     if (!micStream) {
                         await initMic();
                     }
-                    // Khởi tạo echo nếu mic đã chạy
                     if (micStream) {
                         initEcho();
                         if (echoGainNode && audioContext) {
@@ -1190,42 +1210,34 @@
                     }
                 }
             } else if (type === 'ambient') {
-                // Điều chỉnh ambient sound (logic giả lập)
                 if (ambientGainNode && audioContext) {
                     ambientGainNode.gain.setValueAtTime(value / 100, audioContext.currentTime);
                 } else {
-                    // Khởi tạo mic trước nếu chưa có
                     if (!micStream) {
                         await initMic();
                     }
-                    // Có thể thêm logic cho ambient sound ở đây (hiện tại là giả lập)
                 }
             }
         }
 
-        // Điều chỉnh EQ với slider duy nhất (Treble - Mid - Bass)
         function updateEQSlider(value) {
             const sliderValue = parseFloat(value);
             let trebleValue, midValue, bassValue;
             
             if (sliderValue === 0) {
-                // Ở giữa (Mid): tất cả bằng nhau = 0
                 trebleValue = 0;
                 midValue = 0;
                 bassValue = 0;
             } else if (sliderValue < 0) {
-                // Kéo về Bass (bên trái): tăng bass, giảm treble và mid
-                bassValue = -sliderValue; // Giảm vì giá trị slider là âm
+                bassValue = -sliderValue; 
                 trebleValue = sliderValue; 
                 midValue = sliderValue; 
             } else {
-                // Kéo về Treble (bên phải): tăng treble, giảm bass và mid
                 trebleValue = sliderValue; 
                 bassValue = -sliderValue; 
                 midValue = -sliderValue; 
             }
             
-            // Cập nhật hiển thị
             const trebleValueElement = document.getElementById('micTrebleValue');
             const midValueElement = document.getElementById('micMidValue');
             const bassValueElement = document.getElementById('micBassValue');
@@ -1234,9 +1246,7 @@
             if (midValueElement) midValueElement.textContent = midValue.toFixed(1) + 'dB';
             if (bassValueElement) bassValueElement.textContent = bassValue.toFixed(1) + 'dB';
             
-            // Cập nhật audio filters
             if (!audioContext || !micStream || !bassFilter) {
-                // Nếu chưa có audio context/stream, khởi tạo mic và thử lại
                 initMic().then(() => {
                     if (audioContext && micStream && bassFilter) {
                         updateEQSlider(value);
@@ -1245,10 +1255,8 @@
                 return;
             }
             
-            // Cập nhật filters
-            // Sử dụng setTargetAtTime để có sự thay đổi mượt mà hơn
             const now = audioContext.currentTime;
-            const rampTime = 0.05; // 50ms cho sự thay đổi mượt mà
+            const rampTime = 0.05; 
 
             if (trebleFilter) {
                 trebleFilter.gain.setTargetAtTime(trebleValue, now, rampTime);
@@ -1261,14 +1269,13 @@
             }
         }
 
-        // Khởi tạo Audio Context với latency thấp
         async function initAudioContext() {
             if (!audioContext) {
                 const AudioContextClass = window.AudioContext || window.webkitAudioContext;
                 
                 try {
                     audioContext = new AudioContextClass({
-                        latencyHint: 'interactive', // Latency thấp nhất
+                        latencyHint: 'interactive', 
                         sampleRate: 48000 
                     });
                 } catch (e) {
@@ -1281,15 +1288,12 @@
             return audioContext;
         }
 
-        // Khởi tạo và bắt đầu mic
         async function initMic() {
             try {
-                // Dừng mic cũ nếu có
                 if (micStream) {
                     stopMic();
                 }
                 
-                // Yêu cầu quyền truy cập microphone với latency thấp
                 micStream = await navigator.mediaDevices.getUserMedia({ 
                     audio: {
                         echoCancellation: false, 
@@ -1301,18 +1305,14 @@
                     } 
                 });
                 
-                // Khởi tạo audio context
                 const context = await initAudioContext();
                 
-                // Đảm bảo context đang chạy
                 if (context.state !== 'running') {
                     await context.resume();
                 }
                 
-                // Tạo source từ mic stream
                 micSource = context.createMediaStreamSource(micStream);
                 
-                // Tạo EQ filters: Bass, Mid, Treble (chỉ tạo 1 lần)
                 if (!bassFilter) {
                     bassFilter = context.createBiquadFilter();
                     bassFilter.type = 'lowshelf';
@@ -1335,14 +1335,12 @@
                     trebleFilter.gain.setValueAtTime(0, context.currentTime);
                 }
                 
-                // Tạo gain node cho mic volume 
                 micGainNode = context.createGain();
                 
                 const micVolume = document.getElementById('micVolume');
                 const volume = micVolume ? (parseInt(micVolume.value) / 100) : 0.7;
                 micGainNode.gain.setValueAtTime(volume, context.currentTime); 
                 
-                // Kết nối: micSource -> bass -> mid -> treble -> gain -> destination
                 micSource.connect(bassFilter);
                 bassFilter.connect(midFilter);
                 midFilter.connect(trebleFilter);
@@ -1353,7 +1351,6 @@
                 
                 console.log('Mic đã được kích hoạt. Latency ước tính:', ((context.baseLatency || 0) + (context.outputLatency || 0)) * 1000, 'ms');
                 
-                // Kích hoạt echo nếu đã bật
                 const echoVolume = document.getElementById('echoVolume');
                 if (echoVolume && parseInt(echoVolume.value) > 0) {
                     initEcho();
@@ -1364,7 +1361,6 @@
                     ? 'Vui lòng cho phép truy cập microphone để sử dụng tính năng này.'
                     : 'Không thể truy cập microphone. Vui lòng kiểm tra thiết bị và quyền truy cập.';
                 
-                // Disable lại các control khi lỗi
                 const micSlider = document.getElementById('micVolume');
                 const echoSlider = document.getElementById('echoVolume');
                 const ambientSlider = document.getElementById('ambientVolume');
@@ -1387,33 +1383,27 @@
             }
         }
 
-        // Khởi tạo echo effect với delay tối thiểu
         function initEcho() {
-            if (!audioContext || !micSource || echoGainNode) return; // Dùng micSource thay vì micStream
+            if (!audioContext || !micSource || echoGainNode) return; 
             
             try {
-                // Tạo delay node cho echo với delay time ngắn hơn để giảm latency
                 const delayNode = audioContext.createDelay(0.5); 
-                delayNode.delayTime.setValueAtTime(0.1, audioContext.currentTime); // 100ms delay
+                delayNode.delayTime.setValueAtTime(0.1, audioContext.currentTime); 
                 
-                // Tạo gain node cho echo
                 echoGainNode = audioContext.createGain();
                 const echoVolume = document.getElementById('echoVolume');
                 const volume = echoVolume ? (parseInt(echoVolume.value) / 100) : 0.5;
                 echoGainNode.gain.setValueAtTime(volume, audioContext.currentTime); 
                 
-                // Tạo filter cho echo để giảm tần số cao
                 const echoFilter = audioContext.createBiquadFilter();
                 echoFilter.type = 'lowpass';
                 echoFilter.frequency.setValueAtTime(4000, audioContext.currentTime);
 
-                // Kết nối: micSource -> delay -> echo filter -> echo gain -> destination
                 micSource.connect(delayNode);
                 delayNode.connect(echoFilter);
                 echoFilter.connect(echoGainNode);
                 echoGainNode.connect(audioContext.destination);
 
-                // Thêm feedback loop: echo gain -> delay (tạo tiếng vọng)
                 echoGainNode.connect(delayNode);
                 
                 console.log('Echo effect đã được kích hoạt với delay 100ms');
@@ -1422,7 +1412,6 @@
             }
         }
 
-        // Dừng mic
         function stopMic() {
             if (micStream) {
                 micStream.getTracks().forEach(track => track.stop());
@@ -1430,13 +1419,10 @@
             }
             if (micSource) {
                 micSource.disconnect();
-                // Không cần clear bass/mid/treble/gain nodes vì chúng sẽ được tái sử dụng nếu initMic được gọi lại
-                // Nhưng cần ngắt kết nối với chúng
                 if (bassFilter) bassFilter.disconnect();
                 if (midFilter) midFilter.disconnect();
                 if (trebleFilter) trebleFilter.disconnect();
                 if (micGainNode) micGainNode.disconnect();
-
                 micSource = null;
             }
             if (echoGainNode) {
@@ -1447,29 +1433,21 @@
                 ambientGainNode.disconnect();
                 ambientGainNode = null;
             }
-            // Không nên đóng audioContext hoàn toàn vì nó có thể bị suspended và khó resume
-            // if (audioContext) {
-            //     audioContext.close().then(() => audioContext = null);
-            // }
             micDestination = null;
         }
 
-        // Kiểm tra thiết bị audio input
         async function checkAudioDevices() {
             try {
                 let hasAudioInput = false;
                 
-                // Thử yêu cầu quyền truy cập để kích hoạt thiết bị (quan trọng cho mobile)
                 try {
                     const tempStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    tempStream.getTracks().forEach(track => track.stop()); // Dừng ngay sau khi có quyền
+                    tempStream.getTracks().forEach(track => track.stop()); 
                     hasAudioInput = true;
                 } catch (e) {
-                    console.log('Không có quyền truy cập microphone hoặc không có thiết bị');
                     hasAudioInput = false;
                 }
                 
-                // Enable/disable các slider dựa trên thiết bị
                 const micSlider = document.getElementById('micVolume');
                 const echoSlider = document.getElementById('echoVolume');
                 const ambientSlider = document.getElementById('ambientVolume');
@@ -1479,8 +1457,9 @@
                 const ambientItem = document.getElementById('ambientControlItem');
                 const eqItem = document.getElementById('micEQControlItem');
                 
+                const labels = document.querySelectorAll('#micControlItem label, #echoControlItem label, #ambientControlItem label');
+
                 if (hasAudioInput) {
-                    // Enable các slider
                     if (micSlider) micSlider.disabled = false;
                     if (echoSlider) echoSlider.disabled = false;
                     if (ambientSlider) ambientSlider.disabled = false;
@@ -1490,18 +1469,14 @@
                     if (ambientItem) ambientItem.classList.remove('disabled');
                     if (eqItem) eqItem.classList.remove('disabled');
                     
-                    // Cập nhật label
-                    const labels = document.querySelectorAll('#micControlItem label, #echoControlItem label, #ambientControlItem label');
                     labels.forEach(label => {
                         label.innerHTML = label.innerHTML.replace(/<span.*?<\/span>/, '<span style="font-size: 12px; opacity: 0.7;">(Đã kích hoạt)</span>');
                     });
                     
-                    // Tự động khởi tạo mic nếu chưa có (giữ kết nối)
                     if (!micStream) {
                         await initMic();
                     }
                 } else {
-                    // Disable các slider
                     if (micSlider) micSlider.disabled = true;
                     if (echoSlider) echoSlider.disabled = true;
                     if (ambientSlider) ambientSlider.disabled = true;
@@ -1511,22 +1486,17 @@
                     if (ambientItem) ambientItem.classList.add('disabled');
                     if (eqItem) eqItem.classList.add('disabled');
                     
-                    // Cập nhật label
-                    const labels = document.querySelectorAll('#micControlItem label, #echoControlItem label, #ambientControlItem label');
                     labels.forEach(label => {
                         label.innerHTML = label.innerHTML.replace(/<span.*?<\/span>/, '<span style="font-size: 12px; opacity: 0.7;">(Cần kết nối tai nghe/bluetooth)</span>');
                     });
                     
-                    // Dừng mic nếu có lỗi
                     stopMic();
                 }
             } catch (error) {
                 console.error('Lỗi kiểm tra thiết bị audio:', error);
-                // Nếu không thể kiểm tra, giữ nguyên trạng thái disabled
             }
         }
 
-        // Đóng popup khi click ra ngoài
         document.addEventListener('click', function(event) {
             const popup = document.getElementById('audioControlPopup');
             const button = document.querySelector('.audio-control-button');
