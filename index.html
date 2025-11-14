@@ -893,110 +893,45 @@
           });
       };
       
-            // Phương pháp 1: YouTube RSS Feed (ưu tiên - ổn định nhất, ít bị chặn)
-            // Lưu ý: YouTube RSS feed có thể không hỗ trợ search_query trực tiếp
-            // Nên sẽ thử qua proxy
-            async function searchYouTubeRSS() {
-                try {
-                    // Thử RSS feed qua proxy
-                    const rssUrl = `https://www.youtube.com/feeds/videos.xml?search_query=${searchQuery}`;
-                    console.log('Trying RSS feed method...');
-                    
-                    // Thử trực tiếp trước
-                    let response;
-                    try {
-                        response = await createFetchWithTimeout(rssUrl, timeout);
-                    } catch (e) {
-                        // Nếu thất bại, thử qua proxy
-                        const proxyRssUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`;
-                        const proxyResponse = await createFetchWithTimeout(proxyRssUrl, timeout);
-                        const proxyData = await proxyResponse.json();
-                        const xmlText = proxyData.contents || '';
-                        
-                        if (!xmlText) return null;
-                        
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString(xmlText, "application/xml");
-                        const entries = doc.getElementsByTagName("entry");
-                        
-                        const results = [];
-                        for (let i = 0; i < Math.min(10, entries.length); i++) {
-                            const entry = entries[i];
-                            const videoIdTag = entry.getElementsByTagName("yt:videoId")[0] || entry.getElementsByTagName("videoId")[0];
-                            const titleTag = entry.getElementsByTagName("title")[0];
-                            const authorTag = entry.getElementsByTagName("author")[0];
-                            const nameTag = authorTag ? authorTag.getElementsByTagName("name")[0] : null;
-                            
-                            if (videoIdTag && videoIdTag.textContent) {
-                                results.push({
-                                    videoId: videoIdTag.textContent,
-                                    title: titleTag ? titleTag.textContent : `Bài hát ${i + 1}`,
-                                    artist: nameTag ? nameTag.textContent : "YouTube"
-                                });
-                            }
-                        }
-                        
-                        if (results.length > 0) {
-                            console.log('RSS feed method succeeded (via proxy):', results.length, 'results');
-                            return results;
-                        }
-                        return null;
-                    }
-                    
-                    if (!response || !response.ok) return null;
-                    
-                    const xmlText = await response.text();
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(xmlText, "application/xml");
-                    const entries = doc.getElementsByTagName("entry");
-                    
-                    const results = [];
-                    for (let i = 0; i < Math.min(10, entries.length); i++) {
-                        const entry = entries[i];
-                        const videoIdTag = entry.getElementsByTagName("yt:videoId")[0] || entry.getElementsByTagName("videoId")[0];
-                        const titleTag = entry.getElementsByTagName("title")[0];
-                        const authorTag = entry.getElementsByTagName("author")[0];
-                        const nameTag = authorTag ? authorTag.getElementsByTagName("name")[0] : null;
-                        
-                        if (videoIdTag && videoIdTag.textContent) {
-                            results.push({
-                                videoId: videoIdTag.textContent,
-                                title: titleTag ? titleTag.textContent : `Bài hát ${i + 1}`,
-                                artist: nameTag ? nameTag.textContent : "YouTube"
-                            });
-                        }
-                    }
-                    
-                    if (results.length > 0) {
-                        console.log('RSS feed method succeeded:', results.length, 'results');
-                        return results;
-                    }
-                } catch (error) {
-                    console.log('RSS feed method failed:', error.message);
-                }
-                return null;
-            }
-            
-            // Phương pháp 2: Web scraping qua proxy
+            // Phương pháp 1: Web scraping qua proxy (phương pháp chính)
             async function searchYouTubeScraping() {
       const youtubeUrl = `https://www.youtube.com/results?search_query=${searchQuery}`;
                 
                 // Danh sách proxy (ưu tiên các proxy ổn định cho mobile)
+                // Thử nhiều proxy để tăng khả năng thành công
                 const proxyUrls = [
                     `https://api.allorigins.win/get?url=${encodeURIComponent(youtubeUrl)}`,
                     `https://corsproxy.io/?${encodeURIComponent(youtubeUrl)}`,
                     `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(youtubeUrl)}`,
                     `https://thingproxy.freeboard.io/fetch/${youtubeUrl}`,
-                    `https://cors-anywhere.herokuapp.com/${youtubeUrl}`
+                    `https://cors-anywhere.herokuapp.com/${youtubeUrl}`,
+                    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(youtubeUrl)}&origin=*`,
+                    `https://corsproxy.io/?${encodeURIComponent(youtubeUrl)}&origin=*`
                 ];
                 
                 const proxyPromises = proxyUrls.map((proxyUrl, index) => {
                     return createFetchWithTimeout(proxyUrl, timeout)
                         .then(r => {
-                            if (proxyUrl.includes('allorigins.win')) {
-                                return r.json().then(d => d.contents || '');
+                            if (!r.ok) {
+                                throw new Error(`HTTP ${r.status}`);
                             }
-                            return r.text();
+                            if (proxyUrl.includes('allorigins.win')) {
+                                return r.json().then(d => {
+                                    const content = d.contents || '';
+                                    if (content && content.length > 1000) {
+                                        console.log(`Proxy ${index + 1} (allorigins) succeeded`);
+                                        return content;
+                                    }
+                                    throw new Error('Empty or invalid content');
+                                });
+                            }
+                            return r.text().then(text => {
+                                if (text && text.length > 1000) {
+                                    console.log(`Proxy ${index + 1} succeeded`);
+                                    return text;
+                                }
+                                throw new Error('Empty or invalid content');
+                            });
                         })
                         .catch(err => {
                             console.log(`Proxy ${index + 1} failed:`, err.message);
@@ -1009,25 +944,35 @@
                     let html = '';
         try {
           html = await Promise.race(proxyPromises);
+                        if (html && html.trim().length > 1000) {
+                            console.log('Got HTML from Promise.race');
+                        } else {
+                            html = '';
+                        }
         } catch (raceError) {
           console.log('Promise.race failed, trying allSettled...');
         }
         
         // Nếu không có kết quả, thử tất cả
-        if (!html || html.trim() === '') {
+                    if (!html || html.trim().length < 1000) {
+                        console.log('Trying all proxies with allSettled...');
           const settled = await Promise.allSettled(proxyPromises);
-          for (const result of settled) {
-            if (result.status === 'fulfilled' && result.value && result.value.trim() !== '') {
+                        for (let i = 0; i < settled.length; i++) {
+                            const result = settled[i];
+                            if (result.status === 'fulfilled' && result.value && result.value.trim().length > 1000) {
               html = result.value;
-              console.log('Got HTML from fallback proxy');
+                                console.log(`Got HTML from proxy ${i + 1} (fallback)`);
               break;
             }
           }
         }
         
-        if (!html || html.trim() === '') {
+                    if (!html || html.trim().length < 1000) {
+                        console.log('No valid HTML content from any proxy');
           return null;
         }
+                    
+                    console.log('HTML content length:', html.length);
                     
                     const results = [];
                     const seenIds = new Set();
@@ -1095,20 +1040,15 @@
         return null;
       }
             
-            // Thử RSS feed trước (ổn định nhất)
-            let results = await searchYouTubeRSS();
-            if (results && results.length > 0) {
-                return results;
-            }
-            
-            // Nếu RSS thất bại, thử scraping
-            console.log('RSS failed, trying scraping method...');
-            results = await searchYouTubeScraping();
+            // Thử scraping method (phương pháp chính)
+            console.log('Trying scraping method...');
+            let results = await searchYouTubeScraping();
             if (results && results.length > 0) {
                 return results;
             }
             
             console.error('All search methods failed');
+            console.log('Query was:', query, 'Enhanced query:', enhancedQuery);
             return [];
         }
 
