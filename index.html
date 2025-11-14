@@ -855,22 +855,33 @@
     </div>
 
     <script>
-        // Hàm tìm kiếm trên YouTube (không dùng API - web scraping)
+        // Hàm tìm kiếm trên YouTube (không dùng API)
     async function searchYouTube(query) {
       if (!query || query.length < 2) {
                 return [];
       }
       
-      const searchQuery = encodeURIComponent(query);
+            // Tự động thêm "karaoke" vào query nếu chưa có
+            const enhancedQuery = query.toLowerCase().includes('karaoke') 
+                ? query 
+                : `${query} karaoke`;
       
-      // Tạo AbortController với timeout (dài hơn cho mobile)
+            const searchQuery = encodeURIComponent(enhancedQuery);
       const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            const timeout = isMobile ? 8000 : 5000;
+            const timeout = isMobile ? 15000 : 10000; // Tăng timeout cho mobile
       
-      const createFetchWithTimeout = (url, timeoutMs = timeout) => {
+            console.log('Searching YouTube for:', query, '(Mobile:', isMobile, ')');
+            
+            // Helper function để tạo fetch với timeout
+            const createFetchWithTimeout = (url, timeoutMs = timeout, options = {}) => {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-                return fetch(url, { signal: controller.signal })
+        return fetch(url, { 
+          signal: controller.signal,
+          mode: 'cors',
+                    cache: 'no-cache',
+                    ...options
+        })
           .then(response => {
             clearTimeout(timeoutId);
             if (!response.ok) throw new Error('Network response was not ok');
@@ -882,104 +893,223 @@
           });
       };
       
-            // Thử nhiều proxy cùng lúc
-      const proxyPromises = [
-                createFetchWithTimeout(`https://api.allorigins.win/get?url=${encodeURIComponent(`https://www.youtube.com/results?search_query=${searchQuery}`)}`)
-          .then(r => r.json())
-          .then(d => d.contents || '')
-          .catch(() => ''),
-                createFetchWithTimeout(`https://corsproxy.io/?${encodeURIComponent(`https://www.youtube.com/results?search_query=${searchQuery}`)}`)
-          .then(r => r.text())
-          .catch(() => ''),
-                createFetchWithTimeout(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(`https://www.youtube.com/results?search_query=${searchQuery}`)}`)
-          .then(r => r.text())
-          .catch(() => '')
-      ];
-      
-      try {
-        let html = '';
+            // Phương pháp 1: YouTube RSS Feed (ưu tiên - ổn định nhất, ít bị chặn)
+            // Lưu ý: YouTube RSS feed có thể không hỗ trợ search_query trực tiếp
+            // Nên sẽ thử qua proxy
+            async function searchYouTubeRSS() {
+                try {
+                    // Thử RSS feed qua proxy
+                    const rssUrl = `https://www.youtube.com/feeds/videos.xml?search_query=${searchQuery}`;
+                    console.log('Trying RSS feed method...');
+                    
+                    // Thử trực tiếp trước
+                    let response;
+                    try {
+                        response = await createFetchWithTimeout(rssUrl, timeout);
+                    } catch (e) {
+                        // Nếu thất bại, thử qua proxy
+                        const proxyRssUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`;
+                        const proxyResponse = await createFetchWithTimeout(proxyRssUrl, timeout);
+                        const proxyData = await proxyResponse.json();
+                        const xmlText = proxyData.contents || '';
+                        
+                        if (!xmlText) return null;
+                        
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(xmlText, "application/xml");
+                        const entries = doc.getElementsByTagName("entry");
+                        
+                        const results = [];
+                        for (let i = 0; i < Math.min(10, entries.length); i++) {
+                            const entry = entries[i];
+                            const videoIdTag = entry.getElementsByTagName("yt:videoId")[0] || entry.getElementsByTagName("videoId")[0];
+                            const titleTag = entry.getElementsByTagName("title")[0];
+                            const authorTag = entry.getElementsByTagName("author")[0];
+                            const nameTag = authorTag ? authorTag.getElementsByTagName("name")[0] : null;
+                            
+                            if (videoIdTag && videoIdTag.textContent) {
+                                results.push({
+                                    videoId: videoIdTag.textContent,
+                                    title: titleTag ? titleTag.textContent : `Bài hát ${i + 1}`,
+                                    artist: nameTag ? nameTag.textContent : "YouTube"
+                                });
+                            }
+                        }
+                        
+                        if (results.length > 0) {
+                            console.log('RSS feed method succeeded (via proxy):', results.length, 'results');
+                            return results;
+                        }
+                        return null;
+                    }
+                    
+                    if (!response || !response.ok) return null;
+                    
+                    const xmlText = await response.text();
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(xmlText, "application/xml");
+                    const entries = doc.getElementsByTagName("entry");
+                    
+                    const results = [];
+                    for (let i = 0; i < Math.min(10, entries.length); i++) {
+                        const entry = entries[i];
+                        const videoIdTag = entry.getElementsByTagName("yt:videoId")[0] || entry.getElementsByTagName("videoId")[0];
+                        const titleTag = entry.getElementsByTagName("title")[0];
+                        const authorTag = entry.getElementsByTagName("author")[0];
+                        const nameTag = authorTag ? authorTag.getElementsByTagName("name")[0] : null;
+                        
+                        if (videoIdTag && videoIdTag.textContent) {
+                            results.push({
+                                videoId: videoIdTag.textContent,
+                                title: titleTag ? titleTag.textContent : `Bài hát ${i + 1}`,
+                                artist: nameTag ? nameTag.textContent : "YouTube"
+                            });
+                        }
+                    }
+                    
+                    if (results.length > 0) {
+                        console.log('RSS feed method succeeded:', results.length, 'results');
+                        return results;
+                    }
+                } catch (error) {
+                    console.log('RSS feed method failed:', error.message);
+                }
+                return null;
+            }
+            
+            // Phương pháp 2: Web scraping qua proxy
+            async function searchYouTubeScraping() {
+      const youtubeUrl = `https://www.youtube.com/results?search_query=${searchQuery}`;
+                
+                // Danh sách proxy (ưu tiên các proxy ổn định cho mobile)
+                const proxyUrls = [
+                    `https://api.allorigins.win/get?url=${encodeURIComponent(youtubeUrl)}`,
+                    `https://corsproxy.io/?${encodeURIComponent(youtubeUrl)}`,
+                    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(youtubeUrl)}`,
+                    `https://thingproxy.freeboard.io/fetch/${youtubeUrl}`,
+                    `https://cors-anywhere.herokuapp.com/${youtubeUrl}`
+                ];
+                
+                const proxyPromises = proxyUrls.map((proxyUrl, index) => {
+                    return createFetchWithTimeout(proxyUrl, timeout)
+                        .then(r => {
+                            if (proxyUrl.includes('allorigins.win')) {
+                                return r.json().then(d => d.contents || '');
+                            }
+                            return r.text();
+                        })
+                        .catch(err => {
+                            console.log(`Proxy ${index + 1} failed:`, err.message);
+                            return '';
+                        });
+                });
+                
+                try {
+        // Thử Promise.race trước (lấy kết quả nhanh nhất)
+                    let html = '';
         try {
           html = await Promise.race(proxyPromises);
         } catch (raceError) {
+          console.log('Promise.race failed, trying allSettled...');
+        }
+        
+        // Nếu không có kết quả, thử tất cả
+        if (!html || html.trim() === '') {
           const settled = await Promise.allSettled(proxyPromises);
           for (const result of settled) {
-                        if (result.status === 'fulfilled' && result.value) {
+            if (result.status === 'fulfilled' && result.value && result.value.trim() !== '') {
               html = result.value;
+              console.log('Got HTML from fallback proxy');
               break;
             }
           }
         }
         
         if (!html || html.trim() === '') {
-                    return [];
-                }
-                
-                const results = [];
-                const seenIds = new Set();
+          return null;
+        }
+                    
+                    const results = [];
+                    const seenIds = new Set();
         
         // Parse với regex - tìm pattern videoRenderer
         const videoPattern = /"videoRenderer":\{[^}]*"videoId":"([^"]{11})"[^}]*"title":\{"runs":\[\{"text":"([^"]+)"\}[^}]*"ownerText":\{"runs":\[\{"text":"([^"]+)"\}/g;
         
         let match;
-                let count = 0;
-                while ((match = videoPattern.exec(html)) !== null && count < 10) {
+                    let count = 0;
+                    while ((match = videoPattern.exec(html)) !== null && count < 10) {
           const videoId = match[1];
           if (!seenIds.has(videoId)) {
             seenIds.add(videoId);
-                        const title = match[2].replace(/\\u([0-9a-fA-F]{4})/g, (m, code) => String.fromCharCode(parseInt(code, 16)));
-                        const artist = match[3] ? match[3].replace(/\\u([0-9a-fA-F]{4})/g, (m, code) => String.fromCharCode(parseInt(code, 16))) : "YouTube";
-                        results.push({ title, artist, videoId });
-                        count++;
-                    }
-                }
-                
-                // Fallback: pattern đơn giản hơn
-                if (results.length === 0) {
-        const videoIdRegex = /"videoId":"([^"]{11})"/g;
-                    const titleRegex = /"title":\{"runs":\[\{"text":"([^"]+)"\}/g;
-                    const ownerRegex = /"ownerText":\{"runs":\[\{"text":"([^"]+)"\}/g;
-                    
-                    const videoIds = [];
-                    const titles = [];
-                    const owners = [];
-                    
-        let vidMatch;
-                    while ((vidMatch = videoIdRegex.exec(html)) !== null && videoIds.length < 15) {
-          if (!seenIds.has(vidMatch[1])) {
-            seenIds.add(vidMatch[1]);
-                            videoIds.push(vidMatch[1]);
+                            const title = match[2].replace(/\\u([0-9a-fA-F]{4})/g, (m, code) => String.fromCharCode(parseInt(code, 16)));
+                            const artist = match[3] ? match[3].replace(/\\u([0-9a-fA-F]{4})/g, (m, code) => String.fromCharCode(parseInt(code, 16))) : "YouTube";
+                            results.push({ title, artist, videoId });
+                            count++;
                         }
                     }
                     
-                    let titleMatch;
-                    while ((titleMatch = titleRegex.exec(html)) !== null && titles.length < videoIds.length) {
-                        titles.push(titleMatch[1].replace(/\\u([0-9a-fA-F]{4})/g, (m, code) => String.fromCharCode(parseInt(code, 16))));
+                    // Fallback: pattern đơn giản hơn
+                    if (results.length === 0) {
+        const videoIdRegex = /"videoId":"([^"]{11})"/g;
+                        const titleRegex = /"title":\{"runs":\[\{"text":"([^"]+)"\}/g;
+                        const ownerRegex = /"ownerText":\{"runs":\[\{"text":"([^"]+)"\}/g;
+                        
+                        const videoIds = [];
+                        const titles = [];
+                        const owners = [];
+                        
+        let vidMatch;
+                        while ((vidMatch = videoIdRegex.exec(html)) !== null && videoIds.length < 15) {
+          if (!seenIds.has(vidMatch[1])) {
+            seenIds.add(vidMatch[1]);
+                                videoIds.push(vidMatch[1]);
+                            }
+                        }
+                        
+                        let titleMatch;
+                        while ((titleMatch = titleRegex.exec(html)) !== null && titles.length < videoIds.length) {
+                            titles.push(titleMatch[1].replace(/\\u([0-9a-fA-F]{4})/g, (m, code) => String.fromCharCode(parseInt(code, 16))));
+                        }
+                        
+                        let ownerMatch;
+                        while ((ownerMatch = ownerRegex.exec(html)) !== null && owners.length < videoIds.length) {
+                            owners.push(ownerMatch[1].replace(/\\u([0-9a-fA-F]{4})/g, (m, code) => String.fromCharCode(parseInt(code, 16))));
+                        }
+                        
+                        for (let i = 0; i < videoIds.length && i < 10; i++) {
+                            results.push({
+                                title: titles[i] || `Bài hát ${i + 1}`,
+                                artist: owners[i] || "YouTube",
+                                videoId: videoIds[i]
+                            });
+                        }
                     }
                     
-                    let ownerMatch;
-                    while ((ownerMatch = ownerRegex.exec(html)) !== null && owners.length < videoIds.length) {
-                        owners.push(ownerMatch[1].replace(/\\u([0-9a-fA-F]{4})/g, (m, code) => String.fromCharCode(parseInt(code, 16))));
+                    if (results.length > 0) {
+                        console.log('Scraping method succeeded:', results.length, 'results');
+                        return results;
                     }
-                    
-                    for (let i = 0; i < videoIds.length && i < 10; i++) {
-                        results.push({
-                            title: titles[i] || `Bài hát ${i + 1}`,
-                            artist: owners[i] || "YouTube",
-                            videoId: videoIds[i]
-                        });
-                    }
-                }
-                
-                console.log('YouTube search completed. Found', results.length, 'results');
-                if (results.length > 0) {
-                    console.log('First result:', results[0]);
-                }
-                
-                return results;
       } catch (error) {
-        console.error('Lỗi tìm kiếm YouTube:', error);
-                return [];
+                    console.log('Scraping method failed:', error.message);
+                }
+        return null;
+      }
+            
+            // Thử RSS feed trước (ổn định nhất)
+            let results = await searchYouTubeRSS();
+            if (results && results.length > 0) {
+                return results;
             }
+            
+            // Nếu RSS thất bại, thử scraping
+            console.log('RSS failed, trying scraping method...');
+            results = await searchYouTubeScraping();
+            if (results && results.length > 0) {
+                return results;
+            }
+            
+            console.error('All search methods failed');
+            return [];
         }
 
         // Debounce timer cho tìm kiếm tự động
@@ -1102,6 +1232,13 @@
                 return;
             }
 
+            // Hiển thị loading
+            searchResults.innerHTML = '<div class="no-results"><span class="loading-spinner"></span>Đang tìm kiếm...</div>';
+            searchResults.classList.add('active');
+            searchResults.style.display = 'block';
+            searchResults.style.visibility = 'visible';
+            searchResults.style.opacity = '1';
+
             try {
                 console.log('Searching YouTube for:', query);
                 const results = await searchYouTube(query);
@@ -1122,10 +1259,13 @@
                 console.error('Lỗi trong searchSong:', error);
                 searchResults.innerHTML = `
                     <div class="no-results">
-                        Lỗi kết nối. Vui lòng kiểm tra kết nối mạng và thử lại.
+                        <p>Lỗi kết nối: ${error.message || 'Không thể kết nối đến YouTube'}</p>
+                        <p style="margin-top: 10px; font-size: 12px; opacity: 0.8;">Vui lòng kiểm tra kết nối mạng và thử lại.</p>
                     </div>
                 `;
                 searchResults.style.display = 'block';
+                searchResults.style.visibility = 'visible';
+                searchResults.style.opacity = '1';
                 searchResults.classList.add('active');
             }
         }
