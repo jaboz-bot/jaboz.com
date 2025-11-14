@@ -2,11 +2,13 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <title>Giao diện TV Karaoke</title>
-    <style>
+  <style>
         * {
-            margin: 0;
+      margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
@@ -14,9 +16,9 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
             align-items: flex-start;
             padding: 20px;
         }
@@ -45,7 +47,7 @@
 
         /* TV Screen */
         .tv-screen {
-            width: 100%;
+      width: 100%;
             height: 100%;
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             border-radius: 10px;
@@ -73,7 +75,7 @@
         .tv-stand {
             width: 200px;
             height: 30px;
-            background: transparent;
+      background: transparent;
             margin: 20px auto 0;
             border-radius: 0 0 10px 10px;
             box-shadow: none;
@@ -97,12 +99,14 @@
             text-align: center;
             color: white;
             width: 100%;
-            display: flex;
+      display: flex;
             flex-direction: column;
             height: 100%;
             overflow-y: auto;
-            align-items: center;
-            justify-content: center;
+            overflow-x: hidden;
+      align-items: center;
+      justify-content: center;
+            -webkit-overflow-scrolling: touch;
         }
 
         .tv-title {
@@ -190,10 +194,15 @@
             background: rgba(30, 60, 114, 0.95);
             border-radius: 10px;
             padding: 10px;
+      opacity: 0;
+      visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
         }
 
         .search-results.active {
             display: block;
+            opacity: 1;
+            visibility: visible;
         }
 
         .song-item {
@@ -207,9 +216,14 @@
             display: flex;
             gap: 12px;
             align-items: center;
+            -webkit-tap-highlight-color: rgba(102, 126, 234, 0.3);
+            touch-action: manipulation;
+            min-height: 60px;
+            user-select: none;
         }
 
-        .song-item:hover {
+        .song-item:hover,
+        .song-item:active {
             background: rgba(255, 255, 255, 0.2);
             border-left-color: #667eea;
             transform: translateX(5px);
@@ -234,7 +248,7 @@
             font-weight: bold;
             margin-bottom: 4px;
             white-space: nowrap;
-            overflow: hidden;
+      overflow: hidden;
             text-overflow: ellipsis;
         }
 
@@ -271,7 +285,7 @@
 
         /* Video Player */
         .video-player-container {
-            position: absolute;
+      position: absolute;
             top: 0;
             left: 0;
             width: 100%;
@@ -297,14 +311,14 @@
         }
 
         .video-player-wrapper iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
+      width: 100%;
+      height: 100%;
+      border: none;
             border-radius: 10px;
-        }
+    }
 
         .back-button {
-            position: absolute;
+      position: absolute;
             top: 15px;
             left: 15px;
             z-index: 11;
@@ -341,7 +355,7 @@
             color: white;
             font-size: 14px;
             font-weight: bold;
-            cursor: pointer;
+      cursor: pointer;
             z-index: 1000;
             box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
             transition: all 0.3s ease;
@@ -408,7 +422,7 @@
         .audio-control-header h2 {
             color: white;
             font-size: 24px;
-            margin: 0;
+      margin: 0;
         }
 
         .close-button {
@@ -460,7 +474,7 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
-            width: 100%;
+      width: 100%;
         }
 
         .eq-labels {
@@ -474,7 +488,7 @@
         .eq-label-left {
             color: white;
             font-size: 14px;
-            font-weight: 500;
+      font-weight: 500;
             opacity: 0.9;
         }
 
@@ -515,7 +529,7 @@
             height: 20px;
             border-radius: 50%;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            cursor: pointer;
+      cursor: pointer;
             box-shadow: 0 2px 8px rgba(102, 126, 234, 0.5);
             transition: all 0.2s ease;
         }
@@ -559,7 +573,7 @@
             height: 8px;
             border-radius: 5px;
             background: rgba(255, 255, 255, 0.2);
-            outline: none;
+      outline: none;
             -webkit-appearance: none;
             appearance: none;
         }
@@ -651,7 +665,10 @@
                 padding: 5px 0;
                 justify-content: flex-start;
                 overflow-y: auto;
+                overflow-x: hidden;
                 -webkit-overflow-scrolling: touch;
+                height: 100%;
+                max-height: calc(100vh - 100px);
             }
 
             .tv-title {
@@ -667,17 +684,20 @@
             .search-section {
                 max-width: 100%;
                 padding: 10px;
+                width: 100%;
+                position: relative;
+                z-index: 10;
             }
 
             .search-results {
-                max-height: 300px;
-                display: block !important;
-                visibility: visible !important;
-                opacity: 1 !important;
-                position: relative !important;
-                z-index: 100 !important;
+                max-height: calc(100vh - 350px);
+                min-height: 200px;
                 margin-top: 15px !important;
                 padding: 10px !important;
+                position: relative !important;
+                z-index: 100 !important;
+                background: rgba(30, 60, 114, 0.98) !important;
+                border: 1px solid rgba(255, 255, 255, 0.2);
             }
 
             .search-results.active {
@@ -685,18 +705,35 @@
                 visibility: visible !important;
                 opacity: 1 !important;
             }
+            
+            .search-results:not(.active) {
+                display: none !important;
+            }
+
+            .song-item {
+                padding: 12px;
+                margin-bottom: 8px;
+                min-height: 70px;
+            }
 
             .song-thumbnail {
                 width: 80px;
                 height: 60px;
+                flex-shrink: 0;
             }
 
             .song-title {
                 font-size: 14px;
+                font-weight: 600;
             }
 
             .song-artist {
                 font-size: 12px;
+                margin-top: 4px;
+            }
+            
+            .search-input {
+                font-size: 16px; /* Ngăn zoom trên iOS */
             }
 
             .audio-control-button {
@@ -819,76 +856,76 @@
 
     <script>
         // Hàm tìm kiếm trên YouTube (không dùng API - web scraping)
-        async function searchYouTube(query) {
-            if (!query || query.length < 2) {
+    async function searchYouTube(query) {
+      if (!query || query.length < 2) {
                 return [];
-            }
-            
-            const searchQuery = encodeURIComponent(query);
-            
-            // Tạo AbortController với timeout (dài hơn cho mobile)
-            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      }
+      
+      const searchQuery = encodeURIComponent(query);
+      
+      // Tạo AbortController với timeout (dài hơn cho mobile)
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             const timeout = isMobile ? 8000 : 5000;
-            
-            const createFetchWithTimeout = (url, timeoutMs = timeout) => {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+      
+      const createFetchWithTimeout = (url, timeoutMs = timeout) => {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
                 return fetch(url, { signal: controller.signal })
-                    .then(response => {
-                        clearTimeout(timeoutId);
-                        if (!response.ok) throw new Error('Network response was not ok');
-                        return response;
-                    })
-                    .catch(err => {
-                        clearTimeout(timeoutId);
-                        throw err;
-                    });
-            };
-            
+          .then(response => {
+            clearTimeout(timeoutId);
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response;
+          })
+          .catch(err => {
+            clearTimeout(timeoutId);
+            throw err;
+          });
+      };
+      
             // Thử nhiều proxy cùng lúc
-            const proxyPromises = [
+      const proxyPromises = [
                 createFetchWithTimeout(`https://api.allorigins.win/get?url=${encodeURIComponent(`https://www.youtube.com/results?search_query=${searchQuery}`)}`)
-                    .then(r => r.json())
-                    .then(d => d.contents || '')
-                    .catch(() => ''),
+          .then(r => r.json())
+          .then(d => d.contents || '')
+          .catch(() => ''),
                 createFetchWithTimeout(`https://corsproxy.io/?${encodeURIComponent(`https://www.youtube.com/results?search_query=${searchQuery}`)}`)
-                    .then(r => r.text())
-                    .catch(() => ''),
+          .then(r => r.text())
+          .catch(() => ''),
                 createFetchWithTimeout(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(`https://www.youtube.com/results?search_query=${searchQuery}`)}`)
-                    .then(r => r.text())
-                    .catch(() => '')
-            ];
-            
-            try {
-                let html = '';
-                try {
-                    html = await Promise.race(proxyPromises);
-                } catch (raceError) {
-                    const settled = await Promise.allSettled(proxyPromises);
-                    for (const result of settled) {
+          .then(r => r.text())
+          .catch(() => '')
+      ];
+      
+      try {
+        let html = '';
+        try {
+          html = await Promise.race(proxyPromises);
+        } catch (raceError) {
+          const settled = await Promise.allSettled(proxyPromises);
+          for (const result of settled) {
                         if (result.status === 'fulfilled' && result.value) {
-                            html = result.value;
-                            break;
-                        }
-                    }
-                }
-                
-                if (!html || html.trim() === '') {
+              html = result.value;
+              break;
+            }
+          }
+        }
+        
+        if (!html || html.trim() === '') {
                     return [];
                 }
                 
                 const results = [];
                 const seenIds = new Set();
-                
-                // Parse với regex - tìm pattern videoRenderer
-                const videoPattern = /"videoRenderer":\{[^}]*"videoId":"([^"]{11})"[^}]*"title":\{"runs":\[\{"text":"([^"]+)"\}[^}]*"ownerText":\{"runs":\[\{"text":"([^"]+)"\}/g;
-                
-                let match;
+        
+        // Parse với regex - tìm pattern videoRenderer
+        const videoPattern = /"videoRenderer":\{[^}]*"videoId":"([^"]{11})"[^}]*"title":\{"runs":\[\{"text":"([^"]+)"\}[^}]*"ownerText":\{"runs":\[\{"text":"([^"]+)"\}/g;
+        
+        let match;
                 let count = 0;
                 while ((match = videoPattern.exec(html)) !== null && count < 10) {
-                    const videoId = match[1];
-                    if (!seenIds.has(videoId)) {
-                        seenIds.add(videoId);
+          const videoId = match[1];
+          if (!seenIds.has(videoId)) {
+            seenIds.add(videoId);
                         const title = match[2].replace(/\\u([0-9a-fA-F]{4})/g, (m, code) => String.fromCharCode(parseInt(code, 16)));
                         const artist = match[3] ? match[3].replace(/\\u([0-9a-fA-F]{4})/g, (m, code) => String.fromCharCode(parseInt(code, 16))) : "YouTube";
                         results.push({ title, artist, videoId });
@@ -898,7 +935,7 @@
                 
                 // Fallback: pattern đơn giản hơn
                 if (results.length === 0) {
-                    const videoIdRegex = /"videoId":"([^"]{11})"/g;
+        const videoIdRegex = /"videoId":"([^"]{11})"/g;
                     const titleRegex = /"title":\{"runs":\[\{"text":"([^"]+)"\}/g;
                     const ownerRegex = /"ownerText":\{"runs":\[\{"text":"([^"]+)"\}/g;
                     
@@ -906,10 +943,10 @@
                     const titles = [];
                     const owners = [];
                     
-                    let vidMatch;
+        let vidMatch;
                     while ((vidMatch = videoIdRegex.exec(html)) !== null && videoIds.length < 15) {
-                        if (!seenIds.has(vidMatch[1])) {
-                            seenIds.add(vidMatch[1]);
+          if (!seenIds.has(vidMatch[1])) {
+            seenIds.add(vidMatch[1]);
                             videoIds.push(vidMatch[1]);
                         }
                     }
@@ -939,8 +976,8 @@
                 }
                 
                 return results;
-            } catch (error) {
-                console.error('Lỗi tìm kiếm YouTube:', error);
+      } catch (error) {
+        console.error('Lỗi tìm kiếm YouTube:', error);
                 return [];
             }
         }
@@ -1025,13 +1062,24 @@
             }
             
             // Đảm bảo hiển thị trên mobile
-            searchResults.style.display = 'block';
             searchResults.classList.add('active');
+            searchResults.style.display = 'block';
+            searchResults.style.visibility = 'visible';
+            searchResults.style.opacity = '1';
             
             // Force reflow để đảm bảo hiển thị
-            searchResults.offsetHeight;
+            void searchResults.offsetHeight;
+            
+            // Scroll đến kết quả trên mobile nếu cần
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            if (isMobile && results.length > 0) {
+                setTimeout(() => {
+                    searchResults.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }, 100);
+            }
             
             console.log('Search results displayed, active class:', searchResults.classList.contains('active'));
+            console.log('Search results computed style:', window.getComputedStyle(searchResults).display);
         }
 
         async function searchSong() {
@@ -1070,7 +1118,7 @@
                 }
 
                 displayResults(results);
-            } catch (error) {
+      } catch (error) {
                 console.error('Lỗi trong searchSong:', error);
                 searchResults.innerHTML = `
                     <div class="no-results">
@@ -1483,9 +1531,9 @@
                     if (echoItem) echoItem.classList.add('disabled');
                     if (ambientItem) ambientItem.classList.add('disabled');
                     if (eqItem) eqItem.classList.add('disabled');
-                    return;
-                }
-                
+        return;
+      }
+
                 const devices = await navigator.mediaDevices.enumerateDevices();
                 const audioInputDevices = devices.filter(device => device.kind === 'audioinput' && device.deviceId !== 'default');
                 
@@ -1551,7 +1599,8 @@
                     popup.classList.remove('active');
                 }
             }
-        });
-    </script>
+    });
+  </script>
 </body>
 </html>
+
