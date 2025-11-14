@@ -247,22 +247,33 @@
       showModal(`Đang chuẩn bị video cho: ${title}`);
       setStatus(`Đang tìm video: ${title}`);
       const fallback = `https://www.youtube.com/embed?listType=search&list=${encodeURIComponent(query)}&autoplay=1&rel=0&modestbranding=1&playsinline=1`;
+      
+      // Luôn có fallback sẵn sàng
+      let fallbackTimeout = setTimeout(() => {
+        playInModal(fallback, "Đang tải danh sách karaoke...");
+        setStatus(`Đang phát danh sách karaoke: ${title}`);
+      }, 5000); // Sau 5 giây nếu chưa có kết quả, dùng fallback
+      
       try {
         const videoId = await fetchFirstVideoId(query);
+        clearTimeout(fallbackTimeout);
+        
         if (!videoId) {
-          playInModal(fallback, "Không tìm được video cụ thể. Đang phát danh sách karaoke phù hợp.");
+          playInModal(fallback, "Đang phát danh sách karaoke phù hợp...");
           setStatus(`Đang phát danh sách karaoke theo từ khóa: ${title}`);
           return;
         }
+        
         playInModal(
-          `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&playsinline=1`,
+          `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&playsinline=1&enablejsapi=1`,
           "Đang tải video karaoke..."
         );
         setStatus(`Đang phát: ${title}`);
       } catch (error) {
-        playInModal(fallback, "Không thể lấy video cụ thể. Đang phát danh sách karaoke tương tự.");
-        setStatus("Không thể lấy video cụ thể, đang mở danh sách đề xuất.");
-        console.error(error);
+        clearTimeout(fallbackTimeout);
+        playInModal(fallback, "Đang phát danh sách karaoke...");
+        setStatus(`Đang phát danh sách karaoke: ${title}`);
+        console.error('Lỗi khi tìm video:', error);
       }
     }
 
@@ -280,6 +291,18 @@
       if (modal.classList.contains("hidden")) return;
       modalPlaceholder.style.display = "none";
       modalFrame.style.display = "block";
+    });
+    
+    // Xử lý lỗi iframe trên mobile
+    modalFrame.addEventListener("error", () => {
+      if (modal.classList.contains("hidden")) return;
+      const currentSrc = modalFrame.src;
+      if (currentSrc && currentSrc.includes('youtube')) {
+        // Thử fallback với URL khác
+        const fallbackUrl = currentSrc.replace('youtube-nocookie.com', 'youtube.com');
+        modalFrame.src = fallbackUrl;
+        modalPlaceholder.textContent = "Đang thử phương án dự phòng...";
+      }
     });
 
     modalClose.addEventListener("click", closeModal);
@@ -313,12 +336,16 @@
       
       // Tạo AbortController với timeout (dài hơn cho mobile)
       const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      const timeout = isMobile ? 8000 : 5000;
+      const timeout = isMobile ? 12000 : 6000; // Tăng timeout cho mobile
       
       const createFetchWithTimeout = (url, timeoutMs = timeout) => {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-        return fetch(url, { signal: controller.signal })
+        return fetch(url, { 
+          signal: controller.signal,
+          mode: 'cors',
+          cache: 'no-cache'
+        })
           .then(response => {
             clearTimeout(timeoutId);
             if (!response.ok) throw new Error('Network response was not ok');
@@ -330,35 +357,71 @@
           });
       };
       
-      // Thử nhiều proxy cùng lúc
+      // Thử nhiều proxy cùng lúc (ưu tiên proxy ổn định cho mobile)
+      const youtubeUrl = `https://www.youtube.com/results?search_query=${searchQuery}`;
       const proxyPromises = [
-        createFetchWithTimeout(`https://api.allorigins.win/get?url=${encodeURIComponent(`https://www.youtube.com/results?search_query=${searchQuery}`)}`)
+        // Proxy 1: allorigins (ổn định nhất)
+        createFetchWithTimeout(`https://api.allorigins.win/get?url=${encodeURIComponent(youtubeUrl)}`)
           .then(r => r.json())
           .then(d => d.contents || '')
           .catch(() => ''),
-        createFetchWithTimeout(`https://corsproxy.io/?${encodeURIComponent(`https://www.youtube.com/results?search_query=${searchQuery}`)}`)
+        // Proxy 2: corsproxy (tốt cho mobile)
+        createFetchWithTimeout(`https://corsproxy.io/?${encodeURIComponent(youtubeUrl)}`)
           .then(r => r.text())
           .catch(() => ''),
-        createFetchWithTimeout(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(`https://www.youtube.com/results?search_query=${searchQuery}`)}`)
+        // Proxy 3: codetabs
+        createFetchWithTimeout(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(youtubeUrl)}`)
+          .then(r => r.text())
+          .catch(() => ''),
+        // Proxy 4: thingproxy (backup)
+        createFetchWithTimeout(`https://thingproxy.freeboard.io/fetch/${youtubeUrl}`)
           .then(r => r.text())
           .catch(() => '')
       ];
       
       try {
         let html = '';
+        // Thử Promise.race trước (lấy kết quả nhanh nhất)
         try {
           html = await Promise.race(proxyPromises);
         } catch (raceError) {
+          console.log('Promise.race failed, trying allSettled...');
+        }
+        
+        // Nếu không có kết quả, thử tất cả
+        if (!html || html.trim() === '') {
           const settled = await Promise.allSettled(proxyPromises);
           for (const result of settled) {
-            if (result.status === 'fulfilled' && result.value) {
+            if (result.status === 'fulfilled' && result.value && result.value.trim() !== '') {
               html = result.value;
+              console.log('Got HTML from fallback proxy');
               break;
             }
           }
         }
         
         if (!html || html.trim() === '') {
+          console.log('No HTML content from proxies, trying RSS fallback...');
+          // Fallback: Thử RSS feed (đơn giản hơn, ít bị chặn hơn)
+          try {
+            const rssUrl = `https://www.youtube.com/feeds/videos.xml?search_query=${searchQuery}`;
+            const rssResponse = await createFetchWithTimeout(rssUrl, timeout);
+            if (rssResponse.ok) {
+              const xmlText = await rssResponse.text();
+              const parser = new DOMParser();
+              const doc = parser.parseFromString(xmlText, "application/xml");
+              const entry = doc.getElementsByTagName("entry")[0];
+              if (entry) {
+                const videoTag = entry.getElementsByTagName("yt:videoId")[0] || entry.getElementsByTagName("videoId")[0];
+                if (videoTag && videoTag.textContent) {
+                  console.log('Got videoId from RSS feed');
+                  return videoTag.textContent;
+                }
+              }
+            }
+          } catch (rssError) {
+            console.log('RSS fallback also failed:', rssError);
+          }
           return null;
         }
         
@@ -373,15 +436,25 @@
           const videoId = match[1];
           if (!seenIds.has(videoId)) {
             seenIds.add(videoId);
+            console.log('Got videoId from videoRenderer pattern');
             return videoId;
           }
         }
         
-        // Fallback: pattern đơn giản hơn
+        // Fallback: pattern đơn giản hơn - tìm videoId đầu tiên
         const videoIdRegex = /"videoId":"([^"]{11})"/g;
-        let vidMatch = videoIdRegex.exec(html);
-        if (vidMatch && vidMatch[1]) {
-          return vidMatch[1];
+        const matches = [];
+        let vidMatch;
+        while ((vidMatch = videoIdRegex.exec(html)) !== null && matches.length < 5) {
+          if (!seenIds.has(vidMatch[1])) {
+            seenIds.add(vidMatch[1]);
+            matches.push(vidMatch[1]);
+          }
+        }
+        
+        if (matches.length > 0) {
+          console.log('Got videoId from simple pattern');
+          return matches[0];
         }
         
         return null;
