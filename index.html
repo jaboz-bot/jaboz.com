@@ -1,669 +1,1557 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Karaoke Finder</title>
-  <style>
-    :root { color-scheme: light dark; }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: "Inter", system-ui, -apple-system, sans-serif;
-      min-height: 100vh;
-      background: radial-gradient(circle at top, #111827, #0f172a);
-      color: #f8fafc;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 32px 16px;
-    }
-    body.modal-open {
-      overflow: hidden;
-    }
-    .app {
-      width: min(100%, 900px);
-      display: grid;
-      gap: 18px;
-    }
-    .search-box {
-      display: block;
-      background: rgba(15, 23, 42, 0.85);
-      border: 1px solid rgba(148, 163, 184, 0.3);
-      border-radius: 18px;
-      overflow: hidden;
-      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.35);
-    }
-    .search-box input {
-      width: 100%;
-      padding: 18px 20px;
-      background: transparent;
-      border: none;
-      color: inherit;
-      font-size: 1.05rem;
-      outline: none;
-    }
-    .search-box input::placeholder { color: rgba(226, 232, 240, 0.5); }
-    .status {
-      margin: 0;
-      padding: 0 8px 4px;
-      min-height: 18px;
-      font-size: 0.9rem;
-      color: rgba(148, 191, 255, 0.85);
-    }
-    .modal {
-      position: fixed;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(15, 23, 42, 0.75);
-      backdrop-filter: blur(6px);
-      z-index: 999;
-      padding: clamp(16px, 4vw, 32px);
-      transition: opacity 0.2s ease, visibility 0.2s ease;
-    }
-    .modal.hidden {
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-    }
-    .modal-content {
-      position: relative;
-      width: min(100%, 900px);
-      aspect-ratio: 16 / 9;
-      background: rgba(15, 23, 42, 0.92);
-      border: 1px solid rgba(148, 163, 184, 0.35);
-      border-radius: 20px;
-      box-shadow: 0 32px 64px rgba(15, 23, 42, 0.55);
-      overflow: hidden;
-    }
-    .modal iframe {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
-    .modal-placeholder {
-      position: absolute;
-      inset: 0;
-      display: grid;
-      place-items: center;
-      text-align: center;
-      padding: 24px;
-      color: rgba(226, 232, 240, 0.85);
-      gap: 12px;
-    }
-    .modal-close {
-      position: absolute;
-      top: 14px;
-      right: 14px;
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      border: 1px solid rgba(148, 163, 184, 0.3);
-      background: rgba(15, 23, 42, 0.6);
-      color: inherit;
-      cursor: pointer;
-      font-size: 1.2rem;
-      display: grid;
-      place-items: center;
-      transition: transform 0.15s ease, background 0.2s ease;
-    }
-    .modal-close:hover,
-    .modal-close:focus-visible {
-      transform: scale(1.05);
-      background: rgba(56, 189, 248, 0.2);
-    }
-    .results {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      display: grid;
-      gap: 8px;
-    }
-    .results button,
-    .results li.empty {
-      width: 100%;
-      background: rgba(15, 23, 42, 0.7);
-      border-radius: 14px;
-      border: 1px solid rgba(148, 163, 184, 0.25);
-      padding: 14px 18px;
-      color: inherit;
-      font-weight: 500;
-      text-align: left;
-      cursor: pointer;
-      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
-      outline: none;
-    }
-    .results button:hover,
-    .results button:focus-visible {
-      transform: translateY(-1px);
-      border-color: rgba(56, 189, 248, 0.6);
-      background: rgba(56, 189, 248, 0.12);
-    }
-    .results li.empty {
-      text-align: center;
-      opacity: 0.6;
-      font-weight: 400;
-      cursor: default;
-    }
-    @media (min-width: 640px) {
-      body { padding: 48px 16px; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giao diện TV Karaoke</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px;
+        }
+
+        @media (max-width: 599px) {
+            body {
+                align-items: flex-start;
+                padding-top: 10px;
+            }
+        }
+
+        .tv-container {
+            perspective: 1000px;
+        }
+
+        .tv {
+            width: 800px;
+            height: 600px;
+            background: transparent;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: none;
+            position: relative;
+            transform-style: preserve-3d;
+        }
+
+        /* TV Screen */
+        .tv-screen {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: none;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Screen glow effect */
+        .tv-screen::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        /* TV Stand */
+        .tv-stand {
+            width: 200px;
+            height: 30px;
+            background: transparent;
+            margin: 20px auto 0;
+            border-radius: 0 0 10px 10px;
+            box-shadow: none;
+        }
+
+        .tv-stand::after {
+            content: '';
+            width: 300px;
+            height: 15px;
+            background: transparent;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-top: 15px;
+            border-radius: 0 0 15px 15px;
+        }
+
+        /* Content Area */
+        .tv-content {
+            z-index: 1;
+            text-align: center;
+            color: white;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow-y: auto;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tv-title {
+            max-width: 250px;
+            width: 100%;
+            height: auto;
+            margin-bottom: 20px;
+            padding: 0;
+            background: none !important;
+            background-color: transparent !important;
+            border: none !important;
+            outline: none !important;
+            box-shadow: none !important;
+            display: block;
+            object-fit: contain;
+            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.5));
+            animation: logoGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes logoGlow {
+            from {
+                filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.5));
+            }
+            to {
+                filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 40px rgba(100, 150, 255, 0.6));
+            }
+        }
+
+        .tv-subtitle {
+            font-size: 24px;
+            opacity: 0.9;
+            margin-bottom: 40px;
+        }
+
+        /* Search Section */
+        .search-section {
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+            margin: 0 auto;
+            z-index: 10;
+        }
+
+        .search-container {
+            display: flex;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .search-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            padding: 12px 20px;
+            color: white;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .search-input:focus {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+
+        .search-results {
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            display: none;
+            width: 100%;
+            -webkit-overflow-scrolling: touch;
+            position: relative;
+            z-index: 100;
+            background: rgba(30, 60, 114, 0.95);
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        .search-results.active {
+            display: block;
+        }
+
+        .song-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .song-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-left-color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .song-thumbnail {
+            width: 120px;
+            height: 90px;
+            border-radius: 8px;
+            object-fit: cover;
+            flex-shrink: 0;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .song-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .song-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .song-artist {
+            font-size: 14px;
+            opacity: 0.8;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 20px;
+            opacity: 0.7;
+            font-style: italic;
+        }
+
+        /* Video Player */
+        .video-player-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            display: none;
+            background: #000;
+            border-radius: 10px;
+        }
+
+        .video-player-container.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .video-player-wrapper {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .video-player-wrapper iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 10px;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            z-index: 11;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .back-button:hover {
+            background: rgba(0, 0, 0, 0.9);
+            transform: translateY(-2px);
+        }
+
+
+
+
+        /* Audio Control Button */
+        .audio-control-button {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 24px;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .audio-control-button:hover {
+            transform: translateX(-50%) translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .audio-control-button:active {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Audio Control Popup */
+        .audio-control-popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .audio-control-popup.active {
+            display: flex;
+        }
+
+        .audio-control-content {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .audio-control-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .audio-control-header h2 {
+            color: white;
+            font-size: 24px;
+            margin: 0;
+        }
+
+        .close-button {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+
+        .close-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+
+        .audio-control-body {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .audio-control-item {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .audio-control-item label {
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .eq-slider-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .eq-labels {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            position: relative;
+            margin-bottom: 5px;
+        }
+
+        .eq-label-left {
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+        .eq-label-center {
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            opacity: 0.9;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .eq-label-right {
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+        .eq-slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: linear-gradient(to right, 
+                rgba(100, 200, 255, 0.3) 0%, 
+                rgba(255, 255, 255, 0.2) 50%, 
+                rgba(255, 200, 100, 0.3) 100%);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .eq-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.5);
+            transition: all 0.2s ease;
+        }
+
+        .eq-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 3px 12px rgba(102, 126, 234, 0.7);
+        }
+
+        .eq-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.5);
+            transition: all 0.2s ease;
+        }
+
+        .eq-slider::-moz-range-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 3px 12px rgba(102, 126, 234, 0.7);
+        }
+
+        .eq-values {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .eq-value {
+            display: flex;
+            gap: 5px;
+        }
+
+        .volume-slider {
+            flex: 1;
+            height: 8px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .volume-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.6);
+        }
+
+        .volume-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .volume-slider::-moz-range-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.6);
+        }
+
+        .volume-value {
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            min-width: 45px;
+            text-align: right;
+        }
+
+        .volume-slider:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .volume-slider:disabled::-webkit-slider-thumb {
+            cursor: not-allowed;
+        }
+
+        .volume-slider:disabled::-moz-range-thumb {
+            cursor: not-allowed;
+        }
+
+        .audio-control-item.disabled label {
+            opacity: 0.5;
+        }
+
+        /* Responsive - Mobile */
+        @media (max-width: 599px) {
+            body {
+                padding: 5px;
+            }
+
+            .tv {
+                width: 98vw;
+                height: auto;
+                min-height: 500px;
+                max-height: 95vh;
+                padding: 8px;
+                border-radius: 12px;
+            }
+
+            .tv-screen {
+                padding: 8px;
+                min-height: 0;
+                border-radius: 8px;
+            }
+
+            .tv-stand {
+                display: none;
+            }
+
+            .tv-content {
+                padding: 5px 0;
+                justify-content: flex-start;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .tv-title {
+                max-width: 100px;
+                margin-bottom: 10px;
+            }
+
+            .tv-subtitle {
+                font-size: 16px;
+                margin-bottom: 20px;
+            }
+
+            .search-section {
+                max-width: 100%;
+                padding: 10px;
+            }
+
+            .search-results {
+                max-height: 300px;
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                position: relative !important;
+                z-index: 100 !important;
+                margin-top: 15px !important;
+                padding: 10px !important;
+            }
+
+            .search-results.active {
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+            }
+
+            .song-thumbnail {
+                width: 80px;
+                height: 60px;
+            }
+
+            .song-title {
+                font-size: 14px;
+            }
+
+            .song-artist {
+                font-size: 12px;
+            }
+
+            .audio-control-button {
+                padding: 10px 18px;
+                font-size: 12px;
+                bottom: 15px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
+            .audio-control-button:hover {
+                transform: translateX(-50%) translateY(-2px);
+            }
+
+            .audio-control-button:active {
+                transform: translateX(-50%) translateY(0);
+            }
+
+            .audio-control-content {
+                padding: 20px;
+                max-width: 90%;
+            }
+
+            .audio-control-header h2 {
+                font-size: 20px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-label="Trình phát karaoke">
-    <div class="modal-content">
-      <button id="modal-close" class="modal-close" type="button" aria-label="Đóng trình phát">&times;</button>
-      <div id="modal-placeholder" class="modal-placeholder">Đang chuẩn bị video...</div>
-      <iframe
-        id="modal-frame"
-        title="Karaoke Player"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        allowfullscreen
-      ></iframe>
+    <div class="tv-container">
+        <div class="tv">
+            <button class="audio-control-button" onclick="toggleAudioControl()">Chỉnh âm</button>
+            
+            <div class="tv-screen">
+                <div class="tv-content" id="tvContent">
+                    <img src="images/logo.png" class="tv-title">
+                    <p class="tv-subtitle">Chào mừng bạn đến với hệ thống Karaoke Online</p>
+                    
+                    <div class="search-section">
+                        <div class="search-container">
+                            <input 
+                                type="text" 
+                                class="search-input" 
+                                id="searchInput"
+                                placeholder="Nhập tên bài hát để tìm kiếm..."
+                                onkeypress="handleKeyPress(event)"
+                                oninput="handleSearchInput(event)"
+                            >
+                        </div>
+                        <div class="search-results" id="searchResults"></div>
+                    </div>
+                </div>
+                
+                <div class="video-player-container" id="videoPlayerContainer">
+                    <button class="back-button" onclick="closeVideo()">← Quay lại</button>
+                    <div class="video-player-wrapper">
+                        <iframe id="youtubePlayer" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tv-stand"></div>
     </div>
-  </div>
 
-  <main class="app">
-    <label class="search-box">
-      <input
-        type="search"
-        id="search"
-        placeholder="Nhập tên bài hát karaoke..."
-        autocomplete="off"
-        spellcheck="false"
-      />
-    </label>
-    <p id="status" class="status" role="status" aria-live="polite"></p>
-    <ul id="results" class="results"></ul>
-  </main>
+    <!-- Audio Control Popup -->
+    <div class="audio-control-popup" id="audioControlPopup">
+        <div class="audio-control-content">
+            <div class="audio-control-header">
+                <h2>Điều chỉnh âm lượng</h2>
+                <button class="close-button" onclick="toggleAudioControl()">×</button>
+            </div>
+            <div class="audio-control-body">
+                <div class="audio-control-item">
+                    <label>Nhạc</label>
+                    <div class="slider-container">
+                        <input type="range" class="volume-slider" id="musicVolume" min="0" max="100" value="80" oninput="updateVolume('music', this.value)">
+                        <span class="volume-value" id="musicValue">80%</span>
+                    </div>
+                </div>
+                <div class="audio-control-item disabled" id="micControlItem">
+                    <label>Mic <span style="font-size: 12px; opacity: 0.7;">(Cần kết nối tai nghe/bluetooth)</span></label>
+                    <div class="slider-container">
+                        <input type="range" class="volume-slider" id="micVolume" min="0" max="100" value="70" oninput="updateVolume('mic', this.value)" disabled>
+                        <span class="volume-value" id="micValue">70%</span>
+                    </div>
+                </div>
+                <div class="audio-control-item disabled" id="micEQControlItem">
+                    <div class="eq-slider-container">
+                        <div class="eq-labels">
+                            <span class="eq-label-left">Treble</span>
+                            <span class="eq-label-center">Mid</span>
+                            <span class="eq-label-right">Bass</span>
+                        </div>
+                        <input type="range" class="eq-slider" id="micEQSlider" min="-20" max="20" value="0" oninput="updateEQSlider(this.value)" disabled>
+                        <div class="eq-values">
+                            <span class="eq-value">Treble: <span id="micTrebleValue">0dB</span></span>
+                            <span class="eq-value">Mid: <span id="micMidValue">0dB</span></span>
+                            <span class="eq-value">Bass: <span id="micBassValue">0dB</span></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="audio-control-item disabled" id="echoControlItem">
+                    <label>Echo <span style="font-size: 12px; opacity: 0.7;">(Cần kết nối tai nghe/bluetooth)</span></label>
+                    <div class="slider-container">
+                        <input type="range" class="volume-slider" id="echoVolume" min="0" max="100" value="50" oninput="updateVolume('echo', this.value)" disabled>
+                        <span class="volume-value" id="echoValue">50%</span>
+                    </div>
+                </div>
+                <div class="audio-control-item disabled" id="ambientControlItem">
+                    <label>Ambient <span style="font-size: 12px; opacity: 0.7;">(Cần kết nối tai nghe/bluetooth)</span></label>
+                    <div class="slider-container">
+                        <input type="range" class="volume-slider" id="ambientVolume" min="0" max="100" value="60" oninput="updateVolume('ambient', this.value)" disabled>
+                        <span class="volume-value" id="ambientValue">60%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-  <script>
-    const songs = [
-      { title: "Karaoke Em Gái Mưa - Hương Tràm", query: "karaoke em gái mưa hương tràm" },
-      { title: "Karaoke Người Lạ Ơi - Karik ft. Orange", query: "karaoke người lạ ơi karik orange" },
-      { title: "Karaoke Sầu Hồng Gai - G5R Squad", query: "karaoke sầu hồng gai g5r squad" },
-      { title: "Karaoke Đừng Lo Anh Đợi Mà - Mr. Siro", query: "karaoke đừng lo anh đợi mà mr siro" },
-      { title: "Karaoke Waiting For You - Mono", query: "karaoke waiting for you mono" },
-      { title: "Karaoke Muộn Rồi Mà Sao Còn - Sơn Tùng M-TP", query: "karaoke muộn rồi mà sao còn sơn tùng" },
-      { title: "Karaoke Có Chàng Trai Viết Lên Cây - Phan Mạnh Quỳnh", query: "karaoke có chàng trai viết lên cây phan mạnh quỳnh" },
-      { title: "Karaoke Lạc Trôi - Sơn Tùng M-TP", query: "karaoke lạc trôi sơn tùng" },
-      { title: "Karaoke Vùng Ký Ức - Chi Dân", query: "karaoke vùng ký ức chi dân" },
-      { title: "Karaoke Họ Yêu Ai Mất Rồi - Doãn Hiếu", query: "karaoke họ yêu ai mất rồi doãn hiếu" },
-      { title: "Karaoke Thương Em Là Điều Anh Không Thể Ngờ - Noo Phước Thịnh", query: "karaoke thương em là điều anh không thể ngờ noo phước thịnh" },
-      { title: "Karaoke Bên Trên Tầng Lầu - Tăng Duy Tân", query: "karaoke bên trên tầng lầu tăng duy tân" },
-      { title: "Karaoke Hoa Nở Không Màu - Hoài Lâm", query: "karaoke hoa nở không màu hoài lâm" },
-      { title: "Karaoke Cưới Thôi - Masew, BRay", query: "karaoke cưới thôi masew bray" },
-      { title: "Karaoke Yêu Là Cưới - Phát Hồ", query: "karaoke yêu là cưới phát hồ" }
-    ];
-
-    const searchInput = document.getElementById("search");
-    const resultsList = document.getElementById("results");
-    const status = document.getElementById("status");
-    const modal = document.getElementById("modal");
-    const modalFrame = document.getElementById("modal-frame");
-    const modalPlaceholder = document.getElementById("modal-placeholder");
-    const modalClose = document.getElementById("modal-close");
-    const MIN_CHARS = 2;
-
-    function setStatus(message) {
-      status.textContent = message || "";
-    }
-
-    function showModal(message) {
-      modalPlaceholder.textContent = message || "Đang chuẩn bị video karaoke...";
-      modalPlaceholder.style.display = "grid";
-      modalFrame.style.display = "none";
-      modalFrame.src = "";
-      modal.classList.remove("hidden");
-      document.body.classList.add("modal-open");
-    }
-
-    function playInModal(src, message) {
-      if (message) {
-        modalPlaceholder.textContent = message;
-      }
-      modalPlaceholder.style.display = "grid";
-      modalFrame.style.display = "none";
-      modalFrame.src = src;
-    }
-
-    function createItem(song) {
-      const li = document.createElement("li");
-      const button = document.createElement("button");
-      button.type = "button";
-      button.textContent = song.title;
-      button.dataset.query = song.query;
-      button.addEventListener("click", () => playSong(song.query, song.title));
-      li.appendChild(button);
-      return li;
-    }
-
-    async function playSong(query, title) {
-      showModal(`Đang chuẩn bị video cho: ${title}`);
-      setStatus(`Đang tìm video: ${title}`);
-      const fallback = `https://www.youtube.com/embed?listType=search&list=${encodeURIComponent(query)}&autoplay=1&rel=0&modestbranding=1&playsinline=1`;
-      
-      // Luôn có fallback sẵn sàng
-      let fallbackTimeout = setTimeout(() => {
-        playInModal(fallback, "Đang tải danh sách karaoke...");
-        setStatus(`Đang phát danh sách karaoke: ${title}`);
-      }, 5000); // Sau 5 giây nếu chưa có kết quả, dùng fallback
-      
-      try {
-        const videoId = await fetchFirstVideoId(query);
-        clearTimeout(fallbackTimeout);
-        
-        if (!videoId) {
-          playInModal(fallback, "Đang phát danh sách karaoke phù hợp...");
-          setStatus(`Đang phát danh sách karaoke theo từ khóa: ${title}`);
-          return;
-        }
-        
-        playInModal(
-          `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&playsinline=1&enablejsapi=1`,
-          "Đang tải video karaoke..."
-        );
-        setStatus(`Đang phát: ${title}`);
-      } catch (error) {
-        clearTimeout(fallbackTimeout);
-        playInModal(fallback, "Đang phát danh sách karaoke...");
-        setStatus(`Đang phát danh sách karaoke: ${title}`);
-        console.error('Lỗi khi tìm video:', error);
-      }
-    }
-
-    function closeModal() {
-      modal.classList.add("hidden");
-      document.body.classList.remove("modal-open");
-      modalPlaceholder.textContent = "Đang chuẩn bị video...";
-      modalPlaceholder.style.display = "grid";
-      modalFrame.style.display = "none";
-      modalFrame.src = "";
-      setStatus("Đã đóng trình phát.");
-    }
-
-    modalFrame.addEventListener("load", () => {
-      if (modal.classList.contains("hidden")) return;
-      modalPlaceholder.style.display = "none";
-      modalFrame.style.display = "block";
-    });
-    
-    // Xử lý lỗi iframe trên mobile
-    modalFrame.addEventListener("error", () => {
-      if (modal.classList.contains("hidden")) return;
-      const currentSrc = modalFrame.src;
-      if (currentSrc && currentSrc.includes('youtube')) {
-        // Thử fallback với URL khác
-        const fallbackUrl = currentSrc.replace('youtube-nocookie.com', 'youtube.com');
-        modalFrame.src = fallbackUrl;
-        modalPlaceholder.textContent = "Đang thử phương án dự phòng...";
-      }
-    });
-
-    modalClose.addEventListener("click", closeModal);
-
-    modal.addEventListener("click", (event) => {
-      if (event.target === modal) {
-        closeModal();
-      }
-    });
-
-    document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape" && !modal.classList.contains("hidden")) {
-        closeModal();
-      }
-    });
-
-    function showEmpty() {
-      const li = document.createElement("li");
-      li.className = "empty";
-      li.textContent = "Không có kết quả.";
-      return li;
-    }
-
-    // ============================================
-    // CẤU HÌNH YOUTUBE API (TÙY CHỌN)
-    // ============================================
-    // 
-    // ⚠️ LƯU Ý QUAN TRỌNG:
-    // - YouTube Data API có giới hạn: 10,000 units/ngày (miễn phí)
-    // - Mỗi lần search = 100 units → ~100 lần tìm kiếm/ngày
-    // - Nếu nhiều người dùng → dễ hết quota → có thể bị tính phí
-    // 
-    // ✅ GIẢI PHÁP HIỆN TẠI (KHUYẾN NGHỊ):
-    // - Dùng web scraping (không giới hạn quota, miễn phí)
-    // - Tự động fallback sang danh sách phát YouTube nếu không tìm được video
-    // 
-    // 🔧 NẾU MUỐN DÙNG API:
-    // 1. Tạo backend proxy (Node.js/Python/PHP) để bảo vệ API key
-    // 2. Backend sẽ gọi YouTube API và trả kết quả về
-    // 3. Đặt USE_YOUTUBE_API = true và cung cấp API_PROXY_URL
-    // 
-    // 📝 VÍ DỤ BACKEND PROXY (Node.js/Express):
-    // app.get('/api/youtube-search', async (req, res) => {
-    //   const query = req.query.q;
-    //   const response = await fetch(
-    //     `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${query}&key=YOUR_API_KEY&type=video&maxResults=1`
-    //   );
-    //   const data = await response.json();
-    //   res.json(data);
-    // });
-    //
-    const USE_YOUTUBE_API = false; // Đặt true nếu có backend proxy
-    const API_PROXY_URL = ''; // URL backend proxy (ví dụ: 'https://your-backend.com/api/youtube-search')
-    
-    // Hàm tìm kiếm bằng YouTube API (qua backend proxy)
-    async function searchYouTubeAPI(query) {
-      if (!API_PROXY_URL) return null;
-      
-      try {
-        const response = await fetch(`${API_PROXY_URL}?q=${encodeURIComponent(query)}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
-        
-        if (!response.ok) {
-          throw new Error('API request failed');
-        }
-        
-        const data = await response.json();
-        if (data.items && data.items.length > 0) {
-          return data.items[0].id.videoId;
-        }
-        return null;
-      } catch (error) {
-        console.log('YouTube API failed, falling back to scraping:', error);
-        return null;
-      }
-    }
-    
-    // Hàm tìm kiếm trên YouTube (không dùng API - web scraping qua proxy)
-    async function searchYouTube(query) {
-      if (!query || query.length < 2) {
-        return null;
-      }
-      
-      const searchQuery = encodeURIComponent(query);
-      
-      // Tạo AbortController với timeout (dài hơn cho mobile)
-      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      const timeout = isMobile ? 12000 : 6000; // Tăng timeout cho mobile
-      
-      const createFetchWithTimeout = (url, timeoutMs = timeout) => {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-        return fetch(url, { 
-          signal: controller.signal,
-          mode: 'cors',
-          cache: 'no-cache'
-        })
-          .then(response => {
-            clearTimeout(timeoutId);
-            if (!response.ok) throw new Error('Network response was not ok');
-            return response;
-          })
-          .catch(err => {
-            clearTimeout(timeoutId);
-            throw err;
-          });
-      };
-      
-      // Thử nhiều proxy cùng lúc (ưu tiên proxy ổn định cho mobile)
-      const youtubeUrl = `https://www.youtube.com/results?search_query=${searchQuery}`;
-      const proxyPromises = [
-        // Proxy 1: allorigins (ổn định nhất)
-        createFetchWithTimeout(`https://api.allorigins.win/get?url=${encodeURIComponent(youtubeUrl)}`)
-          .then(r => r.json())
-          .then(d => d.contents || '')
-          .catch(() => ''),
-        // Proxy 2: corsproxy (tốt cho mobile)
-        createFetchWithTimeout(`https://corsproxy.io/?${encodeURIComponent(youtubeUrl)}`)
-          .then(r => r.text())
-          .catch(() => ''),
-        // Proxy 3: codetabs
-        createFetchWithTimeout(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(youtubeUrl)}`)
-          .then(r => r.text())
-          .catch(() => ''),
-        // Proxy 4: thingproxy (backup)
-        createFetchWithTimeout(`https://thingproxy.freeboard.io/fetch/${youtubeUrl}`)
-          .then(r => r.text())
-          .catch(() => '')
-      ];
-      
-      try {
-        let html = '';
-        // Thử Promise.race trước (lấy kết quả nhanh nhất)
-        try {
-          html = await Promise.race(proxyPromises);
-        } catch (raceError) {
-          console.log('Promise.race failed, trying allSettled...');
-        }
-        
-        // Nếu không có kết quả, thử tất cả
-        if (!html || html.trim() === '') {
-          const settled = await Promise.allSettled(proxyPromises);
-          for (const result of settled) {
-            if (result.status === 'fulfilled' && result.value && result.value.trim() !== '') {
-              html = result.value;
-              console.log('Got HTML from fallback proxy');
-              break;
+    <script>
+        // Hàm tìm kiếm trên YouTube (không dùng API - web scraping)
+        async function searchYouTube(query) {
+            if (!query || query.length < 2) {
+                return [];
             }
-          }
-        }
-        
-        if (!html || html.trim() === '') {
-          console.log('No HTML content from proxies, trying RSS fallback...');
-          // Fallback: Thử RSS feed (đơn giản hơn, ít bị chặn hơn)
-          try {
-            const rssUrl = `https://www.youtube.com/feeds/videos.xml?search_query=${searchQuery}`;
-            const rssResponse = await createFetchWithTimeout(rssUrl, timeout);
-            if (rssResponse.ok) {
-              const xmlText = await rssResponse.text();
-              const parser = new DOMParser();
-              const doc = parser.parseFromString(xmlText, "application/xml");
-              const entry = doc.getElementsByTagName("entry")[0];
-              if (entry) {
-                const videoTag = entry.getElementsByTagName("yt:videoId")[0] || entry.getElementsByTagName("videoId")[0];
-                if (videoTag && videoTag.textContent) {
-                  console.log('Got videoId from RSS feed');
-                  return videoTag.textContent;
+            
+            const searchQuery = encodeURIComponent(query);
+            
+            // Tạo AbortController với timeout (dài hơn cho mobile)
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            const timeout = isMobile ? 8000 : 5000;
+            
+            const createFetchWithTimeout = (url, timeoutMs = timeout) => {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+                return fetch(url, { signal: controller.signal })
+                    .then(response => {
+                        clearTimeout(timeoutId);
+                        if (!response.ok) throw new Error('Network response was not ok');
+                        return response;
+                    })
+                    .catch(err => {
+                        clearTimeout(timeoutId);
+                        throw err;
+                    });
+            };
+            
+            // Thử nhiều proxy cùng lúc
+            const proxyPromises = [
+                createFetchWithTimeout(`https://api.allorigins.win/get?url=${encodeURIComponent(`https://www.youtube.com/results?search_query=${searchQuery}`)}`)
+                    .then(r => r.json())
+                    .then(d => d.contents || '')
+                    .catch(() => ''),
+                createFetchWithTimeout(`https://corsproxy.io/?${encodeURIComponent(`https://www.youtube.com/results?search_query=${searchQuery}`)}`)
+                    .then(r => r.text())
+                    .catch(() => ''),
+                createFetchWithTimeout(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(`https://www.youtube.com/results?search_query=${searchQuery}`)}`)
+                    .then(r => r.text())
+                    .catch(() => '')
+            ];
+            
+            try {
+                let html = '';
+                try {
+                    html = await Promise.race(proxyPromises);
+                } catch (raceError) {
+                    const settled = await Promise.allSettled(proxyPromises);
+                    for (const result of settled) {
+                        if (result.status === 'fulfilled' && result.value) {
+                            html = result.value;
+                            break;
+                        }
+                    }
                 }
-              }
+                
+                if (!html || html.trim() === '') {
+                    return [];
+                }
+                
+                const results = [];
+                const seenIds = new Set();
+                
+                // Parse với regex - tìm pattern videoRenderer
+                const videoPattern = /"videoRenderer":\{[^}]*"videoId":"([^"]{11})"[^}]*"title":\{"runs":\[\{"text":"([^"]+)"\}[^}]*"ownerText":\{"runs":\[\{"text":"([^"]+)"\}/g;
+                
+                let match;
+                let count = 0;
+                while ((match = videoPattern.exec(html)) !== null && count < 10) {
+                    const videoId = match[1];
+                    if (!seenIds.has(videoId)) {
+                        seenIds.add(videoId);
+                        const title = match[2].replace(/\\u([0-9a-fA-F]{4})/g, (m, code) => String.fromCharCode(parseInt(code, 16)));
+                        const artist = match[3] ? match[3].replace(/\\u([0-9a-fA-F]{4})/g, (m, code) => String.fromCharCode(parseInt(code, 16))) : "YouTube";
+                        results.push({ title, artist, videoId });
+                        count++;
+                    }
+                }
+                
+                // Fallback: pattern đơn giản hơn
+                if (results.length === 0) {
+                    const videoIdRegex = /"videoId":"([^"]{11})"/g;
+                    const titleRegex = /"title":\{"runs":\[\{"text":"([^"]+)"\}/g;
+                    const ownerRegex = /"ownerText":\{"runs":\[\{"text":"([^"]+)"\}/g;
+                    
+                    const videoIds = [];
+                    const titles = [];
+                    const owners = [];
+                    
+                    let vidMatch;
+                    while ((vidMatch = videoIdRegex.exec(html)) !== null && videoIds.length < 15) {
+                        if (!seenIds.has(vidMatch[1])) {
+                            seenIds.add(vidMatch[1]);
+                            videoIds.push(vidMatch[1]);
+                        }
+                    }
+                    
+                    let titleMatch;
+                    while ((titleMatch = titleRegex.exec(html)) !== null && titles.length < videoIds.length) {
+                        titles.push(titleMatch[1].replace(/\\u([0-9a-fA-F]{4})/g, (m, code) => String.fromCharCode(parseInt(code, 16))));
+                    }
+                    
+                    let ownerMatch;
+                    while ((ownerMatch = ownerRegex.exec(html)) !== null && owners.length < videoIds.length) {
+                        owners.push(ownerMatch[1].replace(/\\u([0-9a-fA-F]{4})/g, (m, code) => String.fromCharCode(parseInt(code, 16))));
+                    }
+                    
+                    for (let i = 0; i < videoIds.length && i < 10; i++) {
+                        results.push({
+                            title: titles[i] || `Bài hát ${i + 1}`,
+                            artist: owners[i] || "YouTube",
+                            videoId: videoIds[i]
+                        });
+                    }
+                }
+                
+                console.log('YouTube search completed. Found', results.length, 'results');
+                if (results.length > 0) {
+                    console.log('First result:', results[0]);
+                }
+                
+                return results;
+            } catch (error) {
+                console.error('Lỗi tìm kiếm YouTube:', error);
+                return [];
             }
-          } catch (rssError) {
-            console.log('RSS fallback also failed:', rssError);
-          }
-          return null;
         }
-        
-        // Parse với regex - tìm pattern videoRenderer
-        const videoPattern = /"videoRenderer":\{[^}]*"videoId":"([^"]{11})"[^}]*"title":\{"runs":\[\{"text":"([^"]+)"\}[^}]*"ownerText":\{"runs":\[\{"text":"([^"]+)"\}/g;
-        
-        let match;
-        const seenIds = new Set();
-        match = videoPattern.exec(html);
-        
-        if (match && match[1]) {
-          const videoId = match[1];
-          if (!seenIds.has(videoId)) {
-            seenIds.add(videoId);
-            console.log('Got videoId from videoRenderer pattern');
-            return videoId;
-          }
-        }
-        
-        // Fallback: pattern đơn giản hơn - tìm videoId đầu tiên
-        const videoIdRegex = /"videoId":"([^"]{11})"/g;
-        const matches = [];
-        let vidMatch;
-        while ((vidMatch = videoIdRegex.exec(html)) !== null && matches.length < 5) {
-          if (!seenIds.has(vidMatch[1])) {
-            seenIds.add(vidMatch[1]);
-            matches.push(vidMatch[1]);
-          }
-        }
-        
-        if (matches.length > 0) {
-          console.log('Got videoId from simple pattern');
-          return matches[0];
-        }
-        
-        return null;
-      } catch (error) {
-        console.error('Lỗi tìm kiếm YouTube:', error);
-        return null;
-      }
-    }
 
-    // ============================================
-    // CÁC PHƯƠNG PHÁP LẤY VIDEO YOUTUBE KHÔNG CẦN API
-    // ============================================
-    //
-    // 1. YouTube RSS Feed ⭐ (KHUYẾN NGHỊ - Ưu tiên)
-    //    - Miễn phí, không giới hạn
-    //    - Ổn định, ít bị chặn
-    //    - Nhanh, đơn giản
-    //    - URL: https://www.youtube.com/feeds/videos.xml?search_query=...
-    //
-    // 2. Web Scraping qua Proxy
-    //    - Miễn phí, không giới hạn
-    //    - Có thể bị chặn nếu YouTube thay đổi cấu trúc
-    //    - Cần nhiều proxy fallback
-    //
-    // 3. Extract từ YouTube URL
-    //    - Nếu người dùng paste link YouTube
-    //    - Hỗ trợ: youtube.com/watch?v=, youtu.be/, youtube.com/embed/
-    //
-    // 4. YouTube Search Embed (Fallback cuối)
-    //    - Luôn hoạt động, không cần videoId
-    //    - Hiển thị danh sách phát tìm kiếm
-    //    - URL: youtube.com/embed?listType=search&list=...
-    //
-    // 5. YouTube oEmbed API
-    //    - Miễn phí nhưng cần videoId trước
-    //    - Không dùng được để search
-    //
-    
-    // Phương pháp 1: YouTube RSS Feed (miễn phí, ổn định, ưu tiên)
-    async function searchYouTubeRSS(query) {
-      try {
-        const rssUrl = `https://www.youtube.com/feeds/videos.xml?search_query=${encodeURIComponent(query)}`;
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        const timeout = isMobile ? 10000 : 5000;
-        
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), timeout);
-        
-        const response = await fetch(rssUrl, { 
-          signal: controller.signal,
-          mode: 'cors'
+        // Debounce timer cho tìm kiếm tự động
+        let searchTimeout = null;
+        let lastSearchQuery = '';
+        let searchCache = {};
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                if (searchTimeout) {
+                    clearTimeout(searchTimeout);
+                }
+                searchSong();
+            }
+        }
+
+        function handleSearchInput(event) {
+            const query = event.target.value.trim();
+            const searchResults = document.getElementById('searchResults');
+            
+            // Xóa timeout trước đó
+            if (searchTimeout) {
+                clearTimeout(searchTimeout);
+            }
+            
+            // Nếu ô input trống, ẩn kết quả
+            if (query === '') {
+                searchResults.classList.remove('active');
+                lastSearchQuery = '';
+                return;
+            }
+            
+            // Kiểm tra cache trước
+            const cacheKey = query.toLowerCase();
+            if (searchCache[cacheKey]) {
+                displayResults(searchCache[cacheKey]);
+                return;
+            }
+            
+            // Hiển thị loading
+            searchResults.innerHTML = '<div class="no-results"><span class="loading-spinner"></span>Đang tìm kiếm...</div>';
+            searchResults.classList.add('active');
+            
+            // Tìm kiếm với debounce
+            searchTimeout = setTimeout(() => {
+                if (query !== lastSearchQuery && query.length >= 2) {
+                    lastSearchQuery = query;
+                    searchSong();
+                }
+            }, 500);
+        }
+
+        function displayResults(results) {
+            const searchResults = document.getElementById('searchResults');
+            
+            console.log('Display results:', results.length, 'items');
+            
+            if (results.length > 0) {
+                searchResults.innerHTML = results.map(song => {
+                    const thumbnailUrl = `https://img.youtube.com/vi/${song.videoId}/maxresdefault.jpg`;
+                    const safeTitle = song.title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                    const safeArtist = song.artist.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                    return `
+                        <div class="song-item" onclick="playVideo('${song.videoId}', '${safeTitle}', '${safeArtist}')">
+                            <img src="${thumbnailUrl}" alt="${song.title}" class="song-thumbnail" loading="lazy" onerror="this.style.display='none'">
+                            <div class="song-info">
+                                <div class="song-title">${song.title}</div>
+                                <div class="song-artist">${song.artist}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                const query = document.getElementById('searchInput').value.trim();
+                searchResults.innerHTML = `
+                    <div class="no-results">
+                        Không tìm thấy kết quả cho "${query}".
+                    </div>
+                `;
+            }
+            
+            // Đảm bảo hiển thị trên mobile
+            searchResults.style.display = 'block';
+            searchResults.classList.add('active');
+            
+            // Force reflow để đảm bảo hiển thị
+            searchResults.offsetHeight;
+            
+            console.log('Search results displayed, active class:', searchResults.classList.contains('active'));
+        }
+
+        async function searchSong() {
+            const searchInput = document.getElementById('searchInput');
+            const searchResults = document.getElementById('searchResults');
+            const query = searchInput.value.trim();
+
+            console.log('Search song called with query:', query);
+
+            if (query === '' || query.length < 2) {
+                searchResults.classList.remove('active');
+                return;
+            }
+
+            // Kiểm tra cache
+            const cacheKey = query.toLowerCase();
+            if (searchCache[cacheKey]) {
+                console.log('Using cached results');
+                displayResults(searchCache[cacheKey]);
+                return;
+            }
+
+            try {
+                console.log('Searching YouTube for:', query);
+                const results = await searchYouTube(query);
+                console.log('Search completed, found:', results.length, 'results');
+                
+                // Lưu vào cache
+                if (results.length > 0) {
+                    searchCache[cacheKey] = results;
+                    // Giới hạn cache tối đa 50 items
+                    const cacheKeys = Object.keys(searchCache);
+                    if (cacheKeys.length > 50) {
+                        delete searchCache[cacheKeys[0]];
+                    }
+                }
+
+                displayResults(results);
+            } catch (error) {
+                console.error('Lỗi trong searchSong:', error);
+                searchResults.innerHTML = `
+                    <div class="no-results">
+                        Lỗi kết nối. Vui lòng kiểm tra kết nối mạng và thử lại.
+                    </div>
+                `;
+                searchResults.style.display = 'block';
+                searchResults.classList.add('active');
+            }
+        }
+
+        function playVideo(videoId, title, artist) {
+            const videoPlayerContainer = document.getElementById('videoPlayerContainer');
+            const youtubePlayer = document.getElementById('youtubePlayer');
+            const tvContent = document.getElementById('tvContent');
+
+            // Ẩn nội dung chính
+            tvContent.style.display = 'none';
+            
+            // Hiển thị video player với enablejsapi để điều khiển volume
+            youtubePlayer.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&enablejsapi=1`;
+            videoPlayerContainer.classList.add('active');
+        }
+
+        function closeVideo() {
+            const videoPlayerContainer = document.getElementById('videoPlayerContainer');
+            const youtubePlayer = document.getElementById('youtubePlayer');
+            const tvContent = document.getElementById('tvContent');
+
+            // Dừng video
+            youtubePlayer.src = '';
+            
+            // Ẩn video player
+            videoPlayerContainer.classList.remove('active');
+            
+            // Hiển thị lại nội dung chính
+            tvContent.style.display = 'block';
+        }
+
+        // Audio Control Functions
+        let audioContext = null;
+        let micStream = null;
+        let micGainNode = null;
+        let echoGainNode = null;
+        let ambientGainNode = null;
+        let micDestination = null;
+        let bassFilter = null;
+        let midFilter = null;
+        let trebleFilter = null;
+        let micSource = null;
+
+        function toggleAudioControl() {
+            const popup = document.getElementById('audioControlPopup');
+            popup.classList.toggle('active');
+            
+            if (popup.classList.contains('active')) {
+                checkAudioDevices();
+            }
+            // Không dừng mic khi đóng popup - giữ kết nối
+        }
+
+        async function updateVolume(type, value) {
+            const valueElement = document.getElementById(type + 'Value');
+            if (valueElement) {
+                valueElement.textContent = value + '%';
+            }
+            
+            if (type === 'music') {
+                // Điều chỉnh volume của YouTube video
+                const youtubePlayer = document.getElementById('youtubePlayer');
+                if (youtubePlayer && youtubePlayer.contentWindow) {
+                    try {
+                        // Gửi lệnh điều chỉnh volume qua postMessage
+                        youtubePlayer.contentWindow.postMessage(JSON.stringify({
+                            event: 'command',
+                            func: 'setVolume',
+                            args: [Math.round(value)]
+                        }), '*');
+                    } catch (e) {
+                        console.error('Lỗi điều chỉnh volume YouTube:', e);
+                    }
+                }
+            } else if (type === 'mic') {
+                // Điều chỉnh volume của mic (setValueAtTime để giảm latency)
+                if (micGainNode && audioContext) {
+                    micGainNode.gain.setValueAtTime(value / 100, audioContext.currentTime);
+                } else {
+                    // Khởi tạo mic nếu chưa có
+                    initMic();
+                }
+            } else if (type === 'echo') {
+                // Điều chỉnh echo effect
+                if (echoGainNode && audioContext) {
+                    echoGainNode.gain.setValueAtTime(value / 100, audioContext.currentTime);
+                } else {
+                    // Khởi tạo mic trước nếu chưa có
+                    if (!micStream) {
+                        await initMic();
+                    }
+                    // Khởi tạo echo nếu mic đã chạy
+                    if (micStream) {
+                        initEcho();
+                        if (echoGainNode && audioContext) {
+                            echoGainNode.gain.setValueAtTime(value / 100, audioContext.currentTime);
+                        }
+                    }
+                }
+            } else if (type === 'ambient') {
+                // Điều chỉnh ambient sound
+                if (ambientGainNode && audioContext) {
+                    ambientGainNode.gain.setValueAtTime(value / 100, audioContext.currentTime);
+                } else {
+                    // Khởi tạo mic trước nếu chưa có
+                    if (!micStream) {
+                        await initMic();
+                    }
+                    // Có thể thêm logic cho ambient sound ở đây
+                }
+            }
+        }
+
+        // Điều chỉnh EQ với slider duy nhất (Treble - Mid - Bass)
+        function updateEQSlider(value) {
+            const sliderValue = parseFloat(value);
+            let trebleValue, midValue, bassValue;
+            
+            if (sliderValue === 0) {
+                // Ở giữa (Mid): tất cả bằng nhau = 0
+                trebleValue = 0;
+                midValue = 0;
+                bassValue = 0;
+            } else if (sliderValue < 0) {
+                // Kéo về Bass (bên phải): tăng bass, giảm treble và mid
+                bassValue = -sliderValue; // Tăng bass
+                trebleValue = sliderValue; // Giảm treble
+                midValue = sliderValue; // Giảm mid
+            } else {
+                // Kéo về Treble (bên trái): tăng treble, giảm bass và mid
+                trebleValue = sliderValue; // Tăng treble
+                bassValue = -sliderValue; // Giảm bass
+                midValue = -sliderValue; // Giảm mid
+            }
+            
+            // Cập nhật hiển thị
+            const trebleValueElement = document.getElementById('micTrebleValue');
+            const midValueElement = document.getElementById('micMidValue');
+            const bassValueElement = document.getElementById('micBassValue');
+            
+            if (trebleValueElement) trebleValueElement.textContent = trebleValue.toFixed(1) + 'dB';
+            if (midValueElement) midValueElement.textContent = midValue.toFixed(1) + 'dB';
+            if (bassValueElement) bassValueElement.textContent = bassValue.toFixed(1) + 'dB';
+            
+            // Cập nhật audio filters
+            if (!audioContext) {
+                // Nếu chưa có audio context, khởi tạo mic
+                if (micStream) {
+                    initMic();
+                    setTimeout(() => {
+                        updateEQSlider(value);
+                    }, 100);
+                }
+                return;
+            }
+            
+            // Cập nhật filters
+            if (trebleFilter) {
+                trebleFilter.gain.setValueAtTime(trebleValue, audioContext.currentTime);
+            }
+            if (midFilter) {
+                midFilter.gain.setValueAtTime(midValue, audioContext.currentTime);
+            }
+            if (bassFilter) {
+                bassFilter.gain.setValueAtTime(bassValue, audioContext.currentTime);
+            }
+            
+            // Nếu filters chưa có nhưng mic đã chạy, khởi tạo lại
+            if (micStream && (!trebleFilter || !midFilter || !bassFilter)) {
+                initMic();
+                setTimeout(() => {
+                    updateEQSlider(value);
+                }, 100);
+            }
+        }
+
+        // Khởi tạo Audio Context với latency thấp
+        async function initAudioContext() {
+            if (!audioContext) {
+                // Tạo AudioContext với latency thấp nhất có thể
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                
+                // Thử tạo với latency thấp
+                try {
+                    audioContext = new AudioContextClass({
+                        latencyHint: 'interactive', // Latency thấp nhất
+                        sampleRate: 48000 // Sample rate cao hơn để giảm latency
+                    });
+                } catch (e) {
+                    // Fallback nếu không hỗ trợ options
+                    audioContext = new AudioContextClass();
+                }
+                
+                // Đặt buffer size nhỏ nhất có thể để giảm latency
+                if (audioContext.createScriptProcessor) {
+                    // Sử dụng buffer size nhỏ (256 samples thay vì mặc định 4096)
+                    try {
+                        const testNode = audioContext.createScriptProcessor(256, 1, 1);
+                        testNode.disconnect();
+                    } catch (e) {
+                        console.log('Không thể đặt buffer size nhỏ');
+                    }
+                }
+            }
+            // Resume context nếu bị suspended (do browser policy)
+            if (audioContext.state === 'suspended') {
+                await audioContext.resume();
+            }
+            return audioContext;
+        }
+
+        // Khởi tạo và bắt đầu mic
+        async function initMic() {
+            try {
+                // Dừng mic cũ nếu có
+                if (micStream) {
+                    stopMic();
+                }
+                
+                // Yêu cầu quyền truy cập microphone với latency thấp
+                micStream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: {
+                        echoCancellation: false, // Tắt echo cancellation để nghe được mic và giảm latency
+                        noiseSuppression: false, // Tắt để giảm latency
+                        autoGainControl: false, // Tắt để giảm latency
+                        latency: 0, // Yêu cầu latency thấp nhất
+                        sampleRate: 48000, // Sample rate cao để giảm latency
+                        channelCount: 1 // Mono để giảm xử lý
+                    } 
+                });
+                
+                // Khởi tạo audio context
+                const context = await initAudioContext();
+                
+                // Đảm bảo context đang chạy
+                if (context.state !== 'running') {
+                    await context.resume();
+                }
+                
+                // Tạo source từ mic stream
+                micSource = context.createMediaStreamSource(micStream);
+                
+                // Tạo EQ filters: Bass, Mid, Treble
+                // Bass filter (low shelf, 80Hz)
+                bassFilter = context.createBiquadFilter();
+                bassFilter.type = 'lowshelf';
+                bassFilter.frequency.setValueAtTime(80, context.currentTime);
+                bassFilter.gain.setValueAtTime(0, context.currentTime);
+                
+                // Mid filter (peaking, 1000Hz)
+                midFilter = context.createBiquadFilter();
+                midFilter.type = 'peaking';
+                midFilter.frequency.setValueAtTime(1000, context.currentTime);
+                midFilter.Q.setValueAtTime(1, context.currentTime);
+                midFilter.gain.setValueAtTime(0, context.currentTime);
+                
+                // Treble filter (high shelf, 5000Hz)
+                trebleFilter = context.createBiquadFilter();
+                trebleFilter.type = 'highshelf';
+                trebleFilter.frequency.setValueAtTime(5000, context.currentTime);
+                trebleFilter.gain.setValueAtTime(0, context.currentTime);
+                
+                // Tạo gain node cho mic volume với smoothing = 0 để giảm latency
+                micGainNode = context.createGain();
+                micGainNode.gain.setValueAtTime(0, context.currentTime); // Set ngay lập tức
+                
+                const micVolume = document.getElementById('micVolume');
+                if (micVolume) {
+                    const volume = parseInt(micVolume.value) / 100;
+                    micGainNode.gain.setValueAtTime(volume, context.currentTime); // Set ngay, không smooth
+                } else {
+                    micGainNode.gain.setValueAtTime(0.7, context.currentTime); // Mặc định 70%
+                }
+                
+                // Kết nối: micSource -> bass -> mid -> treble -> gain -> destination
+                micSource.connect(bassFilter);
+                bassFilter.connect(midFilter);
+                midFilter.connect(trebleFilter);
+                trebleFilter.connect(micGainNode);
+                micGainNode.connect(context.destination);
+                
+                micDestination = context.destination;
+                
+                // Tối ưu: Đảm bảo không có delay không cần thiết
+                console.log('Audio context latency:', context.baseLatency, 's');
+                console.log('Audio context output latency:', context.outputLatency, 's');
+                console.log('Sample rate:', context.sampleRate, 'Hz');
+                
+                // Hiển thị thông tin latency
+                const totalLatency = (context.baseLatency || 0) + (context.outputLatency || 0);
+                console.log('Tổng latency ước tính:', (totalLatency * 1000).toFixed(2), 'ms');
+                
+                console.log('Mic đã được kích hoạt với latency thấp nhất có thể');
+            } catch (error) {
+                console.error('Lỗi khởi tạo mic:', error);
+                const errorMsg = error.name === 'NotAllowedError' 
+                    ? 'Vui lòng cho phép truy cập microphone để sử dụng tính năng này.'
+                    : 'Không thể truy cập microphone. Vui lòng kiểm tra thiết bị và quyền truy cập.';
+                alert(errorMsg);
+            }
+        }
+
+        // Khởi tạo echo effect với delay tối thiểu
+        function initEcho() {
+            if (!audioContext || !micStream || echoGainNode) return;
+            
+            try {
+                const micSource = audioContext.createMediaStreamSource(micStream);
+                
+                // Tạo delay node cho echo với delay time ngắn hơn để giảm latency
+                const delayNode = audioContext.createDelay(0.5); // Giảm max delay
+                delayNode.delayTime.setValueAtTime(0.15, audioContext.currentTime); // 150ms delay thay vì 300ms
+                
+                // Tạo gain node cho echo
+                echoGainNode = audioContext.createGain();
+                const echoVolume = document.getElementById('echoVolume');
+                if (echoVolume) {
+                    echoGainNode.gain.setValueAtTime(parseInt(echoVolume.value) / 100, audioContext.currentTime);
+                } else {
+                    echoGainNode.gain.setValueAtTime(0.5, audioContext.currentTime); // Mặc định 50%
+                }
+                
+                // Kết nối: mic -> delay -> echo gain -> destination
+                micSource.connect(delayNode);
+                delayNode.connect(echoGainNode);
+                echoGainNode.connect(audioContext.destination);
+                
+                console.log('Echo effect đã được kích hoạt với delay 150ms');
+            } catch (error) {
+                console.error('Lỗi khởi tạo echo:', error);
+            }
+        }
+
+        // Dừng mic
+        function stopMic() {
+            if (micStream) {
+                micStream.getTracks().forEach(track => track.stop());
+                micStream = null;
+            }
+            if (micSource) {
+                micSource.disconnect();
+                micSource = null;
+            }
+            if (bassFilter) {
+                bassFilter.disconnect();
+                bassFilter = null;
+            }
+            if (midFilter) {
+                midFilter.disconnect();
+                midFilter = null;
+            }
+            if (trebleFilter) {
+                trebleFilter.disconnect();
+                trebleFilter = null;
+            }
+            if (micGainNode) {
+                micGainNode.disconnect();
+                micGainNode = null;
+            }
+            if (echoGainNode) {
+                echoGainNode.disconnect();
+                echoGainNode = null;
+            }
+            if (ambientGainNode) {
+                ambientGainNode.disconnect();
+                ambientGainNode = null;
+            }
+            micDestination = null;
+        }
+
+        // Kiểm tra thiết bị audio input
+        async function checkAudioDevices() {
+            try {
+                let hasPermission = false;
+                // Yêu cầu quyền truy cập microphone để có thể liệt kê thiết bị
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    hasPermission = true;
+                    // Dừng stream tạm thời, sẽ được khởi tạo lại trong initMic
+                    stream.getTracks().forEach(track => track.stop());
+                } catch (e) {
+                    // Người dùng từ chối quyền hoặc không có thiết bị
+                    console.log('Không có quyền truy cập microphone hoặc không có thiết bị');
+                }
+                
+                if (!hasPermission) {
+                    // Nếu không có quyền, disable tất cả
+                    const micSlider = document.getElementById('micVolume');
+                    const echoSlider = document.getElementById('echoVolume');
+                    const ambientSlider = document.getElementById('ambientVolume');
+                    const eqSlider = document.getElementById('micEQSlider');
+                    const micItem = document.getElementById('micControlItem');
+                    const echoItem = document.getElementById('echoControlItem');
+                    const ambientItem = document.getElementById('ambientControlItem');
+                    const eqItem = document.getElementById('micEQControlItem');
+                    
+                    if (micSlider) micSlider.disabled = true;
+                    if (echoSlider) echoSlider.disabled = true;
+                    if (ambientSlider) ambientSlider.disabled = true;
+                    if (eqSlider) eqSlider.disabled = true;
+                    if (micItem) micItem.classList.add('disabled');
+                    if (echoItem) echoItem.classList.add('disabled');
+                    if (ambientItem) ambientItem.classList.add('disabled');
+                    if (eqItem) eqItem.classList.add('disabled');
+                    return;
+                }
+                
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const audioInputDevices = devices.filter(device => device.kind === 'audioinput' && device.deviceId !== 'default');
+                
+                // Kiểm tra xem có thiết bị audio input không (mic, bluetooth, headphone)
+                const hasAudioInput = audioInputDevices.length > 0;
+                
+                // Enable/disable các slider dựa trên thiết bị
+                const micSlider = document.getElementById('micVolume');
+                const echoSlider = document.getElementById('echoVolume');
+                const ambientSlider = document.getElementById('ambientVolume');
+                const eqSlider = document.getElementById('micEQSlider');
+                const micItem = document.getElementById('micControlItem');
+                const echoItem = document.getElementById('echoControlItem');
+                const ambientItem = document.getElementById('ambientControlItem');
+                const eqItem = document.getElementById('micEQControlItem');
+                
+                if (hasAudioInput) {
+                    // Enable các slider
+                    if (micSlider) micSlider.disabled = false;
+                    if (echoSlider) echoSlider.disabled = false;
+                    if (ambientSlider) ambientSlider.disabled = false;
+                    if (eqSlider) eqSlider.disabled = false;
+                    if (micItem) micItem.classList.remove('disabled');
+                    if (echoItem) echoItem.classList.remove('disabled');
+                    if (ambientItem) ambientItem.classList.remove('disabled');
+                    if (eqItem) eqItem.classList.remove('disabled');
+                    
+                    // Cập nhật label
+                    const labels = document.querySelectorAll('#micControlItem label, #echoControlItem label, #ambientControlItem label');
+                    labels.forEach(label => {
+                        label.innerHTML = label.innerHTML.replace(/<span.*?<\/span>/, '<span style="font-size: 12px; opacity: 0.7;">(Đã kết nối)</span>');
+                    });
+                    
+                    // Tự động khởi tạo mic nếu chưa có (giữ kết nối)
+                    if (!micStream && !micGainNode) {
+                        await initMic();
+                    }
+                } else {
+                    // Disable các slider
+                    if (micSlider) micSlider.disabled = true;
+                    if (echoSlider) echoSlider.disabled = true;
+                    if (ambientSlider) ambientSlider.disabled = true;
+                    if (eqSlider) eqSlider.disabled = true;
+                    if (micItem) micItem.classList.add('disabled');
+                    if (echoItem) echoItem.classList.add('disabled');
+                    if (ambientItem) ambientItem.classList.add('disabled');
+                    if (eqItem) eqItem.classList.add('disabled');
+                }
+            } catch (error) {
+                console.error('Lỗi kiểm tra thiết bị audio:', error);
+                // Nếu không thể kiểm tra, giữ nguyên trạng thái disabled
+            }
+        }
+
+        // Đóng popup khi click ra ngoài
+        document.addEventListener('click', function(event) {
+            const popup = document.getElementById('audioControlPopup');
+            const button = document.querySelector('.audio-control-button');
+            const content = document.querySelector('.audio-control-content');
+            
+            if (popup.classList.contains('active')) {
+                if (!content.contains(event.target) && event.target !== button) {
+                    popup.classList.remove('active');
+                }
+            }
         });
-        clearTimeout(timeoutId);
-        
-        if (!response.ok) return null;
-        
-        const xmlText = await response.text();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(xmlText, "application/xml");
-        const entry = doc.getElementsByTagName("entry")[0];
-        
-        if (entry) {
-          const videoTag = entry.getElementsByTagName("yt:videoId")[0] || entry.getElementsByTagName("videoId")[0];
-          if (videoTag && videoTag.textContent) {
-            console.log('Got videoId from RSS feed');
-            return videoTag.textContent;
-          }
-        }
-        return null;
-      } catch (error) {
-        console.log('RSS feed failed:', error);
-        return null;
-      }
-    }
-    
-    // Phương pháp 3: Extract videoId từ YouTube URL (nếu người dùng paste link)
-    function extractVideoIdFromUrl(text) {
-      const patterns = [
-        /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
-        /youtube\.com\/.*[?&]v=([a-zA-Z0-9_-]{11})/
-      ];
-      
-      for (const pattern of patterns) {
-        const match = text.match(pattern);
-        if (match && match[1]) {
-          console.log('Extracted videoId from URL');
-          return match[1];
-        }
-      }
-      return null;
-    }
-    
-    // Phương pháp 4: YouTube Search Embed (luôn hoạt động, không cần videoId)
-    // Đã được dùng làm fallback trong playSong()
-    
-    async function fetchFirstVideoId(rawQuery) {
-      const keyword = rawQuery.toLowerCase().includes("karaoke")
-        ? rawQuery
-        : `${rawQuery} karaoke`;
-      
-      // Kiểm tra nếu người dùng paste YouTube URL
-      const videoIdFromUrl = extractVideoIdFromUrl(rawQuery);
-      if (videoIdFromUrl) {
-        return videoIdFromUrl;
-      }
-      
-      // Nếu bật API mode, thử API trước
-      if (USE_YOUTUBE_API) {
-        const apiResult = await searchYouTubeAPI(keyword);
-        if (apiResult) {
-          console.log('Got videoId from YouTube API');
-          return apiResult;
-        }
-        console.log('API failed, trying other methods...');
-      }
-      
-      // Phương pháp 1: RSS Feed (nhanh, ổn định, ít bị chặn)
-      const rssResult = await searchYouTubeRSS(keyword);
-      if (rssResult) {
-        return rssResult;
-      }
-      
-      // Phương pháp 2: Web Scraping qua proxy (nếu RSS thất bại)
-      const scrapingResult = await searchYouTube(keyword);
-      if (scrapingResult) {
-        return scrapingResult;
-      }
-      
-      // Nếu tất cả đều thất bại, return null → sẽ dùng search embed fallback
-      return null;
-    }
-
-    searchInput.addEventListener("input", () => {
-      const keyword = searchInput.value.trim().toLowerCase();
-      resultsList.innerHTML = "";
-
-      if (keyword.length < MIN_CHARS) {
-        return;
-      }
-
-      const filtered = songs.filter((song) =>
-        song.title.toLowerCase().includes(keyword)
-      );
-
-      if (!filtered.length) {
-        resultsList.appendChild(showEmpty());
-        return;
-      }
-
-      filtered.forEach((song) => resultsList.appendChild(createItem(song)));
-    });
-  </script>
+    </script>
 </body>
 </html>
