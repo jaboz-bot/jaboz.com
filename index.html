@@ -663,38 +663,32 @@
             if (youtubePlayer) {
                 try {
                     youtubePlayer.destroy();
+                    youtubePlayer = null;
                 } catch (e) {
                     console.log('Không thể hủy player cũ');
                 }
             }
 
-            // Khởi tạo YouTube Player với API
-            if (typeof YT !== 'undefined' && YT.Player) {
-                youtubePlayer = new YT.Player('youtubePlayer', {
-                    videoId: videoId,
-                    playerVars: {
-                        autoplay: 1,
-                        rel: 0,
-                        modestbranding: 1,
-                        enablejsapi: 1
-                    },
-                    events: {
-                        onReady: function(event) {
-                            // Khôi phục âm lượng đã lưu
-                            const savedVolume = localStorage.getItem('musicVolume');
-                            if (savedVolume) {
-                                event.target.setVolume(parseInt(savedVolume));
-                                document.getElementById('musicVolumeSlider').value = savedVolume;
-                                document.getElementById('musicVolumeValue').textContent = savedVolume + '%';
-                            }
-                        }
-                    }
-                });
-            } else {
-                // Fallback nếu API chưa load
-                const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&enablejsapi=1`;
-                youtubePlayerElement.src = embedUrl;
-            }
+            // Sử dụng iframe trực tiếp để đảm bảo video phát được ngay
+            const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&enablejsapi=1`;
+            youtubePlayerElement.src = embedUrl;
+
+            // Điều chỉnh âm lượng sau khi iframe load
+            const savedVolume = localStorage.getItem('musicVolume') || '50';
+            const volume = parseInt(savedVolume);
+            
+            // Đợi iframe load xong rồi điều chỉnh âm lượng bằng postMessage
+            setTimeout(() => {
+                try {
+                    youtubePlayerElement.contentWindow.postMessage(JSON.stringify({
+                        event: 'command',
+                        func: 'setVolume',
+                        args: [volume]
+                    }), '*');
+                } catch (e) {
+                    console.log('Không thể điều chỉnh âm lượng');
+                }
+            }, 1000);
             
             // Đóng popup YouTube nếu đang mở
             if (youtubeTab && !youtubeTab.closed) {
@@ -702,8 +696,9 @@
                 youtubeTab = null;
             }
             
-            // Xóa thông báo lỗi nếu có
-            errorMessage.classList.remove('show');
+            // Cập nhật nút để hiển thị "Phát" thay vì "Mở"
+            document.getElementById('searchButton').style.display = 'none';
+            document.getElementById('playButton').style.display = 'inline-block';
         }
 
         // Hiển thị thông báo lỗi
@@ -802,9 +797,15 @@
             localStorage.setItem('musicVolume', value);
             
             // Áp dụng âm lượng cho video YouTube
-            if (youtubePlayer && typeof youtubePlayer.setVolume === 'function') {
+            const youtubePlayerElement = document.getElementById('youtubePlayer');
+            if (youtubePlayerElement && youtubePlayerElement.src) {
                 try {
-                    youtubePlayer.setVolume(parseInt(value));
+                    // Dùng postMessage để điều chỉnh âm lượng
+                    youtubePlayerElement.contentWindow.postMessage(JSON.stringify({
+                        event: 'command',
+                        func: 'setVolume',
+                        args: [parseInt(value)]
+                    }), '*');
                 } catch (e) {
                     console.log('Không thể điều chỉnh âm lượng video');
                 }
