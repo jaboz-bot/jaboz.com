@@ -4,6 +4,9 @@ const searchButton = document.getElementById('searchButton');
 const youtubePlayer = document.getElementById('youtubePlayer');
 const volumeSlider = document.getElementById('volumeSlider');
 const volumeValue = document.getElementById('volumeValue');
+const searchPopup = document.getElementById('searchPopup');
+const searchResults = document.getElementById('searchResults');
+const closePopup = document.getElementById('closePopup');
 
 // Audio Context for microphone volume control
 let audioContext = null;
@@ -15,6 +18,7 @@ let isMicrophoneActive = false;
 document.addEventListener('DOMContentLoaded', () => {
     setupSearch();
     setupVolumeControl();
+    setupPopup();
     requestMicrophonePermission();
 });
 
@@ -26,6 +30,39 @@ function setupSearch() {
             performSearch();
         }
     });
+}
+
+// Setup Popup
+function setupPopup() {
+    closePopup.addEventListener('click', () => {
+        closeSearchPopup();
+    });
+    
+    // Close popup when clicking outside
+    searchPopup.addEventListener('click', (e) => {
+        if (e.target === searchPopup) {
+            closeSearchPopup();
+        }
+    });
+    
+    // Close popup with Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && searchPopup.classList.contains('active')) {
+            closeSearchPopup();
+        }
+    });
+}
+
+// Open Search Popup
+function openSearchPopup() {
+    searchPopup.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+// Close Search Popup
+function closeSearchPopup() {
+    searchPopup.classList.remove('active');
+    document.body.style.overflow = '';
 }
 
 // Perform YouTube Search
@@ -45,26 +82,181 @@ async function performSearch() {
         return;
     }
 
-    showNotification('Đang tìm kiếm...', 'info');
+    // Mở popup và tìm kiếm
+    openSearchPopup();
+    searchResults.innerHTML = '<div class="loading-spinner">Đang tìm kiếm...</div>';
     
     try {
-        // Mở trang tìm kiếm YouTube trong tab mới
-        // User có thể chọn video và copy URL/ID
-        const encodedQuery = encodeURIComponent(query);
-        const searchUrl = `https://www.youtube.com/results?search_query=${encodedQuery}`;
-        
-        // Mở trong tab mới
-        window.open(searchUrl, '_blank');
-        
-        showNotification('Đã mở trang tìm kiếm. Vui lòng chọn video và dán URL/ID vào đây', 'info');
-        
-        // Hướng dẫn user
-        searchInput.placeholder = 'Dán URL hoặc Video ID từ YouTube...';
-        searchInput.value = '';
+        const videos = await searchYouTubeVideos(query);
+        displaySearchResults(videos);
     } catch (error) {
         console.error('Search error:', error);
-        showNotification('Có lỗi xảy ra khi tìm kiếm', 'error');
+        searchResults.innerHTML = '<div class="loading-spinner" style="color: #f44336;">Có lỗi xảy ra khi tìm kiếm. Vui lòng thử lại.</div>';
     }
+}
+
+// Search YouTube Videos (không cần API)
+async function searchYouTubeVideos(query) {
+    const encodedQuery = encodeURIComponent(query);
+    
+    // Sử dụng CORS proxy hoặc service công khai để lấy kết quả
+    // Có thể sử dụng các service như:
+    // - allorigins.win
+    // - corsproxy.io
+    // - hoặc parse từ YouTube search page
+    
+    try {
+        // Cách 1: Sử dụng CORS proxy để fetch YouTube search page
+        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(`https://www.youtube.com/results?search_query=${encodedQuery}`)}`;
+        
+        const response = await fetch(proxyUrl);
+        const data = await response.json();
+        const html = data.contents;
+        
+        // Parse HTML để lấy thông tin video
+        return parseYouTubeSearchResults(html);
+    } catch (error) {
+        console.error('Search error:', error);
+        // Fallback: Sử dụng cách khác hoặc trả về empty array
+        return [];
+    }
+}
+
+// Parse YouTube Search Results from HTML
+function parseYouTubeSearchResults(html) {
+    const videos = [];
+    
+    try {
+        // Tạo DOM parser
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        
+        // Tìm tất cả các video item trong kết quả tìm kiếm
+        // YouTube sử dụng các class/id đặc biệt, cần parse từ ytInitialData
+        const scripts = doc.querySelectorAll('script');
+        let ytInitialData = null;
+        
+        for (const script of scripts) {
+            const text = script.textContent;
+            if (text.includes('var ytInitialData')) {
+                // Extract ytInitialData - cải thiện regex để parse tốt hơn
+                const match = text.match(/var ytInitialData = ({.+?});/s);
+                if (match) {
+                    try {
+                        ytInitialData = JSON.parse(match[1]);
+                        break;
+                    } catch (e) {
+                        // Try alternative: tìm từ window.ytInitialData
+                        const altMatch = text.match(/window\["ytInitialData"\] = ({.+?});/s);
+                        if (altMatch) {
+                            try {
+                                ytInitialData = JSON.parse(altMatch[1]);
+                                break;
+                            } catch (e2) {
+                                // Continue to next script
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        if (ytInitialData) {
+            // Parse từ ytInitialData structure
+            const contents = ytInitialData?.contents?.twoColumnSearchResultsRenderer?.primaryContents?.sectionListRenderer?.contents?.[0]?.itemSectionRenderer?.contents;
+            
+            if (contents) {
+                for (const item of contents) {
+                    if (item.videoRenderer) {
+                        const video = item.videoRenderer;
+                        const videoId = video.videoId;
+                        const title = video.title?.runs?.[0]?.text || video.title?.simpleText || 'Không có tiêu đề';
+                        const channel = video.ownerText?.runs?.[0]?.text || video.channelName?.simpleText || 'Unknown';
+                        // Lấy thumbnail tốt nhất (thường là thumbnail cuối cùng có chất lượng cao nhất)
+                        let thumbnail = '';
+                        if (video.thumbnail?.thumbnails && video.thumbnail.thumbnails.length > 0) {
+                            thumbnail = video.thumbnail.thumbnails[video.thumbnail.thumbnails.length - 1]?.url || 
+                                       video.thumbnail.thumbnails[0]?.url || '';
+                        }
+                        // Fallback: sử dụng YouTube thumbnail API
+                        if (!thumbnail && videoId) {
+                            thumbnail = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+                        }
+                        const duration = video.lengthText?.simpleText || video.lengthText?.runs?.[0]?.text || '';
+                        
+                        if (videoId) {
+                            videos.push({
+                                id: videoId,
+                                title: title,
+                                channel: channel,
+                                thumbnail: thumbnail,
+                                duration: duration
+                            });
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Fallback: Parse từ HTML links nếu không có ytInitialData
+        if (videos.length === 0) {
+            const links = doc.querySelectorAll('a[href*="/watch?v="]');
+            const seenIds = new Set();
+            
+            for (const link of links) {
+                const href = link.getAttribute('href');
+                const match = href.match(/[?&]v=([^&]+)/);
+                if (match && match[1] && !seenIds.has(match[1])) {
+                    seenIds.add(match[1]);
+                    const title = link.textContent.trim() || 'Không có tiêu đề';
+                    const thumbnail = `https://img.youtube.com/vi/${match[1]}/mqdefault.jpg`;
+                    
+                    videos.push({
+                        id: match[1],
+                        title: title,
+                        channel: 'Unknown',
+                        thumbnail: thumbnail,
+                        duration: ''
+                    });
+                    
+                    if (videos.length >= 20) break; // Giới hạn 20 kết quả
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Parse error:', error);
+    }
+    
+    return videos.slice(0, 20); // Trả về tối đa 20 video
+}
+
+// Display Search Results
+function displaySearchResults(videos) {
+    if (videos.length === 0) {
+        searchResults.innerHTML = '<div class="loading-spinner">Không tìm thấy kết quả nào.</div>';
+        return;
+    }
+    
+    searchResults.innerHTML = videos.map(video => `
+        <div class="video-item" data-video-id="${video.id}">
+            <img src="${video.thumbnail}" alt="${video.title}" class="video-thumbnail" onerror="this.src='https://via.placeholder.com/160x90?text=No+Image'">
+            <div class="video-info">
+                <div class="video-title">${video.title}</div>
+                <div class="video-channel">${video.channel}</div>
+                ${video.duration ? `<div class="video-duration">${video.duration}</div>` : ''}
+            </div>
+        </div>
+    `).join('');
+    
+    // Add click event listeners
+    document.querySelectorAll('.video-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const videoId = item.getAttribute('data-video-id');
+            loadYouTubeVideo(videoId);
+            closeSearchPopup();
+            showNotification('Đã load video!', 'success');
+        });
+    });
 }
 
 // Parse Video ID from YouTube URL or direct ID
