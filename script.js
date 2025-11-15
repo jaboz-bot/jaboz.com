@@ -1,420 +1,727 @@
-// DOM Elements
-const searchInput = document.getElementById('searchInput');
-const searchButton = document.getElementById('searchButton');
-const youtubePlayer = document.getElementById('youtubePlayer');
-const volumeSlider = document.getElementById('volumeSlider');
-const volumeValue = document.getElementById('volumeValue');
-const searchPopup = document.getElementById('searchPopup');
-const searchResults = document.getElementById('searchResults');
-const closePopup = document.getElementById('closePopup');
-
-// Audio Context for microphone volume control
-let audioContext = null;
-let microphone = null;
-let gainNode = null;
-let isMicrophoneActive = false;
-
-// Initialize
-document.addEventListener('DOMContentLoaded', () => {
-    setupSearch();
-    setupVolumeControl();
-    setupPopup();
-    requestMicrophonePermission();
-});
-
-// Setup Search Functionality
-function setupSearch() {
-    searchButton.addEventListener('click', performSearch);
-    searchInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            performSearch();
-        }
-    });
-}
-
-// Setup Popup
-function setupPopup() {
-    closePopup.addEventListener('click', () => {
-        closeSearchPopup();
-    });
-    
-    // Close popup when clicking outside
-    searchPopup.addEventListener('click', (e) => {
-        if (e.target === searchPopup) {
-            closeSearchPopup();
-        }
-    });
-    
-    // Close popup with Escape key
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && searchPopup.classList.contains('active')) {
-            closeSearchPopup();
-        }
-    });
-}
-
-// Open Search Popup
-function openSearchPopup() {
-    searchPopup.classList.add('active');
-    document.body.style.overflow = 'hidden';
-}
-
-// Close Search Popup
-function closeSearchPopup() {
-    searchPopup.classList.remove('active');
-    document.body.style.overflow = '';
-}
-
-// Perform YouTube Search
-async function performSearch() {
-    const query = searchInput.value.trim();
-    
-    if (!query) {
-        showNotification('Vui lòng nhập từ khóa tìm kiếm', 'warning');
-        return;
+// Hàm tìm kiếm trên YouTube (không dùng API - web scraping)
+async function searchYouTube(query) {
+    if (!query || query.length < 2) {
+        return [];
     }
-
-    // Kiểm tra xem có phải là URL hoặc Video ID không
-    const videoId = parseVideoIdFromUrl(query);
-    if (videoId) {
-        loadYouTubeVideo(videoId);
-        showNotification('Đã load video!', 'success');
-        return;
-    }
-
-    // Mở popup và tìm kiếm
-    openSearchPopup();
-    searchResults.innerHTML = '<div class="loading-spinner">Đang tìm kiếm...</div>';
+    
+    const searchQuery = encodeURIComponent(query);
+    
+    // Tạo AbortController với timeout (dài hơn cho mobile)
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const timeout = isMobile ? 8000 : 5000;
+    
+    const createFetchWithTimeout = (url, timeoutMs = timeout) => {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+        return fetch(url, { signal: controller.signal })
+            .then(response => {
+                clearTimeout(timeoutId);
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response;
+            })
+            .catch(err => {
+                clearTimeout(timeoutId);
+                throw err;
+            });
+    };
+    
+    // Thử nhiều proxy cùng lúc
+    const proxyPromises = [
+        createFetchWithTimeout(`https://api.allorigins.win/get?url=${encodeURIComponent(`https://www.youtube.com/results?search_query=${searchQuery}`)}`)
+            .then(r => r.json())
+            .then(d => d.contents || '')
+            .catch(() => ''),
+        createFetchWithTimeout(`https://corsproxy.io/?${encodeURIComponent(`https://www.youtube.com/results?search_query=${searchQuery}`)}`)
+            .then(r => r.text())
+            .catch(() => ''),
+        createFetchWithTimeout(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(`https://www.youtube.com/results?search_query=${searchQuery}`)}`)
+            .then(r => r.text())
+            .catch(() => '')
+    ];
     
     try {
-        const videos = await searchYouTubeVideos(query);
-        displaySearchResults(videos);
-    } catch (error) {
-        console.error('Search error:', error);
-        searchResults.innerHTML = '<div class="loading-spinner" style="color: #f44336;">Có lỗi xảy ra khi tìm kiếm. Vui lòng thử lại.</div>';
-    }
-}
-
-// Search YouTube Videos (không cần API)
-async function searchYouTubeVideos(query) {
-    const encodedQuery = encodeURIComponent(query);
-    
-    // Sử dụng CORS proxy hoặc service công khai để lấy kết quả
-    // Có thể sử dụng các service như:
-    // - allorigins.win
-    // - corsproxy.io
-    // - hoặc parse từ YouTube search page
-    
-    try {
-        // Cách 1: Sử dụng CORS proxy để fetch YouTube search page
-        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(`https://www.youtube.com/results?search_query=${encodedQuery}`)}`;
+        let html = '';
+        try {
+            html = await Promise.race(proxyPromises);
+        } catch (raceError) {
+            const settled = await Promise.allSettled(proxyPromises);
+            for (const result of settled) {
+                if (result.status === 'fulfilled' && result.value) {
+                    html = result.value;
+                    break;
+                }
+            }
+        }
         
-        const response = await fetch(proxyUrl);
-        const data = await response.json();
-        const html = data.contents;
+        if (!html || html.trim() === '') {
+            return [];
+        }
         
-        // Parse HTML để lấy thông tin video
-        return parseYouTubeSearchResults(html);
+        const results = [];
+        const seenIds = new Set();
+        
+        // Parse với regex - tìm pattern videoRenderer
+        const videoPattern = /"videoRenderer":\{[^}]*"videoId":"([^"]{11})"[^}]*"title":\{"runs":\[\{"text":"([^"]+)"\}[^}]*"ownerText":\{"runs":\[\{"text":"([^"]+)"\}/g;
+        
+        let match;
+        let count = 0;
+        while ((match = videoPattern.exec(html)) !== null && count < 10) {
+            const videoId = match[1];
+            if (!seenIds.has(videoId)) {
+                seenIds.add(videoId);
+                const title = match[2].replace(/\\u([0-9a-fA-F]{4})/g, (m, code) => String.fromCharCode(parseInt(code, 16)));
+                const artist = match[3] ? match[3].replace(/\\u([0-9a-fA-F]{4})/g, (m, code) => String.fromCharCode(parseInt(code, 16))) : "YouTube";
+                results.push({ title, artist, videoId });
+                count++;
+            }
+        }
+        
+        // Fallback: pattern đơn giản hơn
+        if (results.length === 0) {
+            const videoIdRegex = /"videoId":"([^"]{11})"/g;
+            const titleRegex = /"title":\{"runs":\[\{"text":"([^"]+)"\}/g;
+            const ownerRegex = /"ownerText":\{"runs":\[\{"text":"([^"]+)"\}/g;
+            
+            const videoIds = [];
+            const titles = [];
+            const owners = [];
+            
+            let vidMatch;
+            while ((vidMatch = videoIdRegex.exec(html)) !== null && videoIds.length < 15) {
+                if (!seenIds.has(vidMatch[1])) {
+                    seenIds.add(vidMatch[1]);
+                    videoIds.push(vidMatch[1]);
+                }
+            }
+            
+            let titleMatch;
+            while ((titleMatch = titleRegex.exec(html)) !== null && titles.length < videoIds.length) {
+                titles.push(titleMatch[1].replace(/\\u([0-9a-fA-F]{4})/g, (m, code) => String.fromCharCode(parseInt(code, 16))));
+            }
+            
+            let ownerMatch;
+            while ((ownerMatch = ownerRegex.exec(html)) !== null && owners.length < videoIds.length) {
+                owners.push(ownerMatch[1].replace(/\\u([0-9a-fA-F]{4})/g, (m, code) => String.fromCharCode(parseInt(code, 16))));
+            }
+            
+            for (let i = 0; i < videoIds.length && i < 10; i++) {
+                results.push({
+                    title: titles[i] || `Bài hát ${i + 1}`,
+                    artist: owners[i] || "YouTube",
+                    videoId: videoIds[i]
+                });
+            }
+        }
+        
+        console.log('YouTube search completed. Found', results.length, 'results');
+        if (results.length > 0) {
+            console.log('First result:', results[0]);
+        }
+        
+        return results;
     } catch (error) {
-        console.error('Search error:', error);
-        // Fallback: Sử dụng cách khác hoặc trả về empty array
+        console.error('Lỗi tìm kiếm YouTube:', error);
         return [];
     }
 }
 
-// Parse YouTube Search Results from HTML
-function parseYouTubeSearchResults(html) {
-    const videos = [];
-    
-    try {
-        // Tạo DOM parser
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        
-        // Tìm tất cả các video item trong kết quả tìm kiếm
-        // YouTube sử dụng các class/id đặc biệt, cần parse từ ytInitialData
-        const scripts = doc.querySelectorAll('script');
-        let ytInitialData = null;
-        
-        for (const script of scripts) {
-            const text = script.textContent;
-            if (text.includes('var ytInitialData')) {
-                // Extract ytInitialData - cải thiện regex để parse tốt hơn
-                const match = text.match(/var ytInitialData = ({.+?});/s);
-                if (match) {
-                    try {
-                        ytInitialData = JSON.parse(match[1]);
-                        break;
-                    } catch (e) {
-                        // Try alternative: tìm từ window.ytInitialData
-                        const altMatch = text.match(/window\["ytInitialData"\] = ({.+?});/s);
-                        if (altMatch) {
-                            try {
-                                ytInitialData = JSON.parse(altMatch[1]);
-                                break;
-                            } catch (e2) {
-                                // Continue to next script
-                            }
-                        }
-                    }
-                }
-            }
+// Debounce timer cho tìm kiếm tự động
+let searchTimeout = null;
+let lastSearchQuery = '';
+let searchCache = {};
+
+function handleKeyPress(event) {
+    if (event.key === 'Enter') {
+        if (searchTimeout) {
+            clearTimeout(searchTimeout);
         }
-        
-        if (ytInitialData) {
-            // Parse từ ytInitialData structure
-            const contents = ytInitialData?.contents?.twoColumnSearchResultsRenderer?.primaryContents?.sectionListRenderer?.contents?.[0]?.itemSectionRenderer?.contents;
-            
-            if (contents) {
-                for (const item of contents) {
-                    if (item.videoRenderer) {
-                        const video = item.videoRenderer;
-                        const videoId = video.videoId;
-                        const title = video.title?.runs?.[0]?.text || video.title?.simpleText || 'Không có tiêu đề';
-                        const channel = video.ownerText?.runs?.[0]?.text || video.channelName?.simpleText || 'Unknown';
-                        // Lấy thumbnail tốt nhất (thường là thumbnail cuối cùng có chất lượng cao nhất)
-                        let thumbnail = '';
-                        if (video.thumbnail?.thumbnails && video.thumbnail.thumbnails.length > 0) {
-                            thumbnail = video.thumbnail.thumbnails[video.thumbnail.thumbnails.length - 1]?.url || 
-                                       video.thumbnail.thumbnails[0]?.url || '';
-                        }
-                        // Fallback: sử dụng YouTube thumbnail API
-                        if (!thumbnail && videoId) {
-                            thumbnail = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
-                        }
-                        const duration = video.lengthText?.simpleText || video.lengthText?.runs?.[0]?.text || '';
-                        
-                        if (videoId) {
-                            videos.push({
-                                id: videoId,
-                                title: title,
-                                channel: channel,
-                                thumbnail: thumbnail,
-                                duration: duration
-                            });
-                        }
-                    }
-                }
-            }
-        }
-        
-        // Fallback: Parse từ HTML links nếu không có ytInitialData
-        if (videos.length === 0) {
-            const links = doc.querySelectorAll('a[href*="/watch?v="]');
-            const seenIds = new Set();
-            
-            for (const link of links) {
-                const href = link.getAttribute('href');
-                const match = href.match(/[?&]v=([^&]+)/);
-                if (match && match[1] && !seenIds.has(match[1])) {
-                    seenIds.add(match[1]);
-                    const title = link.textContent.trim() || 'Không có tiêu đề';
-                    const thumbnail = `https://img.youtube.com/vi/${match[1]}/mqdefault.jpg`;
-                    
-                    videos.push({
-                        id: match[1],
-                        title: title,
-                        channel: 'Unknown',
-                        thumbnail: thumbnail,
-                        duration: ''
-                    });
-                    
-                    if (videos.length >= 20) break; // Giới hạn 20 kết quả
-                }
-            }
-        }
-    } catch (error) {
-        console.error('Parse error:', error);
+        searchSong();
     }
-    
-    return videos.slice(0, 20); // Trả về tối đa 20 video
 }
 
-// Display Search Results
-function displaySearchResults(videos) {
-    if (videos.length === 0) {
-        searchResults.innerHTML = '<div class="loading-spinner">Không tìm thấy kết quả nào.</div>';
+function handleSearchInput(event) {
+    const query = event.target.value.trim();
+    const searchResults = document.getElementById('searchResults');
+    
+    // Xóa timeout trước đó
+    if (searchTimeout) {
+        clearTimeout(searchTimeout);
+    }
+    
+    // Nếu ô input trống, ẩn kết quả
+    if (query === '') {
+        searchResults.classList.remove('active');
+        lastSearchQuery = '';
         return;
     }
     
-    searchResults.innerHTML = videos.map(video => `
-        <div class="video-item" data-video-id="${video.id}">
-            <img src="${video.thumbnail}" alt="${video.title}" class="video-thumbnail" onerror="this.src='https://via.placeholder.com/160x90?text=No+Image'">
-            <div class="video-info">
-                <div class="video-title">${video.title}</div>
-                <div class="video-channel">${video.channel}</div>
-                ${video.duration ? `<div class="video-duration">${video.duration}</div>` : ''}
+    // Kiểm tra cache trước
+    const cacheKey = query.toLowerCase();
+    if (searchCache[cacheKey]) {
+        displayResults(searchCache[cacheKey]);
+        return;
+    }
+    
+    // Hiển thị loading
+    searchResults.innerHTML = '<div class="no-results"><span class="loading-spinner"></span>Đang tìm kiếm...</div>';
+    searchResults.classList.add('active');
+    
+    // Tìm kiếm với debounce
+    searchTimeout = setTimeout(() => {
+        if (query !== lastSearchQuery && query.length >= 2) {
+            lastSearchQuery = query;
+            searchSong();
+        }
+    }, 500);
+}
+
+function displayResults(results) {
+    const searchResults = document.getElementById('searchResults');
+    
+    console.log('Display results:', results.length, 'items');
+    
+    if (results.length > 0) {
+        searchResults.innerHTML = results.map(song => {
+            const thumbnailUrl = `https://img.youtube.com/vi/${song.videoId}/maxresdefault.jpg`;
+            const safeTitle = song.title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            const safeArtist = song.artist.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            return `
+                <div class="song-item" onclick="playVideo('${song.videoId}', '${safeTitle}', '${safeArtist}')">
+                    <img src="${thumbnailUrl}" alt="${song.title}" class="song-thumbnail" loading="lazy" onerror="this.style.display='none'">
+                    <div class="song-info">
+                        <div class="song-title">${song.title}</div>
+                        <div class="song-artist">${song.artist}</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    } else {
+        const query = document.getElementById('searchInput').value.trim();
+        searchResults.innerHTML = `
+            <div class="no-results">
+                Không tìm thấy kết quả cho "${query}".
             </div>
-        </div>
-    `).join('');
-    
-    // Add click event listeners
-    document.querySelectorAll('.video-item').forEach(item => {
-        item.addEventListener('click', () => {
-            const videoId = item.getAttribute('data-video-id');
-            loadYouTubeVideo(videoId);
-            closeSearchPopup();
-            showNotification('Đã load video!', 'success');
-        });
-    });
-}
-
-// Parse Video ID from YouTube URL or direct ID
-function parseVideoIdFromUrl(input) {
-    if (!input) return null;
-    
-    // Direct video ID (11 characters)
-    if (/^[a-zA-Z0-9_-]{11}$/.test(input)) {
-        return input;
+        `;
     }
     
-    // YouTube URL patterns
-    const patterns = [
-        /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
-        /youtube\.com\/.*[?&]v=([^&\n?#]+)/,
-    ];
+    // Đảm bảo hiển thị trên mobile
+    searchResults.style.display = 'block';
+    searchResults.classList.add('active');
     
-    for (const pattern of patterns) {
-        const match = input.match(pattern);
-        if (match && match[1] && match[1].length === 11) {
-            return match[1];
+    // Force reflow để đảm bảo hiển thị
+    searchResults.offsetHeight;
+    
+    console.log('Search results displayed, active class:', searchResults.classList.contains('active'));
+}
+
+async function searchSong() {
+    const searchInput = document.getElementById('searchInput');
+    const searchResults = document.getElementById('searchResults');
+    const query = searchInput.value.trim();
+    console.log('Search song called with query:', query);
+    if (query === '' || query.length < 2) {
+        searchResults.classList.remove('active');
+        return;
+    }
+    // Kiểm tra cache
+    const cacheKey = query.toLowerCase();
+    if (searchCache[cacheKey]) {
+        console.log('Using cached results');
+        displayResults(searchCache[cacheKey]);
+        return;
+    }
+    try {
+        console.log('Searching YouTube for:', query);
+        const results = await searchYouTube(query);
+        console.log('Search completed, found:', results.length, 'results');
+        
+        // Lưu vào cache
+        if (results.length > 0) {
+            searchCache[cacheKey] = results;
+            // Giới hạn cache tối đa 50 items
+            const cacheKeys = Object.keys(searchCache);
+            if (cacheKeys.length > 50) {
+                delete searchCache[cacheKeys[0]];
+            }
+        }
+        displayResults(results);
+    } catch (error) {
+        console.error('Lỗi trong searchSong:', error);
+        searchResults.innerHTML = `
+            <div class="no-results">
+                Lỗi kết nối. Vui lòng kiểm tra kết nối mạng và thử lại.
+            </div>
+        `;
+        searchResults.style.display = 'block';
+        searchResults.classList.add('active');
+    }
+}
+
+function playVideo(videoId, title, artist) {
+    const videoPlayerContainer = document.getElementById('videoPlayerContainer');
+    const youtubePlayer = document.getElementById('youtubePlayer');
+    const tvContent = document.getElementById('tvContent');
+    // Ẩn nội dung chính
+    tvContent.style.display = 'none';
+    
+    // Hiển thị video player với enablejsapi để điều khiển volume
+    youtubePlayer.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&enablejsapi=1`;
+    videoPlayerContainer.classList.add('active');
+}
+
+function closeVideo() {
+    const videoPlayerContainer = document.getElementById('videoPlayerContainer');
+    const youtubePlayer = document.getElementById('youtubePlayer');
+    const tvContent = document.getElementById('tvContent');
+    // Dừng video
+    youtubePlayer.src = '';
+    
+    // Ẩn video player
+    videoPlayerContainer.classList.remove('active');
+    
+    // Hiển thị lại nội dung chính
+    tvContent.style.display = 'block';
+}
+
+// Audio Control Functions
+let audioContext = null;
+let micStream = null;
+let micGainNode = null;
+let echoGainNode = null;
+let ambientGainNode = null;
+let micDestination = null;
+let bassFilter = null;
+let midFilter = null;
+let trebleFilter = null;
+let micSource = null;
+
+function toggleAudioControl() {
+    const popup = document.getElementById('audioControlPopup');
+    popup.classList.toggle('active');
+    
+    if (popup.classList.contains('active')) {
+        checkAudioDevices();
+    }
+    // Không dừng mic khi đóng popup - giữ kết nối
+}
+
+async function updateVolume(type, value) {
+    const valueElement = document.getElementById(type + 'Value');
+    if (valueElement) {
+        valueElement.textContent = value + '%';
+    }
+    
+    if (type === 'music') {
+        // Điều chỉnh volume của YouTube video
+        const youtubePlayer = document.getElementById('youtubePlayer');
+        if (youtubePlayer && youtubePlayer.contentWindow) {
+            try {
+                // Gửi lệnh điều chỉnh volume qua postMessage
+                youtubePlayer.contentWindow.postMessage(JSON.stringify({
+                    event: 'command',
+                    func: 'setVolume',
+                    args: [Math.round(value)]
+                }), '*');
+            } catch (e) {
+                console.error('Lỗi điều chỉnh volume YouTube:', e);
+            }
+        }
+    } else if (type === 'mic') {
+        // Điều chỉnh volume của mic (setValueAtTime để giảm latency)
+        if (micGainNode && audioContext) {
+            micGainNode.gain.setValueAtTime(value / 100, audioContext.currentTime);
+        } else {
+            // Khởi tạo mic nếu chưa có
+            initMic();
+        }
+    } else if (type === 'echo') {
+        // Điều chỉnh echo effect
+        if (echoGainNode && audioContext) {
+            echoGainNode.gain.setValueAtTime(value / 100, audioContext.currentTime);
+        } else {
+            // Khởi tạo mic trước nếu chưa có
+            if (!micStream) {
+                await initMic();
+            }
+            // Khởi tạo echo nếu mic đã chạy
+            if (micStream) {
+                initEcho();
+                if (echoGainNode && audioContext) {
+                    echoGainNode.gain.setValueAtTime(value / 100, audioContext.currentTime);
+                }
+            }
+        }
+    } else if (type === 'ambient') {
+        // Điều chỉnh ambient sound
+        if (ambientGainNode && audioContext) {
+            ambientGainNode.gain.setValueAtTime(value / 100, audioContext.currentTime);
+        } else {
+            // Khởi tạo mic trước nếu chưa có
+            if (!micStream) {
+                await initMic();
+            }
+            // Có thể thêm logic cho ambient sound ở đây
         }
     }
+}
+
+// Điều chỉnh EQ với slider duy nhất (Treble - Mid - Bass)
+function updateEQSlider(value) {
+    const sliderValue = parseFloat(value);
+    let trebleValue, midValue, bassValue;
     
-    return null;
-}
-
-
-// Load YouTube Video
-function loadYouTubeVideo(videoId) {
-    const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=1&rel=0&modestbranding=1`;
-    youtubePlayer.src = embedUrl;
-}
-
-// Setup Volume Control
-function setupVolumeControl() {
-    volumeSlider.addEventListener('input', (e) => {
-        const value = e.target.value;
-        volumeValue.textContent = `${value}%`;
-        adjustMicrophoneVolume(value);
-    });
-}
-
-// Adjust Microphone Volume
-function adjustMicrophoneVolume(volumePercent) {
-    if (!isMicrophoneActive || !gainNode) {
+    if (sliderValue === 0) {
+        // Ở giữa (Mid): tất cả bằng nhau = 0
+        trebleValue = 0;
+        midValue = 0;
+        bassValue = 0;
+    } else if (sliderValue < 0) {
+        // Kéo về Bass (bên phải): tăng bass, giảm treble và mid
+        bassValue = -sliderValue; // Tăng bass
+        trebleValue = sliderValue; // Giảm treble
+        midValue = sliderValue; // Giảm mid
+    } else {
+        // Kéo về Treble (bên trái): tăng treble, giảm bass và mid
+        trebleValue = sliderValue; // Tăng treble
+        bassValue = -sliderValue; // Giảm bass
+        midValue = -sliderValue; // Giảm mid
+    }
+    
+    // Cập nhật hiển thị
+    const trebleValueElement = document.getElementById('micTrebleValue');
+    const midValueElement = document.getElementById('micMidValue');
+    const bassValueElement = document.getElementById('micBassValue');
+    
+    if (trebleValueElement) trebleValueElement.textContent = trebleValue.toFixed(1) + 'dB';
+    if (midValueElement) midValueElement.textContent = midValue.toFixed(1) + 'dB';
+    if (bassValueElement) bassValueElement.textContent = bassValue.toFixed(1) + 'dB';
+    
+    // Cập nhật audio filters
+    if (!audioContext) {
+        // Nếu chưa có audio context, khởi tạo mic
+        if (micStream) {
+            initMic();
+            setTimeout(() => {
+                updateEQSlider(value);
+            }, 100);
+        }
         return;
     }
     
-    // Convert percentage (0-100) to gain value (0-1)
-    const gainValue = volumePercent / 100;
-    gainNode.gain.value = gainValue;
-}
-
-// Request Microphone Permission
-async function requestMicrophonePermission() {
-    try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        
-        // Initialize Audio Context
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        microphone = audioContext.createMediaStreamSource(stream);
-        gainNode = audioContext.createGain();
-        
-        // Connect microphone to gain node
-        microphone.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        
-        // Set initial volume
-        gainNode.gain.value = 0.5; // 50%
-        
-        isMicrophoneActive = true;
-        showNotification('Microphone đã được kích hoạt', 'success');
-    } catch (error) {
-        console.error('Microphone permission error:', error);
-        showNotification('Không thể truy cập microphone. Vui lòng cấp quyền.', 'warning');
-        isMicrophoneActive = false;
+    // Cập nhật filters
+    if (trebleFilter) {
+        trebleFilter.gain.setValueAtTime(trebleValue, audioContext.currentTime);
     }
-}
-
-// Show Notification
-function showNotification(message, type = 'info') {
-    // Tạo notification element
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.textContent = message;
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 15px 20px;
-        background: ${type === 'success' ? '#4caf50' : type === 'error' ? '#f44336' : type === 'warning' ? '#ff9800' : '#2196f3'};
-        color: white;
-        border-radius: 10px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        z-index: 1000;
-        animation: slideIn 0.3s ease;
-    `;
+    if (midFilter) {
+        midFilter.gain.setValueAtTime(midValue, audioContext.currentTime);
+    }
+    if (bassFilter) {
+        bassFilter.gain.setValueAtTime(bassValue, audioContext.currentTime);
+    }
     
-    document.body.appendChild(notification);
-    
-    // Remove after 3 seconds
-    setTimeout(() => {
-        notification.style.animation = 'slideOut 0.3s ease';
+    // Nếu filters chưa có nhưng mic đã chạy, khởi tạo lại
+    if (micStream && (!trebleFilter || !midFilter || !bassFilter)) {
+        initMic();
         setTimeout(() => {
-            document.body.removeChild(notification);
-        }, 300);
-    }, 3000);
+            updateEQSlider(value);
+        }, 100);
+    }
 }
 
-// Add CSS animations
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideIn {
-        from {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
-    }
-    
-    @keyframes slideOut {
-        from {
-            transform: translateX(0);
-            opacity: 1;
-        }
-        to {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-    }
-`;
-document.head.appendChild(style);
-
-// Auto-detect video ID when user pastes URL
-searchInput.addEventListener('paste', (e) => {
-    setTimeout(() => {
-        const input = searchInput.value.trim();
-        const videoId = parseVideoIdFromUrl(input);
+// Khởi tạo Audio Context với latency thấp
+async function initAudioContext() {
+    if (!audioContext) {
+        // Tạo AudioContext với latency thấp nhất có thể
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
         
-        if (videoId) {
-            loadYouTubeVideo(videoId);
-            showNotification('Đã load video!', 'success');
+        // Thử tạo với latency thấp
+        try {
+            audioContext = new AudioContextClass({
+                latencyHint: 'interactive', // Latency thấp nhất
+                sampleRate: 48000 // Sample rate cao hơn để giảm latency
+            });
+        } catch (e) {
+            // Fallback nếu không hỗ trợ options
+            audioContext = new AudioContextClass();
         }
-    }, 100);
-});
+        
+        // Đặt buffer size nhỏ nhất có thể để giảm latency
+        if (audioContext.createScriptProcessor) {
+            // Sử dụng buffer size nhỏ (256 samples thay vì mặc định 4096)
+            try {
+                const testNode = audioContext.createScriptProcessor(256, 1, 1);
+                testNode.disconnect();
+            } catch (e) {
+                console.log('Không thể đặt buffer size nhỏ');
+            }
+        }
+    }
+    // Resume context nếu bị suspended (do browser policy)
+    if (audioContext.state === 'suspended') {
+        await audioContext.resume();
+    }
+    return audioContext;
+}
 
-// Also check on input change
-searchInput.addEventListener('input', () => {
-    const input = searchInput.value.trim();
-    const videoId = parseVideoIdFromUrl(input);
+// Khởi tạo và bắt đầu mic
+async function initMic() {
+    try {
+        // Dừng mic cũ nếu có
+        if (micStream) {
+            stopMic();
+        }
+        
+        // Yêu cầu quyền truy cập microphone với latency thấp
+        micStream = await navigator.mediaDevices.getUserMedia({ 
+            audio: {
+                echoCancellation: false, // Tắt echo cancellation để nghe được mic và giảm latency
+                noiseSuppression: false, // Tắt để giảm latency
+                autoGainControl: false, // Tắt để giảm latency
+                latency: 0, // Yêu cầu latency thấp nhất
+                sampleRate: 48000, // Sample rate cao để giảm latency
+                channelCount: 1 // Mono để giảm xử lý
+            } 
+        });
+        
+        // Khởi tạo audio context
+        const context = await initAudioContext();
+        
+        // Đảm bảo context đang chạy
+        if (context.state !== 'running') {
+            await context.resume();
+        }
+        
+        // Tạo source từ mic stream
+        micSource = context.createMediaStreamSource(micStream);
+        
+        // Tạo EQ filters: Bass, Mid, Treble
+        // Bass filter (low shelf, 80Hz)
+        bassFilter = context.createBiquadFilter();
+        bassFilter.type = 'lowshelf';
+        bassFilter.frequency.setValueAtTime(80, context.currentTime);
+        bassFilter.gain.setValueAtTime(0, context.currentTime);
+        
+        // Mid filter (peaking, 1000Hz)
+        midFilter = context.createBiquadFilter();
+        midFilter.type = 'peaking';
+        midFilter.frequency.setValueAtTime(1000, context.currentTime);
+        midFilter.Q.setValueAtTime(1, context.currentTime);
+        midFilter.gain.setValueAtTime(0, context.currentTime);
+        
+        // Treble filter (high shelf, 5000Hz)
+        trebleFilter = context.createBiquadFilter();
+        trebleFilter.type = 'highshelf';
+        trebleFilter.frequency.setValueAtTime(5000, context.currentTime);
+        trebleFilter.gain.setValueAtTime(0, context.currentTime);
+        
+        // Tạo gain node cho mic volume với smoothing = 0 để giảm latency
+        micGainNode = context.createGain();
+        micGainNode.gain.setValueAtTime(0, context.currentTime); // Set ngay lập tức
+        
+        const micVolume = document.getElementById('micVolume');
+        if (micVolume) {
+            const volume = parseInt(micVolume.value) / 100;
+            micGainNode.gain.setValueAtTime(volume, context.currentTime); // Set ngay, không smooth
+        } else {
+            micGainNode.gain.setValueAtTime(0.7, context.currentTime); // Mặc định 70%
+        }
+        
+        // Kết nối: micSource -> bass -> mid -> treble -> gain -> destination
+        micSource.connect(bassFilter);
+        bassFilter.connect(midFilter);
+        midFilter.connect(trebleFilter);
+        trebleFilter.connect(micGainNode);
+        micGainNode.connect(context.destination);
+        
+        micDestination = context.destination;
+        
+        // Tối ưu: Đảm bảo không có delay không cần thiết
+        console.log('Audio context latency:', context.baseLatency, 's');
+        console.log('Audio context output latency:', context.outputLatency, 's');
+        console.log('Sample rate:', context.sampleRate, 'Hz');
+        
+        // Hiển thị thông tin latency
+        const totalLatency = (context.baseLatency || 0) + (context.outputLatency || 0);
+        console.log('Tổng latency ước tính:', (totalLatency * 1000).toFixed(2), 'ms');
+        
+        console.log('Mic đã được kích hoạt với latency thấp nhất có thể');
+    } catch (error) {
+        console.error('Lỗi khởi tạo mic:', error);
+        const errorMsg = error.name === 'NotAllowedError' 
+            ? 'Vui lòng cho phép truy cập microphone để sử dụng tính năng này.'
+            : 'Không thể truy cập microphone. Vui lòng kiểm tra thiết bị và quyền truy cập.';
+        alert(errorMsg);
+    }
+}
+
+// Khởi tạo echo effect với delay tối thiểu
+function initEcho() {
+    if (!audioContext || !micStream || echoGainNode) return;
     
-    if (videoId && input.length > 10) {
-        // Auto-load if it looks like a complete URL or ID
-        loadYouTubeVideo(videoId);
+    try {
+        const micSource = audioContext.createMediaStreamSource(micStream);
+        
+        // Tạo delay node cho echo với delay time ngắn hơn để giảm latency
+        const delayNode = audioContext.createDelay(0.5); // Giảm max delay
+        delayNode.delayTime.setValueAtTime(0.15, audioContext.currentTime); // 150ms delay thay vì 300ms
+        
+        // Tạo gain node cho echo
+        echoGainNode = audioContext.createGain();
+        const echoVolume = document.getElementById('echoVolume');
+        if (echoVolume) {
+            echoGainNode.gain.setValueAtTime(parseInt(echoVolume.value) / 100, audioContext.currentTime);
+        } else {
+            echoGainNode.gain.setValueAtTime(0.5, audioContext.currentTime); // Mặc định 50%
+        }
+        
+        // Kết nối: mic -> delay -> echo gain -> destination
+        micSource.connect(delayNode);
+        delayNode.connect(echoGainNode);
+        echoGainNode.connect(audioContext.destination);
+        
+        console.log('Echo effect đã được kích hoạt với delay 150ms');
+    } catch (error) {
+        console.error('Lỗi khởi tạo echo:', error);
+    }
+}
+
+// Dừng mic
+function stopMic() {
+    if (micStream) {
+        micStream.getTracks().forEach(track => track.stop());
+        micStream = null;
+    }
+    if (micSource) {
+        micSource.disconnect();
+        micSource = null;
+    }
+    if (bassFilter) {
+        bassFilter.disconnect();
+        bassFilter = null;
+    }
+    if (midFilter) {
+        midFilter.disconnect();
+        midFilter = null;
+    }
+    if (trebleFilter) {
+        trebleFilter.disconnect();
+        trebleFilter = null;
+    }
+    if (micGainNode) {
+        micGainNode.disconnect();
+        micGainNode = null;
+    }
+    if (echoGainNode) {
+        echoGainNode.disconnect();
+        echoGainNode = null;
+    }
+    if (ambientGainNode) {
+        ambientGainNode.disconnect();
+        ambientGainNode = null;
+    }
+    micDestination = null;
+}
+
+// Kiểm tra thiết bị audio input
+async function checkAudioDevices() {
+    try {
+        let hasPermission = false;
+        // Yêu cầu quyền truy cập microphone để có thể liệt kê thiết bị
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            hasPermission = true;
+            // Dừng stream tạm thời, sẽ được khởi tạo lại trong initMic
+            stream.getTracks().forEach(track => track.stop());
+        } catch (e) {
+            // Người dùng từ chối quyền hoặc không có thiết bị
+            console.log('Không có quyền truy cập microphone hoặc không có thiết bị');
+        }
+        
+        if (!hasPermission) {
+            // Nếu không có quyền, disable tất cả
+            const micSlider = document.getElementById('micVolume');
+            const echoSlider = document.getElementById('echoVolume');
+            const ambientSlider = document.getElementById('ambientVolume');
+            const eqSlider = document.getElementById('micEQSlider');
+            const micItem = document.getElementById('micControlItem');
+            const echoItem = document.getElementById('echoControlItem');
+            const ambientItem = document.getElementById('ambientControlItem');
+            const eqItem = document.getElementById('micEQControlItem');
+            
+            if (micSlider) micSlider.disabled = true;
+            if (echoSlider) echoSlider.disabled = true;
+            if (ambientSlider) ambientSlider.disabled = true;
+            if (eqSlider) eqSlider.disabled = true;
+            if (micItem) micItem.classList.add('disabled');
+            if (echoItem) echoItem.classList.add('disabled');
+            if (ambientItem) ambientItem.classList.add('disabled');
+            if (eqItem) eqItem.classList.add('disabled');
+            return;
+        }
+        
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const audioInputDevices = devices.filter(device => device.kind === 'audioinput' && device.deviceId !== 'default');
+        
+        // Kiểm tra xem có thiết bị audio input không (mic, bluetooth, headphone)
+        const hasAudioInput = audioInputDevices.length > 0;
+        
+        // Enable/disable các slider dựa trên thiết bị
+        const micSlider = document.getElementById('micVolume');
+        const echoSlider = document.getElementById('echoVolume');
+        const ambientSlider = document.getElementById('ambientVolume');
+        const eqSlider = document.getElementById('micEQSlider');
+        const micItem = document.getElementById('micControlItem');
+        const echoItem = document.getElementById('echoControlItem');
+        const ambientItem = document.getElementById('ambientControlItem');
+        const eqItem = document.getElementById('micEQControlItem');
+        
+        if (hasAudioInput) {
+            // Enable các slider
+            if (micSlider) micSlider.disabled = false;
+            if (echoSlider) echoSlider.disabled = false;
+            if (ambientSlider) ambientSlider.disabled = false;
+            if (eqSlider) eqSlider.disabled = false;
+            if (micItem) micItem.classList.remove('disabled');
+            if (echoItem) echoItem.classList.remove('disabled');
+            if (ambientItem) ambientItem.classList.remove('disabled');
+            if (eqItem) eqItem.classList.remove('disabled');
+            
+            // Cập nhật label
+            const labels = document.querySelectorAll('#micControlItem label, #echoControlItem label, #ambientControlItem label');
+            labels.forEach(label => {
+                label.innerHTML = label.innerHTML.replace(/<span.*?<\/span>/, '<span style="font-size: 12px; opacity: 0.7;">(Đã kết nối)</span>');
+            });
+            
+            // Tự động khởi tạo mic nếu chưa có (giữ kết nối)
+            if (!micStream && !micGainNode) {
+                await initMic();
+            }
+        } else {
+            // Disable các slider
+            if (micSlider) micSlider.disabled = true;
+            if (echoSlider) echoSlider.disabled = true;
+            if (ambientSlider) ambientSlider.disabled = true;
+            if (eqSlider) eqSlider.disabled = true;
+            if (micItem) micItem.classList.add('disabled');
+            if (echoItem) echoItem.classList.add('disabled');
+            if (ambientItem) ambientItem.classList.add('disabled');
+            if (eqItem) eqItem.classList.add('disabled');
+        }
+    } catch (error) {
+        console.error('Lỗi kiểm tra thiết bị audio:', error);
+        // Nếu không thể kiểm tra, giữ nguyên trạng thái disabled
+    }
+}
+
+// Đóng popup khi click ra ngoài
+document.addEventListener('click', function(event) {
+    const popup = document.getElementById('audioControlPopup');
+    const button = document.querySelector('.audio-control-button');
+    const content = document.querySelector('.audio-control-content');
+    
+    if (popup.classList.contains('active')) {
+        if (!content.contains(event.target) && event.target !== button) {
+            popup.classList.remove('active');
+        }
     }
 });
-
