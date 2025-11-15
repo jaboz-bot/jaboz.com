@@ -3,66 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Room - Trò chuyện vui vẻ</title>
+    <title>Karaoke - Hát karaoke với YouTube</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>💬 Chat Room</h1>
-            <p class="subtitle">Tạo phòng và trò chuyện với mọi người</p>
-        </header>
-
-        <!-- Login/Join Form -->
-        <div id="login-section" class="section">
-            <div class="card">
-                <h2>Tham gia phòng chat</h2>
-                <form id="join-form">
-                    <div class="form-group">
-                        <label for="username">Tên của bạn:</label>
-                        <input type="text" id="username" placeholder="Nhập tên của bạn" required maxlength="20">
-                    </div>
-                    <div class="form-group">
-                        <label for="room-id">Tên phòng:</label>
-                        <input type="text" id="room-id" placeholder="Nhập tên phòng (ví dụ: phong-1)" required>
-                        <small>Phòng sẽ được tạo tự động nếu chưa tồn tại</small>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Vào phòng</button>
-                </form>
-            </div>
+        <h1 class="title">🎤 Karaoke</h1>
+        
+        <!-- YouTube Video Player -->
+        <div class="video-container">
+            <div id="player"></div>
         </div>
 
-        <!-- Chat Section -->
-        <div id="chat-section" class="section hidden">
-            <div class="chat-container">
-                <!-- Room Info -->
-                <div class="room-header">
-                    <div class="room-info">
-                        <h2 id="room-name">Phòng: -</h2>
-                        <span id="user-count" class="badge">0 người</span>
-                    </div>
-                    <button id="leave-room" class="btn btn-secondary">Rời phòng</button>
-                </div>
-
-                <!-- Messages -->
-                <div id="messages" class="messages"></div>
-
-                <!-- Message Input -->
-                <div class="message-input-container">
-                    <form id="message-form">
-                        <input type="text" id="message-input" placeholder="Nhập tin nhắn..." autocomplete="off" maxlength="500">
-                        <button type="submit" class="btn btn-primary">Gửi</button>
-                    </form>
-                </div>
-            </div>
+        <!-- Search Container -->
+        <div class="search-container">
+            <input 
+                type="text" 
+                id="searchInput" 
+                class="search-input" 
+                placeholder="Tìm kiếm bài hát..."
+                autocomplete="off"
+            >
+            <button id="searchButton" class="search-button">Tìm</button>
         </div>
 
-        <!-- Status -->
-        <div id="status" class="status"></div>
+        <!-- Microphone Volume Control -->
+        <div class="volume-container">
+            <div class="volume-header">
+                <span class="volume-label">🎤 Âm lượng Micro</span>
+                <span id="volumeValue" class="volume-value">50%</span>
+            </div>
+            <input 
+                type="range" 
+                id="volumeSlider" 
+                class="volume-slider" 
+                min="0" 
+                max="100" 
+                value="50"
+            >
+            <div class="volume-labels">
+                <span>0%</span>
+                <span>100%</span>
+            </div>
+            <div class="microphone-status">
+                <span id="micStatus" class="mic-status-text">Micro: Chưa kết nối</span>
+                <button id="micToggle" class="mic-toggle-button">Bật Micro</button>
+            </div>
+        </div>
     </div>
 
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="app.js"></script>
+    <!-- YouTube IFrame API -->
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script src="script.js"></script>
 </body>
 </html>
 
