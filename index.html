@@ -513,9 +513,7 @@
         let audioContext = null;
         let microphoneStream = null;
         let microphoneSource = null;
-        let micGainNode = null;
-        let micBoostNode = null; // Boost âm lượng mic
-        let micDelayNode = null; // Delay -2ms để đồng bộ
+        let micGainNode = null; // Gain node với boost 2.5x tích hợp
         let reverbGainNode = null;
         let dryGainNode = null;
         let reverbConvolver = null;
@@ -953,12 +951,10 @@
                 masterGainNode = audioContext.createGain();
                 masterGainNode.gain.value = 1.0;
                 
-                // Tạo boost node để tăng âm lượng mic lên thật to (2.5x = +8dB)
-                micBoostNode = audioContext.createGain();
-                micBoostNode.gain.value = 2.5; // Boost 2.5 lần để nghe rõ và ấm
-                
-                // Tạo gain node cho mic volume (điều chỉnh được)
+                // KẾT HỢP boost và gain thành 1 node để giảm latency
+                // Boost 2.5x được tích hợp vào micGainNode
                 micGainNode = audioContext.createGain();
+                micGainNode.gain.value = 2.5; // Boost 2.5 lần (sẽ được điều chỉnh bởi slider)
                 
                 // Tạo nodes cho reverb (dry và wet)
                 dryGainNode = audioContext.createGain();
@@ -977,20 +973,17 @@
                 reverbLowpass.frequency.value = 6000; // Giảm xuống để ấm hơn
                 reverbLowpass.Q.value = 0.7; // Tăng Q lên một chút để mượt hơn
                 
-                // Kết nối mic với đường dẫn TRỰC TIẾP NHẤT (ZERO delay)
-                // Khi không có reverb: Mic -> Boost -> Gain -> Master -> Output (ngắn nhất)
-                // Khi có reverb: Mic -> Boost -> Gain -> Dry -> Master -> Output
-                microphoneSource.connect(micBoostNode);
-                micBoostNode.connect(micGainNode);
+                // Kết nối mic với đường dẫn CỰC KỲ NGẮN (chỉ 1 node khi không có reverb!)
+                // Khi không có reverb: Mic -> Gain (boost+volume) -> Output (NGẮN NHẤT!)
+                // Khi có reverb: Mic -> Gain -> Dry -> Master -> Output
+                microphoneSource.connect(micGainNode);
                 
-                // Kết nối trực tiếp đến master (đường ngắn nhất khi không có reverb)
-                micGainNode.connect(masterGainNode);
+                // Kết nối TRỰC TIẾP đến destination (đường ngắn nhất khi không có reverb)
+                // Bypass masterGainNode để giảm 1 node
+                micGainNode.connect(audioContext.destination);
                 
-                // Dry node chỉ dùng khi có reverb (sẽ connect/disconnect động)
+                // Master và Dry node chỉ dùng khi có reverb (sẽ connect/disconnect động)
                 // Reverb chain - CHỈ kết nối khi cần (sẽ connect/disconnect động)
-                
-                // Master output
-                masterGainNode.connect(audioContext.destination);
                 
                 // Đảm bảo dry signal full volume ban đầu
                 dryGainNode.gain.value = 1.0;
@@ -1053,15 +1046,16 @@
             }
         }
 
-        // Cập nhật âm lượng mic
+        // Cập nhật âm lượng mic (với boost 2.5x đã tích hợp)
         function updateMicVolume(value) {
             document.getElementById('micVolumeValue').textContent = value + '%';
             localStorage.setItem('micVolume', value);
             
             // Áp dụng âm lượng cho mic nếu đã bật
+            // Boost 2.5x đã tích hợp vào micGainNode, chỉ cần nhân với volume
             if (micGainNode && isMicActive) {
                 const volume = parseFloat(value) / 100;
-                micGainNode.gain.value = volume;
+                micGainNode.gain.value = volume * 2.5; // Boost 2.5x + volume slider
             }
         }
 
@@ -1074,7 +1068,7 @@
             if (micGainNode && dryGainNode && reverbGainNode && reverbConvolver && reverbLowpass && isMicActive) {
                 const reverbAmount = parseFloat(value) / 100;
                 
-                // Khi reverb = 0, ĐƯỜNG DẪN TRỰC TIẾP NHẤT (Mic -> Boost -> Gain -> Master)
+                // Khi reverb = 0, ĐƯỜNG DẪN CỰC KỲ NGẮN (Mic -> Gain -> Destination)
                 if (reverbAmount === 0) {
                     // Disconnect reverb chain
                     try {
@@ -1086,35 +1080,38 @@
                         // Đã disconnect rồi, không sao
                     }
                     
-                    // Disconnect dryGainNode và kết nối trực tiếp micGainNode -> masterGainNode
+                    // Disconnect từ masterGainNode và dryGainNode
                     try {
+                        micGainNode.disconnect(masterGainNode);
                         micGainNode.disconnect(dryGainNode);
                         dryGainNode.disconnect(masterGainNode);
+                        masterGainNode.disconnect(audioContext.destination);
                     } catch (e) {
                         // Có thể chưa connect, không sao
                     }
                     
-                    // Kết nối trực tiếp (đường ngắn nhất)
+                    // Kết nối TRỰC TIẾP đến destination (đường ngắn nhất - chỉ 1 node!)
                     try {
-                        micGainNode.connect(masterGainNode);
+                        micGainNode.connect(audioContext.destination);
                     } catch (e) {
                         // Đã connect rồi, không sao
                     }
                     
                     reverbGainNode.gain.value = 0;
                 } else {
-                    // Khi có reverb, sử dụng dryGainNode để điều chỉnh dry/wet mix
-                    // Disconnect kết nối trực tiếp
+                    // Khi có reverb, sử dụng masterGainNode để trộn dry và wet
+                    // Disconnect kết nối trực tiếp đến destination
                     try {
-                        micGainNode.disconnect(masterGainNode);
+                        micGainNode.disconnect(audioContext.destination);
                     } catch (e) {
                         // Có thể chưa connect, không sao
                     }
                     
-                    // Kết nối qua dryGainNode
+                    // Kết nối qua dryGainNode và masterGainNode
                     try {
                         micGainNode.connect(dryGainNode);
                         dryGainNode.connect(masterGainNode);
+                        masterGainNode.connect(audioContext.destination);
                     } catch (e) {
                         // Đã connect rồi, không sao
                     }
