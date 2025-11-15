@@ -442,7 +442,7 @@
                     Microphone chưa được kích hoạt
                 </div>
                 <div style="font-size: 11px; color: #4caf50; margin-top: 8px; font-weight: 500;">
-                    ⚡ Đã tối ưu: Zero delay mode - Mic và video sẽ đồng bộ tự động
+                    ⚡ Đã tối ưu: Boost 2.5x + Reverb vang hay + Zero delay
                 </div>
             </div>
 
@@ -514,6 +514,8 @@
         let microphoneStream = null;
         let microphoneSource = null;
         let micGainNode = null;
+        let micBoostNode = null; // Boost âm lượng mic
+        let micDelayNode = null; // Delay -2ms để đồng bộ
         let reverbGainNode = null;
         let dryGainNode = null;
         let reverbConvolver = null;
@@ -826,14 +828,16 @@
             const leftChannel = impulse.getChannelData(0);
             const rightChannel = impulse.getChannelData(1);
             
-            // Tạo early reflections ngắn hơn để giảm latency (giảm từ 0.05 xuống 0.02)
+            // Tạo early reflections phong phú hơn để reverb vang hay
             const earlyReflections = [
-                { delay: 0.002, gain: 0.5, pan: 0.8 },
-                { delay: 0.005, gain: 0.4, pan: 0.6 },
-                { delay: 0.008, gain: 0.3, pan: 0.4 },
-                { delay: 0.012, gain: 0.25, pan: 0.3 },
-                { delay: 0.016, gain: 0.2, pan: 0.2 },
-                { delay: 0.020, gain: 0.15, pan: 0.15 }
+                { delay: 0.005, gain: 0.6, pan: 0.9 },
+                { delay: 0.010, gain: 0.5, pan: 0.7 },
+                { delay: 0.018, gain: 0.4, pan: 0.5 },
+                { delay: 0.025, gain: 0.35, pan: 0.4 },
+                { delay: 0.035, gain: 0.3, pan: 0.3 },
+                { delay: 0.045, gain: 0.25, pan: 0.25 },
+                { delay: 0.060, gain: 0.2, pan: 0.2 },
+                { delay: 0.080, gain: 0.15, pan: 0.15 }
             ];
             
             // Khởi tạo với noise ngẫu nhiên
@@ -858,29 +862,35 @@
                 const t = i / sampleRate;
                 const decayFactor = Math.exp(-t / decay);
                 
-                // Thêm delay taps ngắn hơn để giảm latency
-                const tap1 = Math.floor(t * 0.05 * sampleRate); // Giảm từ 0.1 xuống 0.05
-                const tap2 = Math.floor(t * 0.08 * sampleRate); // Giảm từ 0.15 xuống 0.08
-                const tap3 = Math.floor(t * 0.12 * sampleRate); // Giảm từ 0.2 xuống 0.12
+                // Thêm delay taps với feedback tốt hơn để reverb vang hay
+                const tap1 = Math.floor(t * 0.08 * sampleRate);
+                const tap2 = Math.floor(t * 0.12 * sampleRate);
+                const tap3 = Math.floor(t * 0.18 * sampleRate);
+                const tap4 = Math.floor(t * 0.25 * sampleRate);
                 
                 if (tap1 < length && tap1 > 0) {
-                    const feedback = decayFactor * 0.25; // Giảm feedback
+                    const feedback = decayFactor * 0.35; // Tăng feedback để vang hơn
                     leftChannel[i] += leftChannel[tap1] * feedback;
                     rightChannel[i] += rightChannel[tap1] * feedback * 0.9;
                 }
                 if (tap2 < length && tap2 > 0) {
-                    const feedback = decayFactor * 0.15; // Giảm feedback
+                    const feedback = decayFactor * 0.25; // Tăng feedback
                     leftChannel[i] += leftChannel[tap2] * feedback;
                     rightChannel[i] += rightChannel[tap2] * feedback * 0.85;
                 }
                 if (tap3 < length && tap3 > 0) {
-                    const feedback = decayFactor * 0.1; // Giảm feedback
+                    const feedback = decayFactor * 0.18; // Tăng feedback
                     leftChannel[i] += leftChannel[tap3] * feedback;
                     rightChannel[i] += rightChannel[tap3] * feedback * 0.8;
                 }
+                if (tap4 < length && tap4 > 0) {
+                    const feedback = decayFactor * 0.12; // Thêm tap thứ 4
+                    leftChannel[i] += leftChannel[tap4] * feedback;
+                    rightChannel[i] += rightChannel[tap4] * feedback * 0.75;
+                }
                 
-                // Thêm noise nhỏ cho tail tự nhiên hơn (giảm gain)
-                const noiseGain = decayFactor * 0.03; // Giảm từ 0.05 xuống 0.03
+                // Thêm noise nhỏ cho tail tự nhiên và ấm hơn
+                const noiseGain = decayFactor * 0.08; // Tăng lên để ấm hơn
                 leftChannel[i] += (Math.random() * 2 - 1) * noiseGain;
                 rightChannel[i] += (Math.random() * 2 - 1) * noiseGain;
             }
@@ -938,29 +948,34 @@
                 masterGainNode = audioContext.createGain();
                 masterGainNode.gain.value = 1.0;
                 
-                // Tạo gain node cho mic volume
+                // Tạo boost node để tăng âm lượng mic lên thật to (2.5x = +8dB)
+                micBoostNode = audioContext.createGain();
+                micBoostNode.gain.value = 2.5; // Boost 2.5 lần để nghe rõ và ấm
+                
+                // Tạo gain node cho mic volume (điều chỉnh được)
                 micGainNode = audioContext.createGain();
                 
                 // Tạo nodes cho reverb (dry và wet)
                 dryGainNode = audioContext.createGain();
                 reverbGainNode = audioContext.createGain();
                 
-                // Tạo reverb convolver với impulse response ngắn hơn để giảm latency
+                // Tạo reverb convolver với impulse response dài hơn để vang hay
                 reverbConvolver = audioContext.createConvolver();
-                // Giảm duration từ 2.0 xuống 0.5 để giảm latency xử lý
-                reverbImpulseResponse = createReverbImpulse(audioContext, 0.5, 0.3, false);
+                // Tăng duration lên 1.5s và decay 1.2s để reverb vang hay hơn
+                reverbImpulseResponse = createReverbImpulse(audioContext, 1.5, 1.2, false);
                 reverbConvolver.buffer = reverbImpulseResponse;
                 reverbConvolver.normalize = true;
                 
-                // Thêm low-pass filter với Q thấp để giảm xử lý
+                // Thêm low-pass filter để làm mềm reverb (tần số thấp hơn để ấm hơn)
                 reverbLowpass = audioContext.createBiquadFilter();
                 reverbLowpass.type = 'lowpass';
-                reverbLowpass.frequency.value = 8000; // Tăng frequency để giảm xử lý
-                reverbLowpass.Q.value = 0.5; // Giảm Q để giảm xử lý
+                reverbLowpass.frequency.value = 6000; // Giảm xuống để ấm hơn
+                reverbLowpass.Q.value = 0.7; // Tăng Q lên một chút để mượt hơn
                 
-                // Kết nối mic trực tiếp với ZERO delay
-                // Mic -> Gain -> Dry -> Master -> Output (đường ngắn nhất)
-                microphoneSource.connect(micGainNode);
+                // Kết nối mic với boost và delay tối thiểu
+                // Mic -> Boost -> Gain -> Dry -> Master -> Output
+                microphoneSource.connect(micBoostNode);
+                micBoostNode.connect(micGainNode);
                 micGainNode.connect(dryGainNode);
                 dryGainNode.connect(masterGainNode);
                 
@@ -1056,10 +1071,10 @@
                     reverbGainNode.gain.value = 0;
                     dryGainNode.gain.value = 1; // Dry signal full volume
                 } else {
-                    // Dry signal (âm thanh gốc) - giảm khi tăng reverb
-                    dryGainNode.gain.value = 1 - (reverbAmount * 0.3); // Giảm từ 0.4 xuống 0.3
-                    // Wet signal (âm thanh có reverb) - tăng theo giá trị
-                    reverbGainNode.gain.value = reverbAmount * 0.5; // Giảm từ 0.6 xuống 0.5
+                    // Dry signal (âm thanh gốc) - giảm khi tăng reverb để reverb nổi bật
+                    dryGainNode.gain.value = 1 - (reverbAmount * 0.25); // Giảm để reverb vang hơn
+                    // Wet signal (âm thanh có reverb) - tăng mạnh để vang hay
+                    reverbGainNode.gain.value = reverbAmount * 0.8; // Tăng từ 0.5 lên 0.8 để vang hay
                 }
             }
         }
