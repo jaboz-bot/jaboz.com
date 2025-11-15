@@ -129,189 +129,7 @@
             font-size: 14px;
         }
 
-        /* Popup Modal */
-        .search-popup {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 10000;
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(5px);
-            overflow: hidden;
-        }
-
-        .search-popup.active {
-            display: flex;
-        }
-
-        .search-popup-content {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            border-radius: 20px;
-            width: 90%;
-            max-width: 800px;
-            max-height: 80vh;
-            padding: 30px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-            display: flex;
-            flex-direction: column;
-            position: relative;
-        }
-
-        .search-popup-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .search-popup-header h2 {
-            color: white;
-            font-size: 24px;
-            margin: 0;
-        }
-
-        .close-popup {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            border-radius: 50%;
-            width: 35px;
-            height: 35px;
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            line-height: 1;
-        }
-
-        .close-popup:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: rotate(90deg);
-        }
-
-        .search-results-container {
-            overflow-y: auto;
-            flex: 1;
-            padding-right: 10px;
-        }
-
-        .search-results-container::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .search-results-container::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-        }
-
-        .search-results-container::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 10px;
-        }
-
-        .search-results-container::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.5);
-        }
-
-        .search-result-item {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border-left: 3px solid transparent;
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            width: 100%;
-            box-sizing: border-box;
-            visibility: visible;
-            opacity: 1;
-        }
-
-        .search-result-item:hover {
-            background: rgba(255, 255, 255, 0.2);
-            border-left-color: #667eea;
-            transform: translateX(5px);
-        }
-
-        .result-thumbnail {
-            width: 160px;
-            height: 120px;
-            border-radius: 8px;
-            object-fit: cover;
-            flex-shrink: 0;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-        }
-
-        .result-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .result-title {
-            font-size: 18px;
-            font-weight: bold;
-            color: white;
-            margin-bottom: 8px;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .result-channel {
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        .loading-spinner {
-            text-align: center;
-            padding: 40px;
-            color: white;
-        }
-
-        .spinner {
-            display: inline-block;
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .no-results {
-            text-align: center;
-            padding: 40px;
-            color: rgba(255, 255, 255, 0.7);
-            font-style: italic;
-        }
-
         @media (max-width: 768px) {
-            body {
-                padding: 10px;
-            }
-
-            .container {
-                padding: 15px;
-            }
-
             .input-section {
                 flex-direction: column;
             }
@@ -322,83 +140,6 @@
 
             h1 {
                 font-size: 1.5rem;
-            }
-
-            .search-popup {
-                display: none;
-            }
-
-            .search-popup.active {
-                display: flex;
-                align-items: flex-start;
-                padding-top: 10px;
-            }
-
-            .search-popup-content {
-                width: 100%;
-                max-width: 100%;
-                max-height: 95vh;
-                height: auto;
-                padding: 15px;
-                margin: 0;
-                border-radius: 15px 15px 0 0;
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                top: auto;
-            }
-
-            .search-popup-header {
-                margin-bottom: 15px;
-                padding-bottom: 10px;
-            }
-
-            .search-popup-header h2 {
-                font-size: 18px;
-            }
-
-            .search-results-container {
-                max-height: calc(95vh - 100px);
-                overflow-y: auto;
-                -webkit-overflow-scrolling: touch;
-            }
-
-            .search-result-item {
-                padding: 12px;
-                margin-bottom: 12px;
-                flex-direction: row;
-                align-items: center;
-                gap: 12px;
-            }
-
-            .result-thumbnail {
-                width: 100px;
-                height: 75px;
-                min-width: 100px;
-                flex-shrink: 0;
-            }
-
-            .result-info {
-                flex: 1;
-                min-width: 0;
-                overflow: hidden;
-            }
-
-            .result-title {
-                font-size: 14px;
-                line-height: 1.3;
-                margin-bottom: 5px;
-            }
-
-            .result-channel {
-                font-size: 11px;
-            }
-
-            .close-popup {
-                width: 30px;
-                height: 30px;
-                font-size: 20px;
             }
         }
     </style>
@@ -434,146 +175,19 @@
             Nhập tên bài hát để tìm kiếm trên YouTube hoặc dán link YouTube trực tiếp
         </div>
         
-    </div>
-
-    <!-- Popup Modal cho tìm kiếm -->
-    <div class="search-popup" id="searchPopup">
-        <div class="search-popup-content">
-            <div class="search-popup-header">
-                <h2>🔍 Kết quả tìm kiếm</h2>
-                <button class="close-popup" onclick="closeSearchPopup()">×</button>
-            </div>
-            <div class="search-results-container" id="searchResultsContainer">
-                <div class="loading-spinner">
-                    <div class="spinner"></div>
-                    <p style="margin-top: 15px;">Đang tìm kiếm...</p>
-                </div>
-            </div>
+        <!-- Thông báo khi mở popup YouTube -->
+        <div class="info" id="youtubeTabInfo" style="display: none; background: rgba(102, 126, 234, 0.3); padding: 15px; border-radius: 10px; margin-top: 15px;">
+            <strong>📌 Hướng dẫn:</strong><br>
+            Cửa sổ YouTube đã được mở. Vui lòng:<br>
+            1. Click vào video bạn muốn phát<br>
+            2. Copy URL từ thanh địa chỉ (Ctrl+C hoặc Cmd+C)<br>
+            3. Dán URL vào ô tìm kiếm bên dưới (Ctrl+V hoặc Cmd+V)<br>
+            4. Video sẽ tự động phát
         </div>
     </div>
 
     <script>
-        // Hàm tìm kiếm trên YouTube (không dùng API - web scraping)
-        async function searchYouTube(query) {
-            if (!query || query.length < 2) {
-                return [];
-            }
-            
-            const searchQuery = encodeURIComponent(query);
-            
-            // Tạo AbortController với timeout
-            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            const timeout = isMobile ? 8000 : 5000;
-            
-            const createFetchWithTimeout = (url, timeoutMs = timeout) => {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-                return fetch(url, { signal: controller.signal })
-                    .then(response => {
-                        clearTimeout(timeoutId);
-                        if (!response.ok) throw new Error('Network response was not ok');
-                        return response;
-                    })
-                    .catch(err => {
-                        clearTimeout(timeoutId);
-                        throw err;
-                    });
-            };
-            
-            // Thử nhiều proxy cùng lúc
-            const proxyPromises = [
-                createFetchWithTimeout(`https://api.allorigins.win/get?url=${encodeURIComponent(`https://www.youtube.com/results?search_query=${searchQuery}`)}`)
-                    .then(r => r.json())
-                    .then(d => d.contents || '')
-                    .catch(() => ''),
-                createFetchWithTimeout(`https://corsproxy.io/?${encodeURIComponent(`https://www.youtube.com/results?search_query=${searchQuery}`)}`)
-                    .then(r => r.text())
-                    .catch(() => ''),
-                createFetchWithTimeout(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(`https://www.youtube.com/results?search_query=${searchQuery}`)}`)
-                    .then(r => r.text())
-                    .catch(() => '')
-            ];
-            
-            try {
-                let html = '';
-                try {
-                    html = await Promise.race(proxyPromises);
-                } catch (raceError) {
-                    const settled = await Promise.allSettled(proxyPromises);
-                    for (const result of settled) {
-                        if (result.status === 'fulfilled' && result.value) {
-                            html = result.value;
-                            break;
-                        }
-                    }
-                }
-                
-                if (!html || html.trim() === '') {
-                    return [];
-                }
-                
-                const results = [];
-                const seenIds = new Set();
-                
-                // Parse với regex - tìm pattern videoRenderer
-                const videoPattern = /"videoRenderer":\{[^}]*"videoId":"([^"]{11})"[^}]*"title":\{"runs":\[\{"text":"([^"]+)"\}[^}]*"ownerText":\{"runs":\[\{"text":"([^"]+)"\}/g;
-                
-                let match;
-                let count = 0;
-                while ((match = videoPattern.exec(html)) !== null && count < 10) {
-                    const videoId = match[1];
-                    if (!seenIds.has(videoId)) {
-                        seenIds.add(videoId);
-                        const title = match[2].replace(/\\u([0-9a-fA-F]{4})/g, (m, code) => String.fromCharCode(parseInt(code, 16)));
-                        const artist = match[3] ? match[3].replace(/\\u([0-9a-fA-F]{4})/g, (m, code) => String.fromCharCode(parseInt(code, 16))) : "YouTube";
-                        results.push({ title, artist, videoId });
-                        count++;
-                    }
-                }
-                
-                // Fallback: pattern đơn giản hơn
-                if (results.length === 0) {
-                    const videoIdRegex = /"videoId":"([^"]{11})"/g;
-                    const titleRegex = /"title":\{"runs":\[\{"text":"([^"]+)"\}/g;
-                    const ownerRegex = /"ownerText":\{"runs":\[\{"text":"([^"]+)"\}/g;
-                    
-                    const videoIds = [];
-                    const titles = [];
-                    const owners = [];
-                    
-                    let vidMatch;
-                    while ((vidMatch = videoIdRegex.exec(html)) !== null && videoIds.length < 15) {
-                        if (!seenIds.has(vidMatch[1])) {
-                            seenIds.add(vidMatch[1]);
-                            videoIds.push(vidMatch[1]);
-                        }
-                    }
-                    
-                    let titleMatch;
-                    while ((titleMatch = titleRegex.exec(html)) !== null && titles.length < videoIds.length) {
-                        titles.push(titleMatch[1].replace(/\\u([0-9a-fA-F]{4})/g, (m, code) => String.fromCharCode(parseInt(code, 16))));
-                    }
-                    
-                    let ownerMatch;
-                    while ((ownerMatch = ownerRegex.exec(html)) !== null && owners.length < videoIds.length) {
-                        owners.push(ownerMatch[1].replace(/\\u([0-9a-fA-F]{4})/g, (m, code) => String.fromCharCode(parseInt(code, 16))));
-                    }
-                    
-                    for (let i = 0; i < videoIds.length && i < 10; i++) {
-                        results.push({
-                            title: titles[i] || `Bài hát ${i + 1}`,
-                            artist: owners[i] || "YouTube",
-                            videoId: videoIds[i]
-                        });
-                    }
-                }
-                
-                return results;
-            } catch (error) {
-                console.error('Lỗi tìm kiếm YouTube:', error);
-                return [];
-            }
-        }
+        let youtubeTab = null;
         
         // Lấy video ID từ URL YouTube
         function getVideoId(url) {
@@ -608,7 +222,7 @@
         }
 
         // Xử lý khi nhấn nút Tìm
-        async function handleSearch() {
+        function handleSearch() {
             const urlInput = document.getElementById('youtubeUrl');
             const url = urlInput.value.trim();
             const errorMessage = document.getElementById('errorMessage');
@@ -621,99 +235,9 @@
                 return;
             }
 
-            // Mở popup và tìm kiếm
-            openSearchPopup(url);
+            // Mở popup YouTube để tìm kiếm
+            openYouTubeSearch(url);
         }
-
-        // Mở popup tìm kiếm
-        async function openSearchPopup(query) {
-            const popup = document.getElementById('searchPopup');
-            const resultsContainer = document.getElementById('searchResultsContainer');
-            
-            // Hiển thị popup
-            popup.classList.add('active');
-            
-            // Hiển thị loading
-            resultsContainer.innerHTML = `
-                <div class="loading-spinner">
-                    <div class="spinner"></div>
-                    <p style="margin-top: 15px;">Đang tìm kiếm "${query}"...</p>
-                </div>
-            `;
-            
-            // Tìm kiếm
-            try {
-                const results = await searchYouTube(query);
-                
-                if (results.length > 0) {
-                    displaySearchResults(results);
-                } else {
-                    resultsContainer.innerHTML = `
-                        <div class="no-results">
-                            Không tìm thấy kết quả cho "${query}".<br>
-                            Vui lòng thử lại với từ khóa khác.
-                        </div>
-                    `;
-                }
-            } catch (error) {
-                console.error('Lỗi tìm kiếm:', error);
-                resultsContainer.innerHTML = `
-                    <div class="no-results">
-                        Lỗi kết nối. Vui lòng kiểm tra kết nối mạng và thử lại.
-                    </div>
-                `;
-            }
-        }
-
-        // Hiển thị kết quả tìm kiếm
-        function displaySearchResults(results) {
-            const resultsContainer = document.getElementById('searchResultsContainer');
-            
-            resultsContainer.innerHTML = results.map(song => {
-                const thumbnailUrl = `https://img.youtube.com/vi/${song.videoId}/maxresdefault.jpg`;
-                const safeTitle = song.title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                const safeArtist = song.artist.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                return `
-                    <div class="search-result-item" onclick="selectVideo('${song.videoId}', '${safeTitle}', '${safeArtist}')">
-                        <img src="${thumbnailUrl}" alt="${song.title}" class="result-thumbnail" loading="lazy" onerror="this.src='https://img.youtube.com/vi/${song.videoId}/hqdefault.jpg'">
-                        <div class="result-info">
-                            <div class="result-title">${song.title}</div>
-                            <div class="result-channel">${song.artist}</div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // Chọn video từ kết quả tìm kiếm
-        function selectVideo(videoId, title, artist) {
-            // Đóng popup
-            closeSearchPopup();
-            
-            // Cập nhật input với URL video
-            const urlInput = document.getElementById('youtubeUrl');
-            urlInput.value = `https://www.youtube.com/watch?v=${videoId}`;
-            
-            // Hiển thị nút Phát và ẩn nút Tìm
-            document.getElementById('searchButton').style.display = 'none';
-            document.getElementById('playButton').style.display = 'inline-block';
-            
-            // Phát video
-            playVideo();
-        }
-
-        // Đóng popup tìm kiếm
-        function closeSearchPopup() {
-            const popup = document.getElementById('searchPopup');
-            popup.classList.remove('active');
-        }
-
-        // Đóng popup khi click ra ngoài
-        document.getElementById('searchPopup').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeSearchPopup();
-            }
-        });
 
         // Xử lý khi nhấn nút Phát (cho URL YouTube)
         function handlePlay() {
@@ -729,16 +253,57 @@
             playVideo();
         }
 
+        // Mở popup YouTube với kết quả tìm kiếm
+        function openYouTubeSearch(query) {
+            const searchQuery = encodeURIComponent(query);
+            const youtubeUrl = `https://www.youtube.com/results?search_query=${searchQuery}`;
+            
+            // Đóng popup cũ nếu có
+            if (youtubeTab && !youtubeTab.closed) {
+                youtubeTab.close();
+            }
+            
+            // Tính toán vị trí để popup ở giữa màn hình
+            const width = 800;
+            const height = 600;
+            const left = (screen.width / 2) - (width / 2);
+            const top = (screen.height / 2) - (height / 2);
+            
+            // Mở popup với kích thước nhỏ gọn
+            youtubeTab = window.open(
+                youtubeUrl, 
+                'youtubeSearch',
+                `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes,toolbar=no,location=yes,menubar=no`
+            );
+            
+            // Hiển thị hướng dẫn
+            const youtubeTabInfo = document.getElementById('youtubeTabInfo');
+            youtubeTabInfo.style.display = 'block';
+            
+            // Kiểm tra xem popup có bị đóng không
+            const checkTab = setInterval(() => {
+                if (youtubeTab && youtubeTab.closed) {
+                    clearInterval(checkTab);
+                    youtubeTabInfo.style.display = 'none';
+                }
+            }, 1000);
+            
+            // Tập trung vào tab hiện tại để người dùng có thể paste URL
+            window.focus();
+        }
+
         // Phát video
         function playVideo() {
             const urlInput = document.getElementById('youtubeUrl');
             const errorMessage = document.getElementById('errorMessage');
             const youtubePlayer = document.getElementById('youtubePlayer');
+            const youtubeTabInfo = document.getElementById('youtubeTabInfo');
             
             const url = urlInput.value.trim();
             
-            // Ẩn thông báo lỗi
+            // Ẩn thông báo lỗi và hướng dẫn
             errorMessage.classList.remove('show');
+            youtubeTabInfo.style.display = 'none';
             
             if (!url) {
                 showError('Vui lòng nhập link YouTube hoặc Video ID');
@@ -755,6 +320,12 @@
             // Load video
             const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&enablejsapi=1`;
             youtubePlayer.src = embedUrl;
+            
+            // Đóng popup YouTube nếu đang mở
+            if (youtubeTab && !youtubeTab.closed) {
+                youtubeTab.close();
+                youtubeTab = null;
+            }
             
             // Xóa thông báo lỗi nếu có
             errorMessage.classList.remove('show');
@@ -816,11 +387,9 @@
             }
         });
 
-        // Đóng popup khi nhấn ESC
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeSearchPopup();
-            }
+        // Lắng nghe sự kiện focus để kiểm tra clipboard (khi người dùng quay lại từ tab YouTube)
+        window.addEventListener('focus', function() {
+            // Không tự động đọc clipboard vì cần quyền, nhưng có thể hướng dẫn người dùng paste
         });
     </script>
 </body>
