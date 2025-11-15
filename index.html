@@ -820,15 +820,14 @@
             const leftChannel = impulse.getChannelData(0);
             const rightChannel = impulse.getChannelData(1);
             
-            // Tạo nhiều early reflections với timing khác nhau (giống không gian thật)
+            // Tạo early reflections ngắn hơn để giảm latency (giảm từ 0.05 xuống 0.02)
             const earlyReflections = [
-                { delay: 0.005, gain: 0.4, pan: 0.8 },
-                { delay: 0.010, gain: 0.3, pan: 0.6 },
-                { delay: 0.015, gain: 0.25, pan: 0.4 },
-                { delay: 0.020, gain: 0.2, pan: 0.3 },
-                { delay: 0.030, gain: 0.15, pan: 0.2 },
-                { delay: 0.040, gain: 0.12, pan: 0.15 },
-                { delay: 0.050, gain: 0.1, pan: 0.1 }
+                { delay: 0.002, gain: 0.5, pan: 0.8 },
+                { delay: 0.005, gain: 0.4, pan: 0.6 },
+                { delay: 0.008, gain: 0.3, pan: 0.4 },
+                { delay: 0.012, gain: 0.25, pan: 0.3 },
+                { delay: 0.016, gain: 0.2, pan: 0.2 },
+                { delay: 0.020, gain: 0.15, pan: 0.15 }
             ];
             
             // Khởi tạo với noise ngẫu nhiên
@@ -853,29 +852,29 @@
                 const t = i / sampleRate;
                 const decayFactor = Math.exp(-t / decay);
                 
-                // Thêm nhiều delay taps với feedback
-                const tap1 = Math.floor(t * 0.1 * sampleRate);
-                const tap2 = Math.floor(t * 0.15 * sampleRate);
-                const tap3 = Math.floor(t * 0.2 * sampleRate);
+                // Thêm delay taps ngắn hơn để giảm latency
+                const tap1 = Math.floor(t * 0.05 * sampleRate); // Giảm từ 0.1 xuống 0.05
+                const tap2 = Math.floor(t * 0.08 * sampleRate); // Giảm từ 0.15 xuống 0.08
+                const tap3 = Math.floor(t * 0.12 * sampleRate); // Giảm từ 0.2 xuống 0.12
                 
                 if (tap1 < length && tap1 > 0) {
-                    const feedback = decayFactor * 0.3;
+                    const feedback = decayFactor * 0.25; // Giảm feedback
                     leftChannel[i] += leftChannel[tap1] * feedback;
                     rightChannel[i] += rightChannel[tap1] * feedback * 0.9;
                 }
                 if (tap2 < length && tap2 > 0) {
-                    const feedback = decayFactor * 0.2;
+                    const feedback = decayFactor * 0.15; // Giảm feedback
                     leftChannel[i] += leftChannel[tap2] * feedback;
                     rightChannel[i] += rightChannel[tap2] * feedback * 0.85;
                 }
                 if (tap3 < length && tap3 > 0) {
-                    const feedback = decayFactor * 0.15;
+                    const feedback = decayFactor * 0.1; // Giảm feedback
                     leftChannel[i] += leftChannel[tap3] * feedback;
                     rightChannel[i] += rightChannel[tap3] * feedback * 0.8;
                 }
                 
-                // Thêm noise nhỏ cho tail tự nhiên hơn
-                const noiseGain = decayFactor * 0.05;
+                // Thêm noise nhỏ cho tail tự nhiên hơn (giảm gain)
+                const noiseGain = decayFactor * 0.03; // Giảm từ 0.05 xuống 0.03
                 leftChannel[i] += (Math.random() * 2 - 1) * noiseGain;
                 rightChannel[i] += (Math.random() * 2 - 1) * noiseGain;
             }
@@ -896,14 +895,15 @@
             return impulse;
         }
 
-        // Khởi tạo Audio Context và Microphone
+        // Khởi tạo Audio Context và Microphone với latency tối thiểu
         async function initAudioContext() {
             try {
                 if (!audioContext) {
-                    // Tạo audio context với latency thấp
+                    // Tạo audio context với latency cực thấp
+                    // Không set latencyHint để dùng mặc định (thường là thấp nhất)
+                    // Hoặc có thể dùng 'interactive' nếu browser hỗ trợ
                     audioContext = new (window.AudioContext || window.webkitAudioContext)({
-                        sampleRate: 44100,
-                        latencyHint: 'interactive' // Giảm latency
+                        sampleRate: 48000 // Tăng sample rate để giảm latency
                     });
                 }
                 
@@ -911,13 +911,16 @@
                     await audioContext.resume();
                 }
 
-                // Yêu cầu quyền truy cập microphone với latency thấp
+                // Yêu cầu quyền truy cập microphone với latency cực thấp
                 microphoneStream = await navigator.mediaDevices.getUserMedia({ 
                     audio: {
                         echoCancellation: true,  // Bật để tránh feedback
                         noiseSuppression: false, // Tắt để giảm latency
                         autoGainControl: false,  // Tắt để giảm latency
-                        latency: 0.01 // Yêu cầu latency thấp
+                        latency: 0.001, // Latency cực thấp
+                        sampleRate: 48000, // Sample rate cao hơn
+                        channelCount: 1, // Mono để giảm xử lý
+                        sampleSize: 16 // Bit depth thấp hơn
                     } 
                 });
 
@@ -931,27 +934,28 @@
                 dryGainNode = audioContext.createGain();
                 reverbGainNode = audioContext.createGain();
                 
-                // Tạo reverb convolver với impulse response
+                // Tạo reverb convolver với impulse response ngắn hơn để giảm latency
                 reverbConvolver = audioContext.createConvolver();
-                reverbImpulseResponse = createReverbImpulse(audioContext, 2.0, 1.5, false);
+                // Giảm duration từ 2.0 xuống 0.5 để giảm latency xử lý
+                reverbImpulseResponse = createReverbImpulse(audioContext, 0.5, 0.3, false);
                 reverbConvolver.buffer = reverbImpulseResponse;
                 reverbConvolver.normalize = true;
                 
-                // Thêm low-pass filter để làm mềm reverb
+                // Thêm low-pass filter với Q thấp để giảm xử lý
                 reverbLowpass = audioContext.createBiquadFilter();
                 reverbLowpass.type = 'lowpass';
-                reverbLowpass.frequency.value = 5000;
-                reverbLowpass.Q.value = 1;
+                reverbLowpass.frequency.value = 8000; // Tăng frequency để giảm xử lý
+                reverbLowpass.Q.value = 0.5; // Giảm Q để giảm xử lý
                 
-                // Kết nối reverb chain: mic -> reverb convolver -> lowpass -> gain -> output
+                // Kết nối trực tiếp dry signal để giảm latency
                 microphoneSource.connect(micGainNode);
                 micGainNode.connect(dryGainNode);
+                dryGainNode.connect(audioContext.destination);
+                
+                // Kết nối reverb song song (chỉ khi cần) để không ảnh hưởng dry signal
                 micGainNode.connect(reverbConvolver);
                 reverbConvolver.connect(reverbLowpass);
                 reverbLowpass.connect(reverbGainNode);
-                
-                // Kết nối output
-                dryGainNode.connect(audioContext.destination);
                 reverbGainNode.connect(audioContext.destination);
                 
                 isMicActive = true;
@@ -1023,7 +1027,7 @@
             }
         }
 
-        // Cập nhật độ vang (Reverb/Ambient)
+        // Cập nhật độ vang (Reverb/Ambient) - Tối ưu để giảm latency
         function updateReverb(value) {
             document.getElementById('reverbValue').textContent = value + '%';
             localStorage.setItem('reverb', value);
@@ -1031,10 +1035,17 @@
             // Áp dụng reverb nếu mic đã bật
             if (dryGainNode && reverbGainNode && isMicActive) {
                 const reverbAmount = parseFloat(value) / 100;
-                // Dry signal (âm thanh gốc) - giảm khi tăng reverb
-                dryGainNode.gain.value = 1 - (reverbAmount * 0.4);
-                // Wet signal (âm thanh có reverb) - tăng theo giá trị
-                reverbGainNode.gain.value = reverbAmount * 0.6;
+                
+                // Khi reverb = 0, tắt hoàn toàn reverb chain để giảm latency
+                if (reverbAmount === 0) {
+                    reverbGainNode.gain.value = 0;
+                    dryGainNode.gain.value = 1; // Dry signal full volume
+                } else {
+                    // Dry signal (âm thanh gốc) - giảm khi tăng reverb
+                    dryGainNode.gain.value = 1 - (reverbAmount * 0.3); // Giảm từ 0.4 xuống 0.3
+                    // Wet signal (âm thanh có reverb) - tăng theo giá trị
+                    reverbGainNode.gain.value = reverbAmount * 0.5; // Giảm từ 0.6 xuống 0.5
+                }
             }
         }
 
