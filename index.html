@@ -442,7 +442,7 @@
                     Microphone chưa được kích hoạt
                 </div>
                 <div style="font-size: 11px; color: #4caf50; margin-top: 8px; font-weight: 500;">
-                    ⚡ Đã tối ưu: Boost 2.5x + Reverb vang hay + Zero delay
+                    ⚡ Đã tối ưu: Boost 2.5x + Reverb vang hay + Zero delay (reverb disconnect khi = 0)
                 </div>
             </div>
 
@@ -972,21 +972,22 @@
                 reverbLowpass.frequency.value = 6000; // Giảm xuống để ấm hơn
                 reverbLowpass.Q.value = 0.7; // Tăng Q lên một chút để mượt hơn
                 
-                // Kết nối mic với boost và delay tối thiểu
-                // Mic -> Boost -> Gain -> Dry -> Master -> Output
+                // Kết nối mic với đường dẫn TRỰC TIẾP NHẤT (ZERO delay)
+                // Đường chính: Mic -> Boost -> Gain -> Dry -> Master -> Output
                 microphoneSource.connect(micBoostNode);
                 micBoostNode.connect(micGainNode);
                 micGainNode.connect(dryGainNode);
                 dryGainNode.connect(masterGainNode);
                 
-                // Kết nối reverb song song (chỉ khi cần) để không ảnh hưởng dry signal
-                micGainNode.connect(reverbConvolver);
-                reverbConvolver.connect(reverbLowpass);
-                reverbLowpass.connect(reverbGainNode);
-                reverbGainNode.connect(masterGainNode);
+                // Reverb chain - CHỈ kết nối khi cần (sẽ connect/disconnect động)
+                // Không kết nối reverb ngay để tránh delay
                 
                 // Master output
                 masterGainNode.connect(audioContext.destination);
+                
+                // Đảm bảo dry signal full volume ban đầu
+                dryGainNode.gain.value = 1.0;
+                reverbGainNode.gain.value = 0; // Tắt reverb ban đầu
                 
                 isMicActive = true;
                 updateMicStatus();
@@ -1063,14 +1064,33 @@
             localStorage.setItem('reverb', value);
             
             // Áp dụng reverb nếu mic đã bật
-            if (dryGainNode && reverbGainNode && isMicActive) {
+            if (micGainNode && dryGainNode && reverbGainNode && reverbConvolver && reverbLowpass && isMicActive) {
                 const reverbAmount = parseFloat(value) / 100;
                 
-                // Khi reverb = 0, tắt hoàn toàn reverb chain để giảm latency
+                // Khi reverb = 0, DISCONNECT hoàn toàn reverb chain để ZERO delay
                 if (reverbAmount === 0) {
+                    // Disconnect reverb chain để loại bỏ hoàn toàn delay
+                    try {
+                        micGainNode.disconnect(reverbConvolver);
+                        reverbConvolver.disconnect(reverbLowpass);
+                        reverbLowpass.disconnect(reverbGainNode);
+                        reverbGainNode.disconnect(masterGainNode);
+                    } catch (e) {
+                        // Đã disconnect rồi, không sao
+                    }
                     reverbGainNode.gain.value = 0;
-                    dryGainNode.gain.value = 1; // Dry signal full volume
+                    dryGainNode.gain.value = 1; // Dry signal full volume - đường dẫn trực tiếp nhất
                 } else {
+                    // Khi có reverb, connect lại reverb chain
+                    try {
+                        micGainNode.connect(reverbConvolver);
+                        reverbConvolver.connect(reverbLowpass);
+                        reverbLowpass.connect(reverbGainNode);
+                        reverbGainNode.connect(masterGainNode);
+                    } catch (e) {
+                        // Đã connect rồi, không sao
+                    }
+                    
                     // Dry signal (âm thanh gốc) - giảm khi tăng reverb để reverb nổi bật
                     dryGainNode.gain.value = 1 - (reverbAmount * 0.25); // Giảm để reverb vang hơn
                     // Wet signal (âm thanh có reverb) - tăng mạnh để vang hay
