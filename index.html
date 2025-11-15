@@ -146,8 +146,17 @@
 </head>
 <body>
     <div class="container">
-        <h1>🎵 YouTube Player</h1>
-        
+        <div class="video-container" id="videoContainer">
+            <iframe 
+                id="youtubePlayer"
+                src=""
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen>
+            </iframe>
+        </div>
+
+        <div class="error-message" id="errorMessage"></div>
+
         <div class="input-section">
             <input 
                 type="text" 
@@ -156,19 +165,8 @@
                 placeholder="Nhập tên bài hát hoặc link YouTube..."
                 autocomplete="off"
             >
-            <button class="play-button" onclick="handleSearch()" id="searchButton">Tìm</button>
+            <button class="play-button" onclick="handleSearch()" id="searchButton">Mở</button>
             <button class="play-button" onclick="handlePlay()" style="display: none;" id="playButton">Phát</button>
-        </div>
-
-        <div class="error-message" id="errorMessage"></div>
-
-        <div class="video-container" id="videoContainer">
-            <iframe 
-                id="youtubePlayer"
-                src=""
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowfullscreen>
-            </iframe>
         </div>
 
         <div class="info" id="infoText">
