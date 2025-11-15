@@ -129,6 +129,215 @@
             font-size: 14px;
         }
 
+        .audio-control-section {
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .audio-button {
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .audio-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Modal/Popup Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .close-button {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #666;
+            transition: color 0.3s ease;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-button:hover {
+            color: #333;
+        }
+
+        .slider-group {
+            margin-bottom: 25px;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .slider-value {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 14px;
+            font-weight: 600;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #e0e0e0;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s ease;
+        }
+
+        .slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s ease;
+        }
+
+        .slider::-moz-range-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .toggle-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .toggle-label {
+            color: #333;
+            font-weight: 500;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.3s;
+            border-radius: 30px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(30px);
+        }
+
         @media (max-width: 768px) {
             body {
                 padding: 0;
@@ -152,6 +361,19 @@
 
             .play-button {
                 width: 100%;
+            }
+
+            .audio-button {
+                width: 100%;
+            }
+
+            .modal-content {
+                padding: 20px;
+                max-width: 95%;
+            }
+
+            .modal-title {
+                font-size: 1.2rem;
             }
 
             h1 {
@@ -188,6 +410,10 @@
         <div class="info" id="infoText">
             Nhập tên bài hát để tìm kiếm trên YouTube hoặc dán link YouTube trực tiếp
         </div>
+
+        <div class="audio-control-section">
+            <button class="audio-button" onclick="openAudioModal()">🎵 Chỉnh âm</button>
+        </div>
         
         <!-- Thông báo khi mở popup YouTube -->
         <div class="info" id="youtubeTabInfo" style="display: none; background: rgba(102, 126, 234, 0.3); padding: 15px; border-radius: 10px; margin-top: 15px;">
@@ -200,8 +426,76 @@
         </div>
     </div>
 
+    <!-- Modal chỉnh âm -->
+    <div class="modal-overlay" id="audioModal" onclick="closeAudioModalOnOverlay(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2 class="modal-title">🎚️ Chỉnh âm</h2>
+                <button class="close-button" onclick="closeAudioModal()">&times;</button>
+            </div>
+
+            <div class="slider-group">
+                <div class="slider-label">
+                    <span>Âm lượng nhạc</span>
+                    <span class="slider-value" id="musicVolumeValue">50%</span>
+                </div>
+                <input 
+                    type="range" 
+                    class="slider" 
+                    id="musicVolumeSlider" 
+                    min="0" 
+                    max="100" 
+                    value="50"
+                    oninput="updateMusicVolume(this.value)"
+                >
+            </div>
+
+            <div class="slider-group">
+                <div class="slider-label">
+                    <span>Âm lượng mic</span>
+                    <span class="slider-value" id="micVolumeValue">50%</span>
+                </div>
+                <input 
+                    type="range" 
+                    class="slider" 
+                    id="micVolumeSlider" 
+                    min="0" 
+                    max="100" 
+                    value="50"
+                    oninput="updateMicVolume(this.value)"
+                >
+            </div>
+
+            <div class="slider-group">
+                <div class="slider-label">
+                    <span>Độ vang</span>
+                    <span class="slider-value" id="reverbValue">0%</span>
+                </div>
+                <input 
+                    type="range" 
+                    class="slider" 
+                    id="reverbSlider" 
+                    min="0" 
+                    max="100" 
+                    value="0"
+                    oninput="updateReverb(this.value)"
+                >
+            </div>
+
+            <div class="toggle-group">
+                <span class="toggle-label">Autotune</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="autotuneToggle" onchange="toggleAutotune(this.checked)">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.youtube.com/iframe_api"></script>
     <script>
         let youtubeTab = null;
+        let youtubePlayer = null;
         
         // Lấy video ID từ URL YouTube
         function getVideoId(url) {
@@ -306,11 +600,16 @@
             window.focus();
         }
 
+        // Khởi tạo YouTube Player API
+        function onYouTubeIframeAPIReady() {
+            // Player sẽ được khởi tạo khi có video
+        }
+
         // Phát video
         function playVideo() {
             const urlInput = document.getElementById('youtubeUrl');
             const errorMessage = document.getElementById('errorMessage');
-            const youtubePlayer = document.getElementById('youtubePlayer');
+            const youtubePlayerElement = document.getElementById('youtubePlayer');
             const youtubeTabInfo = document.getElementById('youtubeTabInfo');
             
             const url = urlInput.value.trim();
@@ -331,9 +630,42 @@
                 return;
             }
 
-            // Load video
-            const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&enablejsapi=1`;
-            youtubePlayer.src = embedUrl;
+            // Hủy player cũ nếu có
+            if (youtubePlayer) {
+                try {
+                    youtubePlayer.destroy();
+                } catch (e) {
+                    console.log('Không thể hủy player cũ');
+                }
+            }
+
+            // Khởi tạo YouTube Player với API
+            if (typeof YT !== 'undefined' && YT.Player) {
+                youtubePlayer = new YT.Player('youtubePlayer', {
+                    videoId: videoId,
+                    playerVars: {
+                        autoplay: 1,
+                        rel: 0,
+                        modestbranding: 1,
+                        enablejsapi: 1
+                    },
+                    events: {
+                        onReady: function(event) {
+                            // Khôi phục âm lượng đã lưu
+                            const savedVolume = localStorage.getItem('musicVolume');
+                            if (savedVolume) {
+                                event.target.setVolume(parseInt(savedVolume));
+                                document.getElementById('musicVolumeSlider').value = savedVolume;
+                                document.getElementById('musicVolumeValue').textContent = savedVolume + '%';
+                            }
+                        }
+                    }
+                });
+            } else {
+                // Fallback nếu API chưa load
+                const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&enablejsapi=1`;
+                youtubePlayerElement.src = embedUrl;
+            }
             
             // Đóng popup YouTube nếu đang mở
             if (youtubeTab && !youtubeTab.closed) {
@@ -404,6 +736,96 @@
         // Lắng nghe sự kiện focus để kiểm tra clipboard (khi người dùng quay lại từ tab YouTube)
         window.addEventListener('focus', function() {
             // Không tự động đọc clipboard vì cần quyền, nhưng có thể hướng dẫn người dùng paste
+        });
+
+        // ========== Audio Control Functions ==========
+        
+        // Mở modal chỉnh âm
+        function openAudioModal() {
+            const modal = document.getElementById('audioModal');
+            modal.classList.add('show');
+        }
+
+        // Đóng modal chỉnh âm
+        function closeAudioModal() {
+            const modal = document.getElementById('audioModal');
+            modal.classList.remove('show');
+        }
+
+        // Đóng modal khi click vào overlay
+        function closeAudioModalOnOverlay(event) {
+            if (event.target.id === 'audioModal') {
+                closeAudioModal();
+            }
+        }
+
+        // Đóng modal bằng phím ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeAudioModal();
+            }
+        });
+
+        // Cập nhật âm lượng nhạc
+        function updateMusicVolume(value) {
+            document.getElementById('musicVolumeValue').textContent = value + '%';
+            localStorage.setItem('musicVolume', value);
+            
+            // Áp dụng âm lượng cho video YouTube
+            if (youtubePlayer && typeof youtubePlayer.setVolume === 'function') {
+                try {
+                    youtubePlayer.setVolume(parseInt(value));
+                } catch (e) {
+                    console.log('Không thể điều chỉnh âm lượng video');
+                }
+            }
+        }
+
+        // Cập nhật âm lượng mic
+        function updateMicVolume(value) {
+            document.getElementById('micVolumeValue').textContent = value + '%';
+            // Lưu giá trị để sử dụng sau này (khi có mic input)
+            localStorage.setItem('micVolume', value);
+        }
+
+        // Cập nhật độ vang
+        function updateReverb(value) {
+            document.getElementById('reverbValue').textContent = value + '%';
+            // Lưu giá trị để sử dụng sau này (khi có audio processing)
+            localStorage.setItem('reverb', value);
+        }
+
+        // Bật/tắt Autotune
+        function toggleAutotune(enabled) {
+            // Lưu trạng thái để sử dụng sau này (khi có audio processing)
+            localStorage.setItem('autotune', enabled ? 'true' : 'false');
+        }
+
+        // Khôi phục giá trị đã lưu khi tải trang
+        window.addEventListener('DOMContentLoaded', function() {
+            const musicVolume = localStorage.getItem('musicVolume');
+            const micVolume = localStorage.getItem('micVolume');
+            const reverb = localStorage.getItem('reverb');
+            const autotune = localStorage.getItem('autotune');
+
+            if (musicVolume) {
+                document.getElementById('musicVolumeSlider').value = musicVolume;
+                document.getElementById('musicVolumeValue').textContent = musicVolume + '%';
+            }
+
+            if (micVolume) {
+                document.getElementById('micVolumeSlider').value = micVolume;
+                document.getElementById('micVolumeValue').textContent = micVolume + '%';
+            }
+
+            if (reverb) {
+                document.getElementById('reverbSlider').value = reverb;
+                document.getElementById('reverbValue').textContent = reverb + '%';
+            }
+
+            if (autotune === 'true') {
+                document.getElementById('autotuneToggle').checked = true;
+            }
         });
     </script>
 </body>
