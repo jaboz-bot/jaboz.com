@@ -3,75 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Karaoke Web App</title>
+    <title>Giao diện TV Karaoke</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <!-- Header -->
-        <header class="header">
-            <h1>🎤 Karaoke</h1>
-        </header>
-
-        <!-- YouTube Video Player -->
-        <div class="video-container">
-            <div id="videoWrapper" class="video-wrapper">
-                <iframe 
-                    id="youtubePlayer"
-                    src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&controls=1&rel=0&modestbranding=1"
-                    frameborder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowfullscreen>
-                </iframe>
-            </div>
-        </div>
-
-        <!-- Search Container -->
-        <div class="search-container">
-            <div class="search-box">
-                <input 
-                    type="text" 
-                    id="searchInput" 
-                    class="search-input" 
-                    placeholder="Tìm kiếm bài hát..."
-                    autocomplete="off"
-                >
-                <button id="searchButton" class="search-button">Tìm</button>
-            </div>
-        </div>
-
-        <!-- Microphone Volume Control -->
-        <div class="volume-container">
-            <div class="volume-header">
-                <span class="volume-label">🎤 Âm lượng Micro</span>
-                <span id="volumeValue" class="volume-value">50%</span>
-            </div>
-            <div class="volume-control">
-                <input 
-                    type="range" 
-                    id="volumeSlider" 
-                    class="volume-slider" 
-                    min="0" 
-                    max="100" 
-                    value="50"
-                >
-                <div class="volume-labels">
-                    <span>0%</span>
-                    <span>100%</span>
+    <div class="tv-container">
+        <div class="tv">
+            <button class="audio-control-button" onclick="toggleAudioControl()">Chỉnh âm</button>
+            
+            <div class="tv-screen">
+                <div class="tv-content" id="tvContent">
+                    <img src="images/logo.png" class="tv-title" alt="Karaoke Logo">
+                    <p class="tv-subtitle">Chào mừng bạn đến với hệ thống Karaoke Online</p>
+                    
+                    <div class="search-section">
+                        <div class="search-container">
+                            <input 
+                                type="text" 
+                                class="search-input" 
+                                id="searchInput"
+                                placeholder="Nhập tên bài hát để tìm kiếm..."
+                                onkeypress="handleKeyPress(event)"
+                                oninput="handleSearchInput(event)"
+                            >
+                        </div>
+                        <div class="search-results" id="searchResults"></div>
+                    </div>
+                </div>
+                
+                <div class="video-player-container" id="videoPlayerContainer">
+                    <button class="back-button" onclick="closeVideo()">← Quay lại</button>
+                    <div class="video-player-wrapper">
+                        <iframe id="youtubePlayer" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
                 </div>
             </div>
         </div>
+        <div class="tv-stand"></div>
     </div>
 
-    <!-- Search Results Popup -->
-    <div id="searchPopup" class="search-popup">
-        <div class="popup-content">
-            <div class="popup-header">
-                <h2>Kết quả tìm kiếm</h2>
-                <button id="closePopup" class="close-button">&times;</button>
+    <!-- Audio Control Popup -->
+    <div class="audio-control-popup" id="audioControlPopup">
+        <div class="audio-control-content">
+            <div class="audio-control-header">
+                <h2>Điều chỉnh âm lượng</h2>
+                <button class="close-button" onclick="toggleAudioControl()">×</button>
             </div>
-            <div id="searchResults" class="search-results">
-                <div class="loading-spinner">Đang tìm kiếm...</div>
+            <div class="audio-control-body">
+                <div class="audio-control-item">
+                    <label>Nhạc</label>
+                    <div class="slider-container">
+                        <input type="range" class="volume-slider" id="musicVolume" min="0" max="100" value="80" oninput="updateVolume('music', this.value)">
+                        <span class="volume-value" id="musicValue">80%</span>
+                    </div>
+                </div>
+                <div class="audio-control-item disabled" id="micControlItem">
+                    <label>Mic <span style="font-size: 12px; opacity: 0.7;">(Cần kết nối tai nghe/bluetooth)</span></label>
+                    <div class="slider-container">
+                        <input type="range" class="volume-slider" id="micVolume" min="0" max="100" value="70" oninput="updateVolume('mic', this.value)" disabled>
+                        <span class="volume-value" id="micValue">70%</span>
+                    </div>
+                </div>
+                <div class="audio-control-item disabled" id="micEQControlItem">
+                    <div class="eq-slider-container">
+                        <div class="eq-labels">
+                            <span class="eq-label-left">Treble</span>
+                            <span class="eq-label-center">Mid</span>
+                            <span class="eq-label-right">Bass</span>
+                        </div>
+                        <input type="range" class="eq-slider" id="micEQSlider" min="-20" max="20" value="0" oninput="updateEQSlider(this.value)" disabled>
+                        <div class="eq-values">
+                            <span class="eq-value">Treble: <span id="micTrebleValue">0dB</span></span>
+                            <span class="eq-value">Mid: <span id="micMidValue">0dB</span></span>
+                            <span class="eq-value">Bass: <span id="micBassValue">0dB</span></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="audio-control-item disabled" id="echoControlItem">
+                    <label>Echo <span style="font-size: 12px; opacity: 0.7;">(Cần kết nối tai nghe/bluetooth)</span></label>
+                    <div class="slider-container">
+                        <input type="range" class="volume-slider" id="echoVolume" min="0" max="100" value="50" oninput="updateVolume('echo', this.value)" disabled>
+                        <span class="volume-value" id="echoValue">50%</span>
+                    </div>
+                </div>
+                <div class="audio-control-item disabled" id="ambientControlItem">
+                    <label>Ambient <span style="font-size: 12px; opacity: 0.7;">(Cần kết nối tai nghe/bluetooth)</span></label>
+                    <div class="slider-container">
+                        <input type="range" class="volume-slider" id="ambientVolume" min="0" max="100" value="60" oninput="updateVolume('ambient', this.value)" disabled>
+                        <span class="volume-value" id="ambientValue">60%</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
