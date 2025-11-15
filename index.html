@@ -3,28 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Karaoke - Hát karaoke với YouTube</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Karaoke Web App</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h1 class="title">🎤 Karaoke</h1>
-        
+        <!-- Header -->
+        <header class="header">
+            <h1>🎤 Karaoke</h1>
+        </header>
+
         <!-- YouTube Video Player -->
         <div class="video-container">
-            <div id="player"></div>
+            <div id="videoWrapper" class="video-wrapper">
+                <iframe 
+                    id="youtubePlayer"
+                    src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&controls=1&rel=0&modestbranding=1"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen>
+                </iframe>
+            </div>
         </div>
 
         <!-- Search Container -->
         <div class="search-container">
-            <input 
-                type="text" 
-                id="searchInput" 
-                class="search-input" 
-                placeholder="Tìm kiếm bài hát..."
-                autocomplete="off"
-            >
-            <button id="searchButton" class="search-button">Tìm</button>
+            <div class="search-box">
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    class="search-input" 
+                    placeholder="Tìm kiếm bài hát..."
+                    autocomplete="off"
+                >
+                <button id="searchButton" class="search-button">Tìm</button>
+            </div>
         </div>
 
         <!-- Microphone Volume Control -->
@@ -33,28 +46,36 @@
                 <span class="volume-label">🎤 Âm lượng Micro</span>
                 <span id="volumeValue" class="volume-value">50%</span>
             </div>
-            <input 
-                type="range" 
-                id="volumeSlider" 
-                class="volume-slider" 
-                min="0" 
-                max="100" 
-                value="50"
-            >
-            <div class="volume-labels">
-                <span>0%</span>
-                <span>100%</span>
-            </div>
-            <div class="microphone-status">
-                <span id="micStatus" class="mic-status-text">Micro: Chưa kết nối</span>
-                <button id="micToggle" class="mic-toggle-button">Bật Micro</button>
+            <div class="volume-control">
+                <input 
+                    type="range" 
+                    id="volumeSlider" 
+                    class="volume-slider" 
+                    min="0" 
+                    max="100" 
+                    value="50"
+                >
+                <div class="volume-labels">
+                    <span>0%</span>
+                    <span>100%</span>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- YouTube IFrame API -->
-    <script src="https://www.youtube.com/iframe_api"></script>
+    <!-- Search Results Popup -->
+    <div id="searchPopup" class="search-popup">
+        <div class="popup-content">
+            <div class="popup-header">
+                <h2>Kết quả tìm kiếm</h2>
+                <button id="closePopup" class="close-button">&times;</button>
+            </div>
+            <div id="searchResults" class="search-results">
+                <div class="loading-spinner">Đang tìm kiếm...</div>
+            </div>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
-
