@@ -434,6 +434,15 @@
                 <button class="close-button" onclick="closeAudioModal()">&times;</button>
             </div>
 
+            <div style="margin-bottom: 20px; padding: 10px; background: rgba(102, 126, 234, 0.1); border-radius: 10px; text-align: center;">
+                <button id="micToggleButton" class="play-button" onclick="toggleMicrophone()" style="width: 100%; margin-bottom: 10px;">
+                    🎤 Bật Microphone
+                </button>
+                <div id="micStatus" style="font-size: 12px; color: #666;">
+                    Microphone chưa được kích hoạt
+                </div>
+            </div>
+
             <div class="slider-group">
                 <div class="slider-label">
                     <span>Âm lượng nhạc</span>
@@ -496,6 +505,18 @@
     <script>
         let youtubeTab = null;
         let youtubePlayer = null;
+        
+        // Web Audio API variables
+        let audioContext = null;
+        let microphoneStream = null;
+        let microphoneSource = null;
+        let micGainNode = null;
+        let reverbGainNode = null;
+        let dryGainNode = null;
+        let reverbDelayNode = null;
+        let autotuneProcessor = null;
+        let destinationNode = null;
+        let isMicActive = false;
         
         // Lấy video ID từ URL YouTube
         function getVideoId(url) {
@@ -750,6 +771,7 @@
         function closeAudioModal() {
             const modal = document.getElementById('audioModal');
             modal.classList.remove('show');
+            // Không tự động tắt mic khi đóng modal, để người dùng có thể tiếp tục hát
         }
 
         // Đóng modal khi click vào overlay
@@ -781,24 +803,165 @@
             }
         }
 
+        // Khởi tạo Audio Context và Microphone
+        async function initAudioContext() {
+            try {
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                
+                if (audioContext.state === 'suspended') {
+                    await audioContext.resume();
+                }
+
+                // Yêu cầu quyền truy cập microphone
+                microphoneStream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true
+                    } 
+                });
+
+                // Tạo source từ microphone
+                microphoneSource = audioContext.createMediaStreamSource(microphoneStream);
+                
+                // Tạo gain node cho mic volume
+                micGainNode = audioContext.createGain();
+                
+                // Tạo nodes cho reverb
+                dryGainNode = audioContext.createGain();
+                reverbGainNode = audioContext.createGain();
+                reverbDelayNode = audioContext.createDelay(2.0);
+                reverbDelayNode.delayTime.value = 0.3;
+                
+                // Tạo feedback cho reverb (với gain thấp để tránh feedback loop)
+                const feedbackGain = audioContext.createGain();
+                feedbackGain.gain.value = 0.2;
+                
+                // Tạo thêm delay nodes cho reverb phong phú hơn
+                const reverbDelay2 = audioContext.createDelay(2.0);
+                reverbDelay2.delayTime.value = 0.15;
+                const reverbDelay3 = audioContext.createDelay(2.0);
+                reverbDelay3.delayTime.value = 0.45;
+                
+                // Kết nối reverb chain với feedback
+                reverbDelayNode.connect(feedbackGain);
+                feedbackGain.connect(reverbDelayNode);
+                reverbDelayNode.connect(reverbDelay2);
+                reverbDelay2.connect(reverbDelay3);
+                reverbDelay3.connect(reverbGainNode);
+                
+                // Kết nối mic -> gain -> split (dry và wet)
+                microphoneSource.connect(micGainNode);
+                micGainNode.connect(dryGainNode);
+                micGainNode.connect(reverbDelayNode);
+                
+                // Kết nối output
+                dryGainNode.connect(audioContext.destination);
+                reverbGainNode.connect(audioContext.destination);
+                
+                isMicActive = true;
+                updateMicStatus();
+                updateMicVolume(document.getElementById('micVolumeSlider').value);
+                updateReverb(document.getElementById('reverbSlider').value);
+                
+                return true;
+            } catch (error) {
+                console.error('Lỗi khởi tạo microphone:', error);
+                alert('Không thể truy cập microphone. Vui lòng kiểm tra quyền truy cập.');
+                return false;
+            }
+        }
+
+        // Dừng microphone
+        function stopMicrophone() {
+            if (microphoneStream) {
+                microphoneStream.getTracks().forEach(track => track.stop());
+                microphoneStream = null;
+            }
+            if (microphoneSource) {
+                microphoneSource.disconnect();
+                microphoneSource = null;
+            }
+            isMicActive = false;
+            updateMicStatus();
+        }
+
+        // Bật/tắt microphone
+        async function toggleMicrophone() {
+            if (isMicActive) {
+                stopMicrophone();
+            } else {
+                const success = await initAudioContext();
+                if (success) {
+                    updateMicStatus();
+                }
+            }
+        }
+
+        // Cập nhật trạng thái microphone
+        function updateMicStatus() {
+            const micButton = document.getElementById('micToggleButton');
+            const micStatus = document.getElementById('micStatus');
+            
+            if (isMicActive) {
+                micButton.textContent = '🔴 Tắt Microphone';
+                micButton.style.background = 'linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%)';
+                micStatus.textContent = '✅ Microphone đang hoạt động';
+                micStatus.style.color = '#4caf50';
+            } else {
+                micButton.textContent = '🎤 Bật Microphone';
+                micButton.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                micStatus.textContent = 'Microphone chưa được kích hoạt';
+                micStatus.style.color = '#666';
+            }
+        }
+
         // Cập nhật âm lượng mic
         function updateMicVolume(value) {
             document.getElementById('micVolumeValue').textContent = value + '%';
-            // Lưu giá trị để sử dụng sau này (khi có mic input)
             localStorage.setItem('micVolume', value);
+            
+            // Áp dụng âm lượng cho mic nếu đã bật
+            if (micGainNode && isMicActive) {
+                const volume = parseFloat(value) / 100;
+                micGainNode.gain.value = volume;
+            }
         }
 
         // Cập nhật độ vang
         function updateReverb(value) {
             document.getElementById('reverbValue').textContent = value + '%';
-            // Lưu giá trị để sử dụng sau này (khi có audio processing)
             localStorage.setItem('reverb', value);
+            
+            // Áp dụng reverb nếu mic đã bật
+            if (dryGainNode && reverbGainNode && isMicActive) {
+                const reverbAmount = parseFloat(value) / 100;
+                // Dry signal (âm thanh gốc)
+                dryGainNode.gain.value = 1 - (reverbAmount * 0.5);
+                // Wet signal (âm thanh có reverb)
+                reverbGainNode.gain.value = reverbAmount * 0.5;
+            }
         }
 
         // Bật/tắt Autotune
         function toggleAutotune(enabled) {
-            // Lưu trạng thái để sử dụng sau này (khi có audio processing)
             localStorage.setItem('autotune', enabled ? 'true' : 'false');
+            
+            // Autotune đơn giản - chỉ đánh dấu trạng thái
+            // Lưu ý: Autotune thực sự cần thuật toán phức tạp hơn để pitch correction
+            // Ở đây chúng ta chỉ lưu trạng thái, có thể mở rộng sau
+            if (enabled && !isMicActive) {
+                // Gợi ý người dùng bật mic
+                const micStatus = document.getElementById('micStatus');
+                if (micStatus) {
+                    micStatus.textContent = '⚠️ Vui lòng bật microphone để sử dụng Autotune';
+                    micStatus.style.color = '#ff9800';
+                }
+            }
+            
+            console.log('Autotune:', enabled ? 'Bật' : 'Tắt');
         }
 
         // Khôi phục giá trị đã lưu khi tải trang
@@ -825,6 +988,19 @@
 
             if (autotune === 'true') {
                 document.getElementById('autotuneToggle').checked = true;
+            }
+        });
+
+        // Dừng microphone khi rời trang
+        window.addEventListener('beforeunload', function() {
+            stopMicrophone();
+        });
+
+        // Dừng microphone khi tab bị ẩn (tùy chọn)
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden && isMicActive) {
+                // Có thể tắt mic khi tab bị ẩn để tiết kiệm tài nguyên
+                // stopMicrophone();
             }
         });
     </script>
