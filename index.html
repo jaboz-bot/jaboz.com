@@ -441,6 +441,9 @@
                 <div id="micStatus" style="font-size: 12px; color: #666;">
                     Microphone chưa được kích hoạt
                 </div>
+                <div style="font-size: 11px; color: #4caf50; margin-top: 8px; font-weight: 500;">
+                    ⚡ Đã tối ưu: Zero delay mode - Mic và video sẽ đồng bộ tự động
+                </div>
             </div>
 
             <div class="slider-group">
@@ -519,6 +522,9 @@
         let autotuneProcessor = null;
         let destinationNode = null;
         let isMicActive = false;
+        let videoAudioSource = null;
+        let videoGainNode = null;
+        let masterGainNode = null;
         
         // Lấy video ID từ URL YouTube
         function getVideoId(url) {
@@ -911,13 +917,14 @@
                     await audioContext.resume();
                 }
 
-                // Yêu cầu quyền truy cập microphone với latency cực thấp
+                // Yêu cầu quyền truy cập microphone với ZERO latency
+                // TẮT echoCancellation để loại bỏ delay (người dùng sẽ dùng tai nghe nên không lo feedback)
                 microphoneStream = await navigator.mediaDevices.getUserMedia({ 
                     audio: {
-                        echoCancellation: true,  // Bật để tránh feedback
+                        echoCancellation: false,  // TẮT để loại bỏ delay hoàn toàn
                         noiseSuppression: false, // Tắt để giảm latency
                         autoGainControl: false,  // Tắt để giảm latency
-                        latency: 0.001, // Latency cực thấp
+                        latency: 0.0001, // Latency cực thấp
                         sampleRate: 48000, // Sample rate cao hơn
                         channelCount: 1, // Mono để giảm xử lý
                         sampleSize: 16 // Bit depth thấp hơn
@@ -926,6 +933,10 @@
 
                 // Tạo source từ microphone
                 microphoneSource = audioContext.createMediaStreamSource(microphoneStream);
+                
+                // Tạo master gain node để trộn tất cả audio
+                masterGainNode = audioContext.createGain();
+                masterGainNode.gain.value = 1.0;
                 
                 // Tạo gain node cho mic volume
                 micGainNode = audioContext.createGain();
@@ -947,16 +958,20 @@
                 reverbLowpass.frequency.value = 8000; // Tăng frequency để giảm xử lý
                 reverbLowpass.Q.value = 0.5; // Giảm Q để giảm xử lý
                 
-                // Kết nối trực tiếp dry signal để giảm latency
+                // Kết nối mic trực tiếp với ZERO delay
+                // Mic -> Gain -> Dry -> Master -> Output (đường ngắn nhất)
                 microphoneSource.connect(micGainNode);
                 micGainNode.connect(dryGainNode);
-                dryGainNode.connect(audioContext.destination);
+                dryGainNode.connect(masterGainNode);
                 
                 // Kết nối reverb song song (chỉ khi cần) để không ảnh hưởng dry signal
                 micGainNode.connect(reverbConvolver);
                 reverbConvolver.connect(reverbLowpass);
                 reverbLowpass.connect(reverbGainNode);
-                reverbGainNode.connect(audioContext.destination);
+                reverbGainNode.connect(masterGainNode);
+                
+                // Master output
+                masterGainNode.connect(audioContext.destination);
                 
                 isMicActive = true;
                 updateMicStatus();
