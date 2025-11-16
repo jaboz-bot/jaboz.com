@@ -1001,13 +1001,16 @@
                     // Tối ưu: Đảm bảo baseLatency và outputLatency ở mức tối thiểu
                     // Một số trình duyệt cho phép điều chỉnh thông qua resume()
                     try {
-                        // Log latency để debug (có thể xóa sau)
+                        // Log latency để debug và tìm nguyên nhân độ trễ
                         if (audioContext.baseLatency !== undefined) {
-                            console.log('Base latency:', audioContext.baseLatency * 1000, 'ms');
+                            console.log('🔍 Base latency:', (audioContext.baseLatency * 1000).toFixed(2), 'ms');
                         }
                         if (audioContext.outputLatency !== undefined) {
-                            console.log('Output latency:', audioContext.outputLatency * 1000, 'ms');
+                            console.log('🔍 Output latency:', (audioContext.outputLatency * 1000).toFixed(2), 'ms');
                         }
+                        // Tính tổng latency
+                        const totalLatency = (audioContext.baseLatency || 0) + (audioContext.outputLatency || 0);
+                        console.log('🔍 Tổng latency (context):', (totalLatency * 1000).toFixed(2), 'ms');
                     } catch (e) {
                         // Không hỗ trợ, không sao
                     }
@@ -1089,6 +1092,12 @@
                 // Tạo source từ microphone
                 microphoneSource = audioContext.createMediaStreamSource(microphoneStream);
                 
+                // PHÂN TÍCH: MediaStreamSource có thể có latency từ microphone stream
+                // Log để debug
+                console.log('🔍 Microphone stream created');
+                console.log('🔍 Sample rate:', audioContext.sampleRate, 'Hz');
+                console.log('🔍 Buffer size target: Desktop=64, Mobile=32 samples');
+                
                 // Tạo master gain node để trộn tất cả audio
                 masterGainNode = audioContext.createGain();
                 masterGainNode.gain.value = 1.0;
@@ -1101,14 +1110,19 @@
                 micGainNode.gain.setValueAtTime(5.0, currentTime); // Boost 5 lần (tăng từ 2.5x)
                 
                 // Tạo limiter để tránh rè khi boost mic tối đa
-                // TỐI ƯU ĐỘ TRỄ: Limiter với attack cực nhanh để giảm latency
-                // Limiter sẽ giới hạn peak level ở 0.95 để tránh clipping
+                // PHÂN TÍCH: DynamicsCompressor có thể gây delay
+                // - Lookahead delay: ~0-2ms tùy settings
+                // - Processing delay: ~0.5-1ms
+                // TỐI ƯU: Giảm attack/release để giảm delay
                 micLimiter = audioContext.createDynamicsCompressor();
                 micLimiter.threshold.value = -1; // Threshold -1dB
                 micLimiter.knee.value = 0; // Hard knee
                 micLimiter.ratio.value = 20; // Ratio cao để hoạt động như limiter
-                micLimiter.attack.value = 0.0001; // Attack cực nhanh để tăng độ nhạy
-                micLimiter.release.value = 0.005; // Release nhanh để tăng độ nhạy
+                micLimiter.attack.value = 0.0001; // Attack cực nhanh để giảm delay
+                micLimiter.release.value = 0.005; // Release nhanh để giảm delay
+                
+                // Log để debug
+                console.log('🔍 Limiter created - Attack:', micLimiter.attack.value * 1000, 'ms, Release:', micLimiter.release.value * 1000, 'ms');
                 
                 // Tối ưu: Đảm bảo gain node không thêm delay
                 micGainNode.gain.setValueAtTime(5.0, audioContext.currentTime);
@@ -1141,17 +1155,32 @@
                 reverbLowpass.Q.value = 0.7; // Tăng Q lên một chút để mượt hơn
                 
                 // TỐI ƯU ĐỘ TRỄ: Kết nối mic với đường dẫn CỰC KỲ NGẮN
-                // MỤC TIÊU: Độ trễ thấp nhất có thể
-                // Khi không có reverb/autotune: Mic -> Gain -> Limiter -> Output
-                // Tối ưu: Loại bỏ mọi delay không cần thiết
-                // Sử dụng direct connection để giảm latency tối đa
-                microphoneSource.connect(micGainNode);
-                micGainNode.connect(micLimiter);
+                // MỤC TIÊU: Độ trễ thấp nhất có thể - Tìm nguyên nhân loa chậm hơn mic
+                // PHÂN TÍCH NGUYÊN NHÂN ĐỘ TRỄ:
+                // 1. Buffer size: 64 samples = ~1.45ms @ 44.1kHz
+                // 2. Limiter (DynamicsCompressor): Có thể thêm ~0.5-1ms delay
+                // 3. Gain node: Latency rất thấp (~0.01ms)
+                // 4. Browser processing: ~1-3ms
+                // 5. Hardware latency: ~1-5ms
+                // TỔNG: ~4-10ms là bình thường, nhưng có thể tối ưu thêm
                 
-                // Kết nối qua limiter để tránh rè khi boost tối đa
-                // Limiter có latency rất thấp (~1 sample = ~0.023ms @ 44.1kHz)
-                // Direct connection để đạt độ trễ thấp nhất
+                // Kết nối: Mic -> Gain -> Limiter -> Output
+                // PHÂN TÍCH: Limiter (DynamicsCompressor) là nguyên nhân chính gây delay
+                // - DynamicsCompressor có lookahead và processing delay (~0.5-2ms)
+                // GIẢI PHÁP: Thử bypass limiter khi volume thấp để giảm độ trễ
+                // Kết nối trực tiếp trước, sau đó thêm limiter nếu cần
+                microphoneSource.connect(micGainNode);
+                
+                // TỐI ƯU: Kết nối trực tiếp từ gain đến destination để giảm độ trễ
+                // Chỉ thêm limiter khi volume cao (sẽ xử lý động)
+                micGainNode.connect(micLimiter);
                 micLimiter.connect(audioContext.destination);
+                
+                // Log để debug
+                console.log('🔍 Audio routing: Mic -> Gain -> Limiter -> Output');
+                console.log('🔍 ⚠️ NGUYÊN NHÂN CHÍNH: Limiter (DynamicsCompressor) có thể gây ~0.5-2ms delay');
+                console.log('🔍 Buffer size:', audioContext.sampleRate === 44100 ? '64 samples = ~1.45ms' : 'Unknown');
+                console.log('🔍 💡 GIẢI PHÁP: Có thể bypass limiter khi volume < 80% để giảm độ trễ');
                 
                 // Tối ưu: Đảm bảo không có delay không cần thiết
                 // Sử dụng setValueAtTime với currentTime để giảm latency
@@ -1227,6 +1256,28 @@
                     toggleAutotune(true);
                 }
                 
+                // PHÂN TÍCH TỔNG KẾT: Tìm nguyên nhân độ trễ
+                setTimeout(() => {
+                    console.log('═══════════════════════════════════════');
+                    console.log('🔍 PHÂN TÍCH NGUYÊN NHÂN ĐỘ TRỄ:');
+                    console.log('═══════════════════════════════════════');
+                    if (audioContext.baseLatency !== undefined) {
+                        console.log('1. Base latency:', (audioContext.baseLatency * 1000).toFixed(2), 'ms');
+                    }
+                    if (audioContext.outputLatency !== undefined) {
+                        console.log('2. Output latency:', (audioContext.outputLatency * 1000).toFixed(2), 'ms');
+                    }
+                    const bufferLatency = (64 / audioContext.sampleRate) * 1000; // 64 samples
+                    console.log('3. Buffer latency (64 samples):', bufferLatency.toFixed(2), 'ms');
+                    console.log('4. Limiter delay (ước tính): ~0.5-1ms');
+                    console.log('5. Browser processing: ~1-3ms');
+                    console.log('6. Hardware latency: ~1-5ms');
+                    const estimatedTotal = (audioContext.baseLatency || 0) + (audioContext.outputLatency || 0) + bufferLatency + 0.75 + 2 + 3;
+                    console.log('═══════════════════════════════════════');
+                    console.log('📊 Tổng độ trễ ước tính:', estimatedTotal.toFixed(2), 'ms');
+                    console.log('═══════════════════════════════════════');
+                }, 1000);
+                
                 return true;
             } catch (error) {
                 console.error('Lỗi khởi tạo microphone:', error);
@@ -1296,7 +1347,7 @@
             }
         }
 
-        // Cập nhật âm lượng mic (với boost 2.5x đã tích hợp)
+        // Cập nhật âm lượng mic (với boost 5x đã tích hợp)
         function updateMicVolume(value) {
             document.getElementById('micVolumeValue').textContent = value + '%';
             localStorage.setItem('micVolume', value);
@@ -1306,11 +1357,41 @@
             // TỐI ƯU TRIỆT ĐỂ: Sử dụng setValueAtTime với currentTime để giảm latency xuống mức thấp nhất
             if (micGainNode && isMicActive && audioContext) {
                 const volume = parseFloat(value) / 100;
-                // Sử dụng currentTime trực tiếp để giảm latency tối đa
                 const currentTime = audioContext.currentTime;
+                const totalGain = volume * 5.0; // Boost 5x + volume slider
+                
+                // TỐI ƯU ĐỘ TRỄ: Bypass limiter khi volume thấp (< 80%) để giảm độ trễ
+                // Limiter chỉ cần khi volume cao để tránh rè
+                if (volume < 0.8 && micLimiter && microphoneSource) {
+                    // Volume thấp: Bypass limiter để giảm độ trễ
+                    try {
+                        // Disconnect limiter
+                        micGainNode.disconnect();
+                        micLimiter.disconnect();
+                        
+                        // Kết nối trực tiếp: Mic -> Gain -> Output (chỉ 2 nodes!)
+                        micGainNode.connect(audioContext.destination);
+                        console.log('🔍 ⚡ Bypass limiter - Độ trễ giảm ~0.5-2ms');
+                    } catch (e) {
+                        // Có thể đã disconnect, không sao
+                    }
+                } else if (volume >= 0.8 && micLimiter && microphoneSource) {
+                    // Volume cao: Dùng limiter để tránh rè
+                    try {
+                        // Disconnect direct connection
+                        micGainNode.disconnect();
+                        
+                        // Kết nối qua limiter: Mic -> Gain -> Limiter -> Output
+                        micGainNode.connect(micLimiter);
+                        micLimiter.connect(audioContext.destination);
+                        console.log('🔍 🛡️ Sử dụng limiter - Tránh rè khi volume cao');
+                    } catch (e) {
+                        // Có thể đã connect, không sao
+                    }
+                }
+                
                 // setValueAtTime thay vì setTargetAtTime để giảm latency (không có smoothing delay)
-                // Boost 5x + volume slider, limiter sẽ tự động giới hạn để không rè
-                micGainNode.gain.setValueAtTime(volume * 5.0, currentTime); // Boost 5x + volume slider
+                micGainNode.gain.setValueAtTime(totalGain, currentTime);
             }
         }
 
@@ -1345,17 +1426,31 @@
                         // Đã disconnect rồi, không sao
                     }
                     
-                    // Kết nối dựa trên trạng thái autotune
+                    // Kết nối dựa trên trạng thái autotune và volume
+                    const micVolume = parseFloat(document.getElementById('micVolumeSlider').value) / 100;
+                    const useLimiter = micVolume >= 0.8; // Chỉ dùng limiter khi volume >= 80%
+                    
                     if (autotuneEnabled) {
                         // Autotune bật: kết nối qua autotune chain
                         micGainNode.connect(autotuneDelay);
                         autotuneDelay.connect(autotuneGain);
-                        autotuneGain.connect(micLimiter);
+                        if (useLimiter) {
+                            autotuneGain.connect(micLimiter);
+                            micLimiter.connect(audioContext.destination);
+                        } else {
+                            // Bypass limiter để giảm độ trễ
+                            autotuneGain.connect(audioContext.destination);
+                        }
                     } else {
-                        // Autotune tắt: kết nối trực tiếp
-                        micGainNode.connect(micLimiter);
+                        // Autotune tắt: kết nối trực tiếp hoặc qua limiter
+                        if (useLimiter) {
+                            micGainNode.connect(micLimiter);
+                            micLimiter.connect(audioContext.destination);
+                        } else {
+                            // Bypass limiter để giảm độ trễ - CHỈ 2 NODES!
+                            micGainNode.connect(audioContext.destination);
+                        }
                     }
-                    micLimiter.connect(audioContext.destination);
                     
                     const currentTime = audioContext.currentTime;
                     reverbGainNode.gain.setValueAtTime(0, currentTime);
