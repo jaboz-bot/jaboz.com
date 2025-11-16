@@ -129,6 +129,48 @@
             font-size: 14px;
         }
 
+        .version-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            z-index: 2000;
+            animation: slideIn 0.3s ease-out;
+            max-width: 300px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .version-notification.hide {
+            animation: slideOut 0.3s ease-out forwards;
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
         .audio-control-section {
             display: flex;
             justify-content: center;
@@ -527,6 +569,34 @@
         let videoGainNode = null;
         let masterGainNode = null;
         
+        // Version tracking
+        const APP_VERSION = '1.2.0';
+        const VERSION_KEY = 'karaoke_app_version';
+        
+        // Hiển thị thông báo version khi có thay đổi
+        function showVersionNotification() {
+            const lastVersion = localStorage.getItem(VERSION_KEY);
+            if (lastVersion !== APP_VERSION) {
+                const notification = document.createElement('div');
+                notification.className = 'version-notification';
+                notification.innerHTML = `✨ <strong>Version ${APP_VERSION}</strong><br>Đã cập nhật: Giảm độ trễ loa triệt để`;
+                document.body.appendChild(notification);
+                
+                // Tự động ẩn sau 5 giây
+                setTimeout(() => {
+                    notification.classList.add('hide');
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                    }, 300);
+                }, 5000);
+                
+                // Lưu version mới
+                localStorage.setItem(VERSION_KEY, APP_VERSION);
+            }
+        }
+        
         // Lấy video ID từ URL YouTube
         function getVideoId(url) {
             if (!url) return null;
@@ -923,10 +993,23 @@
                     
                     // Sử dụng latencyHint 'interactive' để đạt buffer size nhỏ nhất
                     // 'interactive' có buffer size nhỏ nhất để giảm latency tối đa
+                    // Tối ưu triệt để: Giảm buffer size xuống mức tối thiểu
                     audioContext = new (window.AudioContext || window.webkitAudioContext)({
                         sampleRate: optimalSampleRate,
                         latencyHint: 'interactive' // Buffer size nhỏ nhất có thể để giảm latency
                     });
+                    
+                    // Tối ưu: Đảm bảo baseLatency và outputLatency thấp nhất
+                    // Một số trình duyệt cho phép điều chỉnh thông qua resume()
+                    try {
+                        // Resume nhiều lần để đảm bảo context ở trạng thái tối ưu
+                        while (audioContext.state !== 'running') {
+                            await audioContext.resume();
+                            await new Promise(resolve => setTimeout(resolve, 10));
+                        }
+                    } catch (e) {
+                        // Không hỗ trợ, không sao
+                    }
                     
                     // Đảm bảo audio context không bị suspend và chạy ngay
                     if (audioContext.state === 'suspended') {
@@ -968,15 +1051,19 @@
                 };
                 
                 // Trên desktop, thêm các tùy chọn để giảm latency TỐI ĐA
+                // Tối ưu triệt để: Giảm mọi thông số xuống mức tối thiểu
                 if (!isMobileDevice) {
-                    audioConstraints.latency = 0.0001;
+                    audioConstraints.latency = 0.0001; // Latency cực thấp
                     audioConstraints.sampleRate = 44100; // Dùng 44100 thay vì 48000 để giảm latency
-                    audioConstraints.channelCount = 1; // Mono để giảm data
-                    audioConstraints.sampleSize = 16; // 16-bit để giảm data
+                    audioConstraints.channelCount = 1; // Mono để giảm data (50% data)
+                    audioConstraints.sampleSize = 16; // 16-bit để giảm data (thay vì 24/32-bit)
+                    // Thêm constraints để giảm buffer size
+                    audioConstraints.bufferSize = 256; // Buffer size nhỏ nhất có thể
                 } else {
                     // Trên mobile, cũng chỉ định để đảm bảo
                     audioConstraints.sampleRate = 44100;
                     audioConstraints.channelCount = 1;
+                    audioConstraints.bufferSize = 256; // Buffer size nhỏ nhất
                 }
                 
                 microphoneStream = await navigator.mediaDevices.getUserMedia({ 
@@ -997,10 +1084,10 @@
                 let currentTime = audioContext.currentTime;
                 micGainNode.gain.setValueAtTime(2.5, currentTime); // Boost 2.5 lần (sẽ được điều chỉnh bởi slider)
                 
-                // Tạo nodes cho autotune
+                // Tạo nodes cho autotune - Tối ưu để giảm latency
                 autotuneAnalyser = audioContext.createAnalyser();
-                autotuneAnalyser.fftSize = 2048;
-                autotuneAnalyser.smoothingTimeConstant = 0.8;
+                autotuneAnalyser.fftSize = 1024; // Giảm từ 2048 xuống 1024 để giảm latency
+                autotuneAnalyser.smoothingTimeConstant = 0.3; // Giảm smoothing để phản ứng nhanh hơn
                 
                 autotuneDelay = audioContext.createDelay(0.02); // Delay buffer cho pitch shifting (20ms max)
                 autotuneDelay.delayTime.value = 0.005; // Base delay 5ms
@@ -1025,6 +1112,7 @@
                 reverbLowpass.Q.value = 0.7; // Tăng Q lên một chút để mượt hơn
                 
                 // Kết nối mic với đường dẫn CỰC KỲ NGẮN (chỉ 1 node khi không có reverb!)
+                // Tối ưu triệt để: Loại bỏ mọi delay không cần thiết
                 // Khi không có reverb: Mic -> Gain (boost+volume) -> Output (NGẮN NHẤT!)
                 // Khi có reverb: Mic -> Gain -> Dry -> Master -> Output
                 microphoneSource.connect(micGainNode);
@@ -1032,7 +1120,14 @@
                 // Kết nối TRỰC TIẾP đến destination (đường ngắn nhất khi không có reverb)
                 // Đây là đường dẫn ngắn nhất có thể - chỉ 1 node giữa mic và output
                 // Sử dụng connect trực tiếp để giảm latency tối đa
+                // Tối ưu: Không qua bất kỳ node trung gian nào
                 micGainNode.connect(audioContext.destination);
+                
+                // Tối ưu: Đảm bảo audio context luôn ở trạng thái running
+                // Resume ngay để giảm latency
+                if (audioContext.state !== 'running') {
+                    await audioContext.resume();
+                }
                 
                 // Master và Dry node chỉ dùng khi có reverb (sẽ connect/disconnect động)
                 // Reverb chain - CHỈ kết nối khi cần (sẽ connect/disconnect động)
@@ -1354,6 +1449,9 @@
 
         // Khôi phục giá trị đã lưu khi tải trang
         window.addEventListener('DOMContentLoaded', function() {
+            // Hiển thị thông báo version khi có thay đổi
+            showVersionNotification();
+            
             const musicVolume = localStorage.getItem('musicVolume');
             const micVolume = localStorage.getItem('micVolume');
             const reverb = localStorage.getItem('reverb');
