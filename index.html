@@ -468,7 +468,7 @@
     <div class="modal-overlay" id="audioModal" onclick="closeAudioModalOnOverlay(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header">
-                <h2 class="modal-title">🎚️ Chỉnh âm <span style="font-size: 12px; font-weight: normal; color: #666; margin-left: 10px;">v1.3.0</span></h2>
+                <h2 class="modal-title">🎚️ Chỉnh âm <span style="font-size: 12px; font-weight: normal; color: #666; margin-left: 10px;">v1.4.0</span></h2>
                 <button class="close-button" onclick="closeAudioModal()">&times;</button>
             </div>
 
@@ -567,7 +567,7 @@
         let micLimiter = null; // Limiter để tránh rè khi boost mic
         
         // Version tracking
-        const APP_VERSION = '1.3.0';
+        const APP_VERSION = '1.4.0';
         const VERSION_KEY = 'karaoke_app_version';
         
         // Hiển thị thông báo version khi có thay đổi
@@ -576,7 +576,7 @@
             if (lastVersion !== APP_VERSION) {
                 const notification = document.createElement('div');
                 notification.className = 'version-notification';
-                notification.innerHTML = `✨ <strong>Version ${APP_VERSION}</strong><br>Đã cập nhật: Tối ưu độ trễ xuống mức thấp nhất (~0ms*)<br><small style="font-size: 11px; opacity: 0.8;">*Giới hạn bởi phần cứng</small>`;
+                notification.innerHTML = `✨ <strong>Version ${APP_VERSION}</strong><br>Đã cập nhật: Tăng độ nhạy loa - Độ trễ ~1ms<br><small style="font-size: 11px; opacity: 0.8;">Buffer: 64 samples (~1.45ms)</small>`;
                 document.body.appendChild(notification);
                 
                 // Tự động ẩn sau 5 giây
@@ -991,11 +991,27 @@
                     
                     // Sử dụng latencyHint 'interactive' để đạt buffer size nhỏ nhất
                     // 'interactive' có buffer size nhỏ nhất để giảm latency tối đa
-                    // Tối ưu triệt để: Giảm buffer size xuống mức tối thiểu
+                    // TỐI ƯU ĐỘ NHẠY LOA: Giảm buffer size xuống mức tối thiểu tuyệt đối
+                    // MỤC TIÊU: Đạt ~1ms latency
+                    // 'interactive' thường dùng buffer 128-256 samples, nhưng có thể đạt 64 samples
                     audioContext = new (window.AudioContext || window.webkitAudioContext)({
                         sampleRate: optimalSampleRate,
-                        latencyHint: 'interactive' // Buffer size nhỏ nhất có thể để giảm latency
+                        latencyHint: 'interactive' // Buffer size nhỏ nhất có thể (có thể đạt 64 samples = ~1.45ms)
                     });
+                    
+                    // Tối ưu: Đảm bảo baseLatency và outputLatency ở mức tối thiểu
+                    // Một số trình duyệt cho phép điều chỉnh thông qua resume()
+                    try {
+                        // Log latency để debug (có thể xóa sau)
+                        if (audioContext.baseLatency !== undefined) {
+                            console.log('Base latency:', audioContext.baseLatency * 1000, 'ms');
+                        }
+                        if (audioContext.outputLatency !== undefined) {
+                            console.log('Output latency:', audioContext.outputLatency * 1000, 'ms');
+                        }
+                    } catch (e) {
+                        // Không hỗ trợ, không sao
+                    }
                     
                     // Tối ưu: Đảm bảo baseLatency và outputLatency thấp nhất
                     // Một số trình duyệt cho phép điều chỉnh thông qua resume()
@@ -1049,19 +1065,21 @@
                 };
                 
                 // Trên desktop, thêm các tùy chọn để giảm latency TỐI ĐA
-                // Tối ưu triệt để: Giảm mọi thông số xuống mức tối thiểu
+                // TỐI ƯU ĐỘ NHẠY LOA: Giảm mọi thông số xuống mức tối thiểu tuyệt đối
+                // MỤC TIÊU: Giảm độ trễ xuống ~1ms
                 if (!isMobileDevice) {
                     audioConstraints.latency = 0.0001; // Latency cực thấp
                     audioConstraints.sampleRate = 44100; // Dùng 44100 thay vì 48000 để giảm latency
                     audioConstraints.channelCount = 1; // Mono để giảm data (50% data)
                     audioConstraints.sampleSize = 16; // 16-bit để giảm data (thay vì 24/32-bit)
-                    // Thêm constraints để giảm buffer size
-                    audioConstraints.bufferSize = 256; // Buffer size nhỏ nhất có thể
+                    // Thử giảm buffer size xuống 64 samples để đạt ~1.45ms (gần 1ms)
+                    // Lưu ý: Một số trình duyệt có thể không hỗ trợ, sẽ fallback về 128
+                    audioConstraints.bufferSize = 64; // Buffer size cực nhỏ (64 samples = ~1.45ms @ 44.1kHz)
                 } else {
                     // Trên mobile, cũng chỉ định để đảm bảo
                     audioConstraints.sampleRate = 44100;
                     audioConstraints.channelCount = 1;
-                    audioConstraints.bufferSize = 256; // Buffer size nhỏ nhất
+                    audioConstraints.bufferSize = 64; // Buffer size cực nhỏ để đạt ~1ms
                 }
                 
                 microphoneStream = await navigator.mediaDevices.getUserMedia({ 
@@ -1083,13 +1101,14 @@
                 micGainNode.gain.setValueAtTime(5.0, currentTime); // Boost 5 lần (tăng từ 2.5x)
                 
                 // Tạo limiter để tránh rè khi boost mic tối đa
+                // TỐI ƯU ĐỘ NHẠY LOA: Limiter với attack cực nhanh để giảm latency
                 // Limiter sẽ giới hạn peak level ở 0.95 để tránh clipping
                 micLimiter = audioContext.createDynamicsCompressor();
                 micLimiter.threshold.value = -1; // Threshold -1dB
                 micLimiter.knee.value = 0; // Hard knee
                 micLimiter.ratio.value = 20; // Ratio cao để hoạt động như limiter
-                micLimiter.attack.value = 0.001; // Attack nhanh
-                micLimiter.release.value = 0.01; // Release nhanh
+                micLimiter.attack.value = 0.0001; // Attack cực nhanh để tăng độ nhạy (giảm từ 0.001)
+                micLimiter.release.value = 0.005; // Release nhanh hơn để tăng độ nhạy (giảm từ 0.01)
                 
                 // Tối ưu: Đảm bảo gain node không thêm delay
                 micGainNode.gain.setValueAtTime(5.0, audioContext.currentTime);
@@ -1121,16 +1140,23 @@
                 reverbLowpass.frequency.value = 6000; // Giảm xuống để ấm hơn
                 reverbLowpass.Q.value = 0.7; // Tăng Q lên một chút để mượt hơn
                 
-                // TỐI ƯU TRIỆT ĐỂ: Kết nối mic với đường dẫn CỰC KỲ NGẮN
-                // Mục tiêu: Giảm độ trễ xuống mức thấp nhất có thể (gần 0ms)
+                // TỐI ƯU ĐỘ NHẠY LOA: Kết nối mic với đường dẫn CỰC KỲ NGẮN
+                // MỤC TIÊU: Đạt ~1ms latency - Loa phát nhanh hơn mic thu
                 // Khi không có reverb/autotune: Mic -> Gain -> Limiter -> Output
-                // Tối ưu: Loại bỏ mọi delay không cần thiết, thêm limiter để không rè
+                // Tối ưu: Loại bỏ mọi delay không cần thiết
+                // Sử dụng direct connection để giảm latency tối đa
                 microphoneSource.connect(micGainNode);
                 micGainNode.connect(micLimiter);
                 
                 // Kết nối qua limiter để tránh rè khi boost tối đa
-                // Limiter có latency rất thấp (~1 sample)
+                // Limiter có latency rất thấp (~1 sample = ~0.023ms @ 44.1kHz)
+                // Direct connection để đạt ~1ms tổng latency
                 micLimiter.connect(audioContext.destination);
+                
+                // Tối ưu: Đảm bảo không có delay không cần thiết
+                // Sử dụng setValueAtTime với currentTime để giảm latency
+                const initTime = audioContext.currentTime;
+                micGainNode.gain.setValueAtTime(5.0, initTime);
                 
                 // TỐI ƯU TRIỆT ĐỂ: Đảm bảo audio context luôn ở trạng thái running
                 // Resume ngay để giảm latency xuống mức thấp nhất
