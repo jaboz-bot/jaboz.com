@@ -953,6 +953,7 @@
             try {
                 // Lấy API key từ localStorage
                 let apiKey = localStorage.getItem('youtubeApiKey');
+                console.log('API Key từ localStorage:', apiKey ? apiKey.substring(0, 10) + '...' : 'KHÔNG CÓ');
                 
                 // Nếu chưa có API key, yêu cầu người dùng nhập
                 if (!apiKey || apiKey.trim() === '') {
@@ -970,21 +971,49 @@
                 const searchQuery = encodeURIComponent(query);
                 const apiUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${searchQuery}&type=video&key=${apiKey}`;
                 
-                const response = await fetch(apiUrl);
+                console.log('Đang tìm kiếm:', query);
+                console.log('API URL:', apiUrl.replace(apiKey, 'API_KEY_HIDDEN'));
                 
-                if (!response.ok) {
-                    throw new Error('Không thể tìm kiếm. Vui lòng thử lại hoặc nhập link YouTube trực tiếp.');
-                }
+                const response = await fetch(apiUrl);
+                console.log('Response status:', response.status, response.statusText);
                 
                 const data = await response.json();
+                console.log('Response data:', data);
+                
+                // Kiểm tra lỗi từ API
+                if (data.error) {
+                    let errorMessage = 'Lỗi từ YouTube API: ';
+                    if (data.error.message) {
+                        errorMessage += data.error.message;
+                    } else if (data.error.errors && data.error.errors.length > 0) {
+                        errorMessage += data.error.errors[0].message;
+                    } else {
+                        errorMessage += 'Không xác định được lỗi';
+                    }
+                    
+                    // Thông báo lỗi cụ thể
+                    if (data.error.errors && data.error.errors.length > 0) {
+                        const error = data.error.errors[0];
+                        if (error.reason === 'keyInvalid') {
+                            errorMessage = 'API Key không hợp lệ. Vui lòng kiểm tra lại API key trong cài đặt.';
+                        } else if (error.reason === 'quotaExceeded') {
+                            errorMessage = 'Đã vượt quá giới hạn API. Vui lòng thử lại sau.';
+                        } else if (error.reason === 'youtubeApiNotEnabled') {
+                            errorMessage = 'YouTube Data API v3 chưa được bật. Vui lòng bật API trong Google Cloud Console.';
+                        }
+                    }
+                    
+                    throw new Error(errorMessage);
+                }
                 
                 // Ẩn loading
                 searchLoading.style.display = 'none';
                 
                 if (data.items && data.items.length > 0) {
+                    console.log('Tìm thấy', data.items.length, 'kết quả');
                     // Hiển thị kết quả
                     searchResultsList.innerHTML = '';
-                    data.items.forEach(item => {
+                    data.items.forEach((item, index) => {
                         const videoId = item.id.videoId;
                         const title = item.snippet.title;
                         const channelTitle = item.snippet.channelTitle;
@@ -1006,12 +1035,28 @@
                         searchResultsList.appendChild(resultItem);
                     });
                 } else {
-                    searchResultsList.innerHTML = '<div style="color: white; text-align: center; padding: 20px;">Không tìm thấy kết quả nào.</div>';
+                    console.log('Không tìm thấy kết quả');
+                    searchResultsList.innerHTML = '<div style="color: white; text-align: center; padding: 20px;">Không tìm thấy kết quả nào cho từ khóa: "' + query + '"</div>';
                 }
             } catch (error) {
                 console.error('Lỗi tìm kiếm:', error);
                 searchLoading.style.display = 'none';
-                searchResultsList.innerHTML = `<div style="color: #ff6b6b; text-align: center; padding: 20px;">Lỗi: ${error.message}<br><small>Vui lòng thử lại hoặc nhập link YouTube trực tiếp.</small></div>`;
+                
+                let errorHtml = `<div style="color: #ff6b6b; text-align: center; padding: 20px;">
+                    <p style="font-weight: bold; margin-bottom: 10px;">Lỗi: ${error.message}</p>`;
+                
+                // Thêm hướng dẫn sửa lỗi
+                if (error.message.includes('API Key không hợp lệ') || error.message.includes('keyInvalid')) {
+                    errorHtml += `<button class="play-button" onclick="openApiKeyModal()" style="margin-top: 15px; display: inline-block;">Kiểm tra lại API Key</button>`;
+                } else if (error.message.includes('youtubeApiNotEnabled')) {
+                    errorHtml += `<p style="font-size: 12px; margin-top: 10px; color: #999;">
+                        Vui lòng bật YouTube Data API v3 trong Google Cloud Console
+                    </p>`;
+                }
+                
+                errorHtml += `<br><small style="color: #999;">Vui lòng thử lại hoặc nhập link YouTube trực tiếp.</small></div>`;
+                
+                searchResultsList.innerHTML = errorHtml;
             }
         }
         
