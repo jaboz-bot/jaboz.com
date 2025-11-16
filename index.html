@@ -554,8 +554,22 @@
         let masterGainNode = null;
         let micLimiter = null; // Limiter để tránh rè khi boost mic
         
+        // TỐI ƯU: Hàm đảm bảo AudioContext luôn ở trạng thái running
+        async function ensureAudioContextRunning() {
+            if (audioContext && isMicActive) {
+                try {
+                    if (audioContext.state !== 'running') {
+                        await audioContext.resume();
+                        console.log('AudioContext resumed');
+                    }
+                } catch (e) {
+                    console.error('Error resuming AudioContext:', e);
+                }
+            }
+        }
+        
         // Version tracking
-        const APP_VERSION = '2.2.0';
+        const APP_VERSION = '2.3.0';
         const VERSION_KEY = 'karaoke_app_version';
         
         // Hiển thị thông báo version khi có thay đổi
@@ -564,7 +578,7 @@
             if (lastVersion !== APP_VERSION) {
                 const notification = document.createElement('div');
                 notification.className = 'version-notification';
-                notification.innerHTML = `✨ <strong>Version ${APP_VERSION}</strong><br>Đã cập nhật: Loại bỏ hoàn toàn limiter - Độ trễ thấp nhất<br><small style="font-size: 11px; opacity: 0.8;">Buffer: 16 samples (~0.36ms) - Đường dẫn: Mic → Gain → Output (2 nodes)</small>`;
+                notification.innerHTML = `✨ <strong>Version ${APP_VERSION}</strong><br>Đã cập nhật: Tự động resume AudioContext khi quay lại tab<br><small style="font-size: 11px; opacity: 0.8;">Giảm độ trễ khi paste URL YouTube - Auto resume khi focus/visibility change</small>`;
                 document.body.appendChild(notification);
                 
                 // Tự động ẩn sau 5 giây
@@ -783,7 +797,9 @@
         });
 
         // Tự động phát khi paste URL YouTube
-        document.getElementById('youtubeUrl').addEventListener('paste', function(e) {
+        document.getElementById('youtubeUrl').addEventListener('paste', async function(e) {
+            // TỐI ƯU: Resume AudioContext khi paste URL (người dùng quay lại từ tab khác)
+            await ensureAudioContextRunning();
             setTimeout(() => {
                 const url = this.value.trim();
                 if (isYouTubeUrl(url)) {
@@ -803,7 +819,9 @@
         });
         
         // Kiểm tra input để hiển thị nút phù hợp
-        document.getElementById('youtubeUrl').addEventListener('input', function(e) {
+        document.getElementById('youtubeUrl').addEventListener('input', async function(e) {
+            // TỐI ƯU: Resume AudioContext khi input (người dùng đang tương tác)
+            await ensureAudioContextRunning();
             const url = this.value.trim();
             const searchButton = document.getElementById('searchButton');
             const playButton = document.getElementById('playButton');
@@ -820,16 +838,28 @@
         });
 
         // Lắng nghe sự kiện focus để kiểm tra clipboard (khi người dùng quay lại từ tab YouTube)
-        window.addEventListener('focus', function() {
-            // Không tự động đọc clipboard vì cần quyền, nhưng có thể hướng dẫn người dùng paste
+        window.addEventListener('focus', async function() {
+            // TỐI ƯU: Resume AudioContext ngay khi quay lại tab để giảm độ trễ
+            if (audioContext && isMicActive) {
+                try {
+                    if (audioContext.state !== 'running') {
+                        await audioContext.resume();
+                        console.log('AudioContext resumed on focus');
+                    }
+                } catch (e) {
+                    console.error('Error resuming AudioContext on focus:', e);
+                }
+            }
         });
 
         // ========== Audio Control Functions ==========
         
         // Mở modal chỉnh âm
-        function openAudioModal() {
+        async function openAudioModal() {
             const modal = document.getElementById('audioModal');
             modal.classList.add('show');
+            // TỐI ƯU: Resume AudioContext khi mở modal (người dùng đang tương tác)
+            await ensureAudioContextRunning();
         }
 
         // Đóng modal chỉnh âm
@@ -1208,6 +1238,8 @@
             } else {
                 const success = await initAudioContext();
                 if (success) {
+                    // TỐI ƯU: Đảm bảo AudioContext running sau khi bật mic
+                    await ensureAudioContextRunning();
                     updateMicStatus();
                 }
             }
@@ -1358,11 +1390,26 @@
             stopMicrophone();
         });
 
-        // Dừng microphone khi tab bị ẩn (tùy chọn)
-        document.addEventListener('visibilitychange', function() {
-            if (document.hidden && isMicActive) {
-                // Có thể tắt mic khi tab bị ẩn để tiết kiệm tài nguyên
-                // stopMicrophone();
+        // TỐI ƯU: Xử lý khi tab bị ẩn/hiện để giảm độ trễ
+        document.addEventListener('visibilitychange', async function() {
+            if (!document.hidden && isMicActive && audioContext) {
+                // Khi tab trở lại visible, resume AudioContext ngay để giảm độ trễ
+                try {
+                    if (audioContext.state !== 'running') {
+                        await audioContext.resume();
+                        console.log('AudioContext resumed on visibility change');
+                    }
+                    // Đảm bảo AudioContext luôn ở trạng thái running
+                    // Một số trình duyệt có thể suspend khi tab bị ẩn
+                    let retries = 0;
+                    while (audioContext.state !== 'running' && retries < 5) {
+                        await audioContext.resume();
+                        retries++;
+                        await new Promise(resolve => setTimeout(resolve, 50));
+                    }
+                } catch (e) {
+                    console.error('Error resuming AudioContext on visibility change:', e);
+                }
             }
         });
     </script>
