@@ -449,10 +449,6 @@
             <button class="play-button" onclick="handlePlay()" style="display: none;" id="playButton">Phát</button>
         </div>
 
-        <div class="info" id="infoText">
-            Nhập tên bài hát để tìm kiếm trên YouTube hoặc dán link YouTube trực tiếp
-        </div>
-
         <div class="audio-control-section">
             <button class="audio-button" onclick="openAudioModal()">🎵 Chỉnh âm</button>
         </div>
@@ -472,7 +468,7 @@
     <div class="modal-overlay" id="audioModal" onclick="closeAudioModalOnOverlay(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header">
-                <h2 class="modal-title">🎚️ Chỉnh âm</h2>
+                <h2 class="modal-title">🎚️ Chỉnh âm <span style="font-size: 12px; font-weight: normal; color: #666; margin-left: 10px;">v1.3.0</span></h2>
                 <button class="close-button" onclick="closeAudioModal()">&times;</button>
             </div>
 
@@ -568,6 +564,7 @@
         let videoAudioSource = null;
         let videoGainNode = null;
         let masterGainNode = null;
+        let micLimiter = null; // Limiter để tránh rè khi boost mic
         
         // Version tracking
         const APP_VERSION = '1.3.0';
@@ -888,6 +885,7 @@
                 }
             }
         }
+        
 
         // Tạo Impulse Response cho Reverb (Ambient) - Tạo reverb tự nhiên hơn
         function createReverbImpulse(audioContext, duration, decay, reverse) {
@@ -1078,16 +1076,23 @@
                 masterGainNode.gain.value = 1.0;
                 
                 // TỐI ƯU TRIỆT ĐỂ: KẾT HỢP boost và gain thành 1 node để giảm latency
-                // Boost 2.5x được tích hợp vào micGainNode
+                // Boost tối đa 5x (tăng từ 2.5x) nhưng có limiter để không rè
                 // Sử dụng setValueAtTime thay vì value để giảm latency
-                // Tối ưu: Chỉ tạo gain node khi cần, có thể bypass hoàn toàn
                 micGainNode = audioContext.createGain();
                 let currentTime = audioContext.currentTime;
-                micGainNode.gain.setValueAtTime(2.5, currentTime); // Boost 2.5 lần (sẽ được điều chỉnh bởi slider)
+                micGainNode.gain.setValueAtTime(5.0, currentTime); // Boost 5 lần (tăng từ 2.5x)
+                
+                // Tạo limiter để tránh rè khi boost mic tối đa
+                // Limiter sẽ giới hạn peak level ở 0.95 để tránh clipping
+                micLimiter = audioContext.createDynamicsCompressor();
+                micLimiter.threshold.value = -1; // Threshold -1dB
+                micLimiter.knee.value = 0; // Hard knee
+                micLimiter.ratio.value = 20; // Ratio cao để hoạt động như limiter
+                micLimiter.attack.value = 0.001; // Attack nhanh
+                micLimiter.release.value = 0.01; // Release nhanh
                 
                 // Tối ưu: Đảm bảo gain node không thêm delay
-                // Sử dụng setValueAtTime với currentTime để giảm latency
-                micGainNode.gain.setValueAtTime(2.5, audioContext.currentTime);
+                micGainNode.gain.setValueAtTime(5.0, audioContext.currentTime);
                 
                 // Tạo nodes cho autotune - Tối ưu để giảm latency
                 autotuneAnalyser = audioContext.createAnalyser();
@@ -1118,15 +1123,14 @@
                 
                 // TỐI ƯU TRIỆT ĐỂ: Kết nối mic với đường dẫn CỰC KỲ NGẮN
                 // Mục tiêu: Giảm độ trễ xuống mức thấp nhất có thể (gần 0ms)
-                // Khi không có reverb/autotune: Mic -> Gain -> Output (CHỈ 1 NODE!)
-                // Tối ưu: Loại bỏ mọi delay không cần thiết
+                // Khi không có reverb/autotune: Mic -> Gain -> Limiter -> Output
+                // Tối ưu: Loại bỏ mọi delay không cần thiết, thêm limiter để không rè
                 microphoneSource.connect(micGainNode);
+                micGainNode.connect(micLimiter);
                 
-                // Kết nối TRỰC TIẾP đến destination (đường ngắn nhất có thể)
-                // Đây là đường dẫn ngắn nhất - chỉ 1 node giữa mic và output
-                // Sử dụng connect trực tiếp để giảm latency TỐI ĐA
-                // Tối ưu: Không qua bất kỳ node trung gian nào, không có buffer delay
-                micGainNode.connect(audioContext.destination);
+                // Kết nối qua limiter để tránh rè khi boost tối đa
+                // Limiter có latency rất thấp (~1 sample)
+                micLimiter.connect(audioContext.destination);
                 
                 // TỐI ƯU TRIỆT ĐỂ: Đảm bảo audio context luôn ở trạng thái running
                 // Resume ngay để giảm latency xuống mức thấp nhất
@@ -1257,14 +1261,15 @@
             localStorage.setItem('micVolume', value);
             
             // Áp dụng âm lượng cho mic nếu đã bật
-            // Boost 2.5x đã tích hợp vào micGainNode, chỉ cần nhân với volume
+            // Boost 5x đã tích hợp vào micGainNode, chỉ cần nhân với volume
             // TỐI ƯU TRIỆT ĐỂ: Sử dụng setValueAtTime với currentTime để giảm latency xuống mức thấp nhất
             if (micGainNode && isMicActive && audioContext) {
                 const volume = parseFloat(value) / 100;
                 // Sử dụng currentTime trực tiếp để giảm latency tối đa
                 const currentTime = audioContext.currentTime;
                 // setValueAtTime thay vì setTargetAtTime để giảm latency (không có smoothing delay)
-                micGainNode.gain.setValueAtTime(volume * 2.5, currentTime); // Boost 2.5x + volume slider
+                // Boost 5x + volume slider, limiter sẽ tự động giới hạn để không rè
+                micGainNode.gain.setValueAtTime(volume * 5.0, currentTime); // Boost 5x + volume slider
             }
         }
 
@@ -1277,8 +1282,9 @@
             if (micGainNode && dryGainNode && reverbGainNode && reverbConvolver && reverbLowpass && isMicActive) {
                 const reverbAmount = parseFloat(value) / 100;
                 
-                // Khi reverb = 0, ĐƯỜNG DẪN CỰC KỲ NGẮN (Mic -> Gain -> Destination)
-                // Đây là đường dẫn ngắn nhất có thể để giảm latency tối đa
+                // Khi reverb = 0, ĐƯỜNG DẪN CỰC KỲ NGẮN
+                // Nếu autotune bật: Mic -> Gain -> Delay -> Gain -> Limiter -> Destination
+                // Nếu autotune tắt: Mic -> Gain -> Limiter -> Destination
                 if (reverbAmount === 0) {
                     // Disconnect tất cả các node không cần thiết để giảm latency
                     try {
@@ -1298,26 +1304,36 @@
                         // Đã disconnect rồi, không sao
                     }
                     
-                    // Kết nối TRỰC TIẾP đến destination (đường ngắn nhất - chỉ 1 node!)
-                    // Đây là đường dẫn ngắn nhất có thể để đạt latency thấp nhất
-                    micGainNode.connect(audioContext.destination);
+                    // Kết nối dựa trên trạng thái autotune
+                    if (autotuneEnabled) {
+                        // Autotune bật: kết nối qua autotune chain
+                        micGainNode.connect(autotuneDelay);
+                        autotuneDelay.connect(autotuneGain);
+                        autotuneGain.connect(micLimiter);
+                    } else {
+                        // Autotune tắt: kết nối trực tiếp
+                        micGainNode.connect(micLimiter);
+                    }
+                    micLimiter.connect(audioContext.destination);
                     
                     const currentTime = audioContext.currentTime;
                     reverbGainNode.gain.setValueAtTime(0, currentTime);
                 } else {
                     // Khi có reverb, sử dụng masterGainNode để trộn dry và wet
-                    // Disconnect kết nối trực tiếp đến destination
+                    // Disconnect kết nối trực tiếp đến limiter
                     try {
-                        micGainNode.disconnect(audioContext.destination);
+                        micGainNode.disconnect(micLimiter);
+                        micLimiter.disconnect(audioContext.destination);
                     } catch (e) {
                         // Có thể chưa connect, không sao
                     }
                     
-                    // Kết nối qua dryGainNode và masterGainNode
+                    // Kết nối qua dryGainNode, masterGainNode và limiter
                     try {
                         micGainNode.connect(dryGainNode);
                         dryGainNode.connect(masterGainNode);
-                        masterGainNode.connect(audioContext.destination);
+                        masterGainNode.connect(micLimiter);
+                        micLimiter.connect(audioContext.destination);
                     } catch (e) {
                         // Đã connect rồi, không sao
                     }
@@ -1358,17 +1374,41 @@
                 return;
             }
             
-            // Kết nối analyser để detect pitch (luôn kết nối khi autotune bật)
+            // Kết nối autotune vào audio chain
             try {
                 if (enabled) {
-                    // Kết nối analyser để detect pitch (parallel, không ảnh hưởng audio chain)
-                    micGainNode.connect(autotuneAnalyser);
+                    // Kết nối analyser để detect pitch (parallel, không ảnh hưởng audio chain chính)
+                    try {
+                        micGainNode.connect(autotuneAnalyser);
+                    } catch (e) {
+                        // Có thể đã connect, không sao
+                    }
+                    
+                    // Kết nối autotune delay chain vào audio path
+                    // Disconnect kết nối trực tiếp hiện tại
+                    try {
+                        micGainNode.disconnect(micLimiter);
+                    } catch (e) {
+                        // Có thể chưa connect, không sao
+                    }
+                    
+                    // Kết nối qua autotune chain: micGainNode -> delay -> gain -> limiter
+                    micGainNode.connect(autotuneDelay);
+                    autotuneDelay.connect(autotuneGain);
+                    autotuneGain.connect(micLimiter);
+                    
                     // Bắt đầu pitch detection và correction
                     startAutotuneProcessing();
                 } else {
-                    // Tắt autotune - disconnect analyser
+                    // Tắt autotune - disconnect analyser và delay chain, kết nối lại trực tiếp
                     try {
                         micGainNode.disconnect(autotuneAnalyser);
+                        micGainNode.disconnect(autotuneDelay);
+                        autotuneDelay.disconnect(autotuneGain);
+                        autotuneGain.disconnect(micLimiter);
+                        
+                        // Kết nối lại trực tiếp: micGainNode -> limiter
+                        micGainNode.connect(micLimiter);
                     } catch (e) {
                         // Có thể chưa connect, không sao
                     }
@@ -1444,19 +1484,8 @@
                         0.05 // Smooth transition
                     );
                     
-                    // Kết nối delay vào chain nếu chưa kết nối
-                    try {
-                        // Kiểm tra xem delay đã được kết nối chưa
-                        // Nếu chưa, kết nối vào audio chain
-                        if (!autotuneDelay.numberOfInputs || autotuneDelay.numberOfInputs === 0) {
-                            // Kết nối delay vào chain (parallel với signal gốc)
-                            micGainNode.connect(autotuneDelay);
-                            autotuneDelay.connect(autotuneGain);
-                            autotuneGain.connect(audioContext.destination);
-                        }
-                    } catch (e) {
-                        // Đã kết nối rồi hoặc có lỗi, không sao
-                    }
+                    // Delay đã được kết nối trong toggleAutotune
+                    // Chỉ cần điều chỉnh delay time để tạo pitch correction
                 }
                 
                 // Tiếp tục xử lý
