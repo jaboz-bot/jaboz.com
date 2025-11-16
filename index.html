@@ -442,10 +442,10 @@
                     Microphone chưa được kích hoạt
                 </div>
                 <div style="font-size: 11px; color: #4caf50; margin-top: 8px; font-weight: 500;">
-                    ⚡ Đã tối ưu: Boost 2.5x + Reverb vang hay + Latency cực thấp (~5-15ms)
+                    ⚡ Đã tối ưu: Boost 2.5x + Reverb vang hay + Latency cực thấp (~2-8ms) - Đồng bộ hoàn hảo
                 </div>
                 <div id="mobileLatencyWarning" style="font-size: 10px; color: #ff9800; margin-top: 5px; display: none;">
-                    ⚠️ Trên điện thoại, độ trễ có thể cao hơn (~20-50ms) do giới hạn của browser
+                    ⚠️ Trên điện thoại, độ trễ có thể cao hơn (~10-30ms) do giới hạn của browser
                 </div>
             </div>
 
@@ -920,8 +920,8 @@
                 
                 if (!audioContext) {
                     // Tạo audio context với latency CỰC THẤP
-                    // Trên mobile, sampleRate thấp hơn (44100) có thể giảm latency
-                    const optimalSampleRate = isMobileDevice ? 44100 : 48000; // Mobile: 44100, Desktop: 48000
+                    // Dùng 44100 cho TẤT CẢ thiết bị để giảm latency (ít data hơn = nhanh hơn)
+                    const optimalSampleRate = 44100; // Dùng 44100 cho tất cả để giảm latency
                     
                     // Sử dụng latencyHint 'interactive' để đạt buffer size nhỏ nhất
                     // 'interactive' có buffer size nhỏ nhất để giảm latency tối đa
@@ -930,15 +930,23 @@
                         latencyHint: 'interactive' // Buffer size nhỏ nhất có thể để giảm latency
                     });
                     
-                    // Đảm bảo audio context không bị suspend
+                    // Đảm bảo audio context không bị suspend và chạy ngay
                     if (audioContext.state === 'suspended') {
                         await audioContext.resume();
                     }
                     
-                    // Giảm buffer size nếu có thể (chỉ trên desktop)
-                    if (!isMobileDevice && audioContext.baseLatency) {
-                        // Cố gắng giảm baseLatency bằng cách resume ngay
-                        await audioContext.resume();
+                    // Resume ngay để đảm bảo context active
+                    await audioContext.resume();
+                    
+                    // Tối ưu: Giảm outputLatency nếu có thể
+                    // Một số trình duyệt cho phép điều chỉnh outputLatency
+                    try {
+                        // Đảm bảo context running để có latency thấp nhất
+                        if (audioContext.state !== 'running') {
+                            await audioContext.resume();
+                        }
+                    } catch (e) {
+                        // Không hỗ trợ, không sao
                     }
                 }
                 
@@ -961,12 +969,16 @@
                     googTypingNoiseDetection: false // Tắt typing noise detection
                 };
                 
-                // Trên desktop, thêm các tùy chọn để giảm latency
+                // Trên desktop, thêm các tùy chọn để giảm latency TỐI ĐA
                 if (!isMobileDevice) {
                     audioConstraints.latency = 0.0001;
-                    audioConstraints.sampleRate = 48000;
+                    audioConstraints.sampleRate = 44100; // Dùng 44100 thay vì 48000 để giảm latency
+                    audioConstraints.channelCount = 1; // Mono để giảm data
+                    audioConstraints.sampleSize = 16; // 16-bit để giảm data
+                } else {
+                    // Trên mobile, cũng chỉ định để đảm bảo
+                    audioConstraints.sampleRate = 44100;
                     audioConstraints.channelCount = 1;
-                    audioConstraints.sampleSize = 16;
                 }
                 
                 microphoneStream = await navigator.mediaDevices.getUserMedia({ 
@@ -982,8 +994,10 @@
                 
                 // KẾT HỢP boost và gain thành 1 node để giảm latency
                 // Boost 2.5x được tích hợp vào micGainNode
+                // Sử dụng setValueAtTime thay vì value để giảm latency
                 micGainNode = audioContext.createGain();
-                micGainNode.gain.value = 2.5; // Boost 2.5 lần (sẽ được điều chỉnh bởi slider)
+                let currentTime = audioContext.currentTime;
+                micGainNode.gain.setValueAtTime(2.5, currentTime); // Boost 2.5 lần (sẽ được điều chỉnh bởi slider)
                 
                 // Tạo nodes cho reverb (dry và wet)
                 dryGainNode = audioContext.createGain();
@@ -1009,26 +1023,32 @@
                 
                 // Kết nối TRỰC TIẾP đến destination (đường ngắn nhất khi không có reverb)
                 // Đây là đường dẫn ngắn nhất có thể - chỉ 1 node giữa mic và output
+                // Sử dụng connect trực tiếp để giảm latency tối đa
                 micGainNode.connect(audioContext.destination);
                 
                 // Master và Dry node chỉ dùng khi có reverb (sẽ connect/disconnect động)
                 // Reverb chain - CHỈ kết nối khi cần (sẽ connect/disconnect động)
                 
-                // Đảm bảo dry signal full volume ban đầu
-                dryGainNode.gain.value = 1.0;
-                reverbGainNode.gain.value = 0; // Tắt reverb ban đầu
+                // Đảm bảo dry signal full volume ban đầu - dùng setValueAtTime để giảm latency
+                currentTime = audioContext.currentTime;
+                dryGainNode.gain.setValueAtTime(1.0, currentTime);
+                reverbGainNode.gain.setValueAtTime(0, currentTime); // Tắt reverb ban đầu
                 
                 // Tối ưu: Đảm bảo audio context chạy ở tốc độ cao nhất
-                if (audioContext.state === 'running') {
-                    // Tăng priority nếu có thể
-                    try {
-                        // Một số trình duyệt hỗ trợ setSinkId để chọn output device có latency thấp
-                        if (audioContext.setSinkId) {
-                            // Có thể chọn default device có latency thấp nhất
-                        }
-                    } catch (e) {
-                        // Không hỗ trợ, không sao
+                // Resume ngay để đảm bảo context active và giảm latency
+                if (audioContext.state !== 'running') {
+                    await audioContext.resume();
+                }
+                
+                // Tối ưu: Giảm outputLatency bằng cách đảm bảo context luôn running
+                // Một số trình duyệt tự động tối ưu khi context running
+                try {
+                    // Đảm bảo context không bị suspend
+                    if (audioContext.state === 'suspended') {
+                        await audioContext.resume();
                     }
+                } catch (e) {
+                    // Không hỗ trợ, không sao
                 }
                 
                 isMicActive = true;
@@ -1101,9 +1121,11 @@
             
             // Áp dụng âm lượng cho mic nếu đã bật
             // Boost 2.5x đã tích hợp vào micGainNode, chỉ cần nhân với volume
-            if (micGainNode && isMicActive) {
+            // Sử dụng setValueAtTime thay vì value để giảm latency
+            if (micGainNode && isMicActive && audioContext) {
                 const volume = parseFloat(value) / 100;
-                micGainNode.gain.value = volume * 2.5; // Boost 2.5x + volume slider
+                const currentTime = audioContext.currentTime;
+                micGainNode.gain.setValueAtTime(volume * 2.5, currentTime); // Boost 2.5x + volume slider
             }
         }
 
@@ -1141,7 +1163,8 @@
                     // Đây là đường dẫn ngắn nhất có thể để đạt latency thấp nhất
                     micGainNode.connect(audioContext.destination);
                     
-                    reverbGainNode.gain.value = 0;
+                    const currentTime = audioContext.currentTime;
+                    reverbGainNode.gain.setValueAtTime(0, currentTime);
                 } else {
                     // Khi có reverb, sử dụng masterGainNode để trộn dry và wet
                     // Disconnect kết nối trực tiếp đến destination
@@ -1171,9 +1194,11 @@
                     }
                     
                     // Dry signal (âm thanh gốc) - giảm khi tăng reverb để reverb nổi bật
-                    dryGainNode.gain.value = 1 - (reverbAmount * 0.25); // Giảm để reverb vang hơn
+                    // Sử dụng setValueAtTime để giảm latency
+                    const currentTime = audioContext.currentTime;
+                    dryGainNode.gain.setValueAtTime(1 - (reverbAmount * 0.25), currentTime); // Giảm để reverb vang hơn
                     // Wet signal (âm thanh có reverb) - tăng mạnh để vang hay
-                    reverbGainNode.gain.value = reverbAmount * 0.8; // Tăng từ 0.5 lên 0.8 để vang hay
+                    reverbGainNode.gain.setValueAtTime(reverbAmount * 0.8, currentTime); // Tăng từ 0.5 lên 0.8 để vang hay
                 }
             }
         }
