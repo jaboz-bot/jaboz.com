@@ -468,7 +468,7 @@
     <div class="modal-overlay" id="audioModal" onclick="closeAudioModalOnOverlay(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header">
-                <h2 class="modal-title">🎚️ Chỉnh âm <span style="font-size: 12px; font-weight: normal; color: #666; margin-left: 10px;">v1.4.0</span></h2>
+                <h2 class="modal-title">🎚️ Chỉnh âm <span style="font-size: 12px; font-weight: normal; color: #666; margin-left: 10px;">v1.3.0</span></h2>
                 <button class="close-button" onclick="closeAudioModal()">&times;</button>
             </div>
 
@@ -567,7 +567,7 @@
         let micLimiter = null; // Limiter để tránh rè khi boost mic
         
         // Version tracking
-        const APP_VERSION = '1.4.0';
+        const APP_VERSION = '1.3.0';
         const VERSION_KEY = 'karaoke_app_version';
         
         // Hiển thị thông báo version khi có thay đổi
@@ -995,7 +995,7 @@
                     // MỤC TIÊU: Độ trễ thấp nhất có thể
                     audioContext = new (window.AudioContext || window.webkitAudioContext)({
                         sampleRate: optimalSampleRate,
-                        latencyHint: 'interactive' // Buffer size nhỏ nhất có thể (~64 samples desktop, ~32 samples mobile)
+                        latencyHint: 'interactive' // Buffer size nhỏ nhất có thể (~64 samples = ~1.45ms)
                     });
                     
                     // Tối ưu: Đảm bảo baseLatency và outputLatency ở mức tối thiểu
@@ -1073,13 +1073,10 @@
                     // Buffer size nhỏ để độ trễ thấp (64 samples = ~1.45ms @ 44.1kHz)
                     audioConstraints.bufferSize = 64; // Buffer size nhỏ để độ trễ thấp
                 } else {
-                    // Mobile: Tối ưu độ trễ tối đa
-                    audioConstraints.latency = 0.00001; // Latency cực kỳ thấp
-                    audioConstraints.sampleRate = 44100; // Dùng 44100 để giảm data
-                    audioConstraints.channelCount = 1; // Mono để giảm 50% data
-                    audioConstraints.sampleSize = 16; // 16-bit để giảm data
-                    // Buffer size nhỏ nhất có thể (32 samples = ~0.73ms @ 44.1kHz)
-                    audioConstraints.bufferSize = 32; // Buffer size cực nhỏ để độ trễ thấp nhất
+                    // Trên mobile, cũng chỉ định để đảm bảo
+                    audioConstraints.sampleRate = 44100;
+                    audioConstraints.channelCount = 1;
+                    audioConstraints.bufferSize = 64; // Buffer size nhỏ để độ trễ thấp
                 }
                 
                 microphoneStream = await navigator.mediaDevices.getUserMedia({ 
@@ -1094,11 +1091,11 @@
                 masterGainNode.gain.value = 1.0;
                 
                 // TỐI ƯU: KẾT HỢP boost và gain thành 1 node để giảm latency
-                // Tăng độ nhạy mic: Boost 6x (tăng từ 5x) để mic nhạy hơn
+                // Boost 5x (tăng từ 2.5x) nhưng có limiter để không rè
                 // Sử dụng setValueAtTime thay vì value để giảm latency
                 micGainNode = audioContext.createGain();
                 let currentTime = audioContext.currentTime;
-                micGainNode.gain.setValueAtTime(6.0, currentTime); // Boost 6x để tăng độ nhạy mic
+                micGainNode.gain.setValueAtTime(5.0, currentTime); // Boost 5 lần
                 
                 // Tạo limiter để tránh rè khi boost mic tối đa
                 // PHÂN TÍCH: DynamicsCompressor có thể gây delay
@@ -1113,7 +1110,7 @@
                 micLimiter.release.value = 0.005; // Release nhanh để giảm trễ
                 
                 // Tối ưu: Đảm bảo gain node không thêm delay
-                micGainNode.gain.setValueAtTime(6.0, audioContext.currentTime); // Boost 6x để tăng độ nhạy
+                micGainNode.gain.setValueAtTime(5.0, audioContext.currentTime);
                 
                 // Tạo nodes cho autotune - Tối ưu để giảm latency
                 autotuneAnalyser = audioContext.createAnalyser();
@@ -1152,22 +1149,7 @@
                 // Tối ưu: Đảm bảo không có delay không cần thiết
                 // Sử dụng setValueAtTime với currentTime để giảm latency
                 const initTime = audioContext.currentTime;
-                micGainNode.gain.setValueAtTime(6.0, initTime); // Boost 6x để tăng độ nhạy mic
-                
-                // Tối ưu đặc biệt cho mobile: Đảm bảo context ở trạng thái tối ưu nhất
-                if (isMobileDevice) {
-                    try {
-                        // Force resume nhiều lần để đảm bảo latency thấp nhất
-                        let resumeCount = 0;
-                        while (audioContext.state !== 'running' && resumeCount < 5) {
-                            await audioContext.resume();
-                            await new Promise(resolve => setTimeout(resolve, 5)); // Giảm delay
-                            resumeCount++;
-                        }
-                    } catch (e) {
-                        // Không hỗ trợ, không sao
-                    }
-                }
+                micGainNode.gain.setValueAtTime(5.0, initTime);
                 
                 // TỐI ƯU TRIỆT ĐỂ: Đảm bảo audio context luôn ở trạng thái running
                 // Resume ngay để giảm latency xuống mức thấp nhất
@@ -1299,13 +1281,12 @@
             localStorage.setItem('micVolume', value);
             
             // Áp dụng âm lượng cho mic nếu đã bật
-            // Boost tối đa đã tích hợp vào micGainNode, chỉ cần nhân với volume
+            // Boost 5x đã tích hợp vào micGainNode, chỉ cần nhân với volume
             // TỐI ƯU: Sử dụng setValueAtTime với currentTime để giảm latency
             if (micGainNode && isMicActive && audioContext) {
                 const volume = parseFloat(value) / 100;
                 const currentTime = audioContext.currentTime;
-                // Tăng boost lên 6x để tăng độ nhạy mic
-                const totalGain = volume * 6.0; // Boost 6x để tăng độ nhạy mic
+                const totalGain = volume * 5.0; // Boost 5x + volume slider
                 
                 // setValueAtTime thay vì setTargetAtTime để giảm latency (không có smoothing delay)
                 micGainNode.gain.setValueAtTime(totalGain, currentTime);
