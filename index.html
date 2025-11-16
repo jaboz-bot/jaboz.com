@@ -576,7 +576,7 @@
             if (lastVersion !== APP_VERSION) {
                 const notification = document.createElement('div');
                 notification.className = 'version-notification';
-                notification.innerHTML = `✨ <strong>Version ${APP_VERSION}</strong><br>Đã cập nhật: Chất lượng cao + Độ trễ thấp<br><small style="font-size: 11px; opacity: 0.8;">48kHz, 24-bit, Stereo, Buffer: 64 samples (~1.33ms)</small>`;
+                notification.innerHTML = `✨ <strong>Version ${APP_VERSION}</strong><br>Đã cập nhật: Tối ưu độ trễ - Phát nhanh nhất<br><small style="font-size: 11px; opacity: 0.8;">Desktop: 64 samples (~1.45ms), Mobile: 32 samples (~0.73ms)</small>`;
                 document.body.appendChild(notification);
                 
                 // Tự động ẩn sau 5 giây
@@ -985,17 +985,17 @@
                 const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
                 
                 if (!audioContext) {
-                    // Tạo audio context với chất lượng cao và độ trễ thấp
-                    // TỐI ƯU: Cân bằng giữa chất lượng và độ trễ
-                    // Dùng 48000 để chất lượng tốt hơn, nhưng vẫn giữ độ trễ thấp
-                    const optimalSampleRate = 48000; // Tăng lên 48000 để chất lượng tốt hơn (từ 44100)
+                    // Tạo audio context với độ trễ thấp nhất
+                    // TỐI ƯU ĐỘ TRỄ: Quay lại cấu hình tối ưu độ trễ
+                    // Dùng 44100 để giảm latency (ít data hơn = nhanh hơn)
+                    const optimalSampleRate = 44100; // Dùng 44100 để giảm latency
                     
                     // Sử dụng latencyHint 'interactive' để đạt buffer size nhỏ nhất
                     // 'interactive' có buffer size nhỏ nhất để giảm latency tối đa
-                    // MỤC TIÊU: Chất lượng cao (48kHz, 24-bit, stereo) + Độ trễ thấp (~1-2ms)
+                    // MỤC TIÊU: Độ trễ thấp nhất có thể
                     audioContext = new (window.AudioContext || window.webkitAudioContext)({
                         sampleRate: optimalSampleRate,
-                        latencyHint: 'interactive' // Buffer size nhỏ nhất có thể (~64 samples = ~1.33ms @ 48kHz)
+                        latencyHint: 'interactive' // Buffer size nhỏ nhất có thể (~64 samples desktop, ~32 samples mobile)
                     });
                     
                     // Tối ưu: Đảm bảo baseLatency và outputLatency ở mức tối thiểu
@@ -1063,24 +1063,23 @@
                     googTypingNoiseDetection: false // Tắt typing noise detection
                 };
                 
-                // TỐI ƯU: Cân bằng giữa chất lượng âm thanh và độ trễ thấp
-                // MỤC TIÊU: Chất lượng cao + Độ trễ thấp
+                // TỐI ƯU ĐỘ TRỄ: Quay lại cấu hình tối ưu độ trễ
+                // MỤC TIÊU: Độ trễ thấp nhất có thể
                 if (!isMobileDevice) {
                     audioConstraints.latency = 0.0001; // Latency cực thấp
-                    audioConstraints.sampleRate = 48000; // Tăng lên 48000 để chất lượng tốt hơn (từ 44100)
-                    audioConstraints.channelCount = 2; // Stereo để chất lượng tốt hơn (từ mono)
-                    audioConstraints.sampleSize = 24; // 24-bit để chất lượng tốt hơn (từ 16-bit)
-                    // Giữ buffer size nhỏ để độ trễ thấp (64 samples = ~1.33ms @ 48kHz)
+                    audioConstraints.sampleRate = 44100; // Dùng 44100 để giảm latency (ít data hơn)
+                    audioConstraints.channelCount = 1; // Mono để giảm data (50% data)
+                    audioConstraints.sampleSize = 16; // 16-bit để giảm data
+                    // Buffer size nhỏ để độ trễ thấp (64 samples = ~1.45ms @ 44.1kHz)
                     audioConstraints.bufferSize = 64; // Buffer size nhỏ để độ trễ thấp
                 } else {
-                    // Mobile: Cân bằng chất lượng và độ trễ
-                    audioConstraints.latency = 0.0001; // Latency thấp
-                    audioConstraints.sampleRate = 48000; // Tăng lên 48000 để chất lượng tốt hơn
-                    audioConstraints.channelCount = 2; // Stereo để chất lượng tốt hơn
-                    audioConstraints.sampleSize = 24; // 24-bit để chất lượng tốt hơn
-                    // Buffer size nhỏ để độ trễ thấp (64 samples = ~1.33ms @ 48kHz)
-                    // Không dùng 32 samples vì sẽ giảm chất lượng
-                    audioConstraints.bufferSize = 64; // Buffer size nhỏ nhưng vẫn đảm bảo chất lượng
+                    // Mobile: Tối ưu độ trễ tối đa
+                    audioConstraints.latency = 0.00001; // Latency cực kỳ thấp
+                    audioConstraints.sampleRate = 44100; // Dùng 44100 để giảm data
+                    audioConstraints.channelCount = 1; // Mono để giảm 50% data
+                    audioConstraints.sampleSize = 16; // 16-bit để giảm data
+                    // Buffer size nhỏ nhất có thể (32 samples = ~0.73ms @ 44.1kHz)
+                    audioConstraints.bufferSize = 32; // Buffer size cực nhỏ để độ trễ thấp nhất
                 }
                 
                 microphoneStream = await navigator.mediaDevices.getUserMedia({ 
@@ -1102,14 +1101,14 @@
                 micGainNode.gain.setValueAtTime(5.0, currentTime); // Boost 5 lần (tăng từ 2.5x)
                 
                 // Tạo limiter để tránh rè khi boost mic tối đa
-                // TỐI ƯU: Limiter với attack nhanh nhưng vẫn giữ chất lượng tốt
+                // TỐI ƯU ĐỘ TRỄ: Limiter với attack cực nhanh để giảm latency
                 // Limiter sẽ giới hạn peak level ở 0.95 để tránh clipping
                 micLimiter = audioContext.createDynamicsCompressor();
                 micLimiter.threshold.value = -1; // Threshold -1dB
                 micLimiter.knee.value = 0; // Hard knee
                 micLimiter.ratio.value = 20; // Ratio cao để hoạt động như limiter
-                micLimiter.attack.value = 0.001; // Attack nhanh nhưng không quá nhanh để giữ chất lượng
-                micLimiter.release.value = 0.01; // Release vừa phải để giữ chất lượng tự nhiên
+                micLimiter.attack.value = 0.0001; // Attack cực nhanh để tăng độ nhạy
+                micLimiter.release.value = 0.005; // Release nhanh để tăng độ nhạy
                 
                 // Tối ưu: Đảm bảo gain node không thêm delay
                 micGainNode.gain.setValueAtTime(5.0, audioContext.currentTime);
@@ -1141,17 +1140,17 @@
                 reverbLowpass.frequency.value = 6000; // Giảm xuống để ấm hơn
                 reverbLowpass.Q.value = 0.7; // Tăng Q lên một chút để mượt hơn
                 
-                // TỐI ƯU: Kết nối mic với đường dẫn ngắn + chất lượng cao
-                // MỤC TIÊU: Chất lượng cao (48kHz, 24-bit, stereo) + Độ trễ thấp (~1-2ms)
+                // TỐI ƯU ĐỘ TRỄ: Kết nối mic với đường dẫn CỰC KỲ NGẮN
+                // MỤC TIÊU: Độ trễ thấp nhất có thể
                 // Khi không có reverb/autotune: Mic -> Gain -> Limiter -> Output
-                // Tối ưu: Loại bỏ mọi delay không cần thiết, giữ chất lượng cao
+                // Tối ưu: Loại bỏ mọi delay không cần thiết
                 // Sử dụng direct connection để giảm latency tối đa
                 microphoneSource.connect(micGainNode);
                 micGainNode.connect(micLimiter);
                 
                 // Kết nối qua limiter để tránh rè khi boost tối đa
-                // Limiter có latency rất thấp (~1 sample = ~0.021ms @ 48kHz)
-                // Direct connection để đạt latency thấp + chất lượng cao
+                // Limiter có latency rất thấp (~1 sample = ~0.023ms @ 44.1kHz)
+                // Direct connection để đạt độ trễ thấp nhất
                 micLimiter.connect(audioContext.destination);
                 
                 // Tối ưu: Đảm bảo không có delay không cần thiết
