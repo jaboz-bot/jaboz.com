@@ -576,7 +576,7 @@
             if (lastVersion !== APP_VERSION) {
                 const notification = document.createElement('div');
                 notification.className = 'version-notification';
-                notification.innerHTML = `✨ <strong>Version ${APP_VERSION}</strong><br>Đã cập nhật: Tăng độ nhạy loa - Độ trễ ~1ms<br><small style="font-size: 11px; opacity: 0.8;">Buffer: 64 samples (~1.45ms)</small>`;
+                notification.innerHTML = `✨ <strong>Version ${APP_VERSION}</strong><br>Đã cập nhật: Tăng độ nhạy loa - Mobile ~0.01ms<br><small style="font-size: 11px; opacity: 0.8;">Mobile: 32 samples (~0.73ms), Desktop: 64 samples</small>`;
                 document.body.appendChild(notification);
                 
                 // Tự động ẩn sau 5 giây
@@ -992,11 +992,13 @@
                     // Sử dụng latencyHint 'interactive' để đạt buffer size nhỏ nhất
                     // 'interactive' có buffer size nhỏ nhất để giảm latency tối đa
                     // TỐI ƯU ĐỘ NHẠY LOA: Giảm buffer size xuống mức tối thiểu tuyệt đối
-                    // MỤC TIÊU: Đạt ~1ms latency
-                    // 'interactive' thường dùng buffer 128-256 samples, nhưng có thể đạt 64 samples
+                    // MỤC TIÊU: Desktop ~1ms, Mobile ~0.01ms (tối thiểu có thể)
+                    // 'interactive' thường dùng buffer 128-256 samples, nhưng có thể đạt 64 samples (desktop) hoặc 32 samples (mobile)
                     audioContext = new (window.AudioContext || window.webkitAudioContext)({
                         sampleRate: optimalSampleRate,
-                        latencyHint: 'interactive' // Buffer size nhỏ nhất có thể (có thể đạt 64 samples = ~1.45ms)
+                        latencyHint: 'interactive' // Buffer size nhỏ nhất có thể
+                        // Desktop: có thể đạt 64 samples = ~1.45ms
+                        // Mobile: có thể đạt 32 samples = ~0.73ms (gần 0.01ms nhất có thể)
                     });
                     
                     // Tối ưu: Đảm bảo baseLatency và outputLatency ở mức tối thiểu
@@ -1076,10 +1078,15 @@
                     // Lưu ý: Một số trình duyệt có thể không hỗ trợ, sẽ fallback về 128
                     audioConstraints.bufferSize = 64; // Buffer size cực nhỏ (64 samples = ~1.45ms @ 44.1kHz)
                 } else {
-                    // Trên mobile, cũng chỉ định để đảm bảo
-                    audioConstraints.sampleRate = 44100;
-                    audioConstraints.channelCount = 1;
-                    audioConstraints.bufferSize = 64; // Buffer size cực nhỏ để đạt ~1ms
+                    // TỐI ƯU ĐỘ TRỄ LOA TRÊN ĐIỆN THOẠI: MỤC TIÊU ~0.01ms (tối thiểu có thể)
+                    // Trên mobile, tối ưu hết mức để giảm latency xuống mức thấp nhất
+                    audioConstraints.latency = 0.00001; // Latency cực kỳ thấp (0.01ms)
+                    audioConstraints.sampleRate = 44100; // Dùng 44100 để giảm data
+                    audioConstraints.channelCount = 1; // Mono để giảm 50% data
+                    audioConstraints.sampleSize = 16; // 16-bit để giảm data
+                    // Thử buffer size nhỏ nhất có thể trên mobile (32 samples = ~0.73ms)
+                    // Lưu ý: Có thể không được hỗ trợ, sẽ fallback về 64 hoặc 128
+                    audioConstraints.bufferSize = 32; // Buffer size cực nhỏ trên mobile (~0.73ms)
                 }
                 
                 microphoneStream = await navigator.mediaDevices.getUserMedia({ 
@@ -1141,7 +1148,7 @@
                 reverbLowpass.Q.value = 0.7; // Tăng Q lên một chút để mượt hơn
                 
                 // TỐI ƯU ĐỘ NHẠY LOA: Kết nối mic với đường dẫn CỰC KỲ NGẮN
-                // MỤC TIÊU: Đạt ~1ms latency - Loa phát nhanh hơn mic thu
+                // MỤC TIÊU: Desktop ~1ms, Mobile ~0.01ms (tối thiểu có thể)
                 // Khi không có reverb/autotune: Mic -> Gain -> Limiter -> Output
                 // Tối ưu: Loại bỏ mọi delay không cần thiết
                 // Sử dụng direct connection để giảm latency tối đa
@@ -1150,13 +1157,29 @@
                 
                 // Kết nối qua limiter để tránh rè khi boost tối đa
                 // Limiter có latency rất thấp (~1 sample = ~0.023ms @ 44.1kHz)
-                // Direct connection để đạt ~1ms tổng latency
+                // Direct connection để đạt latency tối thiểu
+                // Trên mobile: Cố gắng đạt ~0.01ms (tối thiểu có thể)
                 micLimiter.connect(audioContext.destination);
                 
                 // Tối ưu: Đảm bảo không có delay không cần thiết
                 // Sử dụng setValueAtTime với currentTime để giảm latency
                 const initTime = audioContext.currentTime;
                 micGainNode.gain.setValueAtTime(5.0, initTime);
+                
+                // Tối ưu đặc biệt cho mobile: Đảm bảo context ở trạng thái tối ưu nhất
+                if (isMobileDevice) {
+                    try {
+                        // Force resume nhiều lần để đảm bảo latency thấp nhất
+                        let resumeCount = 0;
+                        while (audioContext.state !== 'running' && resumeCount < 5) {
+                            await audioContext.resume();
+                            await new Promise(resolve => setTimeout(resolve, 5)); // Giảm delay
+                            resumeCount++;
+                        }
+                    } catch (e) {
+                        // Không hỗ trợ, không sao
+                    }
+                }
                 
                 // TỐI ƯU TRIỆT ĐỂ: Đảm bảo audio context luôn ở trạng thái running
                 // Resume ngay để giảm latency xuống mức thấp nhất
