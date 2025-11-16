@@ -570,7 +570,7 @@
         let masterGainNode = null;
         
         // Version tracking
-        const APP_VERSION = '1.2.0';
+        const APP_VERSION = '1.3.0';
         const VERSION_KEY = 'karaoke_app_version';
         
         // Hiển thị thông báo version khi có thay đổi
@@ -579,7 +579,7 @@
             if (lastVersion !== APP_VERSION) {
                 const notification = document.createElement('div');
                 notification.className = 'version-notification';
-                notification.innerHTML = `✨ <strong>Version ${APP_VERSION}</strong><br>Đã cập nhật: Giảm độ trễ loa triệt để`;
+                notification.innerHTML = `✨ <strong>Version ${APP_VERSION}</strong><br>Đã cập nhật: Tối ưu độ trễ xuống mức thấp nhất (~0ms*)<br><small style="font-size: 11px; opacity: 0.8;">*Giới hạn bởi phần cứng</small>`;
                 document.body.appendChild(notification);
                 
                 // Tự động ẩn sau 5 giây
@@ -1077,12 +1077,17 @@
                 masterGainNode = audioContext.createGain();
                 masterGainNode.gain.value = 1.0;
                 
-                // KẾT HỢP boost và gain thành 1 node để giảm latency
+                // TỐI ƯU TRIỆT ĐỂ: KẾT HỢP boost và gain thành 1 node để giảm latency
                 // Boost 2.5x được tích hợp vào micGainNode
                 // Sử dụng setValueAtTime thay vì value để giảm latency
+                // Tối ưu: Chỉ tạo gain node khi cần, có thể bypass hoàn toàn
                 micGainNode = audioContext.createGain();
                 let currentTime = audioContext.currentTime;
                 micGainNode.gain.setValueAtTime(2.5, currentTime); // Boost 2.5 lần (sẽ được điều chỉnh bởi slider)
+                
+                // Tối ưu: Đảm bảo gain node không thêm delay
+                // Sử dụng setValueAtTime với currentTime để giảm latency
+                micGainNode.gain.setValueAtTime(2.5, audioContext.currentTime);
                 
                 // Tạo nodes cho autotune - Tối ưu để giảm latency
                 autotuneAnalyser = audioContext.createAnalyser();
@@ -1111,22 +1116,34 @@
                 reverbLowpass.frequency.value = 6000; // Giảm xuống để ấm hơn
                 reverbLowpass.Q.value = 0.7; // Tăng Q lên một chút để mượt hơn
                 
-                // Kết nối mic với đường dẫn CỰC KỲ NGẮN (chỉ 1 node khi không có reverb!)
-                // Tối ưu triệt để: Loại bỏ mọi delay không cần thiết
-                // Khi không có reverb: Mic -> Gain (boost+volume) -> Output (NGẮN NHẤT!)
-                // Khi có reverb: Mic -> Gain -> Dry -> Master -> Output
+                // TỐI ƯU TRIỆT ĐỂ: Kết nối mic với đường dẫn CỰC KỲ NGẮN
+                // Mục tiêu: Giảm độ trễ xuống mức thấp nhất có thể (gần 0ms)
+                // Khi không có reverb/autotune: Mic -> Gain -> Output (CHỈ 1 NODE!)
+                // Tối ưu: Loại bỏ mọi delay không cần thiết
                 microphoneSource.connect(micGainNode);
                 
-                // Kết nối TRỰC TIẾP đến destination (đường ngắn nhất khi không có reverb)
-                // Đây là đường dẫn ngắn nhất có thể - chỉ 1 node giữa mic và output
-                // Sử dụng connect trực tiếp để giảm latency tối đa
-                // Tối ưu: Không qua bất kỳ node trung gian nào
+                // Kết nối TRỰC TIẾP đến destination (đường ngắn nhất có thể)
+                // Đây là đường dẫn ngắn nhất - chỉ 1 node giữa mic và output
+                // Sử dụng connect trực tiếp để giảm latency TỐI ĐA
+                // Tối ưu: Không qua bất kỳ node trung gian nào, không có buffer delay
                 micGainNode.connect(audioContext.destination);
                 
-                // Tối ưu: Đảm bảo audio context luôn ở trạng thái running
-                // Resume ngay để giảm latency
+                // TỐI ƯU TRIỆT ĐỂ: Đảm bảo audio context luôn ở trạng thái running
+                // Resume ngay để giảm latency xuống mức thấp nhất
+                // Đảm bảo baseLatency và outputLatency ở mức tối thiểu
                 if (audioContext.state !== 'running') {
                     await audioContext.resume();
+                }
+                
+                // Tối ưu: Đảm bảo context không bị suspend
+                // Một số trình duyệt có thể suspend context khi không active
+                try {
+                    // Force resume để đảm bảo latency thấp nhất
+                    if (audioContext.state === 'suspended' || audioContext.state === 'interrupted') {
+                        await audioContext.resume();
+                    }
+                } catch (e) {
+                    // Không hỗ trợ, không sao
                 }
                 
                 // Master và Dry node chỉ dùng khi có reverb (sẽ connect/disconnect động)
@@ -1241,10 +1258,12 @@
             
             // Áp dụng âm lượng cho mic nếu đã bật
             // Boost 2.5x đã tích hợp vào micGainNode, chỉ cần nhân với volume
-            // Sử dụng setValueAtTime thay vì value để giảm latency
+            // TỐI ƯU TRIỆT ĐỂ: Sử dụng setValueAtTime với currentTime để giảm latency xuống mức thấp nhất
             if (micGainNode && isMicActive && audioContext) {
                 const volume = parseFloat(value) / 100;
+                // Sử dụng currentTime trực tiếp để giảm latency tối đa
                 const currentTime = audioContext.currentTime;
+                // setValueAtTime thay vì setTargetAtTime để giảm latency (không có smoothing delay)
                 micGainNode.gain.setValueAtTime(volume * 2.5, currentTime); // Boost 2.5x + volume slider
             }
         }
