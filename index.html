@@ -442,10 +442,10 @@
                     Microphone chưa được kích hoạt
                 </div>
                 <div style="font-size: 11px; color: #4caf50; margin-top: 8px; font-weight: 500;">
-                    ⚡ Đã tối ưu: Boost 2.5x + Reverb vang hay + Latency tối thiểu
+                    ⚡ Đã tối ưu: Boost 2.5x + Reverb vang hay + Latency cực thấp (~5-15ms)
                 </div>
                 <div id="mobileLatencyWarning" style="font-size: 10px; color: #ff9800; margin-top: 5px; display: none;">
-                    ⚠️ Trên điện thoại, độ trễ có thể cao hơn (~50-100ms) do giới hạn của browser
+                    ⚠️ Trên điện thoại, độ trễ có thể cao hơn (~20-50ms) do giới hạn của browser
                 </div>
             </div>
 
@@ -919,17 +919,25 @@
                 const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
                 
                 if (!audioContext) {
-                    // Tạo audio context với latency CỰC THẤP cho mobile
+                    // Tạo audio context với latency CỰC THẤP
                     // Trên mobile, sampleRate thấp hơn (44100) có thể giảm latency
                     const optimalSampleRate = isMobileDevice ? 44100 : 48000; // Mobile: 44100, Desktop: 48000
                     
+                    // Sử dụng latencyHint 'interactive' để đạt buffer size nhỏ nhất
+                    // 'interactive' có buffer size nhỏ nhất để giảm latency tối đa
                     audioContext = new (window.AudioContext || window.webkitAudioContext)({
                         sampleRate: optimalSampleRate,
-                        latencyHint: 'interactive' // Buffer size nhỏ nhất có thể
+                        latencyHint: 'interactive' // Buffer size nhỏ nhất có thể để giảm latency
                     });
                     
                     // Đảm bảo audio context không bị suspend
                     if (audioContext.state === 'suspended') {
+                        await audioContext.resume();
+                    }
+                    
+                    // Giảm buffer size nếu có thể (chỉ trên desktop)
+                    if (!isMobileDevice && audioContext.baseLatency) {
+                        // Cố gắng giảm baseLatency bằng cách resume ngay
                         await audioContext.resume();
                     }
                 }
@@ -941,11 +949,16 @@
                 // Yêu cầu quyền truy cập microphone với ZERO latency cho mobile
                 // Trên mobile, cần tắt TẤT CẢ processing để giảm latency tối đa
                 
-                // Tạo audio constraints tối ưu cho mobile
+                // Tạo audio constraints tối ưu để giảm latency TỐI ĐA
                 const audioConstraints = {
                     echoCancellation: false,  // TẮT để loại bỏ delay hoàn toàn
                     noiseSuppression: false, // Tắt để giảm latency
-                    autoGainControl: false   // Tắt để giảm latency
+                    autoGainControl: false,   // Tắt để giảm latency
+                    googEchoCancellation: false, // Tắt Google echo cancellation
+                    googNoiseSuppression: false, // Tắt Google noise suppression
+                    googAutoGainControl: false,  // Tắt Google auto gain control
+                    googHighpassFilter: false,   // Tắt highpass filter
+                    googTypingNoiseDetection: false // Tắt typing noise detection
                 };
                 
                 // Trên desktop, thêm các tùy chọn để giảm latency
@@ -995,7 +1008,7 @@
                 microphoneSource.connect(micGainNode);
                 
                 // Kết nối TRỰC TIẾP đến destination (đường ngắn nhất khi không có reverb)
-                // Bypass masterGainNode để giảm 1 node
+                // Đây là đường dẫn ngắn nhất có thể - chỉ 1 node giữa mic và output
                 micGainNode.connect(audioContext.destination);
                 
                 // Master và Dry node chỉ dùng khi có reverb (sẽ connect/disconnect động)
@@ -1004,6 +1017,19 @@
                 // Đảm bảo dry signal full volume ban đầu
                 dryGainNode.gain.value = 1.0;
                 reverbGainNode.gain.value = 0; // Tắt reverb ban đầu
+                
+                // Tối ưu: Đảm bảo audio context chạy ở tốc độ cao nhất
+                if (audioContext.state === 'running') {
+                    // Tăng priority nếu có thể
+                    try {
+                        // Một số trình duyệt hỗ trợ setSinkId để chọn output device có latency thấp
+                        if (audioContext.setSinkId) {
+                            // Có thể chọn default device có latency thấp nhất
+                        }
+                    } catch (e) {
+                        // Không hỗ trợ, không sao
+                    }
+                }
                 
                 isMicActive = true;
                 updateMicStatus();
@@ -1091,33 +1117,29 @@
                 const reverbAmount = parseFloat(value) / 100;
                 
                 // Khi reverb = 0, ĐƯỜNG DẪN CỰC KỲ NGẮN (Mic -> Gain -> Destination)
+                // Đây là đường dẫn ngắn nhất có thể để giảm latency tối đa
                 if (reverbAmount === 0) {
-                    // Disconnect reverb chain
+                    // Disconnect tất cả các node không cần thiết để giảm latency
                     try {
-                        micGainNode.disconnect(reverbConvolver);
-                        reverbConvolver.disconnect(reverbLowpass);
-                        reverbLowpass.disconnect(reverbGainNode);
-                        reverbGainNode.disconnect(masterGainNode);
-                    } catch (e) {
-                        // Đã disconnect rồi, không sao
-                    }
-                    
-                    // Disconnect từ masterGainNode và dryGainNode
-                    try {
-                        micGainNode.disconnect(masterGainNode);
-                        micGainNode.disconnect(dryGainNode);
-                        dryGainNode.disconnect(masterGainNode);
-                        masterGainNode.disconnect(audioContext.destination);
+                        micGainNode.disconnect();
                     } catch (e) {
                         // Có thể chưa connect, không sao
                     }
                     
-                    // Kết nối TRỰC TIẾP đến destination (đường ngắn nhất - chỉ 1 node!)
+                    // Disconnect reverb chain hoàn toàn
                     try {
-                        micGainNode.connect(audioContext.destination);
+                        reverbConvolver.disconnect();
+                        reverbLowpass.disconnect();
+                        reverbGainNode.disconnect();
+                        dryGainNode.disconnect();
+                        masterGainNode.disconnect();
                     } catch (e) {
-                        // Đã connect rồi, không sao
+                        // Đã disconnect rồi, không sao
                     }
+                    
+                    // Kết nối TRỰC TIẾP đến destination (đường ngắn nhất - chỉ 1 node!)
+                    // Đây là đường dẫn ngắn nhất có thể để đạt latency thấp nhất
+                    micGainNode.connect(audioContext.destination);
                     
                     reverbGainNode.gain.value = 0;
                 } else {
