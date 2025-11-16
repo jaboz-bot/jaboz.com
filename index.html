@@ -468,7 +468,7 @@
     <div class="modal-overlay" id="audioModal" onclick="closeAudioModalOnOverlay(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header">
-                <h2 class="modal-title">🎚️ Chỉnh âm <span style="font-size: 12px; font-weight: normal; color: #666; margin-left: 10px;">v1.8.0</span></h2>
+                <h2 class="modal-title">🎚️ Chỉnh âm <span style="font-size: 12px; font-weight: normal; color: #666; margin-left: 10px;">v1.9.0</span></h2>
                 <button class="close-button" onclick="closeAudioModal()">&times;</button>
             </div>
 
@@ -567,7 +567,7 @@
         let micLimiter = null; // Limiter để tránh rè khi boost mic
         
         // Version tracking
-        const APP_VERSION = '1.8.0';
+        const APP_VERSION = '1.9.0';
         const VERSION_KEY = 'karaoke_app_version';
         
         // Hiển thị thông báo version khi có thay đổi
@@ -992,10 +992,10 @@
                     
                     // Sử dụng latencyHint 'interactive' để đạt buffer size nhỏ nhất
                     // 'interactive' có buffer size nhỏ nhất để giảm latency tối đa
-                    // MỤC TIÊU: Độ trễ ~0ms (tối thiểu có thể)
+                    // MỤC TIÊU: Độ trễ = 0ms (tối thiểu tuyệt đối)
                     audioContext = new (window.AudioContext || window.webkitAudioContext)({
                         sampleRate: optimalSampleRate,
-                        latencyHint: 'interactive' // Buffer size nhỏ nhất có thể (~32 samples = ~0.73ms)
+                        latencyHint: 'interactive' // Buffer size nhỏ nhất có thể (~16 samples = ~0.36ms)
                     });
                     
                     // Tối ưu: Đảm bảo baseLatency và outputLatency ở mức tối thiểu
@@ -1063,22 +1063,22 @@
                     googTypingNoiseDetection: false // Tắt typing noise detection
                 };
                 
-                // TỐI ƯU ĐỘ TRỄ TỐI ĐA: Giảm xuống mức thấp nhất có thể
-                // MỤC TIÊU: Độ trễ ~0ms (tối thiểu có thể)
+                // TỐI ƯU ĐỘ TRỄ TỐI ĐA: Thử giảm xuống 0ms
+                // MỤC TIÊU: Độ trễ = 0ms (tối thiểu tuyệt đối)
                 if (!isMobileDevice) {
-                    audioConstraints.latency = 0; // Latency = 0 (tối thiểu)
+                    audioConstraints.latency = 0; // Latency = 0
                     audioConstraints.sampleRate = 44100; // Dùng 44100 để giảm latency (ít data hơn)
                     audioConstraints.channelCount = 1; // Mono để giảm data (50% data)
                     audioConstraints.sampleSize = 16; // 16-bit để giảm data
-                    // Buffer size cực nhỏ để độ trễ thấp nhất (32 samples = ~0.73ms @ 44.1kHz)
-                    audioConstraints.bufferSize = 32; // Buffer size cực nhỏ
+                    // Buffer size tối thiểu tuyệt đối (16 samples = ~0.36ms @ 44.1kHz)
+                    audioConstraints.bufferSize = 16; // Buffer size tối thiểu (16 samples)
                 } else {
-                    // Mobile: Tối ưu tối đa
+                    // Mobile: Tối ưu tối đa - thử 0ms
                     audioConstraints.latency = 0; // Latency = 0
                     audioConstraints.sampleRate = 44100;
                     audioConstraints.channelCount = 1;
                     audioConstraints.sampleSize = 16;
-                    audioConstraints.bufferSize = 32; // Buffer size cực nhỏ (32 samples = ~0.73ms)
+                    audioConstraints.bufferSize = 16; // Buffer size tối thiểu (16 samples = ~0.36ms)
                 }
                 
                 microphoneStream = await navigator.mediaDevices.getUserMedia({ 
@@ -1103,24 +1103,24 @@
                 // PHÂN TÍCH: DynamicsCompressor có thể gây delay
                 // - Lookahead delay: ~0-2ms tùy settings
                 // - Processing delay: ~0.5-1ms
-                // TỐI ƯU TỐI ĐA: Giảm attack/release xuống mức tối thiểu để giảm delay
+                // TỐI ƯU TỐI ĐA: Giảm attack/release xuống 0 để giảm delay
                 micLimiter = audioContext.createDynamicsCompressor();
                 micLimiter.threshold.value = -1; // Threshold -1dB
                 micLimiter.knee.value = 0; // Hard knee
                 micLimiter.ratio.value = 20; // Ratio cao để hoạt động như limiter
-                micLimiter.attack.value = 0; // Attack = 0 (tối thiểu) để giảm trễ tối đa
-                micLimiter.release.value = 0.001; // Release cực nhanh (1ms) để giảm trễ tối đa
+                micLimiter.attack.value = 0; // Attack = 0 (tối thiểu tuyệt đối)
+                micLimiter.release.value = 0; // Release = 0 (tối thiểu tuyệt đối) để giảm trễ tối đa
                 
                 // Tối ưu: Đảm bảo gain node không thêm delay
                 micGainNode.gain.setValueAtTime(5.0, audioContext.currentTime);
                 
-                // Tạo nodes cho autotune - Tối ưu tối đa để giảm latency
+                // Tạo nodes cho autotune - Tối ưu tối đa để giảm latency về 0
                 autotuneAnalyser = audioContext.createAnalyser();
-                autotuneAnalyser.fftSize = 512; // Giảm xuống 512 để giảm latency tối đa
+                autotuneAnalyser.fftSize = 256; // Giảm xuống 256 để giảm latency tối đa
                 autotuneAnalyser.smoothingTimeConstant = 0; // Không smoothing để phản ứng tức thì
                 
-                autotuneDelay = audioContext.createDelay(0.01); // Delay buffer nhỏ hơn (10ms max thay vì 20ms)
-                autotuneDelay.delayTime.value = 0.001; // Base delay 1ms (giảm từ 5ms) để giảm trễ
+                autotuneDelay = audioContext.createDelay(0.005); // Delay buffer tối thiểu (5ms max)
+                autotuneDelay.delayTime.value = 0; // Base delay = 0ms để giảm trễ tối đa
                 autotuneGain = audioContext.createGain();
                 autotuneGain.gain.value = 0.5; // Mix level cho autotune effect (50% wet - tăng để rõ hơn)
                 
@@ -1507,27 +1507,27 @@
                     // Sử dụng delay modulation để tạo pitch shift effect
                     // Khi delay thay đổi nhanh, pitch sẽ thay đổi
                     // Pitch shift = -delay_change_rate / delay_base
-                    const baseDelay = 0.001; // 1ms base delay (giảm từ 5ms)
+                    const baseDelay = 0; // Base delay = 0ms
                     
                     // Tính toán delay cần thiết để đạt target pitch
                     // Nếu pitch cao hơn target -> giảm delay
                     // Nếu pitch thấp hơn target -> tăng delay
-                    const correctionAmount = (pitchCorrection - 1) * 0.5; // Tăng correction strength
-                    const targetDelay = baseDelay * (1 - correctionAmount);
+                    const correctionAmount = (pitchCorrection - 1) * 0.3; // Giảm correction để delay nhỏ hơn
+                    const targetDelay = baseDelay + (correctionAmount * 0.001); // Delay tối thiểu
                     
-                    // Áp dụng delay correction với transition cực nhanh (không smoothing)
+                    // Áp dụng delay correction với transition tức thì (không smoothing)
                     const currentTime = audioContext.currentTime;
-                    autotuneDelay.delayTime.setValueAtTime( // setValueAtTime thay vì setTargetAtTime để không có smoothing delay
-                        Math.max(0.001, Math.min(0.01, targetDelay)), // Max delay giảm xuống 10ms
+                    autotuneDelay.delayTime.setValueAtTime( // setValueAtTime để không có smoothing delay
+                        Math.max(0, Math.min(0.005, targetDelay)), // Max delay 5ms, min = 0
                         currentTime
                     );
                     
                     // Tăng gain của autotune để effect rõ ràng hơn
                     autotuneGain.gain.setValueAtTime(0.6, currentTime); // Tăng từ 0.4 lên 0.6
                 } else {
-                    // Khi không có tín hiệu, reset về base delay
+                    // Khi không có tín hiệu, reset về base delay = 0
                     const currentTime = audioContext.currentTime;
-                    autotuneDelay.delayTime.setValueAtTime(0.001, currentTime); // Base delay 1ms
+                    autotuneDelay.delayTime.setValueAtTime(0, currentTime); // Base delay = 0ms
                     autotuneGain.gain.setValueAtTime(0.4, currentTime);
                 }
                 
