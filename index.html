@@ -177,6 +177,7 @@
             margin-top: 15px;
         }
 
+
         .audio-button {
             padding: 12px 25px;
             font-size: 16px;
@@ -497,7 +498,7 @@
                 type="text" 
                 id="youtubeUrl" 
                 class="url-input" 
-                placeholder="Nhập tên bài hát hoặc link YouTube..."
+                placeholder="Nhập link YouTube..."
                 autocomplete="off"
             >
             <button class="play-button" onclick="handleSearch()" id="searchButton">Tìm kiếm</button>
@@ -506,16 +507,6 @@
         
         <div class="audio-control-section">
             <button class="audio-button" onclick="openAudioModal()">🎵 Chỉnh âm</button>
-        </div>
-        
-        <!-- Thông báo khi mở popup YouTube -->
-        <div class="info" id="youtubeTabInfo" style="display: none; background: rgba(102, 126, 234, 0.3); padding: 15px; border-radius: 10px; margin-top: 15px;">
-            <strong>📌 Hướng dẫn:</strong><br>
-            Cửa sổ YouTube đã được mở. Vui lòng:<br>
-            1. Click vào video bạn muốn phát<br>
-            2. Copy URL từ thanh địa chỉ (Ctrl+C hoặc Cmd+C)<br>
-            3. Dán URL vào ô tìm kiếm bên dưới (Ctrl+V hoặc Cmd+V)<br>
-            4. Video sẽ tự động phát
         </div>
     </div>
 
@@ -589,8 +580,8 @@
 
     <script src="https://www.youtube.com/iframe_api"></script>
     <script>
-        let youtubeTab = null;
         let youtubePlayer = null;
+        
         
         // Web Audio API variables
         let audioContext = null;
@@ -683,7 +674,7 @@
             return /youtube\.com|youtu\.be/.test(trimmed) || /^[a-zA-Z0-9_-]{11}$/.test(trimmed);
         }
 
-        // Xử lý khi nhấn nút Mở
+        // Xử lý khi nhấn nút Tìm kiếm
         async function handleSearch() {
             const urlInput = document.getElementById('youtubeUrl');
             const url = urlInput.value.trim();
@@ -693,17 +684,17 @@
             errorMessage.classList.remove('show');
             
             if (!url) {
-                showError('Vui lòng nhập tên bài hát hoặc link YouTube');
+                showError('Vui lòng nhập link YouTube');
                 return;
             }
 
-            // Kiểm tra xem có phải là URL YouTube không
+            // Chỉ chấp nhận URL YouTube
             if (isYouTubeUrl(url)) {
                 // Nếu là URL YouTube, phát video trực tiếp
                 playVideo();
             } else {
-                // Nếu không phải URL, mở popup YouTube để tìm kiếm
-                openYouTubeSearch(url);
+                // Nếu không phải URL, yêu cầu nhập URL YouTube
+                showError('Vui lòng nhập link YouTube hợp lệ (ví dụ: https://www.youtube.com/watch?v=...)');
             }
         }
 
@@ -721,24 +712,6 @@
             playVideo();
         }
 
-        // Mở YouTube với kết quả tìm kiếm trong tab mới
-        function openYouTubeSearch(query) {
-            const searchQuery = encodeURIComponent(query);
-            const youtubeUrl = `https://www.youtube.com/results?search_query=${searchQuery}`;
-            
-            // Mở trong tab mới (không phải popup)
-            // Trên mobile sẽ mở tab mới, trên desktop cũng mở tab mới
-            window.open(youtubeUrl, '_blank');
-            
-            // Hiển thị hướng dẫn
-            const youtubeTabInfo = document.getElementById('youtubeTabInfo');
-            youtubeTabInfo.style.display = 'block';
-            
-            // Tập trung vào tab hiện tại để người dùng có thể paste URL khi quay lại
-            setTimeout(() => {
-                window.focus();
-            }, 100);
-        }
 
         // Khởi tạo YouTube Player API
         function onYouTubeIframeAPIReady() {
@@ -750,13 +723,11 @@
             const urlInput = document.getElementById('youtubeUrl');
             const errorMessage = document.getElementById('errorMessage');
             const youtubePlayerElement = document.getElementById('youtubePlayer');
-            const youtubeTabInfo = document.getElementById('youtubeTabInfo');
             
             const url = urlInput.value.trim();
             
-            // Ẩn thông báo lỗi và hướng dẫn
+            // Ẩn thông báo lỗi
             errorMessage.classList.remove('show');
-            youtubeTabInfo.style.display = 'none';
             
             if (!url) {
                 showError('Vui lòng nhập link YouTube hoặc Video ID');
@@ -801,11 +772,6 @@
                 }
             }, 1000);
             
-            // Đóng popup YouTube nếu đang mở
-            if (youtubeTab && !youtubeTab.closed) {
-                youtubeTab.close();
-                youtubeTab = null;
-            }
             
             // Cập nhật nút để hiển thị "Phát" thay vì "Mở"
             document.getElementById('searchButton').style.display = 'none';
