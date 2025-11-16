@@ -350,6 +350,7 @@
             overflow-y: auto;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             position: relative;
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
         }
 
         .modal-header {
@@ -505,6 +506,7 @@
             transform: translateX(30px);
         }
 
+        /* Mobile Responsive Styles */
         @media (max-width: 768px) {
             body {
                 padding: 0;
@@ -537,10 +539,63 @@
             .modal-content {
                 padding: 20px;
                 max-width: 95%;
+                width: 95%;
+                max-height: 85vh;
+                border-radius: 15px;
             }
 
             .modal-title {
                 font-size: 1.2rem;
+            }
+            
+            .modal-header {
+                margin-bottom: 15px;
+            }
+            
+            /* API Key Modal specific for mobile */
+            #apiKeyModal .modal-content {
+                max-width: 95%;
+                width: 95%;
+                padding: 15px;
+            }
+            
+            #apiKeyModal .tab-button {
+                padding: 10px;
+                font-size: 14px;
+            }
+            
+            /* Search results on mobile */
+            .search-results {
+                max-height: 400px;
+                padding: 15px;
+            }
+            
+            .search-result-item {
+                padding: 12px;
+            }
+            
+            .search-result-thumbnail {
+                width: 100px;
+                height: 75px;
+            }
+            
+            .search-result-title {
+                font-size: 14px;
+            }
+            
+            .search-result-channel {
+                font-size: 12px;
+            }
+            
+            /* Đảm bảo modal overlay hiển thị đúng */
+            .modal-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                width: 100%;
+                height: 100%;
             }
 
             h1 {
@@ -1136,6 +1191,10 @@
         function closeApiKeyModal() {
             const modal = document.getElementById('apiKeyModal');
             modal.classList.remove('show');
+            modal.style.display = 'none';
+            
+            // Khôi phục body scroll
+            document.body.style.overflow = '';
         }
         
         // Đóng modal khi click vào overlay
@@ -1351,6 +1410,11 @@
         async function openAudioModal() {
             const modal = document.getElementById('audioModal');
             modal.classList.add('show');
+            modal.style.display = 'flex';
+            
+            // Ngăn body scroll khi modal mở (quan trọng trên mobile)
+            document.body.style.overflow = 'hidden';
+            
             // TỐI ƯU: Resume AudioContext khi mở modal (người dùng đang tương tác)
             await ensureAudioContextRunning();
         }
@@ -1359,6 +1423,11 @@
         function closeAudioModal() {
             const modal = document.getElementById('audioModal');
             modal.classList.remove('show');
+            modal.style.display = 'none';
+            
+            // Khôi phục body scroll
+            document.body.style.overflow = '';
+            
             // Không tự động tắt mic khi đóng modal, để người dùng có thể tiếp tục hát
         }
 
