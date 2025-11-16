@@ -441,12 +441,6 @@
                 <div id="micStatus" style="font-size: 12px; color: #666;">
                     Microphone chưa được kích hoạt
                 </div>
-                <div style="font-size: 11px; color: #4caf50; margin-top: 8px; font-weight: 500;">
-                    ⚡ Đã tối ưu: Boost 2.5x + Reverb vang hay + Latency cực thấp (~2-8ms) - Đồng bộ hoàn hảo
-                </div>
-                <div id="mobileLatencyWarning" style="font-size: 10px; color: #ff9800; margin-top: 5px; display: none;">
-                    ⚠️ Trên điện thoại, độ trễ có thể cao hơn (~10-30ms) do giới hạn của browser
-                </div>
             </div>
 
             <div class="slider-group">
@@ -523,6 +517,10 @@
         let reverbLowpass = null;
         let reverbImpulseResponse = null;
         let autotuneProcessor = null;
+        let autotuneAnalyser = null;
+        let autotuneDelay = null;
+        let autotuneGain = null;
+        let autotuneEnabled = false;
         let destinationNode = null;
         let isMicActive = false;
         let videoAudioSource = null;
@@ -999,6 +997,16 @@
                 let currentTime = audioContext.currentTime;
                 micGainNode.gain.setValueAtTime(2.5, currentTime); // Boost 2.5 lần (sẽ được điều chỉnh bởi slider)
                 
+                // Tạo nodes cho autotune
+                autotuneAnalyser = audioContext.createAnalyser();
+                autotuneAnalyser.fftSize = 2048;
+                autotuneAnalyser.smoothingTimeConstant = 0.8;
+                
+                autotuneDelay = audioContext.createDelay(0.02); // Delay buffer cho pitch shifting (20ms max)
+                autotuneDelay.delayTime.value = 0.005; // Base delay 5ms
+                autotuneGain = audioContext.createGain();
+                autotuneGain.gain.value = 0.4; // Mix level cho autotune effect (40% wet)
+                
                 // Tạo nodes cho reverb (dry và wet)
                 dryGainNode = audioContext.createGain();
                 reverbGainNode = audioContext.createGain();
@@ -1056,10 +1064,10 @@
                 updateMicVolume(document.getElementById('micVolumeSlider').value);
                 updateReverb(document.getElementById('reverbSlider').value);
                 
-                // Hiển thị cảnh báo trên mobile
-                const mobileWarning = document.getElementById('mobileLatencyWarning');
-                if (isMobileDevice && mobileWarning) {
-                    mobileWarning.style.display = 'block';
+                // Áp dụng autotune nếu đã bật
+                const autotuneEnabled = localStorage.getItem('autotune') === 'true';
+                if (autotuneEnabled) {
+                    toggleAutotune(true);
                 }
                 
                 return true;
@@ -1080,7 +1088,24 @@
                 microphoneSource.disconnect();
                 microphoneSource = null;
             }
+            // Disconnect autotune nodes
+            if (autotuneAnalyser) {
+                try {
+                    autotuneAnalyser.disconnect();
+                } catch (e) {}
+            }
+            if (autotuneDelay) {
+                try {
+                    autotuneDelay.disconnect();
+                } catch (e) {}
+            }
+            if (autotuneGain) {
+                try {
+                    autotuneGain.disconnect();
+                } catch (e) {}
+            }
             isMicActive = false;
+            autotuneEnabled = false;
             updateMicStatus();
         }
 
@@ -1205,21 +1230,126 @@
 
         // Bật/tắt Autotune
         function toggleAutotune(enabled) {
+            autotuneEnabled = enabled;
             localStorage.setItem('autotune', enabled ? 'true' : 'false');
             
-            // Autotune đơn giản - chỉ đánh dấu trạng thái
-            // Lưu ý: Autotune thực sự cần thuật toán phức tạp hơn để pitch correction
-            // Ở đây chúng ta chỉ lưu trạng thái, có thể mở rộng sau
-            if (enabled && !isMicActive) {
-                // Gợi ý người dùng bật mic
-                const micStatus = document.getElementById('micStatus');
-                if (micStatus) {
-                    micStatus.textContent = '⚠️ Vui lòng bật microphone để sử dụng Autotune';
-                    micStatus.style.color = '#ff9800';
+            if (!isMicActive || !micGainNode || !autotuneAnalyser || !autotuneDelay || !autotuneGain) {
+                if (enabled && !isMicActive) {
+                    const micStatus = document.getElementById('micStatus');
+                    if (micStatus) {
+                        micStatus.textContent = '⚠️ Vui lòng bật microphone để sử dụng Autotune';
+                        micStatus.style.color = '#ff9800';
+                    }
                 }
+                return;
             }
             
+            // Kết nối analyser để detect pitch (luôn kết nối khi autotune bật)
+            try {
+                if (enabled) {
+                    // Kết nối analyser để detect pitch (parallel, không ảnh hưởng audio chain)
+                    micGainNode.connect(autotuneAnalyser);
+                    // Bắt đầu pitch detection và correction
+                    startAutotuneProcessing();
+                } else {
+                    // Tắt autotune - disconnect analyser
+                    try {
+                        micGainNode.disconnect(autotuneAnalyser);
+                    } catch (e) {
+                        // Có thể chưa connect, không sao
+                    }
+                }
+            } catch (e) {
+                console.error('Lỗi autotune:', e);
+            }
+            
+            // Cập nhật lại reverb để đảm bảo routing đúng
+            const reverbValue = document.getElementById('reverbSlider').value;
+            updateReverb(reverbValue);
+            
             console.log('Autotune:', enabled ? 'Bật' : 'Tắt');
+        }
+        
+        // Xử lý autotune - pitch detection và correction
+        function startAutotuneProcessing() {
+            if (!autotuneEnabled || !autotuneAnalyser || !autotuneDelay) return;
+            
+            const bufferLength = autotuneAnalyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            let lastFrequency = 0;
+            let smoothingFactor = 0.7; // Smoothing để tránh jumpy
+            
+            function processAutotune() {
+                if (!autotuneEnabled || !autotuneAnalyser || !autotuneDelay) return;
+                
+                autotuneAnalyser.getByteFrequencyData(dataArray);
+                
+                // Tìm peak frequency (pitch detection)
+                let maxValue = 0;
+                let maxIndex = 0;
+                for (let i = 1; i < bufferLength; i++) {
+                    if (dataArray[i] > maxValue) {
+                        maxValue = dataArray[i];
+                        maxIndex = i;
+                    }
+                }
+                
+                // Tính toán pitch từ frequency bin
+                const sampleRate = audioContext.sampleRate;
+                const nyquist = sampleRate / 2;
+                let frequency = (maxIndex * nyquist) / bufferLength;
+                
+                // Smooth frequency để tránh jumpy
+                if (lastFrequency > 0) {
+                    frequency = frequency * (1 - smoothingFactor) + lastFrequency * smoothingFactor;
+                }
+                lastFrequency = frequency;
+                
+                // Chỉ xử lý nếu có tín hiệu đủ mạnh (tránh noise)
+                if (maxValue > 30 && frequency > 80 && frequency < 2000) {
+                    // Tìm nốt nhạc gần nhất (chromatic scale - 12 nốt)
+                    const A4 = 440; // Nốt La chuẩn
+                    const semitones = 12 * Math.log2(frequency / A4);
+                    const nearestSemitone = Math.round(semitones);
+                    const targetFrequency = A4 * Math.pow(2, nearestSemitone / 12);
+                    
+                    // Tính pitch correction ratio
+                    const pitchCorrection = targetFrequency / frequency;
+                    
+                    // Sử dụng delay modulation để tạo pitch shift effect
+                    // Khi delay thay đổi, pitch sẽ thay đổi
+                    const baseDelay = 0.005; // 5ms base delay
+                    const correctionAmount = (pitchCorrection - 1) * 0.3; // Giới hạn correction
+                    const targetDelay = baseDelay * (1 - correctionAmount);
+                    
+                    // Áp dụng delay correction
+                    const currentTime = audioContext.currentTime;
+                    autotuneDelay.delayTime.setTargetAtTime(
+                        Math.max(0.001, Math.min(0.02, targetDelay)),
+                        currentTime,
+                        0.05 // Smooth transition
+                    );
+                    
+                    // Kết nối delay vào chain nếu chưa kết nối
+                    try {
+                        // Kiểm tra xem delay đã được kết nối chưa
+                        // Nếu chưa, kết nối vào audio chain
+                        if (!autotuneDelay.numberOfInputs || autotuneDelay.numberOfInputs === 0) {
+                            // Kết nối delay vào chain (parallel với signal gốc)
+                            micGainNode.connect(autotuneDelay);
+                            autotuneDelay.connect(autotuneGain);
+                            autotuneGain.connect(audioContext.destination);
+                        }
+                    } catch (e) {
+                        // Đã kết nối rồi hoặc có lỗi, không sao
+                    }
+                }
+                
+                // Tiếp tục xử lý
+                requestAnimationFrame(processAutotune);
+            }
+            
+            processAutotune();
         }
 
         // Khôi phục giá trị đã lưu khi tải trang
