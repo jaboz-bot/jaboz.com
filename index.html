@@ -1120,7 +1120,7 @@
                 autotuneDelay = audioContext.createDelay(0.02); // Delay buffer cho pitch shifting (20ms max)
                 autotuneDelay.delayTime.value = 0.005; // Base delay 5ms
                 autotuneGain = audioContext.createGain();
-                autotuneGain.gain.value = 0.4; // Mix level cho autotune effect (40% wet)
+                autotuneGain.gain.value = 0.5; // Mix level cho autotune effect (50% wet - tăng để rõ hơn)
                 
                 // Tạo nodes cho reverb (dry và wet)
                 dryGainNode = audioContext.createGain();
@@ -1340,17 +1340,29 @@
                     reverbGainNode.gain.setValueAtTime(0, currentTime);
                 } else {
                     // Khi có reverb, sử dụng masterGainNode để trộn dry và wet
-                    // Disconnect kết nối trực tiếp đến limiter
+                    // Disconnect tất cả kết nối cũ
                     try {
-                        micGainNode.disconnect(micLimiter);
+                        micGainNode.disconnect();
+                        autotuneDelay.disconnect();
+                        autotuneGain.disconnect();
                         micLimiter.disconnect(audioContext.destination);
                     } catch (e) {
                         // Có thể chưa connect, không sao
                     }
                     
-                    // Kết nối qua dryGainNode, masterGainNode và limiter
-                    try {
+                    // Kết nối dựa trên trạng thái autotune
+                    if (autotuneEnabled) {
+                        // Autotune bật: micGainNode -> autotuneDelay -> autotuneGain -> dryGainNode -> masterGainNode -> limiter
+                        micGainNode.connect(autotuneDelay);
+                        autotuneDelay.connect(autotuneGain);
+                        autotuneGain.connect(dryGainNode);
+                    } else {
+                        // Autotune tắt: micGainNode -> dryGainNode -> masterGainNode -> limiter
                         micGainNode.connect(dryGainNode);
+                    }
+                    
+                    // Kết nối phần còn lại: dryGainNode -> masterGainNode -> limiter -> destination
+                    try {
                         dryGainNode.connect(masterGainNode);
                         masterGainNode.connect(micLimiter);
                         micLimiter.connect(audioContext.destination);
@@ -1480,7 +1492,7 @@
                 lastFrequency = frequency;
                 
                 // Chỉ xử lý nếu có tín hiệu đủ mạnh (tránh noise)
-                if (maxValue > 30 && frequency > 80 && frequency < 2000) {
+                if (maxValue > 20 && frequency > 80 && frequency < 2000) {
                     // Tìm nốt nhạc gần nhất (chromatic scale - 12 nốt)
                     const A4 = 440; // Nốt La chuẩn
                     const semitones = 12 * Math.log2(frequency / A4);
@@ -1491,21 +1503,31 @@
                     const pitchCorrection = targetFrequency / frequency;
                     
                     // Sử dụng delay modulation để tạo pitch shift effect
-                    // Khi delay thay đổi, pitch sẽ thay đổi
+                    // Khi delay thay đổi nhanh, pitch sẽ thay đổi
+                    // Pitch shift = -delay_change_rate / delay_base
                     const baseDelay = 0.005; // 5ms base delay
-                    const correctionAmount = (pitchCorrection - 1) * 0.3; // Giới hạn correction
+                    
+                    // Tính toán delay cần thiết để đạt target pitch
+                    // Nếu pitch cao hơn target -> giảm delay
+                    // Nếu pitch thấp hơn target -> tăng delay
+                    const correctionAmount = (pitchCorrection - 1) * 0.5; // Tăng correction strength
                     const targetDelay = baseDelay * (1 - correctionAmount);
                     
-                    // Áp dụng delay correction
+                    // Áp dụng delay correction với transition nhanh hơn
                     const currentTime = audioContext.currentTime;
                     autotuneDelay.delayTime.setTargetAtTime(
                         Math.max(0.001, Math.min(0.02, targetDelay)),
                         currentTime,
-                        0.05 // Smooth transition
+                        0.02 // Transition nhanh hơn để phản ứng tốt hơn
                     );
                     
-                    // Delay đã được kết nối trong toggleAutotune
-                    // Chỉ cần điều chỉnh delay time để tạo pitch correction
+                    // Tăng gain của autotune để effect rõ ràng hơn
+                    autotuneGain.gain.setValueAtTime(0.6, currentTime); // Tăng từ 0.4 lên 0.6
+                } else {
+                    // Khi không có tín hiệu, reset về base delay
+                    const currentTime = audioContext.currentTime;
+                    autotuneDelay.delayTime.setTargetAtTime(0.005, currentTime, 0.1);
+                    autotuneGain.gain.setValueAtTime(0.4, currentTime);
                 }
                 
                 // Tiếp tục xử lý
