@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YouTube Player</title>
     <style>
+        /* ... CSS KHÔNG THAY ĐỔI ... */
         * {
             margin: 0;
             padding: 0;
@@ -453,7 +454,6 @@
             <button class="audio-button" onclick="openAudioModal()">🎵 Chỉnh âm</button>
         </div>
         
-        <!-- Thông báo khi mở popup YouTube -->
         <div class="info" id="youtubeTabInfo" style="display: none; background: rgba(102, 126, 234, 0.3); padding: 15px; border-radius: 10px; margin-top: 15px;">
             <strong>📌 Hướng dẫn:</strong><br>
             Cửa sổ YouTube đã được mở. Vui lòng:<br>
@@ -464,7 +464,6 @@
         </div>
     </div>
 
-    <!-- Modal chỉnh âm -->
     <div class="modal-overlay" id="audioModal" onclick="closeAudioModalOnOverlay(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header">
@@ -541,18 +540,15 @@
         let audioContext = null;
         let microphoneStream = null;
         let microphoneSource = null;
-        let micGainNode = null; // Gain node với boost 2.5x tích hợp
+        let micGainNode = null; // Gain node với boost
         let reverbGainNode = null;
         let dryGainNode = null;
         let reverbConvolver = null;
         let reverbLowpass = null;
         let reverbImpulseResponse = null;
-        let destinationNode = null;
         let isMicActive = false;
-        let videoAudioSource = null;
-        let videoGainNode = null;
-        let masterGainNode = null;
         let micLimiter = null; // Limiter để tránh rè khi boost mic
+        let masterGainNode = null; // Node để trộn dry và wet
         
         // Version tracking
         const APP_VERSION = '2.0.0';
@@ -732,7 +728,8 @@
             }
 
             // Sử dụng iframe trực tiếp để đảm bảo video phát được ngay
-            const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&enablejsapi=1`;
+            // Bổ sung `playsinline=1` cho mobile để phát được fullscreen
+            const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&enablejsapi=1&playsinline=1`;
             youtubePlayerElement.src = embedUrl;
 
             // Điều chỉnh âm lượng sau khi iframe load
@@ -740,17 +737,17 @@
             const volume = parseInt(savedVolume);
             
             // Đợi iframe load xong rồi điều chỉnh âm lượng bằng postMessage
-            setTimeout(() => {
-                try {
-                    youtubePlayerElement.contentWindow.postMessage(JSON.stringify({
-                        event: 'command',
-                        func: 'setVolume',
-                        args: [volume]
-                    }), '*');
-                } catch (e) {
-                    console.log('Không thể điều chỉnh âm lượng');
-                }
-            }, 1000);
+            // Tối ưu: setVolume ngay lập tức
+            try {
+                // Dùng postMessage để điều chỉnh âm lượng
+                youtubePlayerElement.contentWindow.postMessage(JSON.stringify({
+                    event: 'command',
+                    func: 'setVolume',
+                    args: [volume]
+                }), '*');
+            } catch (e) {
+                console.log('Không thể điều chỉnh âm lượng');
+            }
             
             // Đóng popup YouTube nếu đang mở
             if (youtubeTab && !youtubeTab.closed) {
@@ -875,7 +872,7 @@
         }
         
 
-        // Tạo Impulse Response cho Reverb (Ambient) - Tạo reverb tự nhiên hơn
+        // Tạo Impulse Response cho Reverb (Ambient)
         function createReverbImpulse(audioContext, duration, decay, reverse) {
             const sampleRate = audioContext.sampleRate;
             const length = sampleRate * duration;
@@ -969,215 +966,93 @@
         // Khởi tạo Audio Context và Microphone với latency tối thiểu
         async function initAudioContext() {
             try {
-                // Kiểm tra thiết bị mobile một lần
                 const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
                 
                 if (!audioContext) {
-                    // Tạo audio context với độ trễ thấp nhất
-                    // TỐI ƯU ĐỘ TRỄ: Quay lại cấu hình tối ưu độ trễ
-                    // Dùng 44100 để giảm latency (ít data hơn = nhanh hơn)
-                    const optimalSampleRate = 44100; // Dùng 44100 để giảm latency
-                    
-                    // Sử dụng latencyHint 'interactive' để đạt buffer size nhỏ nhất
-                    // 'interactive' có buffer size nhỏ nhất để giảm latency tối đa
-                    // MỤC TIÊU: Độ trễ thấp nhất có thể
+                    // Tối ưu độ trễ: Dùng 44100Hz và latencyHint 'interactive'
+                    const optimalSampleRate = 44100;
                     audioContext = new (window.AudioContext || window.webkitAudioContext)({
                         sampleRate: optimalSampleRate,
-                        latencyHint: 'interactive' // Buffer size nhỏ nhất có thể (~32 samples = ~0.73ms)
+                        latencyHint: 'interactive'
                     });
                     
-                    // Tối ưu: Đảm bảo baseLatency và outputLatency ở mức tối thiểu
-                    // Một số trình duyệt cho phép điều chỉnh thông qua resume()
-                    try {
-                        // Log latency để debug
-                        if (audioContext.baseLatency !== undefined) {
-                            console.log('Base latency:', (audioContext.baseLatency * 1000).toFixed(2), 'ms');
-                        }
-                        if (audioContext.outputLatency !== undefined) {
-                            console.log('Output latency:', (audioContext.outputLatency * 1000).toFixed(2), 'ms');
-                        }
-                    } catch (e) {
-                        // Không hỗ trợ, không sao
-                    }
-                    
-                    // Tối ưu: Đảm bảo baseLatency và outputLatency thấp nhất
-                    // Một số trình duyệt cho phép điều chỉnh thông qua resume()
-                    try {
-                        // Resume nhiều lần để đảm bảo context ở trạng thái tối ưu
-                        while (audioContext.state !== 'running') {
-                            await audioContext.resume();
-                            await new Promise(resolve => setTimeout(resolve, 10));
-                        }
-                    } catch (e) {
-                        // Không hỗ trợ, không sao
-                    }
-                    
-                    // Đảm bảo audio context không bị suspend và chạy ngay
                     if (audioContext.state === 'suspended') {
                         await audioContext.resume();
                     }
                     
-                    // Resume ngay để đảm bảo context active
-                    await audioContext.resume();
-                    
-                    // Tối ưu: Giảm outputLatency nếu có thể
-                    // Một số trình duyệt cho phép điều chỉnh outputLatency
-                    try {
-                        // Đảm bảo context running để có latency thấp nhất
-                        if (audioContext.state !== 'running') {
-                            await audioContext.resume();
-                        }
-                    } catch (e) {
-                        // Không hỗ trợ, không sao
-                    }
+                    // Tạo các nodes
+                    masterGainNode = audioContext.createGain();
+                    micGainNode = audioContext.createGain();
+                    micLimiter = audioContext.createDynamicsCompressor();
+                    dryGainNode = audioContext.createGain();
+                    reverbGainNode = audioContext.createGain();
+                    reverbConvolver = audioContext.createConvolver();
+                    reverbLowpass = audioContext.createBiquadFilter();
+
+                    // Cấu hình Limiter (DynamicsCompressor)
+                    micLimiter.threshold.value = -1;
+                    micLimiter.knee.value = 0;
+                    micLimiter.ratio.value = 20;
+                    micLimiter.attack.value = 0.0001; // Attack cực nhanh
+                    micLimiter.release.value = 0.001; // Release cực nhanh
+
+                    // Cấu hình Reverb
+                    reverbImpulseResponse = createReverbImpulse(audioContext, 1.5, 1.2, false);
+                    reverbConvolver.buffer = reverbImpulseResponse;
+                    reverbConvolver.normalize = true;
+                    reverbLowpass.type = 'lowpass';
+                    reverbLowpass.frequency.value = 6000;
+                    reverbLowpass.Q.value = 0.7;
+
+                    // Thiết lập Gain ban đầu
+                    const currentTime = audioContext.currentTime;
+                    micGainNode.gain.setValueAtTime(5.0, currentTime); // Boost 5x (tối đa độ nhạy)
+                    dryGainNode.gain.setValueAtTime(1.0, currentTime);
+                    reverbGainNode.gain.setValueAtTime(0, currentTime);
                 }
                 
                 if (audioContext.state === 'suspended') {
                     await audioContext.resume();
                 }
 
-                // Yêu cầu quyền truy cập microphone với ZERO latency cho mobile
-                // Trên mobile, cần tắt TẤT CẢ processing để giảm latency tối đa
-                
-                // Tạo audio constraints tối ưu để giảm latency TỐI ĐA
+                // Cấu hình Audio Constraints tối ưu độ trễ
                 const audioConstraints = {
-                    echoCancellation: false,  // TẮT để loại bỏ delay hoàn toàn
-                    noiseSuppression: false, // Tắt để giảm latency
-                    autoGainControl: false,   // Tắt để giảm latency
-                    googEchoCancellation: false, // Tắt Google echo cancellation
-                    googNoiseSuppression: false, // Tắt Google noise suppression
-                    googAutoGainControl: false,  // Tắt Google auto gain control
-                    googHighpassFilter: false,   // Tắt highpass filter
-                    googTypingNoiseDetection: false // Tắt typing noise detection
+                    echoCancellation: false,
+                    noiseSuppression: false,
+                    autoGainControl: false,
+                    googEchoCancellation: false,
+                    googNoiseSuppression: false,
+                    googAutoGainControl: false,
+                    googHighpassFilter: false,
+                    googTypingNoiseDetection: false,
+                    latency: 0,
+                    sampleRate: 44100,
+                    channelCount: 1,
+                    sampleSize: 16,
+                    bufferSize: 32 // Tối ưu: 32 samples (~0.73ms)
                 };
-                
-                // TỐI ƯU ĐỘ TRỄ TỐI ĐA: Giảm xuống mức thấp nhất có thể
-                // MỤC TIÊU: Độ trễ thấp nhất có thể (không thể = 0 do giới hạn phần cứng)
-                if (!isMobileDevice) {
-                    audioConstraints.latency = 0; // Latency = 0
-                    audioConstraints.sampleRate = 44100; // Dùng 44100 để giảm latency (ít data hơn)
-                    audioConstraints.channelCount = 1; // Mono để giảm data (50% data)
-                    audioConstraints.sampleSize = 16; // 16-bit để giảm data
-                    // Buffer size tối ưu (32 samples = ~0.73ms @ 44.1kHz) - 16 samples có thể gây vấn đề
-                    audioConstraints.bufferSize = 32; // Buffer size tối ưu (32 samples)
-                } else {
-                    // Mobile: Tối ưu tối đa
-                    audioConstraints.latency = 0; // Latency = 0
-                    audioConstraints.sampleRate = 44100;
-                    audioConstraints.channelCount = 1;
-                    audioConstraints.sampleSize = 16;
-                    audioConstraints.bufferSize = 32; // Buffer size tối ưu (32 samples = ~0.73ms)
-                }
                 
                 microphoneStream = await navigator.mediaDevices.getUserMedia({ 
                     audio: audioConstraints
                 });
 
-                // Tạo source từ microphone
                 microphoneSource = audioContext.createMediaStreamSource(microphoneStream);
                 
-                // Tạo master gain node để trộn tất cả audio
-                masterGainNode = audioContext.createGain();
-                masterGainNode.gain.value = 1.0;
-                
-                // TỐI ƯU: KẾT HỢP boost và gain thành 1 node để giảm latency
-                // Boost 5x (tăng từ 2.5x) nhưng có limiter để không rè
-                // Sử dụng setValueAtTime thay vì value để giảm latency
-                micGainNode = audioContext.createGain();
-                let currentTime = audioContext.currentTime;
-                micGainNode.gain.setValueAtTime(5.0, currentTime); // Boost 5 lần
-                
-                // Tạo limiter để tránh rè khi boost mic tối đa
-                // PHÂN TÍCH: DynamicsCompressor có thể gây delay (~0.5-2ms)
-                // TỐI ƯU: Giảm attack/release xuống mức tối thiểu để giảm delay
-                micLimiter = audioContext.createDynamicsCompressor();
-                micLimiter.threshold.value = -1; // Threshold -1dB
-                micLimiter.knee.value = 0; // Hard knee
-                micLimiter.ratio.value = 20; // Ratio cao để hoạt động như limiter
-                micLimiter.attack.value = 0.0001; // Attack cực nhanh (0.1ms) - không thể = 0
-                micLimiter.release.value = 0.001; // Release cực nhanh (1ms) - không thể = 0
-                
-                // Tối ưu: Đảm bảo gain node không thêm delay
-                micGainNode.gain.setValueAtTime(5.0, audioContext.currentTime);
-                
-                // Tạo nodes cho reverb (dry và wet)
-                dryGainNode = audioContext.createGain();
-                reverbGainNode = audioContext.createGain();
-                
-                // Tạo reverb convolver với impulse response dài hơn để vang hay
-                reverbConvolver = audioContext.createConvolver();
-                // Tăng duration lên 1.5s và decay 1.2s để reverb vang hay hơn
-                reverbImpulseResponse = createReverbImpulse(audioContext, 1.5, 1.2, false);
-                reverbConvolver.buffer = reverbImpulseResponse;
-                reverbConvolver.normalize = true;
-                
-                // Thêm low-pass filter để làm mềm reverb (tần số thấp hơn để ấm hơn)
-                reverbLowpass = audioContext.createBiquadFilter();
-                reverbLowpass.type = 'lowpass';
-                reverbLowpass.frequency.value = 6000; // Giảm xuống để ấm hơn
-                reverbLowpass.Q.value = 0.7; // Tăng Q lên một chút để mượt hơn
-                
-                // TỐI ƯU: Kết nối mic với đường dẫn ngắn nhất
-                // MỤC TIÊU: Tăng độ nhạy mic + Giảm trễ mic
-                // Kết nối: Mic -> Gain -> Output (hoặc qua Limiter nếu volume cao)
-                // Limiter sẽ được kết nối động trong updateMicVolume() và updateReverb()
+                // Sửa: Kết nối ban đầu: Mic -> Destination (đường dẫn ngắn nhất)
+                // Cập nhật sau trong updateMicVolume và updateReverb
                 microphoneSource.connect(micGainNode);
-                micGainNode.connect(audioContext.destination); // Bypass limiter ban đầu để giảm delay
-                
-                // Tối ưu: Đảm bảo không có delay không cần thiết
-                // Sử dụng setValueAtTime với currentTime để giảm latency
-                const initTime = audioContext.currentTime;
-                micGainNode.gain.setValueAtTime(5.0, initTime);
-                
-                // TỐI ƯU TRIỆT ĐỂ: Đảm bảo audio context luôn ở trạng thái running
-                // Resume ngay để giảm latency xuống mức thấp nhất
-                // Đảm bảo baseLatency và outputLatency ở mức tối thiểu
-                if (audioContext.state !== 'running') {
-                    await audioContext.resume();
-                }
-                
-                // Tối ưu: Đảm bảo context không bị suspend
-                // Một số trình duyệt có thể suspend context khi không active
-                try {
-                    // Force resume để đảm bảo latency thấp nhất
-                    if (audioContext.state === 'suspended' || audioContext.state === 'interrupted') {
-                        await audioContext.resume();
-                    }
-                } catch (e) {
-                    // Không hỗ trợ, không sao
-                }
-                
-                // Master và Dry node chỉ dùng khi có reverb (sẽ connect/disconnect động)
-                // Reverb chain - CHỈ kết nối khi cần (sẽ connect/disconnect động)
-                
-                // Đảm bảo dry signal full volume ban đầu - dùng setValueAtTime để giảm latency
-                currentTime = audioContext.currentTime;
-                dryGainNode.gain.setValueAtTime(1.0, currentTime);
-                reverbGainNode.gain.setValueAtTime(0, currentTime); // Tắt reverb ban đầu
-                
-                // Tối ưu: Đảm bảo audio context chạy ở tốc độ cao nhất
-                // Resume ngay để đảm bảo context active và giảm latency
-                if (audioContext.state !== 'running') {
-                    await audioContext.resume();
-                }
-                
-                // Tối ưu: Giảm outputLatency bằng cách đảm bảo context luôn running
-                // Một số trình duyệt tự động tối ưu khi context running
-                try {
-                    // Đảm bảo context không bị suspend
-                    if (audioContext.state === 'suspended') {
-                        await audioContext.resume();
-                    }
-                } catch (e) {
-                    // Không hỗ trợ, không sao
-                }
-                
+                micGainNode.connect(audioContext.destination);
+
                 isMicActive = true;
                 updateMicStatus();
+                // Áp dụng các giá trị slider đã lưu
                 updateMicVolume(document.getElementById('micVolumeSlider').value);
                 updateReverb(document.getElementById('reverbSlider').value);
                 
-                
+                // Force resume lần nữa
+                if (audioContext.state !== 'running') {
+                    await audioContext.resume();
+                }
                 
                 return true;
             } catch (error) {
@@ -1194,7 +1069,19 @@
                 microphoneStream = null;
             }
             if (microphoneSource) {
-                microphoneSource.disconnect();
+                // Sửa: Ngắt kết nối tất cả các node nếu có
+                try {
+                    microphoneSource.disconnect();
+                    micGainNode.disconnect();
+                    masterGainNode.disconnect();
+                    micLimiter.disconnect();
+                    dryGainNode.disconnect();
+                    reverbConvolver.disconnect();
+                    reverbLowpass.disconnect();
+                    reverbGainNode.disconnect();
+                } catch (e) {
+                    // Không connect, không sao
+                }
                 microphoneSource = null;
             }
             isMicActive = false;
@@ -1231,119 +1118,94 @@
             }
         }
 
-        // Cập nhật âm lượng mic (với boost tối đa đã tích hợp)
+        // Cập nhật âm lượng mic
         function updateMicVolume(value) {
             document.getElementById('micVolumeValue').textContent = value + '%';
             localStorage.setItem('micVolume', value);
             
-            // Áp dụng âm lượng cho mic nếu đã bật
-            // Boost 5x đã tích hợp vào micGainNode, chỉ cần nhân với volume
-            // TỐI ƯU: Sử dụng setValueAtTime với currentTime để giảm latency
             if (micGainNode && isMicActive && audioContext) {
                 const volume = parseFloat(value) / 100;
                 const currentTime = audioContext.currentTime;
-                const totalGain = volume * 5.0; // Boost 5x + volume slider
+                // Boost 5x đã có trong initAudioContext
+                const totalGain = volume * 5.0; 
                 
-                // setValueAtTime thay vì setTargetAtTime để giảm latency (không có smoothing delay)
                 micGainNode.gain.setValueAtTime(totalGain, currentTime);
+
+                // Quan trọng: Gọi updateReverb để xử lý lại kết nối Limiter/Reverb
+                updateReverb(document.getElementById('reverbSlider').value);
             }
         }
 
-        // Cập nhật độ vang (Reverb/Ambient) - Tối ưu để giảm latency
+        // Sửa Logic: Cập nhật độ vang (Reverb/Ambient) - Tối ưu để giảm latency
         function updateReverb(value) {
             document.getElementById('reverbValue').textContent = value + '%';
             localStorage.setItem('reverb', value);
             
-            // Áp dụng reverb nếu mic đã bật
-            if (micGainNode && dryGainNode && reverbGainNode && reverbConvolver && reverbLowpass && isMicActive) {
-                const reverbAmount = parseFloat(value) / 100;
+            if (!micGainNode || !isMicActive || !audioContext) {
+                return;
+            }
+            
+            const reverbAmount = parseFloat(value) / 100;
+            const micVolume = parseFloat(document.getElementById('micVolumeSlider').value) || 100;
+            const volume = micVolume / 100;
+            const currentTime = audioContext.currentTime;
+
+            // 1. Ngắt kết nối tất cả các đường dẫn cũ từ micGainNode, masterGainNode, và micLimiter
+            try {
+                micGainNode.disconnect();
+                dryGainNode.disconnect();
+                reverbConvolver.disconnect();
+                reverbLowpass.disconnect();
+                reverbGainNode.disconnect();
+                masterGainNode.disconnect();
+                micLimiter.disconnect();
+            } catch (e) {
+                // Không sao nếu chưa connect
+            }
+            
+            // 2. Thiết lập đường dẫn dựa trên Reverb Amount
+            if (reverbAmount === 0) {
+                // A. Không Reverb: ĐƯỜNG DẪN NGẮN NHẤT
                 
-                // Khi reverb = 0, ĐƯỜNG DẪN CỰC KỲ NGẮN
-                // TỐI ƯU: Bypass limiter khi volume < 80% để giảm delay
-                if (reverbAmount === 0) {
-                    // Disconnect tất cả các node không cần thiết để giảm latency
-                    try {
-                        micGainNode.disconnect();
-                        micLimiter.disconnect(audioContext.destination);
-                    } catch (e) {
-                        // Có thể chưa connect, không sao
-                    }
-                    
-                    // Disconnect reverb chain hoàn toàn
-                    try {
-                        reverbConvolver.disconnect();
-                        reverbLowpass.disconnect();
-                        reverbGainNode.disconnect();
-                        dryGainNode.disconnect();
-                        masterGainNode.disconnect();
-                    } catch (e) {
-                        // Đã disconnect rồi, không sao
-                    }
-                    
-                    // Kiểm tra volume để quyết định có dùng limiter không
-                    const micVolume = parseFloat(document.getElementById('micVolumeSlider').value) || 100;
-                    const volume = micVolume / 100;
-                    
-                    if (volume >= 0.8) {
-                        // Volume cao: dùng limiter để tránh rè
-                        micGainNode.connect(micLimiter);
-                        micLimiter.connect(audioContext.destination);
-                    } else {
-                        // Volume thấp: bypass limiter để giảm delay - ĐƯỜNG DẪN NGẮN NHẤT
-                        micGainNode.connect(audioContext.destination);
-                    }
-                    
-                    const currentTime = audioContext.currentTime;
-                    reverbGainNode.gain.setValueAtTime(0, currentTime);
+                if (volume >= 0.8) {
+                    // Volume cao: Mic -> Gain -> Limiter -> Destination
+                    micGainNode.connect(micLimiter);
+                    micLimiter.connect(audioContext.destination);
                 } else {
-                    // Khi có reverb, sử dụng masterGainNode để trộn dry và wet
-                    // Disconnect tất cả kết nối cũ
-                    try {
-                        micGainNode.disconnect();
-                        micLimiter.disconnect(audioContext.destination);
-                    } catch (e) {
-                        // Có thể chưa connect, không sao
-                    }
-                    
-                    // Kết nối: micGainNode -> dryGainNode -> masterGainNode
-                    micGainNode.connect(dryGainNode);
-                    
-                    // Kiểm tra volume để quyết định có dùng limiter không
-                    const micVolume = parseFloat(document.getElementById('micVolumeSlider').value) || 100;
-                    const volume = micVolume / 100;
-                    
-                    // Kết nối phần còn lại
-                    try {
-                        dryGainNode.connect(masterGainNode);
-                        if (volume >= 0.8) {
-                            // Volume cao: dùng limiter để tránh rè
-                            masterGainNode.connect(micLimiter);
-                            micLimiter.connect(audioContext.destination);
-                        } else {
-                            // Volume thấp: bypass limiter để giảm delay
-                            masterGainNode.connect(audioContext.destination);
-                        }
-                    } catch (e) {
-                        // Đã connect rồi, không sao
-                    }
-                    
-                    // Connect reverb chain
-                    try {
-                        micGainNode.connect(reverbConvolver);
-                        reverbConvolver.connect(reverbLowpass);
-                        reverbLowpass.connect(reverbGainNode);
-                        reverbGainNode.connect(masterGainNode);
-                    } catch (e) {
-                        // Đã connect rồi, không sao
-                    }
-                    
-                    // Dry signal (âm thanh gốc) - giảm khi tăng reverb để reverb nổi bật
-                    // Sử dụng setValueAtTime để giảm latency
-                    const currentTime = audioContext.currentTime;
-                    dryGainNode.gain.setValueAtTime(1 - (reverbAmount * 0.25), currentTime); // Giảm để reverb vang hơn
-                    // Wet signal (âm thanh có reverb) - tăng mạnh để vang hay
-                    reverbGainNode.gain.setValueAtTime(reverbAmount * 0.8, currentTime); // Tăng từ 0.5 lên 0.8 để vang hay
+                    // Volume thấp: Mic -> Gain -> Destination (bypass Limiter)
+                    micGainNode.connect(audioContext.destination);
                 }
+                
+                // Đảm bảo Reverb Gain tắt
+                reverbGainNode.gain.setValueAtTime(0, currentTime);
+            } else {
+                // B. Có Reverb: Mic -> Dry/Wet -> Master -> Limiter/Destination
+                
+                // Kết nối Reverb Chain
+                micGainNode.connect(dryGainNode); // Dry (Mic gốc)
+                micGainNode.connect(reverbConvolver); // Wet (Mic qua Reverb)
+                
+                reverbConvolver.connect(reverbLowpass);
+                reverbLowpass.connect(reverbGainNode);
+                
+                dryGainNode.connect(masterGainNode);
+                reverbGainNode.connect(masterGainNode);
+
+                // Kết nối Master -> Destination (có Limiter nếu volume cao)
+                if (volume >= 0.8) {
+                    // Volume cao: Master -> Limiter -> Destination
+                    masterGainNode.connect(micLimiter);
+                    micLimiter.connect(audioContext.destination);
+                } else {
+                    // Volume thấp: Master -> Destination (bypass Limiter)
+                    masterGainNode.connect(audioContext.destination);
+                }
+                
+                // Thiết lập Dry/Wet Gain
+                // Dry: Giảm nhẹ khi tăng reverb (để reverb vang hơn)
+                dryGainNode.gain.setValueAtTime(1 - (reverbAmount * 0.25), currentTime); 
+                // Wet: Tăng mạnh
+                reverbGainNode.gain.setValueAtTime(reverbAmount * 0.8, currentTime); 
             }
         }
 
