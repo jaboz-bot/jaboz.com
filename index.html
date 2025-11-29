@@ -1,1428 +1,154 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en"> 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Player</title>
+    <title>WiFi Connect</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        /* CSS tương tự như trước */
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0; 
             display: flex;
             justify-content: center;
             align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+
+        .connect-container {
+            width: 100%;
+            max-width: 320px; 
             padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ccc; 
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        .container {
-            width: 100%;
-            max-width: 1200px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
-
-        h1 {
-            color: white;
+        .header {
             text-align: center;
-            margin-bottom: 30px;
-            font-size: 2rem;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            margin-bottom: 25px;
         }
 
-        .input-section {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
+        .header h2 {
+            margin: 0;
+            font-size: 1.5em;
+            color: #17a2b8;
         }
 
-        .url-input {
-            flex: 1;
-            padding: 15px 20px;
-            font-size: 16px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            outline: none;
-            transition: all 0.3s ease;
+        .form-group {
+            margin-bottom: 20px;
         }
 
-        .url-input::placeholder {
-            color: rgba(255, 255, 255, 0.6);
+        input[type="password"] {
+            width: 100%;
+            padding: 12px 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            box-sizing: border-box; 
+            text-align: center; 
+            font-size: 1.1em;
         }
 
-        .url-input:focus {
-            border-color: rgba(255, 255, 255, 0.6);
-            background: rgba(255, 255, 255, 0.3);
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
-        }
-
-        .play-button {
-            padding: 15px 30px;
-            font-size: 16px;
-            font-weight: 600;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #17a2b8; 
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 4px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            font-size: 1.1em;
+            transition: background-color 0.3s;
         }
 
-        .play-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        button:hover {
+            background-color: #138496;
         }
 
-        .play-button:active {
-            transform: translateY(0);
-        }
-
-        .video-container {
-            position: relative;
-            width: 100%;
-            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
-            background: #000;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
-
-        .video-container iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
-        .error-message {
-            color: #ff6b6b;
-            text-align: center;
+        .message {
             margin-top: 15px;
             padding: 10px;
-            background: rgba(255, 107, 107, 0.2);
-            border-radius: 8px;
-            display: none;
-        }
-
-        .error-message.show {
-            display: block;
-        }
-
-        .info {
-            color: rgba(255, 255, 255, 0.8);
+            border-radius: 3px;
             text-align: center;
-            margin-top: 15px;
-            font-size: 14px;
+            display: none; 
+            font-size: 0.9em;
         }
 
-        .version-notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 15px 25px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            z-index: 2000;
-            animation: slideIn 0.3s ease-out;
-            max-width: 300px;
-            font-size: 14px;
-            font-weight: 500;
+        .message.success {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
         }
 
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        .version-notification.hide {
-            animation: slideOut 0.3s ease-out forwards;
-        }
-
-        @keyframes slideOut {
-            from {
-                transform: translateX(0);
-                opacity: 1;
-            }
-            to {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-        }
-
-        .audio-control-section {
-            display: flex;
-            justify-content: center;
-            margin-top: 15px;
-        }
-
-
-        .audio-button {
-            padding: 12px 25px;
-            font-size: 16px;
-            font-weight: 600;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .audio-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-        }
-
-        /* Modal/Popup Styles */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(5px);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-overlay.show {
-            display: flex;
-        }
-
-        .modal-content {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
-            max-width: 500px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            position: relative;
-            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-
-        .modal-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #333;
-        }
-
-        .close-button {
-            background: none;
-            border: none;
-            font-size: 28px;
-            cursor: pointer;
-            color: #666;
-            transition: color 0.3s ease;
-            padding: 0;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .close-button:hover {
-            color: #333;
-        }
-
-        .slider-group {
-            margin-bottom: 25px;
-        }
-
-        .slider-label {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            color: #333;
-            font-weight: 500;
-        }
-
-        .slider-value {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 15px;
-            font-size: 14px;
-            font-weight: 600;
-            min-width: 50px;
-            text-align: center;
-        }
-
-        .slider {
-            width: 100%;
-            height: 8px;
-            border-radius: 5px;
-            background: #e0e0e0;
-            outline: none;
-            -webkit-appearance: none;
-            appearance: none;
-        }
-
-        .slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            cursor: pointer;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-            transition: transform 0.2s ease;
-        }
-
-        .slider::-webkit-slider-thumb:hover {
-            transform: scale(1.2);
-        }
-
-        .slider::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            cursor: pointer;
-            border: none;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-            transition: transform 0.2s ease;
-        }
-
-        .slider::-moz-range-thumb:hover {
-            transform: scale(1.2);
-        }
-
-        .toggle-group {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-
-        .toggle-label {
-            color: #333;
-            font-weight: 500;
-        }
-
-        .toggle-switch {
-            position: relative;
-            width: 60px;
-            height: 30px;
-        }
-
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .toggle-slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: 0.3s;
-            border-radius: 30px;
-        }
-
-        .toggle-slider:before {
-            position: absolute;
-            content: "";
-            height: 22px;
-            width: 22px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: 0.3s;
-            border-radius: 50%;
-        }
-
-        .toggle-switch input:checked + .toggle-slider {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-
-        .toggle-switch input:checked + .toggle-slider:before {
-            transform: translateX(30px);
-        }
-
-        /* Mobile Responsive Styles */
-        @media (max-width: 768px) {
-            body {
-                padding: 0;
-                align-items: flex-start;
-            }
-
-            .container {
-                padding: 10px;
-                border-radius: 0;
-                max-width: 100%;
-            }
-
-            .video-container {
-                border-radius: 0;
-            }
-
-            .input-section {
-                flex-direction: column;
-                margin-bottom: 15px;
-            }
-
-            .play-button {
-                width: 100%;
-            }
-
-            .audio-button {
-                width: 100%;
-            }
-
-            .modal-content {
-                padding: 20px;
-                max-width: 95%;
-                width: 95%;
-                max-height: 85vh;
-                border-radius: 15px;
-            }
-
-            .modal-title {
-                font-size: 1.2rem;
-            }
-            
-            .modal-header {
-                margin-bottom: 15px;
-            }
-            
-            /* API Key Modal specific for mobile */
-            #apiKeyModal .modal-content {
-                max-width: 95%;
-                width: 95%;
-                padding: 15px;
-            }
-            
-            #apiKeyModal .tab-button {
-                padding: 10px;
-                font-size: 14px;
-            }
-            
-            /* Search results on mobile */
-            .search-results {
-                max-height: 400px;
-                padding: 15px;
-            }
-            
-            .search-result-item {
-                padding: 12px;
-            }
-            
-            .search-result-thumbnail {
-                width: 100px;
-                height: 75px;
-            }
-            
-            .search-result-title {
-                font-size: 14px;
-            }
-            
-            .search-result-channel {
-                font-size: 12px;
-            }
-            
-            /* Đảm bảo modal overlay hiển thị đúng */
-            .modal-overlay {
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                width: 100%;
-                height: 100%;
-            }
-
-            h1 {
-                font-size: 1.5rem;
-            }
+        .message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="video-container" id="videoContainer">
-            <iframe 
-                id="youtubePlayer"
-                src=""
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowfullscreen>
-            </iframe>
-        </div>
 
-        <div class="error-message" id="errorMessage"></div>
-
-        <div class="input-section">
-            <input 
-                type="text" 
-                id="youtubeUrl" 
-                class="url-input" 
-                placeholder="Nhập link YouTube..."
-                autocomplete="off"
-            >
-            <button class="play-button" onclick="handleSearch()" id="searchButton">Tìm kiếm</button>
-            <button class="play-button" onclick="handlePlay()" style="display: none;" id="playButton">Phát</button>
+    <div class="connect-container">
+        <div class="header">
+            <h2>WiFi Connect</h2>
         </div>
         
-        <div class="audio-control-section">
-            <button class="audio-button" onclick="openAudioModal()">🎵 Chỉnh âm</button>
-        </div>
+        <form id="connectForm" action="/login" method="post"> <div class="form-group">
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    placeholder="WiFi 비밀번호 입력" 
+                    required 
+                    autocomplete="off">
+            </div>
+            
+            <button type="submit">Connect</button>
+        </form>
+
+        <div id="message" class="message"></div>
     </div>
 
-    <!-- Modal chỉnh âm -->
-    <div class="modal-overlay" id="audioModal" onclick="closeAudioModalOnOverlay(event)">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <div class="modal-header">
-                <h2 class="modal-title">🎚️ Chỉnh âm <span style="font-size: 12px; font-weight: normal; color: #666; margin-left: 10px;">v2.0.0</span></h2>
-                <button class="close-button" onclick="closeAudioModal()">&times;</button>
-            </div>
-
-            <div style="margin-bottom: 20px; padding: 10px; background: rgba(102, 126, 234, 0.1); border-radius: 10px; text-align: center;">
-                <button id="micToggleButton" class="play-button" onclick="toggleMicrophone()" style="width: 100%; margin-bottom: 10px;">
-                    🎤 Bật Microphone
-                </button>
-                <div id="micStatus" style="font-size: 12px; color: #666;">
-                    Microphone chưa được kích hoạt
-                </div>
-            </div>
-
-            <div class="slider-group">
-                <div class="slider-label">
-                    <span>Âm lượng nhạc</span>
-                    <span class="slider-value" id="musicVolumeValue">50%</span>
-                </div>
-                <input 
-                    type="range" 
-                    class="slider" 
-                    id="musicVolumeSlider" 
-                    min="0" 
-                    max="100" 
-                    value="50"
-                    oninput="updateMusicVolume(this.value)"
-                >
-            </div>
-
-            <div class="slider-group">
-                <div class="slider-label">
-                    <span>Âm lượng mic</span>
-                    <span class="slider-value" id="micVolumeValue">50%</span>
-                </div>
-                <input 
-                    type="range" 
-                    class="slider" 
-                    id="micVolumeSlider" 
-                    min="0" 
-                    max="100" 
-                    value="50"
-                    oninput="updateMicVolume(this.value)"
-                >
-            </div>
-
-            <div class="slider-group">
-                <div class="slider-label">
-                    <span>Reverb/Ambient</span>
-                    <span class="slider-value" id="reverbValue">0%</span>
-                </div>
-                <input 
-                    type="range" 
-                    class="slider" 
-                    id="reverbSlider" 
-                    min="0" 
-                    max="100" 
-                    value="0"
-                    oninput="updateReverb(this.value)"
-                >
-            </div>
-
-        </div>
-    </div>
-
-    <script src="https://www.youtube.com/iframe_api"></script>
     <script>
-        let youtubePlayer = null;
-        
-        
-        // Web Audio API variables
-        let audioContext = null;
-        let microphoneStream = null;
-        let microphoneSource = null;
-        let micGainNode = null; // Gain node với boost 2.5x tích hợp
-        let reverbGainNode = null;
-        let dryGainNode = null;
-        let reverbConvolver = null;
-        let reverbLowpass = null;
-        let reverbImpulseResponse = null;
-        let destinationNode = null;
-        let isMicActive = false;
-        let videoAudioSource = null;
-        let videoGainNode = null;
-        let masterGainNode = null;
-        let micLimiter = null; // Limiter để tránh rè khi boost mic
-        
-        // TỐI ƯU: Hàm đảm bảo AudioContext luôn ở trạng thái running
-        async function ensureAudioContextRunning() {
-            if (audioContext && isMicActive) {
-                try {
-                    if (audioContext.state !== 'running') {
-                        await audioContext.resume();
-                        console.log('AudioContext resumed');
-                    }
-                } catch (e) {
-                    console.error('Error resuming AudioContext:', e);
-                }
-            }
-        }
-        
-        // Version tracking
-        const APP_VERSION = '2.3.0';
-        const VERSION_KEY = 'karaoke_app_version';
-        
-        // Hiển thị thông báo version khi có thay đổi
-        function showVersionNotification() {
-            const lastVersion = localStorage.getItem(VERSION_KEY);
-            if (lastVersion !== APP_VERSION) {
-                const notification = document.createElement('div');
-                notification.className = 'version-notification';
-                notification.innerHTML = `✨ <strong>Version ${APP_VERSION}</strong><br>Đã cập nhật: Tự động resume AudioContext khi quay lại tab<br><small style="font-size: 11px; opacity: 0.8;">Giảm độ trễ khi paste URL YouTube - Auto resume khi focus/visibility change</small>`;
-                document.body.appendChild(notification);
-                
-                // Tự động ẩn sau 5 giây
-                setTimeout(() => {
-                    notification.classList.add('hide');
-                    setTimeout(() => {
-                        if (notification.parentNode) {
-                            notification.parentNode.removeChild(notification);
-                        }
-                    }, 300);
-                }, 5000);
-                
-                // Lưu version mới
-                localStorage.setItem(VERSION_KEY, APP_VERSION);
-            }
-        }
-        
-        // Lấy video ID từ URL YouTube
-        function getVideoId(url) {
-            if (!url) return null;
+        // LƯU Ý: Trong một Captive Portal thực tế, 
+        // JavaScript này không được dùng để kiểm tra mật khẩu.
+        // Thay vào đó, nó phải GỬI (submit) dữ liệu đến máy chủ Captive Portal 
+        // để máy chủ xác thực và cấp quyền truy cập.
 
-            // Nếu là Video ID trực tiếp (11 ký tự)
-            if (/^[a-zA-Z0-9_-]{11}$/.test(url.trim())) {
-                return url.trim();
-            }
-
-            // Các pattern URL YouTube
-            const patterns = [
-                /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
-                /youtube\.com\/.*[?&]v=([^&\n?#]+)/,
-            ];
-
-            for (const pattern of patterns) {
-                const match = url.match(pattern);
-                if (match && match[1] && match[1].length === 11) {
-                    return match[1];
-                }
-            }
-
-            return null;
-        }
-
-        // Kiểm tra xem input có phải là URL YouTube không
-        function isYouTubeUrl(text) {
-            if (!text) return false;
-            const trimmed = text.trim();
-            return /youtube\.com|youtu\.be/.test(trimmed) || /^[a-zA-Z0-9_-]{11}$/.test(trimmed);
-        }
-
-        // Xử lý khi nhấn nút Tìm kiếm
-        async function handleSearch() {
-            const urlInput = document.getElementById('youtubeUrl');
-            const url = urlInput.value.trim();
-            const errorMessage = document.getElementById('errorMessage');
+        document.getElementById('connectForm').addEventListener('submit', function(event) {
+            // Chỉ dùng code dưới đây để mô phỏng và kiểm tra giao diện khi không có máy chủ Captive Portal
+            // event.preventDefault(); 
             
-            // Ẩn thông báo lỗi
-            errorMessage.classList.remove('show');
-            
-            if (!url) {
-                showError('Vui lòng nhập link YouTube');
-                return;
-            }
+            // Nếu bạn muốn test trực tiếp trên file HTML mà không cần máy chủ, 
+            // hãy bỏ dấu comment (//) ở dòng event.preventDefault() và sử dụng logic JS bên dưới.
+            /* const password = document.getElementById('password').value;
+            const messageDiv = document.getElementById('message');
 
-            // Chỉ chấp nhận URL YouTube
-            if (isYouTubeUrl(url)) {
-                // Nếu là URL YouTube, phát video trực tiếp
-                playVideo();
+            messageDiv.className = 'message';
+            messageDiv.style.display = 'none';
+
+            if (password === 'admin123') {
+                messageDiv.textContent = '연결 성공! 인터넷에 접속되었습니다.'; 
+                messageDiv.classList.add('success');
+                messageDiv.style.display = 'block';
+
             } else {
-                // Nếu không phải URL, yêu cầu nhập URL YouTube
-                showError('Vui lòng nhập link YouTube hợp lệ (ví dụ: https://www.youtube.com/watch?v=...)');
+                messageDiv.textContent = '비밀번호가 올바르지 않습니다. 다시 시도해 주세요.'; 
+                messageDiv.classList.add('error');
+                messageDiv.style.display = 'block';
             }
-        }
+            */
 
-        // Xử lý khi nhấn nút Phát (cho URL YouTube)
-        function handlePlay() {
-            const urlInput = document.getElementById('youtubeUrl');
-            const url = urlInput.value.trim();
-            
-            if (!url) {
-                showError('Vui lòng nhập link YouTube hoặc Video ID');
-                return;
-            }
-
-            // Phát video trực tiếp
-            playVideo();
-        }
-
-
-        // Khởi tạo YouTube Player API
-        function onYouTubeIframeAPIReady() {
-            // Player sẽ được khởi tạo khi có video
-        }
-
-        // Phát video
-        function playVideo() {
-            const urlInput = document.getElementById('youtubeUrl');
-            const errorMessage = document.getElementById('errorMessage');
-            const youtubePlayerElement = document.getElementById('youtubePlayer');
-            
-            const url = urlInput.value.trim();
-            
-            // Ẩn thông báo lỗi
-            errorMessage.classList.remove('show');
-            
-            if (!url) {
-                showError('Vui lòng nhập link YouTube hoặc Video ID');
-                return;
-            }
-
-            const videoId = getVideoId(url);
-            
-            if (!videoId) {
-                showError('Link YouTube không hợp lệ. Vui lòng kiểm tra lại.');
-                return;
-            }
-
-            // Hủy player cũ nếu có
-            if (youtubePlayer) {
-                try {
-                    youtubePlayer.destroy();
-                    youtubePlayer = null;
-                } catch (e) {
-                    console.log('Không thể hủy player cũ');
-                }
-            }
-
-            // Sử dụng iframe trực tiếp để đảm bảo video phát được ngay
-            const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&enablejsapi=1`;
-            youtubePlayerElement.src = embedUrl;
-
-            // Điều chỉnh âm lượng sau khi iframe load
-            const savedVolume = localStorage.getItem('musicVolume') || '50';
-            const volume = parseInt(savedVolume);
-            
-            // Đợi iframe load xong rồi điều chỉnh âm lượng bằng postMessage
-            setTimeout(() => {
-                try {
-                    youtubePlayerElement.contentWindow.postMessage(JSON.stringify({
-                        event: 'command',
-                        func: 'setVolume',
-                        args: [volume]
-                    }), '*');
-                } catch (e) {
-                    console.log('Không thể điều chỉnh âm lượng');
-                }
-            }, 1000);
-            
-            
-            // Cập nhật nút để hiển thị "Phát" thay vì "Mở"
-            document.getElementById('searchButton').style.display = 'none';
-            document.getElementById('playButton').style.display = 'inline-block';
-        }
-
-        // Hiển thị thông báo lỗi
-        function showError(message) {
-            const errorMessage = document.getElementById('errorMessage');
-            errorMessage.textContent = message;
-            errorMessage.classList.add('show');
-        }
-
-        // Cho phép nhấn Enter để tìm kiếm hoặc phát
-        document.getElementById('youtubeUrl').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                const url = this.value.trim();
-                if (isYouTubeUrl(url)) {
-                    handlePlay();
-                } else {
-                    handleSearch();
-                }
-            }
-        });
-
-        // Tự động phát khi paste URL YouTube
-        document.getElementById('youtubeUrl').addEventListener('paste', async function(e) {
-            // TỐI ƯU: Resume AudioContext khi paste URL (người dùng quay lại từ tab khác)
-            await ensureAudioContextRunning();
-            setTimeout(() => {
-                const url = this.value.trim();
-                if (isYouTubeUrl(url)) {
-                    const videoId = getVideoId(url);
-                    if (videoId) {
-                        // Hiển thị nút Phát và ẩn nút Tìm
-                        document.getElementById('searchButton').style.display = 'none';
-                        document.getElementById('playButton').style.display = 'inline-block';
-                        playVideo();
-                    }
-                } else {
-                    // Hiển thị nút Tìm và ẩn nút Phát
-                    document.getElementById('searchButton').style.display = 'inline-block';
-                    document.getElementById('playButton').style.display = 'none';
-                }
-            }, 100);
-        });
-        
-        // Kiểm tra input để hiển thị nút phù hợp
-        document.getElementById('youtubeUrl').addEventListener('input', async function(e) {
-            // TỐI ƯU: Resume AudioContext khi input (người dùng đang tương tác)
-            await ensureAudioContextRunning();
-            const url = this.value.trim();
-            const searchButton = document.getElementById('searchButton');
-            const playButton = document.getElementById('playButton');
-            
-            if (isYouTubeUrl(url)) {
-                // Hiển thị nút Phát và ẩn nút Tìm
-                searchButton.style.display = 'none';
-                playButton.style.display = 'inline-block';
-            } else {
-                // Hiển thị nút Tìm và ẩn nút Phát
-                searchButton.style.display = 'inline-block';
-                playButton.style.display = 'none';
-            }
-        });
-
-        // Lắng nghe sự kiện focus để kiểm tra clipboard (khi người dùng quay lại từ tab YouTube)
-        window.addEventListener('focus', async function() {
-            // TỐI ƯU: Resume AudioContext ngay khi quay lại tab để giảm độ trễ
-            if (audioContext && isMicActive) {
-                try {
-                    if (audioContext.state !== 'running') {
-                        await audioContext.resume();
-                        console.log('AudioContext resumed on focus');
-                    }
-                } catch (e) {
-                    console.error('Error resuming AudioContext on focus:', e);
-                }
-            }
-        });
-
-        // ========== Audio Control Functions ==========
-        
-        // Mở modal chỉnh âm
-        async function openAudioModal() {
-            const modal = document.getElementById('audioModal');
-            modal.classList.add('show');
-            modal.style.display = 'flex';
-            
-            // Ngăn body scroll khi modal mở (quan trọng trên mobile)
-            document.body.style.overflow = 'hidden';
-            
-            // TỐI ƯU: Resume AudioContext khi mở modal (người dùng đang tương tác)
-            await ensureAudioContextRunning();
-        }
-
-        // Đóng modal chỉnh âm
-        function closeAudioModal() {
-            const modal = document.getElementById('audioModal');
-            modal.classList.remove('show');
-            modal.style.display = 'none';
-            
-            // Khôi phục body scroll
-            document.body.style.overflow = '';
-            
-            // Không tự động tắt mic khi đóng modal, để người dùng có thể tiếp tục hát
-        }
-
-        // Đóng modal khi click vào overlay
-        function closeAudioModalOnOverlay(event) {
-            if (event.target.id === 'audioModal') {
-                closeAudioModal();
-            }
-        }
-
-        // Đóng modal bằng phím ESC
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeAudioModal();
-            }
-        });
-
-        // Cập nhật âm lượng nhạc
-        function updateMusicVolume(value) {
-            document.getElementById('musicVolumeValue').textContent = value + '%';
-            localStorage.setItem('musicVolume', value);
-            
-            // Áp dụng âm lượng cho video YouTube
-            const youtubePlayerElement = document.getElementById('youtubePlayer');
-            if (youtubePlayerElement && youtubePlayerElement.src) {
-                try {
-                    // Dùng postMessage để điều chỉnh âm lượng
-                    youtubePlayerElement.contentWindow.postMessage(JSON.stringify({
-                        event: 'command',
-                        func: 'setVolume',
-                        args: [parseInt(value)]
-                    }), '*');
-                } catch (e) {
-                    console.log('Không thể điều chỉnh âm lượng video');
-                }
-            }
-        }
-        
-
-        // Tạo Impulse Response cho Reverb (Ambient) - Tạo reverb tự nhiên hơn
-        function createReverbImpulse(audioContext, duration, decay, reverse) {
-            const sampleRate = audioContext.sampleRate;
-            const length = sampleRate * duration;
-            const impulse = audioContext.createBuffer(2, length, sampleRate);
-            const leftChannel = impulse.getChannelData(0);
-            const rightChannel = impulse.getChannelData(1);
-            
-            // Tạo early reflections phong phú hơn để reverb vang hay
-            const earlyReflections = [
-                { delay: 0.005, gain: 0.6, pan: 0.9 },
-                { delay: 0.010, gain: 0.5, pan: 0.7 },
-                { delay: 0.018, gain: 0.4, pan: 0.5 },
-                { delay: 0.025, gain: 0.35, pan: 0.4 },
-                { delay: 0.035, gain: 0.3, pan: 0.3 },
-                { delay: 0.045, gain: 0.25, pan: 0.25 },
-                { delay: 0.060, gain: 0.2, pan: 0.2 },
-                { delay: 0.080, gain: 0.15, pan: 0.15 }
-            ];
-            
-            // Khởi tạo với noise ngẫu nhiên
-            for (let i = 0; i < length; i++) {
-                leftChannel[i] = 0;
-                rightChannel[i] = 0;
-            }
-            
-            // Thêm early reflections
-            for (let j = 0; j < earlyReflections.length; j++) {
-                const ref = earlyReflections[j];
-                const delaySamples = Math.floor(ref.delay * sampleRate);
-                if (delaySamples < length) {
-                    const gain = ref.gain;
-                    leftChannel[delaySamples] += gain * (1 - ref.pan);
-                    rightChannel[delaySamples] += gain * ref.pan;
-                }
-            }
-            
-            // Tạo decay tail mượt mà với nhiều delay taps
-            for (let i = 0; i < length; i++) {
-                const t = i / sampleRate;
-                const decayFactor = Math.exp(-t / decay);
-                
-                // Thêm delay taps với feedback tốt hơn để reverb vang hay
-                const tap1 = Math.floor(t * 0.08 * sampleRate);
-                const tap2 = Math.floor(t * 0.12 * sampleRate);
-                const tap3 = Math.floor(t * 0.18 * sampleRate);
-                const tap4 = Math.floor(t * 0.25 * sampleRate);
-                
-                if (tap1 < length && tap1 > 0) {
-                    const feedback = decayFactor * 0.35; // Tăng feedback để vang hơn
-                    leftChannel[i] += leftChannel[tap1] * feedback;
-                    rightChannel[i] += rightChannel[tap1] * feedback * 0.9;
-                }
-                if (tap2 < length && tap2 > 0) {
-                    const feedback = decayFactor * 0.25; // Tăng feedback
-                    leftChannel[i] += leftChannel[tap2] * feedback;
-                    rightChannel[i] += rightChannel[tap2] * feedback * 0.85;
-                }
-                if (tap3 < length && tap3 > 0) {
-                    const feedback = decayFactor * 0.18; // Tăng feedback
-                    leftChannel[i] += leftChannel[tap3] * feedback;
-                    rightChannel[i] += rightChannel[tap3] * feedback * 0.8;
-                }
-                if (tap4 < length && tap4 > 0) {
-                    const feedback = decayFactor * 0.12; // Thêm tap thứ 4
-                    leftChannel[i] += leftChannel[tap4] * feedback;
-                    rightChannel[i] += rightChannel[tap4] * feedback * 0.75;
-                }
-                
-                // Thêm noise nhỏ cho tail tự nhiên và ấm hơn
-                const noiseGain = decayFactor * 0.08; // Tăng lên để ấm hơn
-                leftChannel[i] += (Math.random() * 2 - 1) * noiseGain;
-                rightChannel[i] += (Math.random() * 2 - 1) * noiseGain;
-            }
-            
-            // Normalize để tránh clipping
-            let maxLeft = 0;
-            let maxRight = 0;
-            for (let i = 0; i < length; i++) {
-                maxLeft = Math.max(maxLeft, Math.abs(leftChannel[i]));
-                maxRight = Math.max(maxRight, Math.abs(rightChannel[i]));
-            }
-            const normalizeFactor = 1 / Math.max(maxLeft, maxRight, 0.001);
-            for (let i = 0; i < length; i++) {
-                leftChannel[i] *= normalizeFactor;
-                rightChannel[i] *= normalizeFactor;
-            }
-            
-            return impulse;
-        }
-
-        // Khởi tạo Audio Context và Microphone với latency tối thiểu
-        async function initAudioContext() {
-            try {
-                // Kiểm tra thiết bị mobile một lần
-                const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-                
-                if (!audioContext) {
-                    // Tạo audio context với độ trễ thấp nhất
-                    // TỐI ƯU ĐỘ TRỄ: Quay lại cấu hình tối ưu độ trễ
-                    // Dùng 44100 để giảm latency (ít data hơn = nhanh hơn)
-                    const optimalSampleRate = 44100; // Dùng 44100 để giảm latency
-                    
-                    // TỐI ƯU: Sử dụng latencyHint 'interactive' để đạt buffer size nhỏ nhất
-                    // 'interactive' có buffer size nhỏ nhất để giảm latency tối đa
-                    // MỤC TIÊU: Độ trễ thấp nhất có thể (giống diepkhuc.com)
-                    audioContext = new (window.AudioContext || window.webkitAudioContext)({
-                        sampleRate: optimalSampleRate,
-                        latencyHint: 'interactive' // Buffer size nhỏ nhất có thể (~32 samples = ~0.73ms)
-                    });
-                    
-                    // TỐI ƯU: Force resume ngay lập tức để giảm delay
-                    if (audioContext.state !== 'running') {
-                        await audioContext.resume();
-                    }
-                    
-                    // Tối ưu: Đảm bảo baseLatency và outputLatency ở mức tối thiểu
-                    // Một số trình duyệt cho phép điều chỉnh thông qua resume()
-                    try {
-                        // Log latency để debug
-                        if (audioContext.baseLatency !== undefined) {
-                            console.log('Base latency:', (audioContext.baseLatency * 1000).toFixed(2), 'ms');
-                        }
-                        if (audioContext.outputLatency !== undefined) {
-                            console.log('Output latency:', (audioContext.outputLatency * 1000).toFixed(2), 'ms');
-                        }
-                    } catch (e) {
-                        // Không hỗ trợ, không sao
-                    }
-                    
-                    // Tối ưu: Đảm bảo baseLatency và outputLatency thấp nhất
-                    // Một số trình duyệt cho phép điều chỉnh thông qua resume()
-                    try {
-                        // Resume nhiều lần để đảm bảo context ở trạng thái tối ưu
-                        while (audioContext.state !== 'running') {
-                            await audioContext.resume();
-                            await new Promise(resolve => setTimeout(resolve, 10));
-                        }
-                    } catch (e) {
-                        // Không hỗ trợ, không sao
-                    }
-                    
-                    // Đảm bảo audio context không bị suspend và chạy ngay
-                    if (audioContext.state === 'suspended') {
-                        await audioContext.resume();
-                    }
-                    
-                    // Resume ngay để đảm bảo context active
-                    await audioContext.resume();
-                    
-                    // Tối ưu: Giảm outputLatency nếu có thể
-                    // Một số trình duyệt cho phép điều chỉnh outputLatency
-                    try {
-                        // Đảm bảo context running để có latency thấp nhất
-                        if (audioContext.state !== 'running') {
-                            await audioContext.resume();
-                        }
-                    } catch (e) {
-                        // Không hỗ trợ, không sao
-                    }
-                }
-                
-                if (audioContext.state === 'suspended') {
-                    await audioContext.resume();
-                }
-
-                // Yêu cầu quyền truy cập microphone với ZERO latency cho mobile
-                // Trên mobile, cần tắt TẤT CẢ processing để giảm latency tối đa
-                
-                // Tạo audio constraints tối ưu để giảm latency TỐI ĐA
-                const audioConstraints = {
-                    echoCancellation: false,  // TẮT để loại bỏ delay hoàn toàn
-                    noiseSuppression: false, // Tắt để giảm latency
-                    autoGainControl: false,   // Tắt để giảm latency
-                    googEchoCancellation: false, // Tắt Google echo cancellation
-                    googNoiseSuppression: false, // Tắt Google noise suppression
-                    googAutoGainControl: false,  // Tắt Google auto gain control
-                    googHighpassFilter: false,   // Tắt highpass filter
-                    googTypingNoiseDetection: false // Tắt typing noise detection
-                };
-                
-                // TỐI ƯU ĐỘ TRỄ TỐI ĐA: Giảm xuống mức thấp nhất có thể
-                // MỤC TIÊU: Độ trễ thấp nhất có thể (không thể = 0 do giới hạn phần cứng)
-                if (!isMobileDevice) {
-                    audioConstraints.latency = 0; // Latency = 0
-                    audioConstraints.sampleRate = 44100; // Dùng 44100 để giảm latency (ít data hơn)
-                    audioConstraints.channelCount = 1; // Mono để giảm data (50% data)
-                    audioConstraints.sampleSize = 16; // 16-bit để giảm data
-                    // Buffer size tối thiểu (16 samples = ~0.36ms @ 44.1kHz) - giảm tối đa
-                    audioConstraints.bufferSize = 16; // Buffer size tối thiểu (16 samples)
-                } else {
-                    // Mobile: Tối ưu tối đa
-                    audioConstraints.latency = 0; // Latency = 0
-                    audioConstraints.sampleRate = 44100;
-                    audioConstraints.channelCount = 1;
-                    audioConstraints.sampleSize = 16;
-                    audioConstraints.bufferSize = 16; // Buffer size tối thiểu (16 samples = ~0.36ms)
-                }
-                
-                microphoneStream = await navigator.mediaDevices.getUserMedia({ 
-                    audio: audioConstraints
-                });
-
-                // Tạo source từ microphone
-                microphoneSource = audioContext.createMediaStreamSource(microphoneStream);
-                
-                // Tạo master gain node để trộn tất cả audio
-                masterGainNode = audioContext.createGain();
-                masterGainNode.gain.value = 1.0;
-                
-                // TỐI ƯU: KẾT HỢP boost và gain thành 1 node để giảm latency
-                // Boost 5x (tăng từ 2.5x) nhưng có limiter để không rè
-                // Sử dụng setValueAtTime thay vì value để giảm latency
-                micGainNode = audioContext.createGain();
-                let currentTime = audioContext.currentTime;
-                micGainNode.gain.setValueAtTime(5.0, currentTime); // Boost 5 lần
-                
-                // TỐI ƯU TRIỆT ĐỂ: KHÔNG TẠO LIMITER - gây delay ~0.5-2ms
-                // Chấp nhận rủi ro rè khi volume cao để đạt độ trễ thấp nhất
-                // Limiter chỉ được tạo khi THỰC SỰ CẦN (volume rất cao và bị rè)
-                micLimiter = null; // Không tạo limiter để giảm delay tối đa
-                
-                // Tối ưu: Đảm bảo gain node không thêm delay
-                micGainNode.gain.setValueAtTime(5.0, audioContext.currentTime);
-                
-                // Tạo nodes cho reverb (dry và wet)
-                dryGainNode = audioContext.createGain();
-                reverbGainNode = audioContext.createGain();
-                
-                // Tạo reverb convolver với impulse response dài hơn để vang hay
-                reverbConvolver = audioContext.createConvolver();
-                // Tăng duration lên 1.5s và decay 1.2s để reverb vang hay hơn
-                reverbImpulseResponse = createReverbImpulse(audioContext, 1.5, 1.2, false);
-                reverbConvolver.buffer = reverbImpulseResponse;
-                reverbConvolver.normalize = true;
-                
-                // Thêm low-pass filter để làm mềm reverb (tần số thấp hơn để ấm hơn)
-                reverbLowpass = audioContext.createBiquadFilter();
-                reverbLowpass.type = 'lowpass';
-                reverbLowpass.frequency.value = 6000; // Giảm xuống để ấm hơn
-                reverbLowpass.Q.value = 0.7; // Tăng Q lên một chút để mượt hơn
-                
-                // TỐI ƯU TRIỆT ĐỂ: Kết nối mic với đường dẫn NGẮN NHẤT có thể
-                // MỤC TIÊU: Giảm trễ mic tối đa - LOẠI BỎ TẤT CẢ NODES KHÔNG CẦN THIẾT
-                // Kết nối: Mic -> Gain -> Output (KHÔNG qua limiter - chấp nhận rủi ro rè)
-                microphoneSource.connect(micGainNode);
-                // TỐI ƯU: Bypass limiter HOÀN TOÀN - chỉ dùng Gain node (bắt buộc để boost volume)
-                micGainNode.connect(audioContext.destination); // Đường dẫn ngắn nhất: 2 nodes (Mic -> Gain -> Output)
-                
-                // Tối ưu: Đảm bảo không có delay không cần thiết
-                // Sử dụng setValueAtTime với currentTime để giảm latency
-                const initTime = audioContext.currentTime;
-                micGainNode.gain.setValueAtTime(5.0, initTime);
-                
-                // TỐI ƯU TRIỆT ĐỂ: Đảm bảo audio context luôn ở trạng thái running
-                // Resume ngay để giảm latency xuống mức thấp nhất
-                // Đảm bảo baseLatency và outputLatency ở mức tối thiểu
-                if (audioContext.state !== 'running') {
-                    await audioContext.resume();
-                }
-                
-                // Tối ưu: Đảm bảo context không bị suspend
-                // Một số trình duyệt có thể suspend context khi không active
-                try {
-                    // Force resume để đảm bảo latency thấp nhất
-                    if (audioContext.state === 'suspended' || audioContext.state === 'interrupted') {
-                        await audioContext.resume();
-                    }
-                } catch (e) {
-                    // Không hỗ trợ, không sao
-                }
-                
-                // Master và Dry node chỉ dùng khi có reverb (sẽ connect/disconnect động)
-                // Reverb chain - CHỈ kết nối khi cần (sẽ connect/disconnect động)
-                
-                // Đảm bảo dry signal full volume ban đầu - dùng setValueAtTime để giảm latency
-                currentTime = audioContext.currentTime;
-                dryGainNode.gain.setValueAtTime(1.0, currentTime);
-                reverbGainNode.gain.setValueAtTime(0, currentTime); // Tắt reverb ban đầu
-                
-                // Tối ưu: Đảm bảo audio context chạy ở tốc độ cao nhất
-                // Resume ngay để đảm bảo context active và giảm latency
-                if (audioContext.state !== 'running') {
-                    await audioContext.resume();
-                }
-                
-                // Tối ưu: Giảm outputLatency bằng cách đảm bảo context luôn running
-                // Một số trình duyệt tự động tối ưu khi context running
-                try {
-                    // Đảm bảo context không bị suspend
-                    if (audioContext.state === 'suspended') {
-                        await audioContext.resume();
-                    }
-                } catch (e) {
-                    // Không hỗ trợ, không sao
-                }
-                
-                isMicActive = true;
-                updateMicStatus();
-                updateMicVolume(document.getElementById('micVolumeSlider').value);
-                updateReverb(document.getElementById('reverbSlider').value);
-                
-                
-                
-                return true;
-            } catch (error) {
-                console.error('Lỗi khởi tạo microphone:', error);
-                alert('Không thể truy cập microphone. Vui lòng kiểm tra quyền truy cập.');
-                return false;
-            }
-        }
-
-        // Dừng microphone
-        function stopMicrophone() {
-            if (microphoneStream) {
-                microphoneStream.getTracks().forEach(track => track.stop());
-                microphoneStream = null;
-            }
-            if (microphoneSource) {
-                microphoneSource.disconnect();
-                microphoneSource = null;
-            }
-            isMicActive = false;
-            updateMicStatus();
-        }
-
-        // Bật/tắt microphone
-        async function toggleMicrophone() {
-            if (isMicActive) {
-                stopMicrophone();
-            } else {
-                const success = await initAudioContext();
-                if (success) {
-                    // TỐI ƯU: Đảm bảo AudioContext running sau khi bật mic
-                    await ensureAudioContextRunning();
-                    updateMicStatus();
-                }
-            }
-        }
-
-        // Cập nhật trạng thái microphone
-        function updateMicStatus() {
-            const micButton = document.getElementById('micToggleButton');
-            const micStatus = document.getElementById('micStatus');
-            
-            if (isMicActive) {
-                micButton.textContent = '🔴 Tắt Microphone';
-                micButton.style.background = 'linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%)';
-                micStatus.textContent = '✅ Microphone đang hoạt động';
-                micStatus.style.color = '#4caf50';
-            } else {
-                micButton.textContent = '🎤 Bật Microphone';
-                micButton.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-                micStatus.textContent = 'Microphone chưa được kích hoạt';
-                micStatus.style.color = '#666';
-            }
-        }
-
-        // Cập nhật âm lượng mic (với boost tối đa đã tích hợp)
-        function updateMicVolume(value) {
-            document.getElementById('micVolumeValue').textContent = value + '%';
-            localStorage.setItem('micVolume', value);
-            
-            // Áp dụng âm lượng cho mic nếu đã bật
-            // Boost 5x đã tích hợp vào micGainNode, chỉ cần nhân với volume
-            // TỐI ƯU: Sử dụng setValueAtTime với currentTime để giảm latency
-            if (micGainNode && isMicActive && audioContext) {
-                const volume = parseFloat(value) / 100;
-                const currentTime = audioContext.currentTime;
-                const totalGain = volume * 5.0; // Boost 5x + volume slider
-                
-                // setValueAtTime thay vì setTargetAtTime để giảm latency (không có smoothing delay)
-                micGainNode.gain.setValueAtTime(totalGain, currentTime);
-            }
-        }
-
-        // Cập nhật độ vang (Reverb/Ambient) - Tối ưu để giảm latency
-        function updateReverb(value) {
-            document.getElementById('reverbValue').textContent = value + '%';
-            localStorage.setItem('reverb', value);
-            
-            // Áp dụng reverb nếu mic đã bật
-            if (micGainNode && dryGainNode && reverbGainNode && reverbConvolver && reverbLowpass && isMicActive) {
-                const reverbAmount = parseFloat(value) / 100;
-                
-                // Khi reverb = 0, ĐƯỜNG DẪN CỰC KỲ NGẮN
-                // TỐI ƯU: Bypass limiter khi volume < 80% để giảm delay
-                if (reverbAmount === 0) {
-                    // Disconnect tất cả các node không cần thiết để giảm latency
-                    try {
-                        micGainNode.disconnect();
-                    } catch (e) {
-                        // Có thể chưa connect, không sao
-                    }
-                    
-                    // Disconnect reverb chain hoàn toàn
-                    try {
-                        reverbConvolver.disconnect();
-                        reverbLowpass.disconnect();
-                        reverbGainNode.disconnect();
-                        dryGainNode.disconnect();
-                        masterGainNode.disconnect();
-                    } catch (e) {
-                        // Đã disconnect rồi, không sao
-                    }
-                    
-                    // TỐI ƯU TRIỆT ĐỂ: KHÔNG DÙNG LIMITER - luôn bypass để giảm delay tối đa
-                    // Đường dẫn ngắn nhất: Mic -> Gain -> Output (2 nodes)
-                    micGainNode.connect(audioContext.destination);
-                    
-                    const currentTime = audioContext.currentTime;
-                    reverbGainNode.gain.setValueAtTime(0, currentTime);
-                } else {
-                    // Khi có reverb, sử dụng masterGainNode để trộn dry và wet
-                    // Disconnect tất cả kết nối cũ
-                    try {
-                        micGainNode.disconnect();
-                    } catch (e) {
-                        // Có thể chưa connect, không sao
-                    }
-                    
-                    // Kết nối: micGainNode -> dryGainNode -> masterGainNode
-                    micGainNode.connect(dryGainNode);
-                    
-                    // TỐI ƯU TRIỆT ĐỂ: KHÔNG DÙNG LIMITER - luôn bypass để giảm delay tối đa
-                    // Kết nối phần còn lại
-                    try {
-                        dryGainNode.connect(masterGainNode);
-                        // Bypass limiter hoàn toàn - đường dẫn ngắn nhất
-                        masterGainNode.connect(audioContext.destination);
-                    } catch (e) {
-                        // Đã connect rồi, không sao
-                    }
-                    
-                    // Connect reverb chain
-                    try {
-                        micGainNode.connect(reverbConvolver);
-                        reverbConvolver.connect(reverbLowpass);
-                        reverbLowpass.connect(reverbGainNode);
-                        reverbGainNode.connect(masterGainNode);
-                    } catch (e) {
-                        // Đã connect rồi, không sao
-                    }
-                    
-                    // Dry signal (âm thanh gốc) - giảm khi tăng reverb để reverb nổi bật
-                    // Sử dụng setValueAtTime để giảm latency
-                    const currentTime = audioContext.currentTime;
-                    dryGainNode.gain.setValueAtTime(1 - (reverbAmount * 0.25), currentTime); // Giảm để reverb vang hơn
-                    // Wet signal (âm thanh có reverb) - tăng mạnh để vang hay
-                    reverbGainNode.gain.setValueAtTime(reverbAmount * 0.8, currentTime); // Tăng từ 0.5 lên 0.8 để vang hay
-                }
-            }
-        }
-
-
-        // Khôi phục giá trị đã lưu khi tải trang
-        window.addEventListener('DOMContentLoaded', function() {
-            // Hiển thị thông báo version khi có thay đổi
-            showVersionNotification();
-            
-            const musicVolume = localStorage.getItem('musicVolume');
-            const micVolume = localStorage.getItem('micVolume');
-            const reverb = localStorage.getItem('reverb');
-
-            if (musicVolume) {
-                document.getElementById('musicVolumeSlider').value = musicVolume;
-                document.getElementById('musicVolumeValue').textContent = musicVolume + '%';
-            }
-
-            if (micVolume) {
-                document.getElementById('micVolumeSlider').value = micVolume;
-                document.getElementById('micVolumeValue').textContent = micVolume + '%';
-            }
-
-            if (reverb) {
-                document.getElementById('reverbSlider').value = reverb;
-                document.getElementById('reverbValue').textContent = reverb + '%';
-            }
-        });
-
-        // Dừng microphone khi rời trang
-        window.addEventListener('beforeunload', function() {
-            stopMicrophone();
-        });
-
-        // TỐI ƯU: Xử lý khi tab bị ẩn/hiện để giảm độ trễ
-        document.addEventListener('visibilitychange', async function() {
-            if (!document.hidden && isMicActive && audioContext) {
-                // Khi tab trở lại visible, resume AudioContext ngay để giảm độ trễ
-                try {
-                    if (audioContext.state !== 'running') {
-                        await audioContext.resume();
-                        console.log('AudioContext resumed on visibility change');
-                    }
-                    // Đảm bảo AudioContext luôn ở trạng thái running
-                    // Một số trình duyệt có thể suspend khi tab bị ẩn
-                    let retries = 0;
-                    while (audioContext.state !== 'running' && retries < 5) {
-                        await audioContext.resume();
-                        retries++;
-                        await new Promise(resolve => setTimeout(resolve, 50));
-                    }
-                } catch (e) {
-                    console.error('Error resuming AudioContext on visibility change:', e);
-                }
-            }
+            // Trong môi trường Captive Portal thật:
+            // 1. Form sẽ gửi (POST) dữ liệu đến URL được Captive Portal chỉ định (ví dụ: /login).
+            // 2. Máy chủ Captive Portal xử lý xác thực.
+            // 3. Máy chủ cấp phép truy cập (hoặc chuyển hướng lại với thông báo lỗi).
         });
     </script>
+
 </body>
 </html>
