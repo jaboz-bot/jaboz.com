@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jaboz Home - Tải ứng dụng</title>
+    <link rel="icon" type="image/png" href="ICON/app_logo.png">
     <style>
         * {
             margin: 0;
@@ -158,6 +159,13 @@
             font-size: 1.8rem;
             color: white;
             box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+            overflow: hidden;
+        }
+
+        .app-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .app-name {
@@ -358,6 +366,7 @@
 <body>
     <div class="container">
         <header>
+            <img src="ICON/app_logo.png" alt="Jaboz Home Logo" style="width: 120px; height: 120px; margin: 0 auto 20px; display: block; border-radius: 24px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);">
             <h1 class="logo">Jaboz Home</h1>
             <p class="subtitle">Trang tải ứng dụng chính thức</p>
         </header>
@@ -370,7 +379,7 @@
         </div>
 
         <footer>
-            <p>© 2024 Jaboz Home. Tất cả quyền được bảo lưu.</p>
+            <p>© 2026 Jaboz Home. Tất cả quyền được bảo lưu.</p>
         </footer>
     </div>
 
@@ -512,9 +521,12 @@
 
                 // Render từng APK trong app
                 appData.apks.forEach((apk, apkIndex) => {
+                    const iconHtml = apk.iconImage 
+                        ? `<img src="${apk.iconImage}" alt="${appName} icon">`
+                        : (apk.icon || '📱');
                     html += `
                         <div class="app-card" style="animation: fadeInUp 0.5s ease-out ${cardIndex * 0.1}s both">
-                            <div class="app-icon">${apk.icon || '📱'}</div>
+                            <div class="app-icon">${iconHtml}</div>
                             <div class="app-name">${appName}</div>
                             <div class="app-version">Phiên bản ${apk.version}</div>
                             <div class="app-size">Kích thước: ${apk.size}</div>
@@ -598,6 +610,7 @@
                                                     size: size,
                                                     filename: file.name,
                                                     icon: '📱',
+                                                    iconImage: 'ICON/app_logo.png',
                                                     description: `Ứng dụng ${formatAppName(folder.name)}`,
                                                     appFolder: folder.name,
                                                     downloadUrl: downloadUrl
@@ -633,6 +646,7 @@
                                         size: size,
                                         filename: file.name,
                                         icon: '📱',
+                                        iconImage: 'ICON/app_logo.png',
                                         description: 'Ứng dụng',
                                         appFolder: '',
                                         downloadUrl: getDownloadUrl(file.name, '', APP_FOLDER)
@@ -671,6 +685,7 @@
                                         size: size,
                                         filename: file.name,
                                         icon: '📱',
+                                        iconImage: 'ICON/app_logo.png',
                                         description: 'Ứng dụng',
                                         appFolder: '',
                                         downloadUrl: getDownloadUrl(file.name, '', APK_FOLDER)
