@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jaboz Home - Tải ứng dụng</title>
-    <link rel="icon" type="image/png" href="ICON/app_logo.png">
     <style>
         * {
             margin: 0;
@@ -366,7 +365,6 @@
 <body>
     <div class="container">
         <header>
-            <img src="ICON/app_logo.png" alt="Jaboz Home Logo" style="width: 120px; height: 120px; margin: 0 auto 20px; display: block; border-radius: 24px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);">
             <h1 class="logo">Jaboz Home</h1>
             <p class="subtitle">Trang tải ứng dụng chính thức</p>
         </header>
@@ -379,7 +377,7 @@
         </div>
 
         <footer>
-            <p>© 2026 Jaboz Home. Tất cả quyền được bảo lưu.</p>
+            <p>© 2024 Jaboz Home. Tất cả quyền được bảo lưu.</p>
         </footer>
     </div>
 
@@ -409,7 +407,10 @@
 
         // Hàm format tên app từ tên thư mục
         function formatAppName(folderName) {
-            // Chuyển cham_cong_gio thành "Chấm công giờ"
+            // Chuyển cham_cong_gio thành "Chấm Công Giờ"
+            if (folderName === 'cham_cong_gio') {
+                return 'Chấm Công Giờ';
+            }
             return folderName
                 .split('_')
                 .map(word => word.charAt(0).toUpperCase() + word.slice(1))
@@ -521,9 +522,14 @@
 
                 // Render từng APK trong app
                 appData.apks.forEach((apk, apkIndex) => {
-                    const iconHtml = apk.iconImage 
-                        ? `<img src="${apk.iconImage}" alt="${appName} icon">`
-                        : (apk.icon || '📱');
+                    // Tạo icon HTML - nếu có iconUrl thì dùng img, không thì dùng emoji
+                    let iconHtml = '';
+                    if (apk.iconUrl) {
+                        iconHtml = `<img src="${apk.iconUrl}" alt="${appName}" />`;
+                    } else {
+                        iconHtml = apk.icon || '📱';
+                    }
+                    
                     html += `
                         <div class="app-card" style="animation: fadeInUp 0.5s ease-out ${cardIndex * 0.1}s both">
                             <div class="app-icon">${iconHtml}</div>
@@ -604,13 +610,19 @@
                                                 // Tạo downloadUrl với đường dẫn đầy đủ: app/folder.name/file.name
                                                 const downloadUrl = getDownloadUrl(file.name, folder.name, APP_FOLDER);
                                                 
+                                                // Tạo iconUrl nếu là app cham_cong_gio
+                                                let iconUrl = null;
+                                                if (folder.name === 'cham_cong_gio') {
+                                                    iconUrl = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/images/cham_cong_gio_icon/app_logo.png`;
+                                                }
+                                                
                                                 appsByFolder[folder.name].apks.push({
                                                     name: formatAppName(folder.name),
                                                     version: version,
                                                     size: size,
                                                     filename: file.name,
                                                     icon: '📱',
-                                                    iconImage: 'ICON/app_logo.png',
+                                                    iconUrl: iconUrl,
                                                     description: `Ứng dụng ${formatAppName(folder.name)}`,
                                                     appFolder: folder.name,
                                                     downloadUrl: downloadUrl
@@ -646,7 +658,6 @@
                                         size: size,
                                         filename: file.name,
                                         icon: '📱',
-                                        iconImage: 'ICON/app_logo.png',
                                         description: 'Ứng dụng',
                                         appFolder: '',
                                         downloadUrl: getDownloadUrl(file.name, '', APP_FOLDER)
@@ -685,7 +696,6 @@
                                         size: size,
                                         filename: file.name,
                                         icon: '📱',
-                                        iconImage: 'ICON/app_logo.png',
                                         description: 'Ứng dụng',
                                         appFolder: '',
                                         downloadUrl: getDownloadUrl(file.name, '', APK_FOLDER)
