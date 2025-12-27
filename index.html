@@ -177,7 +177,7 @@
         .app-version {
             font-size: 0.9rem;
             color: var(--text-secondary);
-            margin-bottom: 15px;
+            margin-bottom: 8px;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -185,6 +185,20 @@
 
         .app-version::before {
             content: '📦';
+            font-size: 1rem;
+        }
+
+        .app-version-code {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .app-version-code::before {
+            content: '🔢';
             font-size: 1rem;
         }
 
@@ -423,6 +437,32 @@
             return match ? match[1] : '1.0';
         }
 
+        // Hàm parse version code từ tên file
+        function parseVersionCodeFromFilename(filename) {
+            // Tìm version code (số nguyên) trong tên file
+            // Ví dụ: version_1.0_code_10, version_1.0_10, code_10, vcode_10
+            const patterns = [
+                /(?:version[_\s]?code|vcode|code)[_\s]?(\d+)/i,
+                /version[_\s]?\d+\.\d+(?:\.\d+)?[_\s]?\((\d+)\)/i, // version 1.0 (10)
+                /version[_\s]?\d+\.\d+(?:\.\d+)?[_\s](\d+)(?:\D|$)/i, // version 1.0 10
+            ];
+            
+            for (const pattern of patterns) {
+                const match = filename.match(pattern);
+                if (match) {
+                    return parseInt(match[1], 10);
+                }
+            }
+            
+            // Nếu không tìm thấy, tính từ version (ví dụ: 1.0 -> 10, 1.0.1 -> 101)
+            const version = parseVersionFromFilename(filename);
+            const parts = version.split('.').map(Number);
+            if (parts.length >= 2) {
+                return parts[0] * 100 + (parts[1] || 0) * 10 + (parts[2] || 0);
+            }
+            return parts[0] * 100;
+        }
+
         // Hàm format file size
         function formatFileSize(bytes) {
             if (!bytes) return '~15 MB';
@@ -535,6 +575,7 @@
                             <div class="app-icon">${iconHtml}</div>
                             <div class="app-name">${appName}</div>
                             <div class="app-version">Phiên bản ${apk.version}</div>
+                            <div class="app-version-code">Version Code: ${apk.versionCode}</div>
                             <div class="app-size">Kích thước: ${apk.size}</div>
                             <button class="download-btn" data-app-folder="${appFolder}" data-apk-index="${apkIndex}">
                                 <span>⬇️</span>
@@ -605,6 +646,7 @@
                                             // Thêm các APK vào app folder
                                             apkFiles.forEach(file => {
                                                 const version = parseVersionFromFilename(file.name);
+                                                const versionCode = parseVersionCodeFromFilename(file.name);
                                                 const size = formatFileSize(file.size);
                                                 
                                                 // Tạo downloadUrl với đường dẫn đầy đủ: app/folder.name/file.name
@@ -619,6 +661,7 @@
                                                 appsByFolder[folder.name].apks.push({
                                                     name: formatAppName(folder.name),
                                                     version: version,
+                                                    versionCode: versionCode,
                                                     size: size,
                                                     filename: file.name,
                                                     icon: '📱',
@@ -650,11 +693,13 @@
 
                                 apkFiles.forEach(file => {
                                     const version = parseVersionFromFilename(file.name);
+                                    const versionCode = parseVersionCodeFromFilename(file.name);
                                     const size = formatFileSize(file.size);
                                     
                                     appsByFolder[defaultFolder].apks.push({
                                         name: 'Ứng dụng',
                                         version: version,
+                                        versionCode: versionCode,
                                         size: size,
                                         filename: file.name,
                                         icon: '📱',
@@ -688,11 +733,13 @@
 
                                 apkFiles.forEach(file => {
                                     const version = parseVersionFromFilename(file.name);
+                                    const versionCode = parseVersionCodeFromFilename(file.name);
                                     const size = formatFileSize(file.size);
                                     
                                     appsByFolder[defaultFolder].apks.push({
                                         name: 'Ứng dụng',
                                         version: version,
+                                        versionCode: versionCode,
                                         size: size,
                                         filename: file.name,
                                         icon: '📱',
