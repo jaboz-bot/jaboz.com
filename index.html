@@ -439,28 +439,8 @@
 
         // Hàm parse version code từ tên file
         function parseVersionCodeFromFilename(filename) {
-            // Tìm version code (số nguyên) trong tên file
-            // Ví dụ: version_1.0_code_10, version_1.0_10, code_10, vcode_10
-            const patterns = [
-                /(?:version[_\s]?code|vcode|code)[_\s]?(\d+)/i,
-                /version[_\s]?\d+\.\d+(?:\.\d+)?[_\s]?\((\d+)\)/i, // version 1.0 (10)
-                /version[_\s]?\d+\.\d+(?:\.\d+)?[_\s](\d+)(?:\D|$)/i, // version 1.0 10
-            ];
-            
-            for (const pattern of patterns) {
-                const match = filename.match(pattern);
-                if (match) {
-                    return parseInt(match[1], 10);
-                }
-            }
-            
-            // Nếu không tìm thấy, tính từ version (ví dụ: 1.0 -> 10, 1.0.1 -> 101)
-            const version = parseVersionFromFilename(filename);
-            const parts = version.split('.').map(Number);
-            if (parts.length >= 2) {
-                return parts[0] * 100 + (parts[1] || 0) * 10 + (parts[2] || 0);
-            }
-            return parts[0] * 100;
+            // Version code luôn là 1
+            return 1;
         }
 
         // Hàm format file size
