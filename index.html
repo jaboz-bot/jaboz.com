@@ -142,8 +142,38 @@
     .notes {
       font-size: 0.95rem;
       color: var(--text-secondary);
-      margin: 10px 0 16px;
-      white-space: pre-wrap;
+      margin: 10px 0 8px;
+    }
+    .details-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #4b5563;
+      margin-bottom: 6px;
+    }
+    .details-list {
+      margin: 0 0 2px 18px;
+      color: var(--text-secondary);
+      font-size: 0.92rem;
+      line-height: 1.45;
+      overflow: hidden;
+      max-height: 2.9em;
+      transition: max-height 220ms ease;
+    }
+    .details-list.expanded {
+      max-height: 260px;
+    }
+    .details-list li {
+      margin-bottom: 3px;
+    }
+    .details-toggle {
+      border: none;
+      background: transparent;
+      color: #4f46e5;
+      font-size: 0.86rem;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 0;
+      margin: 2px 0 14px;
     }
     .download-btn {
       width: 100%;
@@ -181,6 +211,9 @@
         </div>
         <div class="meta" id="latestVersion">Đang tải phiên bản...</div>
         <div class="notes" id="releaseNotes"></div>
+        <div class="details-title">Chi tiết:</div>
+        <ul class="details-list" id="detailsList"></ul>
+        <button class="details-toggle" id="detailsToggle" hidden>... Xem thêm</button>
         <button class="download-btn" id="downloadBtn" disabled>Tải APK</button>
         <div class="status" id="statusText">Đang đọc dữ liệu cập nhật...</div>
       </div>
@@ -194,6 +227,8 @@
       const statusText = document.getElementById("statusText");
       const latestVersion = document.getElementById("latestVersion");
       const releaseNotes = document.getElementById("releaseNotes");
+      const detailsList = document.getElementById("detailsList");
+      const detailsToggle = document.getElementById("detailsToggle");
       const downloadBtn = document.getElementById("downloadBtn");
 
       try {
@@ -208,6 +243,23 @@
         const name = info.latestVersionName || "N/A";
         latestVersion.textContent = "Phiên bản mới nhất: " + name + " (code " + info.latestVersionCode + ")";
         releaseNotes.textContent = info.releaseNotes || "";
+        const details = Array.isArray(info.details) ? info.details : [];
+        detailsList.innerHTML = "";
+        details.forEach((item) => {
+          const li = document.createElement("li");
+          li.textContent = item;
+          detailsList.appendChild(li);
+        });
+        const canExpand = details.length > 2;
+        detailsList.classList.remove("expanded");
+        detailsToggle.hidden = !canExpand;
+        detailsToggle.textContent = "... Xem thêm";
+        if (canExpand) {
+          detailsToggle.onclick = () => {
+            const expanded = detailsList.classList.toggle("expanded");
+            detailsToggle.textContent = expanded ? "Thu gọn" : "... Xem thêm";
+          };
+        }
         downloadBtn.disabled = false;
         downloadBtn.onclick = () => {
           window.location.href = info.apkUrl;
