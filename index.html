@@ -25,6 +25,49 @@
     .container { max-width: 980px; margin: 0 auto; }
     header { text-align: center; margin: 24px 0 36px; color: #fff; }
     .logo { font-size: 3rem; font-weight: 800; }
+    .logo .brand {
+      position: relative;
+      display: inline-block;
+      z-index: 1;
+      text-shadow:
+        0 0 14px rgba(214, 236, 255, 0.45),
+        0 0 30px rgba(170, 211, 255, 0.25);
+      animation: jabozTextGlow 4.6s ease-in-out infinite;
+    }
+    .logo .brand::before {
+      content: attr(data-text);
+      position: absolute;
+      left: 0;
+      top: 0;
+      z-index: -1;
+      color: rgba(220, 241, 255, 0.7);
+      filter: blur(12px);
+      transform: scale(1.08);
+      opacity: 0.55;
+      animation: jabozGlow 4.6s ease-in-out infinite;
+    }
+    @keyframes jabozTextGlow {
+      0% {
+        text-shadow:
+          0 0 10px rgba(214, 236, 255, 0.35),
+          0 0 22px rgba(170, 211, 255, 0.18);
+      }
+      50% {
+        text-shadow:
+          0 0 22px rgba(214, 236, 255, 0.65),
+          0 0 48px rgba(170, 211, 255, 0.38);
+      }
+      100% {
+        text-shadow:
+          0 0 10px rgba(214, 236, 255, 0.35),
+          0 0 22px rgba(170, 211, 255, 0.18);
+      }
+    }
+    @keyframes jabozGlow {
+      0% { opacity: 0.38; filter: blur(10px); }
+      50% { opacity: 0.9; filter: blur(16px); }
+      100% { opacity: 0.38; filter: blur(10px); }
+    }
     .subtitle { opacity: 0.9; margin-top: 8px; }
     .card {
       background: var(--card-bg);
@@ -82,7 +125,7 @@
 <body>
   <div class="container">
     <header>
-      <h1 class="logo">Jaboz Home</h1>
+      <h1 class="logo"><span class="brand" data-text="Jaboz">Jaboz</span> Home</h1>
       <p class="subtitle">Trang tải ứng dụng chính thức</p>
     </header>
 
