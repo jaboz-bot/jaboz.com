@@ -241,7 +241,7 @@
         }
 
         const name = info.latestVersionName || "N/A";
-        latestVersion.textContent = "Phiên bản mới nhất: " + name + " (code " + info.latestVersionCode + ")";
+        latestVersion.textContent = "Phiên bản mới nhất: " + name;
         releaseNotes.textContent = info.releaseNotes || "";
         const details = Array.isArray(info.details) ? info.details : [];
         detailsList.innerHTML = "";
