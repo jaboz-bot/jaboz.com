@@ -68,6 +68,28 @@
       50% { opacity: 0.9; filter: blur(16px); }
       100% { opacity: 0.38; filter: blur(10px); }
     }
+    .logo .home {
+      position: relative;
+      display: inline-block;
+      z-index: 1;
+      margin-left: 8px;
+      text-shadow:
+        0 0 14px rgba(214, 236, 255, 0.45),
+        0 0 30px rgba(170, 211, 255, 0.25);
+      animation: jabozTextGlow 4.6s ease-in-out infinite;
+    }
+    .logo .home::before {
+      content: attr(data-text);
+      position: absolute;
+      left: 0;
+      top: 0;
+      z-index: -1;
+      color: rgba(220, 241, 255, 0.7);
+      filter: blur(12px);
+      transform: scale(1.08);
+      opacity: 0.55;
+      animation: jabozGlow 4.6s ease-in-out infinite;
+    }
     .subtitle { opacity: 0.9; margin-top: 8px; }
     .card {
       background: var(--card-bg);
@@ -125,7 +147,7 @@
 <body>
   <div class="container">
     <header>
-      <h1 class="logo"><span class="brand" data-text="Jaboz">Jaboz</span> Home</h1>
+      <h1 class="logo"><span class="brand" data-text="Jaboz">Jaboz</span><span class="home" data-text="Home">Home</span></h1>
       <p class="subtitle">Trang tải ứng dụng chính thức</p>
     </header>
 
