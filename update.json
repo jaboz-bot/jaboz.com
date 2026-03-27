@@ -1,7 +1,7 @@
 {
-  "latestVersionCode": 1,
-  "latestVersionName": "1.0.0",
+  "latestVersionCode": 2,
+  "latestVersionName": "1.0.1",
   "minVersionCode": 1,
-  "apkUrl": "https://jaboz.com/app/hoctiengviet-v1.0.0.apk",
-  "releaseNotes": "Bản phát hành đầu tiên."
+  "apkUrl": "https://jaboz.com/app/hoctiengviet-v1.0.1.apk",
+  "releaseNotes": "Bản 1.0.1: cập nhật luồng kiểm tra phiên bản và cải thiện giao diện."
 }
