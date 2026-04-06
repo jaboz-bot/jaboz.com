@@ -79,48 +79,60 @@
       transform: translate(-50%, -50%);
       z-index: 10;
     }
-    .sound-status {
-      position: fixed;
-      top: 16px;
-      left: 50%;
-      transform: translateX(-50%);
-      color: #ffffff;
-      background: rgba(15, 23, 42, 0.62);
-      border: 1px solid rgba(255, 255, 255, 0.25);
-      border-radius: 999px;
-      padding: 8px 14px;
-      font-size: 14px;
-      z-index: 30;
-      user-select: none;
-    }
     .settings-btn {
-      position: absolute;
-      right: 14px;
-      top: 14px;
-      width: 52px;
-      height: 52px;
+      margin-top: 18px;
+      width: 172px;
+      height: 48px;
       border: none;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.85);
-      color: #334155;
-      font-size: 24px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #f59e0b, #f97316);
+      color: #ffffff;
+      font-size: 18px;
+      font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 12px 20px rgba(0, 0, 0, 0.26);
+      box-shadow: 0 14px 24px rgba(249, 115, 22, 0.35);
       z-index: 20;
+      transition: opacity 240ms ease, transform 200ms ease, filter 200ms ease;
     }
-    .settings-panel {
-      position: absolute;
-      right: 14px;
-      top: 74px;
-      width: min(340px, calc(100vw - 32px));
-      background: rgba(255, 255, 255, 0.96);
-      border-radius: 14px;
-      border: 1px solid #dbe3ff;
-      box-shadow: 0 16px 32px rgba(0, 0, 0, 0.24);
-      padding: 14px;
-      z-index: 40;
+    .settings-btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.06);
+    }
+    .settings-btn.faded { opacity: 0.22; }
+    .bottom-controls {
+      position: fixed;
+      left: 50%;
+      bottom: 22px;
+      transform: translateX(-50%);
+      z-index: 30;
+      display: flex;
+      justify-content: center;
+    }
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(8, 15, 33, 0.56);
+      backdrop-filter: blur(4px);
+      z-index: 60;
       display: none;
     }
+    .overlay.open { display: block; }
+    .modal {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: min(460px, calc(100vw - 24px));
+      background: linear-gradient(180deg, #ffffff, #f8fbff);
+      border: 1px solid #dbeafe;
+      border-radius: 18px;
+      box-shadow: 0 28px 52px rgba(15, 23, 42, 0.35);
+      z-index: 70;
+      padding: 16px;
+      display: none;
+    }
+    .modal.open { display: block; }
+    .password-modal { width: min(360px, calc(100vw - 24px)); }
     .settings-panel.open { display: block; }
     .settings-title {
       font-size: 18px;
@@ -147,6 +159,14 @@
       border-radius: 8px;
       padding: 8px 10px;
       font-size: 14px;
+    }
+    .password-input {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 15px;
+      margin: 10px 0 12px;
     }
     .remove-btn {
       border: none;
@@ -199,7 +219,6 @@
   </style>
 </head>
 <body>
-  <div class="sound-status" id="soundStatus">Chuông chỉ phát theo giờ báo đã cài.</div>
   <div class="clock-wrap">
     <div class="clock" aria-label="Đồng hồ kim toàn màn hình">
       <div class="marker" style="transform: rotate(30deg)"></div>
@@ -219,10 +238,22 @@
       <div class="hand second" id="second"></div>
       <div class="dot"></div>
     </div>
-    <button class="settings-btn" id="settingsBtn" type="button" aria-label="Mở cài đặt">⚙</button>
   </div>
 
-  <div class="settings-panel" id="settingsPanel">
+  <div class="bottom-controls">
+    <button class="settings-btn" id="settingsBtn" type="button" aria-label="Mở cài đặt">Cài Đặt</button>
+  </div>
+  <div class="overlay" id="overlay"></div>
+  <div class="modal password-modal" id="passwordModal">
+    <div class="settings-title">Nhập mật khẩu</div>
+    <input class="password-input" id="passwordInput" type="password" placeholder="Mật khẩu cài đặt" />
+    <div class="btn-row">
+      <button class="btn-save" id="passwordOkBtn" type="button">Xác nhận</button>
+      <button class="btn-close" id="passwordCancelBtn" type="button">Hủy</button>
+    </div>
+    <div class="panel-status" id="passwordStatus"></div>
+  </div>
+  <div class="modal settings-panel" id="settingsPanel">
     <div class="settings-title">Cài đặt báo thức</div>
     <div class="time-list" id="timeList"></div>
     <div class="btn-row">
@@ -240,8 +271,13 @@
     const hourHand = document.getElementById("hour");
     const minuteHand = document.getElementById("minute");
     const secondHand = document.getElementById("second");
-    const soundStatus = document.getElementById("soundStatus");
     const settingsBtn = document.getElementById("settingsBtn");
+    const overlay = document.getElementById("overlay");
+    const passwordModal = document.getElementById("passwordModal");
+    const passwordInput = document.getElementById("passwordInput");
+    const passwordOkBtn = document.getElementById("passwordOkBtn");
+    const passwordCancelBtn = document.getElementById("passwordCancelBtn");
+    const passwordStatus = document.getElementById("passwordStatus");
     const settingsPanel = document.getElementById("settingsPanel");
     const timeList = document.getElementById("timeList");
     const addTimeBtn = document.getElementById("addTimeBtn");
@@ -265,6 +301,7 @@
     let alarmTimes = [];
     let firedMinuteSet = new Set();
     let deferredInstallPrompt = null;
+    let fadeTimer = null;
 
     function updateClock() {
       const now = new Date();
@@ -301,12 +338,48 @@
       if (alarmTimes.includes(key) && !firedMinuteSet.has(key)) {
         firedMinuteSet.add(key);
         alarmAudio.currentTime = 0;
-        alarmAudio.play().catch(() => {
-          soundStatus.textContent = "Bấm 1 lần vào trang để mở âm thanh.";
-          soundStatus.style.display = "block";
-        });
+        alarmAudio.play().catch(() => {});
       }
     }
+    function showOverlay() {
+      overlay.classList.add("open");
+    }
+
+    function hideOverlay() {
+      overlay.classList.remove("open");
+    }
+
+    function showPasswordModal() {
+      showOverlay();
+      passwordStatus.textContent = "";
+      passwordInput.value = "";
+      passwordModal.classList.add("open");
+      passwordInput.focus();
+    }
+
+    function hidePasswordModal() {
+      passwordModal.classList.remove("open");
+      hideOverlay();
+    }
+
+    function showSettingsModal() {
+      showOverlay();
+      settingsPanel.classList.add("open");
+    }
+
+    function hideSettingsModal() {
+      settingsPanel.classList.remove("open");
+      hideOverlay();
+    }
+
+    function scheduleButtonFade() {
+      settingsBtn.classList.remove("faded");
+      if (fadeTimer) clearTimeout(fadeTimer);
+      fadeTimer = setTimeout(() => {
+        settingsBtn.classList.add("faded");
+      }, 5000);
+    }
+
 
     function createTimeRow(value) {
       const row = document.createElement("div");
@@ -388,14 +461,16 @@
       panelStatus.textContent = "Đã cài app ra màn hình.";
     });
 
-    settingsBtn.addEventListener("click", () => {
-      const pass = window.prompt("Nhập mật khẩu cài đặt:");
-      if (pass !== PASSCODE) {
-        panelStatus.textContent = "Sai mật khẩu.";
+    settingsBtn.addEventListener("click", showPasswordModal);
+    passwordCancelBtn.addEventListener("click", hidePasswordModal);
+    passwordOkBtn.addEventListener("click", async () => {
+      if (passwordInput.value !== PASSCODE) {
+        passwordStatus.textContent = "Sai mật khẩu. Vui lòng thử lại.";
         return;
       }
-      loadSavedTimes();
-      settingsPanel.classList.add("open");
+      hidePasswordModal();
+      await loadSavedTimes();
+      showSettingsModal();
       panelStatus.textContent = "Nhập giờ rồi bấm Lưu.";
     });
 
@@ -417,7 +492,7 @@
       deferredInstallPrompt = null;
       installAppBtn.disabled = true;
     });
-    closePanelBtn.addEventListener("click", () => settingsPanel.classList.remove("open"));
+    closePanelBtn.addEventListener("click", hideSettingsModal);
     stopAlarmBtn.addEventListener("click", () => {
       alarmAudio.pause();
       alarmAudio.currentTime = 0;
@@ -427,6 +502,10 @@
     loadSavedTimes().then(() => {
       panelStatus.textContent = "Mốc mặc định: 10:00, 12:00, 15:00.";
     });
+    ["pointerdown", "keydown", "mousemove", "touchstart"].forEach((evt) => {
+      window.addEventListener(evt, scheduleButtonFade, { passive: true });
+    });
+    scheduleButtonFade();
   </script>
 </body>
 </html>
