@@ -24,7 +24,13 @@
     }
     .container { max-width: 980px; margin: 0 auto; }
     header { text-align: center; margin: 24px 0 36px; color: #fff; }
-    .logo { font-size: 3rem; font-weight: 800; }
+    .logo {
+      font-size: 3rem;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
     .logo .brand {
       position: relative;
       display: inline-block;
@@ -89,6 +95,29 @@
       transform: scale(1.08);
       opacity: 0.55;
       animation: jabozGlow 4.6s ease-in-out infinite;
+    }
+    .clock-link {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      background: rgba(255, 255, 255, 0.16);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      color: #f8fbff;
+      transition: transform 160ms ease, background 160ms ease;
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
+    }
+    .clock-link:hover {
+      transform: translateY(-2px) scale(1.03);
+      background: rgba(255, 255, 255, 0.24);
+    }
+    .clock-link svg {
+      width: 24px;
+      height: 24px;
+      display: block;
     }
     .subtitle { opacity: 0.9; margin-top: 8px; }
     .card {
@@ -196,7 +225,16 @@
 <body>
   <div class="container">
     <header>
-      <h1 class="logo"><span class="brand" data-text="Jaboz">Jaboz</span><span class="home" data-text="Home">Home</span></h1>
+      <h1 class="logo">
+        <span class="brand" data-text="Jaboz">Jaboz</span><span class="home" data-text="Home">Home</span>
+        <a class="clock-link" href="./alarm.html" title="Mở trang báo thức" aria-label="Mở trang báo thức">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="13" r="7.2" stroke="currentColor" stroke-width="1.8"></circle>
+            <path d="M12 13V9.5M12 13L14.8 14.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+            <path d="M7 4.7L5 2.8M17 4.7L19 2.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+          </svg>
+        </a>
+      </h1>
       <p class="subtitle">Trang tải ứng dụng chính thức</p>
     </header>
 
