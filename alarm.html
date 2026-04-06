@@ -25,29 +25,50 @@
     }
     .volume-control {
       position: absolute;
-      right: -64px;
-      top: 50%;
-      transform: translateY(-50%);
+      left: 50%;
+      top: -54px;
+      transform: translateX(-50%);
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
       align-items: center;
-      gap: 8px;
+      gap: 12px;
       z-index: 25;
       user-select: none;
+      background: rgba(255, 255, 255, 0.84);
+      border: 1px solid rgba(255, 255, 255, 0.72);
+      border-radius: 999px;
+      padding: 8px 14px;
+      box-shadow: 0 10px 22px rgba(15, 23, 42, 0.2);
     }
     .volume-label {
-      color: #f8fafc;
+      color: #334155;
       font-size: 13px;
       font-weight: 600;
       text-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
     }
     .volume-slider {
-      -webkit-appearance: slider-vertical;
-      appearance: slider-vertical;
-      width: 28px;
-      height: 180px;
+      width: min(42vw, 320px);
+      min-width: 220px;
+      height: 16px;
       cursor: pointer;
       accent-color: #f59e0b;
+    }
+    .volume-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #f97316;
+      border: 2px solid #fff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    }
+    .volume-slider::-moz-range-thumb {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #f97316;
+      border: 2px solid #fff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
     }
     .clock {
       width: min(82vmin, 92vw);
@@ -241,8 +262,13 @@
     .num-9 { left: 2.2%; top: 50%; transform: translateY(-50%); }
     @media (max-width: 900px) {
       .clock-number { font-size: 8.5vmin; }
-      .volume-control { right: -48px; }
-      .volume-slider { height: 140px; }
+      .volume-control {
+        top: -46px;
+        padding: 7px 12px;
+      }
+      .volume-slider {
+        min-width: 180px;
+      }
     }
   </style>
 </head>
@@ -427,14 +453,19 @@
       timeList.appendChild(row);
     }
 
-    async function loadSharedTimes() {
+    async function loadSharedConfig() {
       try {
         const response = await fetch(SHARED_TIMES_URL, { cache: "no-store" });
         if (!response.ok) throw new Error("Cannot fetch shared times");
         const data = await response.json();
-        if (Array.isArray(data.times)) {
-          const shared = data.times.filter((item) => typeof item === "string" && item.includes(":"));
-          if (shared.length) return Array.from(new Set(shared)).sort();
+        const sharedTimes = Array.isArray(data.times)
+          ? Array.from(new Set(data.times.filter((item) => typeof item === "string" && item.includes(":")))).sort()
+          : [];
+        const sharedVolume = typeof data.volume === "number"
+          ? Math.max(0, Math.min(1, data.volume))
+          : null;
+        if (sharedTimes.length || sharedVolume !== null) {
+          return { times: sharedTimes, volume: sharedVolume };
         }
       } catch (error) {
         // Fallback to local/default when shared file is unavailable.
@@ -458,7 +489,7 @@
         });
         if (!readResp.ok) throw new Error("Không đọc được alarm-times.json trên GitHub.");
         const readData = await readResp.json();
-        const payload = JSON.stringify({ times: alarmTimes }, null, 2);
+        const payload = JSON.stringify({ times: alarmTimes, volume: alarmAudio.volume }, null, 2);
         const encoded = btoa(unescape(encodeURIComponent(payload)));
         const writeResp = await fetch(apiUrl, {
           method: "PUT",
@@ -482,9 +513,9 @@
     }
 
     async function loadSavedTimes() {
-      const shared = await loadSharedTimes();
-      if (shared && shared.length) {
-        alarmTimes = shared;
+      const shared = await loadSharedConfig();
+      if (shared && shared.times.length) {
+        alarmTimes = shared.times;
       } else {
         try {
           const raw = localStorage.getItem(STORAGE_KEY);
@@ -493,6 +524,11 @@
         } catch (error) {
           alarmTimes = DEFAULT_TIMES.slice();
         }
+      }
+      if (shared && shared.volume !== null) {
+        alarmAudio.volume = shared.volume;
+        volumeSlider.value = String(Math.round(shared.volume * 100));
+        localStorage.setItem(VOLUME_KEY, String(shared.volume));
       }
       timeList.innerHTML = "";
       if (!alarmTimes.length) createTimeRow("");
