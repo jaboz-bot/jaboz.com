@@ -241,7 +241,6 @@
     .btn-stop { background: #fee2e2; color: #b91c1c; }
     .btn-close { background: #e2e8f0; color: #334155; }
     .btn-install { background: #ede9fe; color: #5b21b6; }
-    .btn-sync { background: #e0f2fe; color: #075985; }
     .panel-status {
       margin-top: 8px;
       color: #475569;
@@ -317,7 +316,6 @@
     <div class="btn-row">
       <button class="btn-add" id="addTimeBtn" type="button">+ Thêm giờ</button>
       <button class="btn-save" id="saveTimesBtn" type="button">Lưu</button>
-      <button class="btn-sync" id="syncGithubBtn" type="button">Đồng bộ lên GitHub</button>
       <button class="btn-install" id="installAppBtn" type="button">Tạo shortcut app</button>
       <button class="btn-stop" id="stopAlarmBtn" type="button">Tắt chuông</button>
       <button class="btn-close" id="closePanelBtn" type="button">Đóng</button>
@@ -342,7 +340,6 @@
     const addTimeBtn = document.getElementById("addTimeBtn");
     const saveTimesBtn = document.getElementById("saveTimesBtn");
     const installAppBtn = document.getElementById("installAppBtn");
-    const syncGithubBtn = document.getElementById("syncGithubBtn");
     const stopAlarmBtn = document.getElementById("stopAlarmBtn");
     const closePanelBtn = document.getElementById("closePanelBtn");
     const panelStatus = document.getElementById("panelStatus");
@@ -358,10 +355,12 @@
     const GITHUB_BRANCH = "main";
     const GITHUB_FILE_PATH = "alarm-times.json";
     const VOLUME_KEY = "jabozAlarmVolume";
+    const GITHUB_TOKEN_KEY = "jabozGithubToken";
     let alarmTimes = [];
     let lastTriggeredStamp = "";
     let deferredInstallPrompt = null;
     let fadeTimer = null;
+    let syncDebounceTimer = null;
 
     function updateClock() {
       const now = new Date();
@@ -473,12 +472,21 @@
       return null;
     }
 
-    async function syncTimesToGithub() {
-      const token = window.prompt("Nhập GitHub token (quyền repo) để đồng bộ mốc giờ:");
+    function getGithubToken() {
+      const existing = localStorage.getItem(GITHUB_TOKEN_KEY);
+      if (existing) return existing;
+      const token = window.prompt("Nhập GitHub token 1 lần (quyền repo) để tự động đồng bộ:");
       if (!token) {
-        panelStatus.textContent = "Bạn chưa nhập token.";
-        return;
+        panelStatus.textContent = "Chưa có token nên chưa thể tự đồng bộ GitHub.";
+        return null;
       }
+      localStorage.setItem(GITHUB_TOKEN_KEY, token);
+      return token;
+    }
+
+    async function syncTimesToGithub(silent) {
+      const token = getGithubToken();
+      if (!token) return;
       try {
         const apiUrl = "https://api.github.com/repos/" + GITHUB_OWNER + "/" + GITHUB_REPO + "/contents/" + GITHUB_FILE_PATH;
         const readResp = await fetch(apiUrl, {
@@ -506,10 +514,22 @@
           })
         });
         if (!writeResp.ok) throw new Error("Đồng bộ thất bại. Kiểm tra token hoặc quyền repo.");
-        panelStatus.textContent = "Đã đồng bộ mốc giờ lên GitHub. Máy khác sẽ nhận sau khi tải lại.";
+        if (!silent) {
+          panelStatus.textContent = "Đã đồng bộ mốc giờ + âm lượng lên GitHub.";
+        }
       } catch (error) {
-        panelStatus.textContent = error.message || "Không thể đồng bộ lên GitHub.";
+        const message = error.message || "Không thể đồng bộ lên GitHub.";
+        panelStatus.textContent = message;
+        // Token có thể hết hạn/sai, xóa để lần sau nhập lại.
+        localStorage.removeItem(GITHUB_TOKEN_KEY);
       }
+    }
+
+    function scheduleAutoSync() {
+      if (syncDebounceTimer) clearTimeout(syncDebounceTimer);
+      syncDebounceTimer = setTimeout(() => {
+        syncTimesToGithub(true);
+      }, 1200);
     }
 
     async function loadSavedTimes() {
@@ -544,6 +564,7 @@
       panelStatus.textContent = uniqueSorted.length
         ? "Đã lưu " + uniqueSorted.length + " mốc báo thức (máy hiện tại)."
         : "Chưa có giờ nào được lưu.";
+      scheduleAutoSync();
     }
 
     window.setInterval(checkAlarmTimes, 1000);
@@ -588,7 +609,6 @@
     });
 
     saveTimesBtn.addEventListener("click", saveTimes);
-    syncGithubBtn.addEventListener("click", syncTimesToGithub);
     installAppBtn.addEventListener("click", async () => {
       if (!deferredInstallPrompt) {
         panelStatus.textContent = "Trình duyệt chưa hỗ trợ nút cài. Hãy dùng menu trình duyệt > Cài đặt ứng dụng.";
@@ -617,6 +637,7 @@
       const value = Number(volumeSlider.value) / 100;
       alarmAudio.volume = value;
       localStorage.setItem(VOLUME_KEY, String(value));
+      scheduleAutoSync();
     });
     loadSavedTimes().then(() => {
       panelStatus.textContent = "Mốc mặc định: 10:00, 12:00, 15:00.";
