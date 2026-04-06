@@ -26,7 +26,7 @@
     .volume-control {
       position: absolute;
       left: 50%;
-      top: -54px;
+      top: -86px;
       transform: translateX(-50%);
       display: flex;
       flex-direction: row;
@@ -262,7 +262,7 @@
     @media (max-width: 900px) {
       .clock-number { font-size: 8.5vmin; }
       .volume-control {
-        top: -46px;
+        top: -72px;
         padding: 7px 12px;
       }
       .volume-slider {
@@ -488,20 +488,15 @@
     }
 
     function getGithubToken() {
-      const existing = localStorage.getItem(GITHUB_TOKEN_KEY);
-      if (existing) return existing;
-      const token = window.prompt("Nhập GitHub token 1 lần (quyền repo) để tự động đồng bộ:");
-      if (!token) {
-        panelStatus.textContent = "Chưa có token nên chưa thể tự đồng bộ GitHub.";
-        return null;
-      }
-      localStorage.setItem(GITHUB_TOKEN_KEY, token);
-      return token;
+      return localStorage.getItem(GITHUB_TOKEN_KEY);
     }
 
     async function syncTimesToGithub(silent) {
       const token = getGithubToken();
-      if (!token) return;
+      if (!token) {
+        // No popup prompts; sync stays silent until token exists.
+        return;
+      }
       try {
         const apiUrl = "https://api.github.com/repos/" + GITHUB_OWNER + "/" + GITHUB_REPO + "/contents/" + GITHUB_FILE_PATH;
         const readResp = await fetch(apiUrl, {
