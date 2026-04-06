@@ -1,0 +1,21 @@
+{
+  "name": "Jaboz Alarm Clock",
+  "short_name": "Jaboz Clock",
+  "start_url": "./alarm.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#2f365f",
+  "theme_color": "#2f365f",
+  "icons": [
+    {
+      "src": "./images/hoctiengviet-logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./images/hoctiengviet-logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

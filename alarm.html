@@ -3,6 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#2f365f" />
+  <link rel="manifest" href="./manifest.webmanifest" />
   <title>Jaboz Home - Đồng hồ</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -12,6 +14,12 @@
       font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
       background: radial-gradient(circle at center, #5b6cb1 0%, #2f365f 70%);
       display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .clock-wrap {
+      position: relative;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
     }
@@ -71,32 +79,185 @@
       transform: translate(-50%, -50%);
       z-index: 10;
     }
+    .sound-status {
+      position: fixed;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #ffffff;
+      background: rgba(15, 23, 42, 0.62);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 14px;
+      z-index: 30;
+      user-select: none;
+    }
+    .settings-btn {
+      position: absolute;
+      right: 14px;
+      top: 14px;
+      width: 52px;
+      height: 52px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.85);
+      color: #334155;
+      font-size: 24px;
+      cursor: pointer;
+      box-shadow: 0 12px 20px rgba(0, 0, 0, 0.26);
+      z-index: 20;
+    }
+    .settings-panel {
+      position: absolute;
+      right: 14px;
+      top: 74px;
+      width: min(340px, calc(100vw - 32px));
+      background: rgba(255, 255, 255, 0.96);
+      border-radius: 14px;
+      border: 1px solid #dbe3ff;
+      box-shadow: 0 16px 32px rgba(0, 0, 0, 0.24);
+      padding: 14px;
+      z-index: 40;
+      display: none;
+    }
+    .settings-panel.open { display: block; }
+    .settings-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #0f172a;
+    }
+    .time-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 220px;
+      overflow: auto;
+      margin-bottom: 10px;
+    }
+    .time-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .time-row input {
+      flex: 1;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 14px;
+    }
+    .remove-btn {
+      border: none;
+      background: #fee2e2;
+      color: #b91c1c;
+      border-radius: 8px;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+    }
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .btn-row button {
+      border: none;
+      border-radius: 8px;
+      padding: 8px 10px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .btn-add { background: #dbeafe; color: #1d4ed8; }
+    .btn-save { background: #dcfce7; color: #166534; }
+    .btn-stop { background: #fee2e2; color: #b91c1c; }
+    .btn-close { background: #e2e8f0; color: #334155; }
+    .btn-install { background: #ede9fe; color: #5b21b6; }
+    .panel-status {
+      margin-top: 8px;
+      color: #475569;
+      font-size: 13px;
+      min-height: 18px;
+    }
+    .clock-number {
+      position: absolute;
+      color: #0f172a;
+      font-weight: 700;
+      font-size: 7vmin;
+      z-index: 8;
+      user-select: none;
+    }
+    .num-12 { top: 2.2%; left: 50%; transform: translateX(-50%); }
+    .num-3 { right: 2.2%; top: 50%; transform: translateY(-50%); }
+    .num-6 { bottom: 2.2%; left: 50%; transform: translateX(-50%); }
+    .num-9 { left: 2.2%; top: 50%; transform: translateY(-50%); }
+    @media (max-width: 900px) {
+      .clock-number { font-size: 8.5vmin; }
+    }
   </style>
 </head>
 <body>
-  <div class="clock" aria-label="Đồng hồ kim toàn màn hình">
-    <div class="marker" style="transform: rotate(0deg)"></div>
-    <div class="marker" style="transform: rotate(30deg)"></div>
-    <div class="marker" style="transform: rotate(60deg)"></div>
-    <div class="marker" style="transform: rotate(90deg)"></div>
-    <div class="marker" style="transform: rotate(120deg)"></div>
-    <div class="marker" style="transform: rotate(150deg)"></div>
-    <div class="marker" style="transform: rotate(180deg)"></div>
-    <div class="marker" style="transform: rotate(210deg)"></div>
-    <div class="marker" style="transform: rotate(240deg)"></div>
-    <div class="marker" style="transform: rotate(270deg)"></div>
-    <div class="marker" style="transform: rotate(300deg)"></div>
-    <div class="marker" style="transform: rotate(330deg)"></div>
-    <div class="hand hour" id="hour"></div>
-    <div class="hand minute" id="minute"></div>
-    <div class="hand second" id="second"></div>
-    <div class="dot"></div>
+  <div class="sound-status" id="soundStatus">Đang thử phát nhạc...</div>
+  <div class="clock-wrap">
+    <div class="clock" aria-label="Đồng hồ kim toàn màn hình">
+      <div class="marker" style="transform: rotate(30deg)"></div>
+      <div class="marker" style="transform: rotate(60deg)"></div>
+      <div class="marker" style="transform: rotate(120deg)"></div>
+      <div class="marker" style="transform: rotate(150deg)"></div>
+      <div class="marker" style="transform: rotate(210deg)"></div>
+      <div class="marker" style="transform: rotate(240deg)"></div>
+      <div class="marker" style="transform: rotate(300deg)"></div>
+      <div class="marker" style="transform: rotate(330deg)"></div>
+      <div class="clock-number num-12">12</div>
+      <div class="clock-number num-3">3</div>
+      <div class="clock-number num-6">6</div>
+      <div class="clock-number num-9">9</div>
+      <div class="hand hour" id="hour"></div>
+      <div class="hand minute" id="minute"></div>
+      <div class="hand second" id="second"></div>
+      <div class="dot"></div>
+    </div>
+    <button class="settings-btn" id="settingsBtn" type="button" aria-label="Mở cài đặt">⚙</button>
+  </div>
+
+  <div class="settings-panel" id="settingsPanel">
+    <div class="settings-title">Cài đặt báo thức</div>
+    <div class="time-list" id="timeList"></div>
+    <div class="btn-row">
+      <button class="btn-add" id="addTimeBtn" type="button">+ Thêm giờ</button>
+      <button class="btn-save" id="saveTimesBtn" type="button">Lưu</button>
+      <button class="btn-install" id="installAppBtn" type="button">Tạo shortcut app</button>
+      <button class="btn-stop" id="stopAlarmBtn" type="button">Tắt chuông</button>
+      <button class="btn-close" id="closePanelBtn" type="button">Đóng</button>
+    </div>
+    <div class="panel-status" id="panelStatus"></div>
   </div>
 
   <script>
     const hourHand = document.getElementById("hour");
     const minuteHand = document.getElementById("minute");
     const secondHand = document.getElementById("second");
+    const soundStatus = document.getElementById("soundStatus");
+    const settingsBtn = document.getElementById("settingsBtn");
+    const settingsPanel = document.getElementById("settingsPanel");
+    const timeList = document.getElementById("timeList");
+    const addTimeBtn = document.getElementById("addTimeBtn");
+    const saveTimesBtn = document.getElementById("saveTimesBtn");
+    const installAppBtn = document.getElementById("installAppBtn");
+    const stopAlarmBtn = document.getElementById("stopAlarmBtn");
+    const closePanelBtn = document.getElementById("closePanelBtn");
+    const panelStatus = document.getElementById("panelStatus");
+    const alarmAudio = new Audio("./nhac_chuong.mp3");
+    alarmAudio.loop = true;
+    alarmAudio.preload = "auto";
+    const PASSCODE = "2007";
+    const STORAGE_KEY = "jabozAlarmTimes";
+    const SHARED_TIMES_URL = "./alarm-times.json";
+    const DEFAULT_TIMES = ["10:00", "12:00", "15:00"];
+    let alarmTimes = [];
+    let firedMinuteSet = new Set();
+    let deferredInstallPrompt = null;
 
     function updateClock() {
       const now = new Date();
@@ -110,6 +271,176 @@
 
     setInterval(updateClock, 1000);
     updateClock();
+
+    function pad2(value) {
+      return String(value).padStart(2, "0");
+    }
+
+    function currentMinuteKey(date) {
+      return pad2(date.getHours()) + ":" + pad2(date.getMinutes());
+    }
+
+    function pruneFiredSet(currentKey) {
+      const keep = new Set();
+      if (firedMinuteSet.has(currentKey)) keep.add(currentKey);
+      firedMinuteSet = keep;
+    }
+
+    function checkAlarmTimes() {
+      if (!alarmTimes.length) return;
+      const now = new Date();
+      const key = currentMinuteKey(now);
+      pruneFiredSet(key);
+      if (alarmTimes.includes(key) && !firedMinuteSet.has(key)) {
+        firedMinuteSet.add(key);
+        alarmAudio.currentTime = 0;
+        alarmAudio.play().catch(() => {
+          soundStatus.textContent = "Bấm 1 lần vào trang để mở âm thanh.";
+          soundStatus.style.display = "block";
+        });
+      }
+    }
+
+    function createTimeRow(value) {
+      const row = document.createElement("div");
+      row.className = "time-row";
+      const input = document.createElement("input");
+      input.type = "time";
+      input.value = value || "";
+      const remove = document.createElement("button");
+      remove.className = "remove-btn";
+      remove.type = "button";
+      remove.textContent = "x";
+      remove.addEventListener("click", () => {
+        row.remove();
+      });
+      row.appendChild(input);
+      row.appendChild(remove);
+      timeList.appendChild(row);
+    }
+
+    async function loadSharedTimes() {
+      try {
+        const response = await fetch(SHARED_TIMES_URL, { cache: "no-store" });
+        if (!response.ok) throw new Error("Cannot fetch shared times");
+        const data = await response.json();
+        if (Array.isArray(data.times)) {
+          const shared = data.times.filter((item) => typeof item === "string" && item.includes(":"));
+          if (shared.length) return Array.from(new Set(shared)).sort();
+        }
+      } catch (error) {
+        // Fallback to local/default when shared file is unavailable.
+      }
+      return null;
+    }
+
+    async function loadSavedTimes() {
+      const shared = await loadSharedTimes();
+      if (shared && shared.length) {
+        alarmTimes = shared;
+      } else {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          const parsed = raw ? JSON.parse(raw) : [];
+          alarmTimes = Array.isArray(parsed) && parsed.length ? parsed.filter(Boolean) : DEFAULT_TIMES.slice();
+        } catch (error) {
+          alarmTimes = DEFAULT_TIMES.slice();
+        }
+      }
+      timeList.innerHTML = "";
+      if (!alarmTimes.length) createTimeRow("");
+      alarmTimes.forEach((time) => createTimeRow(time));
+    }
+
+    function saveTimes() {
+      const inputs = Array.from(timeList.querySelectorAll("input[type='time']"));
+      const values = inputs.map((it) => it.value).filter(Boolean);
+      const uniqueSorted = Array.from(new Set(values)).sort();
+      alarmTimes = uniqueSorted;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(uniqueSorted));
+      panelStatus.textContent = uniqueSorted.length
+        ? "Đã lưu " + uniqueSorted.length + " mốc báo thức (máy hiện tại)."
+        : "Chưa có giờ nào được lưu.";
+    }
+
+    async function tryPlayAudio() {
+      try {
+        await alarmAudio.play();
+        soundStatus.textContent = "Nhạc đang phát";
+        setTimeout(() => {
+          soundStatus.style.display = "none";
+        }, 1200);
+      } catch (error) {
+        soundStatus.textContent = "Trình duyệt chặn autoplay. Bấm 1 lần để bật nhạc.";
+      }
+    }
+
+    function unlockAudio() {
+      tryPlayAudio();
+      window.removeEventListener("pointerdown", unlockAudio);
+      window.removeEventListener("keydown", unlockAudio);
+    }
+
+    window.addEventListener("load", tryPlayAudio);
+    window.addEventListener("pointerdown", unlockAudio);
+    window.addEventListener("keydown", unlockAudio);
+    window.setInterval(checkAlarmTimes, 1000);
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./service-worker.js").catch(() => {});
+      });
+    }
+    window.addEventListener("beforeinstallprompt", (event) => {
+      event.preventDefault();
+      deferredInstallPrompt = event;
+      installAppBtn.disabled = false;
+      panelStatus.textContent = "Sẵn sàng cài shortcut app.";
+    });
+    window.addEventListener("appinstalled", () => {
+      deferredInstallPrompt = null;
+      installAppBtn.disabled = true;
+      panelStatus.textContent = "Đã cài app ra màn hình.";
+    });
+
+    settingsBtn.addEventListener("click", () => {
+      const pass = window.prompt("Nhập mật khẩu cài đặt:");
+      if (pass !== PASSCODE) {
+        panelStatus.textContent = "Sai mật khẩu.";
+        return;
+      }
+      loadSavedTimes();
+      settingsPanel.classList.add("open");
+      panelStatus.textContent = "Nhập giờ rồi bấm Lưu.";
+    });
+
+    addTimeBtn.addEventListener("click", () => {
+      createTimeRow("");
+    });
+
+    saveTimesBtn.addEventListener("click", saveTimes);
+    installAppBtn.addEventListener("click", async () => {
+      if (!deferredInstallPrompt) {
+        panelStatus.textContent = "Trình duyệt chưa hỗ trợ nút cài. Hãy dùng menu trình duyệt > Cài đặt ứng dụng.";
+        return;
+      }
+      deferredInstallPrompt.prompt();
+      const choice = await deferredInstallPrompt.userChoice;
+      panelStatus.textContent = choice.outcome === "accepted"
+        ? "Bạn đã đồng ý cài app."
+        : "Bạn đã hủy cài app.";
+      deferredInstallPrompt = null;
+      installAppBtn.disabled = true;
+    });
+    closePanelBtn.addEventListener("click", () => settingsPanel.classList.remove("open"));
+    stopAlarmBtn.addEventListener("click", () => {
+      alarmAudio.pause();
+      alarmAudio.currentTime = 0;
+      panelStatus.textContent = "Đã tắt chuông.";
+    });
+    installAppBtn.disabled = true;
+    loadSavedTimes().then(() => {
+      panelStatus.textContent = "Mốc mặc định: 10:00, 12:00, 15:00.";
+    });
   </script>
 </body>
 </html>
