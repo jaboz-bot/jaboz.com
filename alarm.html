@@ -344,8 +344,11 @@
     const closePanelBtn = document.getElementById("closePanelBtn");
     const panelStatus = document.getElementById("panelStatus");
     const alarmAudio = new Audio("./nhac_chuong.mp3");
+    const hourlyAudio = new Audio("./1_hour.mp3");
     alarmAudio.loop = false;
     alarmAudio.preload = "auto";
+    hourlyAudio.loop = false;
+    hourlyAudio.preload = "auto";
     const PASSCODE = "2007";
     const STORAGE_KEY = "jabozAlarmTimes";
     const SHARED_TIMES_URL = "./alarm-times.json";
@@ -356,8 +359,11 @@
     const GITHUB_FILE_PATH = "alarm-times.json";
     const VOLUME_KEY = "jabozAlarmVolume";
     const GITHUB_TOKEN_KEY = "jabozGithubToken";
+    const PENDING_SYNC_KEY = "jabozPendingSync";
+    const TEMP_UI_KEY = "jabozTempUiState";
     let alarmTimes = [];
     let lastTriggeredStamp = "";
+    let lastHourlyStamp = "";
     let deferredInstallPrompt = null;
     let fadeTimer = null;
     let syncDebounceTimer = null;
@@ -392,6 +398,15 @@
         lastTriggeredStamp = stamp;
         alarmAudio.currentTime = 0;
         alarmAudio.play().catch(() => {});
+      }
+      if (now.getMinutes() === 0 && now.getSeconds() < 2) {
+        const hourStamp = now.getFullYear() + "-" + (now.getMonth() + 1) + "-" + now.getDate() + " " + pad2(now.getHours());
+        if (lastHourlyStamp !== hourStamp) {
+          lastHourlyStamp = hourStamp;
+          hourlyAudio.currentTime = 0;
+          hourlyAudio.volume = alarmAudio.volume;
+          hourlyAudio.play().catch(() => {});
+        }
       }
     }
     function showOverlay() {
@@ -514,6 +529,7 @@
           })
         });
         if (!writeResp.ok) throw new Error("Đồng bộ thất bại. Kiểm tra token hoặc quyền repo.");
+        localStorage.removeItem(PENDING_SYNC_KEY);
         if (!silent) {
           panelStatus.textContent = "Đã đồng bộ mốc giờ + âm lượng lên GitHub.";
         }
@@ -522,6 +538,7 @@
         panelStatus.textContent = message;
         // Token có thể hết hạn/sai, xóa để lần sau nhập lại.
         localStorage.removeItem(GITHUB_TOKEN_KEY);
+        markPendingSync();
       }
     }
 
@@ -530,6 +547,10 @@
       syncDebounceTimer = setTimeout(() => {
         syncTimesToGithub(true);
       }, 1200);
+    }
+
+    function markPendingSync() {
+      localStorage.setItem(PENDING_SYNC_KEY, "1");
     }
 
     async function loadSavedTimes() {
@@ -564,6 +585,7 @@
       panelStatus.textContent = uniqueSorted.length
         ? "Đã lưu " + uniqueSorted.length + " mốc báo thức (máy hiện tại)."
         : "Chưa có giờ nào được lưu.";
+      markPendingSync();
       scheduleAutoSync();
     }
 
@@ -636,14 +658,25 @@
     volumeSlider.addEventListener("input", () => {
       const value = Number(volumeSlider.value) / 100;
       alarmAudio.volume = value;
+      hourlyAudio.volume = value;
       localStorage.setItem(VOLUME_KEY, String(value));
+      markPendingSync();
       scheduleAutoSync();
     });
     loadSavedTimes().then(() => {
       panelStatus.textContent = "Mốc mặc định: 10:00, 12:00, 15:00.";
     });
+    if (localStorage.getItem(PENDING_SYNC_KEY) === "1") {
+      syncTimesToGithub(true);
+    }
     ["pointerdown", "keydown", "mousemove", "touchstart"].forEach((evt) => {
       window.addEventListener(evt, scheduleButtonFade, { passive: true });
+    });
+    window.addEventListener("beforeunload", () => {
+      sessionStorage.clear();
+      localStorage.removeItem(TEMP_UI_KEY);
+      alarmAudio.pause();
+      hourlyAudio.pause();
     });
     scheduleButtonFade();
   </script>
