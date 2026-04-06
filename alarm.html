@@ -3,328 +3,113 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Jaboz Home - Báo thức</title>
+  <title>Jaboz Home - Đồng hồ</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --bg-start: #4f5d95;
-      --bg-end: #2f365f;
-      --card-bg: rgba(255, 253, 248, 0.96);
-      --text-primary: #1f2937;
-      --text-secondary: #6b7280;
-      --primary: #6366f1;
-      --danger: #dc2626;
-    }
+    html, body { width: 100%; height: 100%; }
     body {
+      overflow: hidden;
       font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      min-height: 100vh;
-      background: linear-gradient(135deg, var(--bg-start), var(--bg-end));
-      padding: 20px;
-      color: var(--text-primary);
-    }
-    .container { max-width: 980px; margin: 0 auto; }
-    .top {
+      background: radial-gradient(circle at center, #5b6cb1 0%, #2f365f 70%);
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      margin: 18px 0 20px;
-      color: #fff;
-      gap: 12px;
-    }
-    .top h1 { font-size: 2rem; }
-    .back-link {
-      color: #fff;
-      text-decoration: none;
-      border: 1px solid rgba(255, 255, 255, 0.38);
-      border-radius: 10px;
-      padding: 8px 12px;
-      background: rgba(255, 255, 255, 0.16);
-    }
-    .card {
-      background: var(--card-bg);
-      border-radius: 18px;
-      padding: 24px;
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
-      border: 1px solid rgba(255, 214, 170, 0.45);
-      display: grid;
-      grid-template-columns: 320px 1fr;
-      gap: 24px;
-    }
-    .clock-wrap {
-      display: flex;
       justify-content: center;
-      align-items: center;
     }
-    .analog-clock {
-      width: 280px;
-      height: 280px;
+    .clock {
+      width: min(82vmin, 92vw);
+      height: min(82vmin, 92vw);
       border-radius: 50%;
-      border: 8px solid #d9dffb;
-      background: radial-gradient(circle at center, #fff 0%, #eef2ff 76%);
+      border: 1.2vmin solid rgba(223, 232, 255, 0.9);
+      background: radial-gradient(circle at center, #ffffff 0%, #e9efff 74%);
       position: relative;
-      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1), 0 14px 24px rgba(57, 62, 116, 0.2);
+      box-shadow: inset 0 0.8vmin 2vmin rgba(0, 0, 0, 0.1), 0 3vmin 7vmin rgba(0, 0, 0, 0.35);
     }
-    .center-dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: #111827;
+    .marker {
       position: absolute;
       left: 50%;
       top: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 5;
+      width: 0.9vmin;
+      height: 36vmin;
+      transform-origin: 50% 100%;
+      margin-left: -0.45vmin;
+      margin-top: -36vmin;
+      background: linear-gradient(to bottom, #475569 0 3.4vmin, transparent 3.4vmin);
     }
     .hand {
       position: absolute;
       left: 50%;
       bottom: 50%;
       transform-origin: bottom center;
-      border-radius: 8px;
+      border-radius: 1vmin;
     }
-    .hour-hand {
-      width: 7px;
-      height: 70px;
-      background: #111827;
-      margin-left: -3.5px;
+    .hour {
+      width: 1.8vmin;
+      height: 21vmin;
+      margin-left: -0.9vmin;
+      background: #0f172a;
     }
-    .minute-hand {
-      width: 5px;
-      height: 96px;
+    .minute {
+      width: 1.2vmin;
+      height: 29vmin;
+      margin-left: -0.6vmin;
       background: #334155;
-      margin-left: -2.5px;
     }
-    .second-hand {
-      width: 2px;
-      height: 108px;
+    .second {
+      width: 0.5vmin;
+      height: 33vmin;
+      margin-left: -0.25vmin;
       background: #ef4444;
-      margin-left: -1px;
     }
-    .marker {
+    .dot {
+      width: 2.8vmin;
+      height: 2.8vmin;
+      border-radius: 50%;
+      background: #0f172a;
       position: absolute;
       left: 50%;
       top: 50%;
-      width: 3px;
-      height: 116px;
-      transform-origin: 50% 100%;
-      margin-left: -1.5px;
-      margin-top: -116px;
-      background: linear-gradient(to bottom, #475569 0 10px, transparent 10px);
-    }
-    .controls h2 {
-      margin-bottom: 14px;
-      font-size: 1.45rem;
-    }
-    .time-now {
-      color: var(--text-secondary);
-      margin-bottom: 16px;
-      font-weight: 600;
-    }
-    .field {
-      margin-bottom: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    label { font-weight: 600; }
-    input[type="time"], input[type="file"] {
-      width: 100%;
-      border: 1px solid #cbd5e1;
-      border-radius: 10px;
-      padding: 10px 12px;
-      background: #fff;
-    }
-    .btn-row {
-      display: flex;
-      gap: 10px;
-      margin-top: 16px;
-      flex-wrap: wrap;
-    }
-    button {
-      border: none;
-      border-radius: 10px;
-      padding: 10px 14px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .set-btn {
-      background: linear-gradient(135deg, var(--primary), #4f46e5);
-      color: #fff;
-    }
-    .stop-btn {
-      background: #fee2e2;
-      color: var(--danger);
-    }
-    .status {
-      margin-top: 14px;
-      color: var(--text-secondary);
-      min-height: 22px;
-      font-size: 0.95rem;
-    }
-    @media (max-width: 840px) {
-      .card { grid-template-columns: 1fr; }
-      .analog-clock { width: 240px; height: 240px; }
-      .hour-hand { height: 60px; }
-      .minute-hand { height: 82px; }
-      .second-hand { height: 96px; }
-      .marker {
-        height: 100px;
-        margin-top: -100px;
-      }
+      transform: translate(-50%, -50%);
+      z-index: 10;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="top">
-      <h1>Dong ho va Bao thuc</h1>
-      <a class="back-link" href="./index.html">← Quay ve Jaboz Home</a>
-    </div>
-
-    <main class="card">
-      <section class="clock-wrap">
-        <div class="analog-clock" aria-label="Dong ho kim">
-          <div class="marker" style="transform: rotate(0deg)"></div>
-          <div class="marker" style="transform: rotate(30deg)"></div>
-          <div class="marker" style="transform: rotate(60deg)"></div>
-          <div class="marker" style="transform: rotate(90deg)"></div>
-          <div class="marker" style="transform: rotate(120deg)"></div>
-          <div class="marker" style="transform: rotate(150deg)"></div>
-          <div class="marker" style="transform: rotate(180deg)"></div>
-          <div class="marker" style="transform: rotate(210deg)"></div>
-          <div class="marker" style="transform: rotate(240deg)"></div>
-          <div class="marker" style="transform: rotate(270deg)"></div>
-          <div class="marker" style="transform: rotate(300deg)"></div>
-          <div class="marker" style="transform: rotate(330deg)"></div>
-          <div class="hand hour-hand" id="hourHand"></div>
-          <div class="hand minute-hand" id="minuteHand"></div>
-          <div class="hand second-hand" id="secondHand"></div>
-          <div class="center-dot"></div>
-        </div>
-      </section>
-
-      <section class="controls">
-        <h2>Dat gio bao thuc</h2>
-        <div class="time-now" id="nowText">Bay gio: --:--:--</div>
-        <div class="field">
-          <label for="alarmTime">Gio bao thuc</label>
-          <input id="alarmTime" type="time" />
-        </div>
-        <div class="field">
-          <label for="alarmAudio">Ban nhac bao thuc (chon file mp3)</label>
-          <input id="alarmAudio" type="file" accept="audio/*" />
-        </div>
-        <div class="btn-row">
-          <button class="set-btn" id="setAlarmBtn">Dat bao thuc</button>
-          <button class="stop-btn" id="stopAlarmBtn" type="button">Tat nhac</button>
-        </div>
-        <div class="status" id="statusText">Chua dat bao thuc.</div>
-      </section>
-    </main>
+  <div class="clock" aria-label="Đồng hồ kim toàn màn hình">
+    <div class="marker" style="transform: rotate(0deg)"></div>
+    <div class="marker" style="transform: rotate(30deg)"></div>
+    <div class="marker" style="transform: rotate(60deg)"></div>
+    <div class="marker" style="transform: rotate(90deg)"></div>
+    <div class="marker" style="transform: rotate(120deg)"></div>
+    <div class="marker" style="transform: rotate(150deg)"></div>
+    <div class="marker" style="transform: rotate(180deg)"></div>
+    <div class="marker" style="transform: rotate(210deg)"></div>
+    <div class="marker" style="transform: rotate(240deg)"></div>
+    <div class="marker" style="transform: rotate(270deg)"></div>
+    <div class="marker" style="transform: rotate(300deg)"></div>
+    <div class="marker" style="transform: rotate(330deg)"></div>
+    <div class="hand hour" id="hour"></div>
+    <div class="hand minute" id="minute"></div>
+    <div class="hand second" id="second"></div>
+    <div class="dot"></div>
   </div>
 
   <script>
-    const hourHand = document.getElementById("hourHand");
-    const minuteHand = document.getElementById("minuteHand");
-    const secondHand = document.getElementById("secondHand");
-    const nowText = document.getElementById("nowText");
-    const alarmTimeInput = document.getElementById("alarmTime");
-    const alarmAudioInput = document.getElementById("alarmAudio");
-    const setAlarmBtn = document.getElementById("setAlarmBtn");
-    const stopAlarmBtn = document.getElementById("stopAlarmBtn");
-    const statusText = document.getElementById("statusText");
+    const hourHand = document.getElementById("hour");
+    const minuteHand = document.getElementById("minute");
+    const secondHand = document.getElementById("second");
 
-    const alarmAudio = new Audio();
-    alarmAudio.loop = true;
-
-    let alarmTime = null;
-    let alarmTriggeredForMinute = null;
-    let selectedAudioUrl = null;
-
-    function pad2(num) {
-      return String(num).padStart(2, "0");
-    }
-
-    function getCurrentTimeKey(date) {
-      return pad2(date.getHours()) + ":" + pad2(date.getMinutes());
-    }
-
-    function updateAnalogClock() {
+    function updateClock() {
       const now = new Date();
-      const seconds = now.getSeconds();
-      const minutes = now.getMinutes() + seconds / 60;
-      const hours = (now.getHours() % 12) + minutes / 60;
-
-      hourHand.style.transform = "rotate(" + (hours * 30) + "deg)";
-      minuteHand.style.transform = "rotate(" + (minutes * 6) + "deg)";
-      secondHand.style.transform = "rotate(" + (seconds * 6) + "deg)";
-
-      const hh = pad2(now.getHours());
-      const mm = pad2(now.getMinutes());
-      const ss = pad2(seconds);
-      nowText.textContent = "Bay gio: " + hh + ":" + mm + ":" + ss;
-
-      if (!alarmTime) return;
-
-      const currentKey = getCurrentTimeKey(now);
-      if (currentKey !== alarmTriggeredForMinute) {
-        alarmTriggeredForMinute = null;
-      }
-      if (currentKey === alarmTime && !alarmTriggeredForMinute) {
-        alarmTriggeredForMinute = currentKey;
-        playAlarm();
-      }
+      const sec = now.getSeconds();
+      const min = now.getMinutes() + sec / 60;
+      const hour = (now.getHours() % 12) + min / 60;
+      hourHand.style.transform = "rotate(" + (hour * 30) + "deg)";
+      minuteHand.style.transform = "rotate(" + (min * 6) + "deg)";
+      secondHand.style.transform = "rotate(" + (sec * 6) + "deg)";
     }
 
-    function playAlarm() {
-      const file = alarmAudioInput.files && alarmAudioInput.files[0];
-      if (!file) {
-        statusText.textContent = "Den gio roi nhung ban chua chon nhac. Hay chon file audio.";
-        return;
-      }
-
-      if (!selectedAudioUrl) {
-        selectedAudioUrl = URL.createObjectURL(file);
-        alarmAudio.src = selectedAudioUrl;
-      }
-
-      alarmAudio.currentTime = 0;
-      alarmAudio.play()
-        .then(() => {
-          statusText.textContent = "Bao thuc dang reo: " + file.name;
-        })
-        .catch(() => {
-          statusText.textContent = "Khong the phat nhac tu dong. Bam 'Tat nhac' roi dat lai.";
-        });
-    }
-
-    setAlarmBtn.addEventListener("click", () => {
-      if (!alarmTimeInput.value) {
-        statusText.textContent = "Vui long chon gio bao thuc.";
-        return;
-      }
-      alarmTime = alarmTimeInput.value;
-      alarmTriggeredForMinute = null;
-      statusText.textContent = "Da dat bao thuc luc " + alarmTime + ".";
-    });
-
-    stopAlarmBtn.addEventListener("click", () => {
-      alarmAudio.pause();
-      alarmAudio.currentTime = 0;
-      statusText.textContent = alarmTime
-        ? "Da tat nhac. Bao thuc van dat luc " + alarmTime + "."
-        : "Da tat nhac.";
-    });
-
-    alarmAudioInput.addEventListener("change", () => {
-      if (selectedAudioUrl) {
-        URL.revokeObjectURL(selectedAudioUrl);
-      }
-      selectedAudioUrl = null;
-    });
-
-    setInterval(updateAnalogClock, 1000);
-    updateAnalogClock();
+    setInterval(updateClock, 1000);
+    updateClock();
   </script>
 </body>
 </html>
