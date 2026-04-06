@@ -333,7 +333,7 @@
     const GITHUB_FILE_PATH = "alarm-times.json";
     const VOLUME_KEY = "jabozAlarmVolume";
     let alarmTimes = [];
-    let firedMinuteSet = new Set();
+    let lastTriggeredStamp = "";
     let deferredInstallPrompt = null;
     let fadeTimer = null;
 
@@ -358,19 +358,13 @@
       return pad2(date.getHours()) + ":" + pad2(date.getMinutes());
     }
 
-    function pruneFiredSet(currentKey) {
-      const keep = new Set();
-      if (firedMinuteSet.has(currentKey)) keep.add(currentKey);
-      firedMinuteSet = keep;
-    }
-
     function checkAlarmTimes() {
       if (!alarmTimes.length) return;
       const now = new Date();
       const key = currentMinuteKey(now);
-      pruneFiredSet(key);
-      if (alarmTimes.includes(key) && !firedMinuteSet.has(key)) {
-        firedMinuteSet.add(key);
+      const stamp = now.getFullYear() + "-" + (now.getMonth() + 1) + "-" + now.getDate() + " " + key;
+      if (alarmTimes.includes(key) && lastTriggeredStamp !== stamp) {
+        lastTriggeredStamp = stamp;
         alarmAudio.currentTime = 0;
         alarmAudio.play().catch(() => {});
       }
@@ -545,6 +539,12 @@
       await loadSavedTimes();
       showSettingsModal();
       panelStatus.textContent = "Nhập giờ rồi bấm Lưu.";
+    });
+    passwordInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        passwordOkBtn.click();
+      }
     });
 
     addTimeBtn.addEventListener("click", () => {
