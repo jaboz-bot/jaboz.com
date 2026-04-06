@@ -22,6 +22,7 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      gap: 18px;
     }
     .clock {
       width: min(82vmin, 92vw);
@@ -213,8 +214,43 @@
     .num-3 { right: 2.2%; top: 50%; transform: translateY(-50%); }
     .num-6 { bottom: 2.2%; left: 50%; transform: translateX(-50%); }
     .num-9 { left: 2.2%; top: 50%; transform: translateY(-50%); }
+    .volume-wrap {
+      height: min(52vmin, 360px);
+      width: 54px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.84);
+      border: 1px solid rgba(255, 255, 255, 0.65);
+      box-shadow: 0 10px 22px rgba(15, 23, 42, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 20;
+    }
+    .volume-slider {
+      writing-mode: vertical-lr;
+      direction: rtl;
+      width: 26px;
+      height: calc(100% - 24px);
+      accent-color: #f97316;
+      cursor: pointer;
+    }
+    .volume-value {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      color: #334155;
+      font-weight: 600;
+      user-select: none;
+    }
     @media (max-width: 900px) {
       .clock-number { font-size: 8.5vmin; }
+      .volume-wrap {
+        height: min(48vmin, 300px);
+        width: 48px;
+      }
     }
   </style>
 </head>
@@ -237,6 +273,10 @@
       <div class="hand minute" id="minute"></div>
       <div class="hand second" id="second"></div>
       <div class="dot"></div>
+    </div>
+    <div class="volume-wrap" aria-label="Điều chỉnh âm lượng chuông">
+      <input id="volumeSlider" class="volume-slider" type="range" min="0" max="100" value="80" />
+      <div class="volume-value" id="volumeValue">80%</div>
     </div>
   </div>
 
@@ -278,6 +318,8 @@
     const passwordOkBtn = document.getElementById("passwordOkBtn");
     const passwordCancelBtn = document.getElementById("passwordCancelBtn");
     const passwordStatus = document.getElementById("passwordStatus");
+    const volumeSlider = document.getElementById("volumeSlider");
+    const volumeValue = document.getElementById("volumeValue");
     const settingsPanel = document.getElementById("settingsPanel");
     const timeList = document.getElementById("timeList");
     const addTimeBtn = document.getElementById("addTimeBtn");
@@ -288,8 +330,9 @@
     const closePanelBtn = document.getElementById("closePanelBtn");
     const panelStatus = document.getElementById("panelStatus");
     const alarmAudio = new Audio("./nhac_chuong.mp3");
-    alarmAudio.loop = true;
+    alarmAudio.loop = false;
     alarmAudio.preload = "auto";
+    alarmAudio.volume = 0.8;
     const PASSCODE = "2007";
     const STORAGE_KEY = "jabozAlarmTimes";
     const SHARED_TIMES_URL = "./alarm-times.json";
@@ -497,6 +540,11 @@
       alarmAudio.pause();
       alarmAudio.currentTime = 0;
       panelStatus.textContent = "Đã tắt chuông.";
+    });
+    volumeSlider.addEventListener("input", () => {
+      const volume = Number(volumeSlider.value) / 100;
+      alarmAudio.volume = volume;
+      volumeValue.textContent = Math.round(volume * 100) + "%";
     });
     installAppBtn.disabled = true;
     loadSavedTimes().then(() => {
