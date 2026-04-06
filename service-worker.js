@@ -1,7 +1,8 @@
-const CACHE_NAME = "jaboz-clock-v1";
+const CACHE_NAME = "jaboz-clock-v4";
 const ASSETS = [
   "./alarm.html",
   "./nhac_chuong.mp3",
+  "./1_hour.mp3",
   "./manifest.webmanifest"
 ];
 
