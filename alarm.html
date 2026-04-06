@@ -174,6 +174,7 @@
     .btn-stop { background: #fee2e2; color: #b91c1c; }
     .btn-close { background: #e2e8f0; color: #334155; }
     .btn-install { background: #ede9fe; color: #5b21b6; }
+    .btn-sync { background: #e0f2fe; color: #075985; }
     .panel-status {
       margin-top: 8px;
       color: #475569;
@@ -198,7 +199,7 @@
   </style>
 </head>
 <body>
-  <div class="sound-status" id="soundStatus">Đang thử phát nhạc...</div>
+  <div class="sound-status" id="soundStatus">Chuông chỉ phát theo giờ báo đã cài.</div>
   <div class="clock-wrap">
     <div class="clock" aria-label="Đồng hồ kim toàn màn hình">
       <div class="marker" style="transform: rotate(30deg)"></div>
@@ -227,6 +228,7 @@
     <div class="btn-row">
       <button class="btn-add" id="addTimeBtn" type="button">+ Thêm giờ</button>
       <button class="btn-save" id="saveTimesBtn" type="button">Lưu</button>
+      <button class="btn-sync" id="syncGithubBtn" type="button">Đồng bộ lên GitHub</button>
       <button class="btn-install" id="installAppBtn" type="button">Tạo shortcut app</button>
       <button class="btn-stop" id="stopAlarmBtn" type="button">Tắt chuông</button>
       <button class="btn-close" id="closePanelBtn" type="button">Đóng</button>
@@ -245,6 +247,7 @@
     const addTimeBtn = document.getElementById("addTimeBtn");
     const saveTimesBtn = document.getElementById("saveTimesBtn");
     const installAppBtn = document.getElementById("installAppBtn");
+    const syncGithubBtn = document.getElementById("syncGithubBtn");
     const stopAlarmBtn = document.getElementById("stopAlarmBtn");
     const closePanelBtn = document.getElementById("closePanelBtn");
     const panelStatus = document.getElementById("panelStatus");
@@ -255,6 +258,10 @@
     const STORAGE_KEY = "jabozAlarmTimes";
     const SHARED_TIMES_URL = "./alarm-times.json";
     const DEFAULT_TIMES = ["10:00", "12:00", "15:00"];
+    const GITHUB_OWNER = "jaboz-bot";
+    const GITHUB_REPO = "jaboz.com";
+    const GITHUB_BRANCH = "main";
+    const GITHUB_FILE_PATH = "alarm-times.json";
     let alarmTimes = [];
     let firedMinuteSet = new Set();
     let deferredInstallPrompt = null;
@@ -363,27 +370,6 @@
         : "Chưa có giờ nào được lưu.";
     }
 
-    async function tryPlayAudio() {
-      try {
-        await alarmAudio.play();
-        soundStatus.textContent = "Nhạc đang phát";
-        setTimeout(() => {
-          soundStatus.style.display = "none";
-        }, 1200);
-      } catch (error) {
-        soundStatus.textContent = "Trình duyệt chặn autoplay. Bấm 1 lần để bật nhạc.";
-      }
-    }
-
-    function unlockAudio() {
-      tryPlayAudio();
-      window.removeEventListener("pointerdown", unlockAudio);
-      window.removeEventListener("keydown", unlockAudio);
-    }
-
-    window.addEventListener("load", tryPlayAudio);
-    window.addEventListener("pointerdown", unlockAudio);
-    window.addEventListener("keydown", unlockAudio);
     window.setInterval(checkAlarmTimes, 1000);
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
