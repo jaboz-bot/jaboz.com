@@ -1,6 +1,6 @@
 Dat cac file APK phat hanh tai day.
 
 Goi y dat ten:
-- hoctiengviet-v1.0.4.apk
+- hoctiengviet-v1.0.5.apk
 
 Sau moi lan upload APK moi, cap nhat file ../update.json.

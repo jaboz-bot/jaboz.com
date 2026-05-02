@@ -1,9 +1,9 @@
 {
-  "latestVersionCode": 5,
-  "latestVersionName": "1.0.4",
+  "latestVersionCode": 6,
+  "latestVersionName": "1.0.5",
   "minVersionCode": 1,
-  "apkUrl": "https://media.githubusercontent.com/media/jaboz-bot/jaboz.com/main/app/hoctiengviet-v1.0.4.apk",
-  "releaseNotes": "1.0.4: Splash & icon adaptive — viền logo không bị cắt; theme splash chuẩn. Bổ sung bản dịch Hàn cho tra từ điển online.",
+  "apkUrl": "https://media.githubusercontent.com/media/jaboz-bot/jaboz.com/main/app/hoctiengviet-v1.0.5.apk",
+  "releaseNotes": "1.0.5: Icon launcher — nền kem (#FFF3EB) thay viền xanh; logo phóng to; splash vẫn tách riêng để không cắt viền vàng.",
   "details": [
     "Học bảng chữ cái tiếng Việt có phát âm trực tiếp bằng giọng nói.",
     "Luyện nguyên âm, phụ âm đầu/cuối và 6 thanh điệu theo lộ trình rõ ràng.",
