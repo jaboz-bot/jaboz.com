@@ -1,0 +1,7 @@
+{
+  "name": "hoctiengviet-install-count",
+  "private": true,
+  "devDependencies": {
+    "wrangler": "^3.99.0"
+  }
+}

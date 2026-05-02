@@ -1,0 +1,28 @@
+Triển khai tự động đếm "Số lượt tải" (Cloudflare Worker + KV)
+
+Bước 1 — Tạo KV và điền wrangler.toml
+  cd workers/install-counter
+  npm install
+  npx wrangler kv namespace create INSTALL_KV
+  npx wrangler kv namespace create INSTALL_KV --preview
+  Sao chép id vào wrangler.toml (id và preview_id), thay REPLACE_*
+
+Bước 2 — Deploy Worker
+  npx wrangler deploy
+  Ghi lại URL dạng: https://hoctiengviet-install-count.<tài-khoản>.workers.dev
+
+Bước 3 — Gắn URL vào app Android (repo Học Tiếng Việt)
+  Mở file gradle.properties (root), thêm hoặc sửa dòng:
+  hoctiengviet.installStatsBaseUrl=https://hoctiengviet-install-count.xxx.workers.dev
+  (không có dấu / cuối)
+  Rồi build lại APK.
+
+Bước 4 — CI tự deploy (tùy chọn)
+  Trên GitHub repo jaboz.com: Settings → Secrets → thêm CLOUDFLARE_API_TOKEN và CLOUDFLARE_ACCOUNT_ID.
+  Mỗi khi push thay đổi trong workers/install-counter/, workflow sẽ chạy wrangler deploy.
+
+Tùy chọn — Cùng tên miền jaboz.com (không đổi app)
+  Trong Cloudflare DNS của jaboz.com: Worker Route
+  jaboz.com/install-stats.json* và jaboz.com/install-count-register*
+  trỏ tới worker hoctiengviet-install-count.
+  Khi đó có thể để trống hoctiengviet.installStatsBaseUrl (app dùng mặc định https://jaboz.com).
