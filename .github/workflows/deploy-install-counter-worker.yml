@@ -1,9 +1,5 @@
-# Cần GitHub Secrets (repo jaboz.com → Settings → Secrets and variables → Actions):
-#   CLOUDFLARE_API_TOKEN  — tạo tại Cloudflare Dashboard → My Profile → API Tokens
-#                           (quyền Edit Cloudflare Workers + đọc KV)
-#   CLOUDFLARE_ACCOUNT_ID — Cloudflare Dashboard → bên phải cột "Account ID"
-#
-# wrangler.toml: dòng id = "..." phải là UUID KV thật (không được còn chữ REPLACE_).
+# Secrets: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID (đúng tên, Repository secrets)
+# Chạy wrangler trực tiếp để log lỗi đầy đủ (không chỉ "exit code 1").
 
 name: Deploy install-counter Worker
 
@@ -20,20 +16,36 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
       - name: Kiểm tra cấu hình KV
         working-directory: workers/install-counter
         run: |
           if grep -q 'REPLACE_' wrangler.toml; then
             echo "::error::wrangler.toml vẫn chứa REPLACE_ — chưa có KV id thật."
-            echo "Trên máy: cd workers/install-counter && npm i && npx wrangler kv namespace create INSTALL_KV"
-            echo "Dán id vào wrangler.toml, commit push lại."
             exit 1
           fi
 
-      - name: Deploy Worker
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          workingDirectory: workers/install-counter
-          command: deploy
+      - name: Kiểm tra Secrets (không in giá trị)
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -z "$CF_TOKEN" ]; then echo "::error::Thiếu GitHub secret CLOUDFLARE_API_TOKEN (Settings → Secrets → Actions)."; exit 1; fi
+          if [ -z "$CF_ACCOUNT" ]; then echo "::error::Thiếu GitHub secret CLOUDFLARE_ACCOUNT_ID."; exit 1; fi
+          echo "OK: đã có cả hai secret (độ dài token > 0)."
+
+      - name: npm install + wrangler deploy (log đầy đủ)
+        working-directory: workers/install-counter
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -e
+          npm install
+          echo "---- wrangler whoami ----"
+          npx wrangler whoami || true
+          echo "---- wrangler deploy ----"
+          npx wrangler deploy
