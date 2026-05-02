@@ -1,9 +1,9 @@
 {
-  "latestVersionCode": 2,
-  "latestVersionName": "1.0.1",
+  "latestVersionCode": 3,
+  "latestVersionName": "1.0.2",
   "minVersionCode": 1,
-  "apkUrl": "https://media.githubusercontent.com/media/jaboz-bot/jaboz.com/main/app/hoctiengviet-v1.0.1.apk",
-  "releaseNotes": "Cập nhật 1.0.1.",
+  "apkUrl": "https://media.githubusercontent.com/media/jaboz-bot/jaboz.com/main/app/hoctiengviet-v1.0.2.apk",
+  "releaseNotes": "1.0.2: chỉnh icon launcher, liên kết Facebook tác giả (có hiệu ứng), thống kê máy mở app trong Thông tin ứng dụng.",
   "details": [
     "Học bảng chữ cái tiếng Việt có phát âm trực tiếp bằng giọng nói.",
     "Luyện nguyên âm, phụ âm đầu/cuối và 6 thanh điệu theo lộ trình rõ ràng.",
