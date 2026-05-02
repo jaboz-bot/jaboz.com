@@ -1,5 +1,9 @@
-# GitHub Secrets: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID
-# wrangler.toml: thay REPLACE_* bằng id KV từ: npx wrangler kv namespace create INSTALL_KV
+# Cần GitHub Secrets (repo jaboz.com → Settings → Secrets and variables → Actions):
+#   CLOUDFLARE_API_TOKEN  — tạo tại Cloudflare Dashboard → My Profile → API Tokens
+#                           (quyền Edit Cloudflare Workers + đọc KV)
+#   CLOUDFLARE_ACCOUNT_ID — Cloudflare Dashboard → bên phải cột "Account ID"
+#
+# wrangler.toml: dòng id = "..." phải là UUID KV thật (không được còn chữ REPLACE_).
 
 name: Deploy install-counter Worker
 
@@ -15,6 +19,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Kiểm tra cấu hình KV
+        working-directory: workers/install-counter
+        run: |
+          if grep -q 'REPLACE_' wrangler.toml; then
+            echo "::error::wrangler.toml vẫn chứa REPLACE_ — chưa có KV id thật."
+            echo "Trên máy: cd workers/install-counter && npm i && npx wrangler kv namespace create INSTALL_KV"
+            echo "Dán id vào wrangler.toml, commit push lại."
+            exit 1
+          fi
 
       - name: Deploy Worker
         uses: cloudflare/wrangler-action@v3

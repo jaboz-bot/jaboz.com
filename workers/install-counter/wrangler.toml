@@ -1,7 +1,5 @@
-# 1) npx wrangler kv namespace create INSTALL_KV
-# 2) Dán id vào dòng "id" bên dưới (và preview_id nếu dùng wrangler dev)
-# 3) npx wrangler deploy
-# 4) Copy URL *.workers.dev vào gradle.properties dự án app (hoctiengviet.installStatsBaseUrl=...)
+# BẮT BUỘC: thay id bằng UUID thật từ Cloudflare (xem INSTALL_COUNTER_DEPLOY.txt).
+# preview_id chỉ cần khi chạy `wrangler dev` — có thể thêm sau, không bắt buộc cho deploy.
 
 name = "hoctiengviet-install-count"
 main = "src/index.js"
@@ -10,4 +8,3 @@ compatibility_date = "2024-11-01"
 [[kv_namespaces]]
 binding = "INSTALL_KV"
 id = "REPLACE_WITH_KV_NAMESPACE_ID"
-preview_id = "REPLACE_WITH_PREVIEW_KV_ID"

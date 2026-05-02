@@ -1,28 +1,32 @@
 Triển khai tự động đếm "Số lượt tải" (Cloudflare Worker + KV)
 
-Bước 1 — Tạo KV và điền wrangler.toml
+Nếu GitHub Actions báo lỗi (npx exit 1):
+  A) Mở tab job "deploy" → xem log. Thường là: chưa thay REPLACE_ trong wrangler.toml, hoặc thiếu Secrets.
+  B) Làm đúng thứ tự bên dưới rồi "Re-run jobs".
+
+Bước 1 — Tạo KV và điền wrangler.toml (máy local, đã cài Node.js)
   cd workers/install-counter
   npm install
+  npx wrangler login
   npx wrangler kv namespace create INSTALL_KV
-  npx wrangler kv namespace create INSTALL_KV --preview
-  Sao chép id vào wrangler.toml (id và preview_id), thay REPLACE_*
+  Copy dòng id (UUID) — dán thay thế REPLACE_WITH_KV_NAMESPACE_ID trong wrangler.toml
+  Commit + push file wrangler.toml lên GitHub.
 
-Bước 2 — Deploy Worker
+Bước 2 — GitHub Secrets (repo jaboz.com)
+  Settings → Secrets and variables → Actions → New repository secret
+  - CLOUDFLARE_ACCOUNT_ID = copy từ Cloudflare Dashboard (cột phải trang tổng quan)
+  - CLOUDFLARE_API_TOKEN = tạo token (Workers KV Storage Edit + Workers Scripts Edit, hoặc tương đương)
+
+Bước 3 — Chạy lại workflow
+  Tab Actions → workflow failed → Re-run all jobs
+
+Bước 4 — Deploy tay (nếu không dùng CI)
   npx wrangler deploy
-  Ghi lại URL dạng: https://hoctiengviet-install-count.<tài-khoản>.workers.dev
+  URL: https://hoctiengviet-install-count.<subdomain>.workers.dev
 
-Bước 3 — Gắn URL vào app Android (repo Học Tiếng Việt)
-  Mở file gradle.properties (root), thêm hoặc sửa dòng:
-  hoctiengviet.installStatsBaseUrl=https://hoctiengviet-install-count.xxx.workers.dev
-  (không có dấu / cuối)
-  Rồi build lại APK.
+Bước 5 — Gắn URL vào app Android
+  gradle.properties: hoctiengviet.installStatsBaseUrl=https://... (không / cuối)
+  Build lại APK.
 
-Bước 4 — CI tự deploy (tùy chọn)
-  Trên GitHub repo jaboz.com: Settings → Secrets → thêm CLOUDFLARE_API_TOKEN và CLOUDFLARE_ACCOUNT_ID.
-  Mỗi khi push thay đổi trong workers/install-counter/, workflow sẽ chạy wrangler deploy.
-
-Tùy chọn — Cùng tên miền jaboz.com (không đổi app)
-  Trong Cloudflare DNS của jaboz.com: Worker Route
-  jaboz.com/install-stats.json* và jaboz.com/install-count-register*
-  trỏ tới worker hoctiengviet-install-count.
-  Khi đó có thể để trống hoctiengviet.installStatsBaseUrl (app dùng mặc định https://jaboz.com).
+Tùy chọn — jaboz.com không đổi app
+  Cloudflare → Workers Routes: /install-stats.json* và /install-count-register* → worker này.
