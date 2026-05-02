@@ -1,32 +1,132 @@
-Triển khai tự động đếm "Số lượt tải" (Cloudflare Worker + KV)
+================================================================================
+HƯỚNG DẪN CHI TIẾT: Đếm "Số lượt tải" bằng Cloudflare Worker + GitHub Actions
+================================================================================
+Mục tiêu: Mỗi máy cài app lần đầu → +1 vào bộ đếm; số hiển thị trong app lấy từ server.
+Bạn làm lần lượt từ PHẦN A → B → C → D. Bỏ qua phần không cần (đã làm rồi).
 
-Nếu GitHub Actions báo lỗi (npx exit 1):
-  A) Mở tab job "deploy" → xem log. Thường là: chưa thay REPLACE_ trong wrangler.toml, hoặc thiếu Secrets.
-  B) Làm đúng thứ tự bên dưới rồi "Re-run jobs".
+--------------------------------------------------------------------------------
+PHẦN A — Chuẩn bị trên máy tính của bạn
+--------------------------------------------------------------------------------
+A1. Cài Node.js (bản LTS, ví dụ 20.x) nếu chưa có: https://nodejs.org
+    Mở PowerShell hoặc CMD, gõ:  node -v
+    Nếu ra số phiên bản (vd v20.x) là được.
 
-Bước 1 — Tạo KV và điền wrangler.toml (máy local, đã cài Node.js)
-  cd workers/install-counter
-  npm install
-  npx wrangler login
-  npx wrangler kv namespace create INSTALL_KV
-  Copy dòng id (UUID) — dán thay thế REPLACE_WITH_KV_NAMESPACE_ID trong wrangler.toml
-  Commit + push file wrangler.toml lên GitHub.
+A2. Mở thư mục project trên máy (repo đã clone):
+    Ví dụ đường dẫn có thể là:
+    D:\CURSOR_AI\JABOZ HOME\jaboz.com-deploy\workers\install-counter
 
-Bước 2 — GitHub Secrets (repo jaboz.com)
-  Settings → Secrets and variables → Actions → New repository secret
-  - CLOUDFLARE_ACCOUNT_ID = copy từ Cloudflare Dashboard (cột phải trang tổng quan)
-  - CLOUDFLARE_API_TOKEN = tạo token (Workers KV Storage Edit + Workers Scripts Edit, hoặc tương đương)
+    Trong PowerShell:
+    cd "D:\CURSOR_AI\JABOZ HOME\jaboz.com-deploy\workers\install-counter"
 
-Bước 3 — Chạy lại workflow
-  Tab Actions → workflow failed → Re-run all jobs
+    (Nếu đường dẫn khác, bạn tự sửa cho đúng chỗ có file wrangler.toml và thư mục src.)
 
-Bước 4 — Deploy tay (nếu không dùng CI)
-  npx wrangler deploy
-  URL: https://hoctiengviet-install-count.<subdomain>.workers.dev
+A3. Cài thư viện cho wrangler (một lần trong thư mục này):
+    npm install
 
-Bước 5 — Gắn URL vào app Android
-  gradle.properties: hoctiengviet.installStatsBaseUrl=https://... (không / cuối)
-  Build lại APK.
+--------------------------------------------------------------------------------
+PHẦN B — Đăng nhập Cloudflare và tạo "KV" (kho lưu số đếm)
+--------------------------------------------------------------------------------
+KV giống "bảng nhỏ trên cloud" để lưu: tổng số lượt tải + danh sách máy đã đếm.
 
-Tùy chọn — jaboz.com không đổi app
-  Cloudflare → Workers Routes: /install-stats.json* và /install-count-register* → worker này.
+B1. Đăng nhập Cloudflare từ máy bạn (mở trình duyệt khi lệnh hỏi):
+    npx wrangler login
+    Làm theo hướng dẫn trên màn hình cho đến khi báo đăng nhập thành công.
+
+B2. Tạo namespace KV (chỉ cần làm MỘT lần):
+    npx wrangler kv namespace create INSTALL_KV
+
+B3. Đọc kết quả in ra trong cửa sổ lệnh:
+    Bạn sẽ thấy một dòng giống:
+      id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+    Dãy trong ngoặc kép chính là "UUID" — BẠN CẦN COPY NGUYÊN CẢ UUID ĐÓ.
+
+B4. Mở file wrangler.toml (cùng thư mục workers/install-counter) bằng Notepad / VS Code.
+
+    Tìm dòng:
+      id = "REPLACE_WITH_KV_NAMESPACE_ID"
+
+    Thay REPLACE_WITH_KV_NAMESPACE_ID bằng UUID vừa copy, ví dụ:
+      id = "a1b2c3d4-....-....-....-............"
+
+    Lưu file.
+
+B5. Đẩy file wrangler.toml lên GitHub (để Actions và máy khác thấy bản đúng):
+    (Ở thư mục gốc repo jaboz.com-deploy, không chỉ trong workers)
+    git add workers/install-counter/wrangler.toml
+    git commit -m "Cấu hình KV id cho Worker đếm lượt tải"
+    git push origin main
+
+--------------------------------------------------------------------------------
+PHẦN C — Thêm "Secrets" trên GitHub (để Actions được phép deploy lên Cloudflare)
+--------------------------------------------------------------------------------
+Vào trình duyệt, mở repo:  https://github.com/jaboz-bot/jaboz.com
+
+C1. Lấy ACCOUNT ID (Cloudflare):
+    - Mở tab mới: https://dash.cloudflare.com
+    - Đăng nhập → vào đúng tài khoản bạn dùng cho Workers.
+    - Trang "Account home" bên phải thường có khối "Account details" → dòng "Account ID"
+      (một chuỗi hex dài). COPY toàn bộ Account ID.
+
+C2. Tạo API TOKEN (Cloudflare):
+    - Vào: My Profile (góc phải trên) → API Tokens → Create Token.
+    - Có thể dùng template "Edit Cloudflare Workers" hoặc tự tạo Custom với quyền tối thiểu:
+        Account → Workers Scripts → Edit
+        Account → Workers KV Storage → Edit
+    - Account Resources: chọn đúng account của bạn.
+    - Create Token → COPY token (chỉ hiện một lần, giữ kỹ).
+
+C3. Gắn Secrets vào repo GitHub jaboz.com:
+    - Trên GitHub repo jaboz.com: tab "Settings" (Cài đặt repo).
+    - Cột trái: "Secrets and variables" → chọn "Actions".
+    - Nút "New repository secret" — tạo ĐÚNG HAI secret, tên phải khớp từng ký tự:
+
+      Tên thứ nhất:   CLOUDFLARE_ACCOUNT_ID
+      Giá trị:        (dán Account ID ở bước C1)
+
+      Tên thứ hai:   CLOUDFLARE_API_TOKEN
+      Giá trị:       (dán API Token ở bước C2)
+
+C4. Kiểm tra: trong danh sách Secrets phải thấy đúng hai tên trên.
+
+--------------------------------------------------------------------------------
+PHẦN D — Chạy lại GitHub Actions và lấy URL Worker
+--------------------------------------------------------------------------------
+D1. Vào tab "Actions" của repo jaboz.com.
+D2. Bên trái chọn workflow "Deploy install-counter Worker" (hoặc tên tương tự).
+D3. Vào run mới nhất (màu xanh hoặc đỏ).
+    - Nếu vẫn đỏ: bấm "Re-run all jobs" ở góc phải trên.
+D4. Bấm vào job "deploy" → xem log từng bước:
+    - Bước "Kiểm tra cấu hình KV" nếu báo lỗi REPLACE_ → quay lại PHẦN B (chưa sửa id trong wrangler.toml hoặc chưa push).
+    - Bước "Deploy Worker" nếu báo Unauthorized / invalid token → quay lại PHẦN C (token hoặc account id sai).
+
+D5. Khi job màu xanh (Success):
+    Trong log thường có dòng kiểu:
+      https://hoctiengviet-install-count.<một-chuỗi>.workers.dev
+    Đó là URL Worker — COPY nguyên URL đó (không thêm / ở cuối).
+
+--------------------------------------------------------------------------------
+PHẦN E — Gắn URL vào app Android (Học Tiếng Việt)
+--------------------------------------------------------------------------------
+E1. Mở file gradle.properties ở THƯ MỤC GỐC project app (repo Học Tiếng Việt), thêm hoặc sửa dòng:
+
+    hoctiengviet.installStatsBaseUrl=https://hoctiengviet-install-count.xxxxx.workers.dev
+
+    (Dán đúng URL bạn copy ở D5. Không có dấu / ở cuối.)
+
+E2. Build lại APK (Debug hoặc Release) và cài lên máy thử.
+E3. Mở app → Thông tin ứng dụng → dòng "Số lượt tải" phải ra số (0, 1, 2...).
+    Mở app lần đầu trên máy mới thường +1 (sau vài giây có thể cần kéo đóng/mở lại dialog để GET lại).
+
+--------------------------------------------------------------------------------
+Nếu KHÔNG dùng GitHub Actions (chỉ deploy tay)
+--------------------------------------------------------------------------------
+Sau bước B4 (đã có id KV trong wrangler.toml), trong thư mục workers/install-counter chạy:
+    npx wrangler deploy
+URL Worker sẽ in ra tương tự phần D5 — làm tiếp PHẦN E.
+
+--------------------------------------------------------------------------------
+Ghi chú
+--------------------------------------------------------------------------------
+- Cảnh báo Node 16 deprecated trên GitHub: có thể bỏ qua nếu job vẫn Success; Cloudflare sẽ cập nhật action sau.
+- Nếu bạn muốn app KHÔNG đổi URL (vẫn gọi jaboz.com/...): cần cấu hình Worker Route trên Cloudflare
+  cho domain jaboz.com — phần nâng cao, làm sau khi Worker đã deploy thành công.
