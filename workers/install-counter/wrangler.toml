@@ -7,4 +7,4 @@ compatibility_date = "2024-11-01"
 
 [[kv_namespaces]]
 binding = "INSTALL_KV"
-id = "REPLACE_WITH_KV_NAMESPACE_ID"
+id = "e2c2c968f6b443d5bdfbd1487d5280c3"
