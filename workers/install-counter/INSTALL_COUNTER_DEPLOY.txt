@@ -76,6 +76,8 @@ C2. Tạo API TOKEN (Cloudflare):
     - Create Token → COPY token (chỉ hiện một lần, giữ kỹ).
 
 C3. Gắn Secrets vào repo GitHub jaboz.com:
+    (Chi tiet: chi dung ky tu ASCII. Dung dan tu trang Cloudflare vao Notepad truoc,
+     kiem tra khong co mui ten -> hay dau gach ngang Unicode. Neu sai, Wrangler bao loi ByteString.)
     - Trên GitHub repo jaboz.com: tab "Settings" (Cài đặt repo).
     - Cột trái: "Secrets and variables" → chọn "Actions".
     - Nút "New repository secret" — tạo ĐÚNG HAI secret, tên phải khớp từng ký tự:

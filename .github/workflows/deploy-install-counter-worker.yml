@@ -1,5 +1,4 @@
-# Secrets: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID (đúng tên, Repository secrets)
-# Chạy wrangler trực tiếp để log lỗi đầy đủ (không chỉ "exit code 1").
+# Secrets: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID (paste plain ASCII only)
 
 name: Deploy install-counter Worker
 
@@ -21,32 +20,31 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Kiểm tra cấu hình KV
+      - name: Check KV id placeholder
         working-directory: workers/install-counter
         run: |
           if grep -q 'REPLACE_' wrangler.toml; then
-            echo "::error::wrangler.toml vẫn chứa REPLACE_ — chưa có KV id thật."
+            echo "::error::wrangler.toml still contains REPLACE_"
             exit 1
           fi
 
-      - name: Kiểm tra Secrets (không in giá trị)
+      - name: Validate secrets (ASCII only)
         env:
           CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: |
-          if [ -z "$CF_TOKEN" ]; then echo "::error::Thiếu GitHub secret CLOUDFLARE_API_TOKEN (Settings → Secrets → Actions)."; exit 1; fi
-          if [ -z "$CF_ACCOUNT" ]; then echo "::error::Thiếu GitHub secret CLOUDFLARE_ACCOUNT_ID."; exit 1; fi
-          echo "OK: đã có cả hai secret (độ dài token > 0)."
+        working-directory: workers/install-counter
+        run: python3 ci-validate-secrets.py
 
-      - name: npm install + wrangler deploy (log đầy đủ)
+      - name: npm install and wrangler deploy
         working-directory: workers/install-counter
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           set -e
+          TOKEN="$(printf '%s' "$CLOUDFLARE_API_TOKEN" | tr -d '\r\n' | sed 's/[[:space:]]*$//;s/^[[:space:]]*//')"
+          ACCOUNT="$(printf '%s' "$CLOUDFLARE_ACCOUNT_ID" | tr -d '\r\n' | sed 's/[[:space:]]*$//;s/^[[:space:]]*//')"
+          export CLOUDFLARE_API_TOKEN="$TOKEN"
+          export CLOUDFLARE_ACCOUNT_ID="$ACCOUNT"
           npm install
-          echo "---- wrangler whoami ----"
-          npx wrangler whoami || true
-          echo "---- wrangler deploy ----"
           npx wrangler deploy

@@ -1,9 +1,6 @@
-# BẮT BUỘC: thay id bằng UUID thật từ Cloudflare (xem INSTALL_COUNTER_DEPLOY.txt).
-# preview_id chỉ cần khi chạy `wrangler dev` — có thể thêm sau, không bắt buộc cho deploy.
-
 name = "hoctiengviet-install-count"
 main = "src/index.js"
-compatibility_date = "2024-11-01"
+compatibility_date = "2025-01-01"
 
 [[kv_namespaces]]
 binding = "INSTALL_KV"
