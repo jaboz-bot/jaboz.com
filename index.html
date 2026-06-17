@@ -118,25 +118,13 @@
       border-radius: 2px;
       background: linear-gradient(180deg, var(--primary), #8b5cf6);
     }
-    .apps-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      align-items: stretch;
-    }
     .app-box {
       background: linear-gradient(180deg, #fff4df 0%, #ffe6bf 100%);
       border: 1px solid rgba(232, 163, 78, 0.5);
       border-radius: 14px;
       padding: 20px;
-      flex: 1 1 300px;
       max-width: 420px;
       box-shadow: 0 12px 24px rgba(166, 98, 26, 0.14);
-    }
-    .app-box.tool-box {
-      background: linear-gradient(180deg, #e8f4ff 0%, #d6e8ff 100%);
-      border-color: rgba(99, 102, 241, 0.45);
-      box-shadow: 0 12px 24px rgba(79, 70, 229, 0.12);
     }
     .app-header {
       display: flex;
@@ -207,41 +195,6 @@
       opacity: 0.65;
       cursor: not-allowed;
     }
-    .tool-toggle {
-      width: 100%;
-      border: none;
-      border-radius: 10px;
-      padding: 12px 16px;
-      font-weight: 700;
-      font-size: 1rem;
-      color: #fff;
-      cursor: pointer;
-      background: #718096;
-      transition: background 160ms ease;
-    }
-    .tool-toggle[data-on="1"] { background: linear-gradient(135deg, #38a169, #2f855a); }
-    .tool-toggle[data-on="0"]:hover { background: #4a5568; }
-    .tool-hint {
-      margin-top: 10px;
-      font-size: 0.82rem;
-      color: var(--text-secondary);
-      line-height: 1.4;
-    }
-    .tool-hint a { color: #4f46e5; font-weight: 600; }
-    .app-icon-badge {
-      width: 68px;
-      height: 68px;
-      border-radius: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      font-weight: 800;
-      color: #fff;
-      background: linear-gradient(135deg, #6366f1, #4f46e5);
-      box-shadow: 0 8px 18px rgba(79, 70, 229, 0.3);
-      flex: 0 0 auto;
-    }
     .status { margin-top: 14px; color: var(--text-secondary); font-size: 0.95rem; }
     footer { text-align: center; color: rgba(255,255,255,.85); margin-top: 30px; font-size: 0.9rem; }
   </style>
@@ -257,44 +210,20 @@
 
     <main class="card">
       <h2 class="section-title">Ứng dụng có sẵn</h2>
-      <div class="apps-grid">
-        <div class="app-box">
-          <div class="app-header">
-            <img class="app-icon" src="./images/hoctiengviet-logo.png" alt="Logo Học Tiếng Việt" />
-            <div class="app-text">
-              <div class="app-name">Học Tiếng Việt</div>
-            </div>
+      <div class="app-box">
+        <div class="app-header">
+          <img class="app-icon" src="./images/hoctiengviet-logo.png" alt="Logo Học Tiếng Việt" />
+          <div class="app-text">
+            <div class="app-name">Học Tiếng Việt</div>
           </div>
-          <div class="meta" id="latestVersion">Đang tải phiên bản...</div>
-          <div class="notes" id="releaseNotes"></div>
-          <div class="details-title">Chi tiết:</div>
-          <ul class="details-list" id="detailsList"></ul>
-          <button class="details-toggle" id="detailsToggle" hidden>... Xem thêm</button>
-          <button class="download-btn" id="downloadBtn" disabled>Tải APK</button>
-          <div class="status" id="statusText">Đang đọc dữ liệu cập nhật...</div>
         </div>
-
-        <div class="app-box tool-box">
-          <div class="app-header">
-            <div class="app-icon-badge">141</div>
-            <div class="app-text">
-              <div class="app-name">Auto ID Công nhân</div>
-            </div>
-          </div>
-          <div class="meta">Mã nhân viên: 141</div>
-          <div class="details-title">Chi tiết:</div>
-          <ul class="details-list expanded">
-            <li>Tự nhập ID công nhân khi ô trống</li>
-            <li>Tự bấm Xác nhận trên trang công ty</li>
-            <li>Hoạt động trên mọi tab khi đã cài Tampermonkey</li>
-          </ul>
-          <button class="tool-toggle" id="autoIdHomeToggle" type="button" data-on="0">BẬT</button>
-          <div class="status" id="autoIdHomeStatus">Đã tắt</div>
-          <p class="tool-hint">
-            Cần <a href="https://www.tampermonkey.net/" target="_blank" rel="noopener">Tampermonkey</a>
-            + <a href="./auto-id-141.user.js">cài script này</a> để dùng trên tab công ty.
-          </p>
-        </div>
+        <div class="meta" id="latestVersion">Đang tải phiên bản...</div>
+        <div class="notes" id="releaseNotes"></div>
+        <div class="details-title">Chi tiết:</div>
+        <ul class="details-list" id="detailsList"></ul>
+        <button class="details-toggle" id="detailsToggle" hidden>... Xem thêm</button>
+        <button class="download-btn" id="downloadBtn" disabled>Tải APK</button>
+        <div class="status" id="statusText">Đang đọc dữ liệu cập nhật...</div>
       </div>
     </main>
 
@@ -352,7 +281,5 @@
 
     loadUpdateInfo();
   </script>
-  <script src="./auto-id-141.js"></script>
-  <script>AutoId141.boot();</script>
 </body>
 </html>
