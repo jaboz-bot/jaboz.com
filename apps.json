@@ -1,4 +1,4 @@
-﻿{
+{
   "apps": [
     {
       "id": "jaboz-manager",
@@ -7,8 +7,8 @@
       "category": "Cửa hàng",
       "summary": "Xem và tải mọi app Jaboz ngay trên điện thoại — không cần mở trình duyệt.",
       "description": "Jaboz Manager là app chính thức để duyệt, tải và cập nhật các ứng dụng Jaboz. Giao diện kiểu cửa hàng app, màu hồng – vàng – tím.",
-      "latestVersionCode": 3,
-      "latestVersionName": "1.1.1",
+      "latestVersionCode": 1,
+      "latestVersionName": "1.0.0",
       "minVersionCode": 1,
       "apkUrl": "https://jaboz.com/jaboz-manager/Jaboz-Manager.apk",
       "sizeLabel": "6.1 MB",
@@ -16,10 +16,11 @@
       "requires": "Android 8.0+",
       "icon": "https://jaboz.com/jaboz-manager/icon.png",
       "screenshots": [],
-      "releaseNotes": "1.1.1: Nút Back trên điện thoại quay lại trang chủ từ màn chi tiết.",
+      "releaseNotes": "1.0.0: Tự kiểm tra và cập nhật khi có bản Manager mới.",
       "details": [
         "Banner nổi bật và lưới app kiểu cửa hàng",
         "Chạm app để xem thông tin chi tiết",
+        "Tự thông báo khi có bản Manager mới",
         "Tải APK và mở trình cài đặt ngay trong app",
         "Kéo xuống để làm mới danh sách"
       ],
