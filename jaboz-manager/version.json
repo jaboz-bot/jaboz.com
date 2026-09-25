@@ -3,5 +3,5 @@
   "latestVersionName": "1.0.0",
   "apkUrl": "https://jaboz.com/jaboz-manager/Jaboz-Manager.apk",
   "packageName": "com.jaboz.manager",
-  "releaseNotes": "1.0.0: Tự kiểm tra và cập nhật khi có bản Manager mới."
+  "releaseNotes": "1.0.0: Sửa lỗi không mở được app; tự kiểm tra cập nhật khi có bản mới."
 }

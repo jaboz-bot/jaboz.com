@@ -1,4 +1,4 @@
-{
+﻿{
   "apps": [
     {
       "id": "jaboz-manager",
@@ -16,7 +16,7 @@
       "requires": "Android 8.0+",
       "icon": "https://jaboz.com/jaboz-manager/icon.png",
       "screenshots": [],
-      "releaseNotes": "1.0.0: Tự kiểm tra và cập nhật khi có bản Manager mới.",
+      "releaseNotes": "1.0.0: Sửa lỗi không mở được app; tự kiểm tra cập nhật khi có bản mới.",
       "details": [
         "Banner nổi bật và lưới app kiểu cửa hàng",
         "Chạm app để xem thông tin chi tiết",
