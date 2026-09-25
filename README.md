@@ -1,27 +1,25 @@
-# jaboz.com - static app download
+# jaboz.com
 
-Bo cuc toi gian:
+Trang tai APK chinh thuc. Giao dien nam o `index.html`, du lieu nam o `update.json`.
 
-- `index.html`: landing page tai app.
-- `update.json`: metadata de app Android tu kiem tra ban moi.
-- `app/`: chua cac file APK da phat hanh.
+## Dang ban moi
 
-## Quy trinh phat hanh de nhat
+1. Build APK (tang `versionCode`, `versionName`).
+2. Copy APK vao `app/`.
+3. Sua `update.json`:
+   - `name`, `developer`, `summary`, `description`
+   - `latestVersionCode`, `latestVersionName`
+   - `apkUrl` (link file APK tren jaboz.com)
+   - `sizeLabel`, `updated`, `requires`
+   - `icon`, `screenshots` (duong dan anh)
+   - `releaseNotes`, `details`
+4. Push len nhanh `main`.
 
-1. Build APK moi (tang `versionCode`, `versionName` trong app Android).
-2. Copy APK vao `app/` (giu lai ban cu de rollback).
-3. Cap nhat `update.json`:
-   - `latestVersionCode`
-   - `latestVersionName`
-   - `minVersionCode` (neu muon ep cap nhat)
-   - `apkUrl` (link toi file APK moi tren jaboz.com)
-   - `releaseNotes`
-4. Push len nhanh `main` cua repo `jaboz.com`.
+Khi `apkUrl` trong, nut tai tren trang o trang thai chua phat hanh.
 
 ## Quy uoc update
 
-- `minVersionCode`:
-  - Bang `latestVersionCode`: bat buoc tat ca nguoi dung cap nhat.
-  - Nho hon `latestVersionCode`: cho phep nguoi dung cap nhat tu nguyen.
+- `minVersionCode` bang `latestVersionCode`: bat buoc cap nhat.
+- `minVersionCode` nho hon `latestVersionCode`: cap nhat tu nguyen.
 
-> Luu y: Android khong cho "silent update" ngoai CH Play. App se hien thong bao cap nhat va mo link APK de nguoi dung cai dat.
+Android khong cai ngam ngoai CH Play. App mo link APK de nguoi dung cai.

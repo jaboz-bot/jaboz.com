@@ -1,6 +1,1 @@
-Dat cac file APK phat hanh tai day.
-
-Goi y dat ten:
-- hoctiengviet-v1.0.5.apk
-
-Sau moi lan upload APK moi, cap nhat file ../update.json.
+Dat file APK phat hanh tai day, roi dien `apkUrl` trong `../update.json`.
