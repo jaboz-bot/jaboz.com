@@ -1,58 +1,52 @@
 ﻿{
-    "apps":  [
-                 {
-                     "id":  "jaboz-manager",
-                     "name":  "Jaboz Manager",
-                     "developer":  "Jaboz",
-                     "category":  "Cửa hàng",
-                     "summary":  "Xem và tải mọi app Jaboz ngay trên điện thoại — không cần mở trình duyệt.",
-                     "description":  "Jaboz Manager là app chính thức để duyệt, tải và cập nhật các ứng dụng Jaboz. Giao diện kiểu cửa hàng app, màu hồng – vàng – tím.",
-                     "latestVersionCode":  1,
-                     "latestVersionName":  "1.0.0",
-                     "minVersionCode":  1,
-                     "apkUrl":  "https://jaboz.com/jaboz-manager/Jaboz-Manager.apk",
-                     "sizeLabel":  "6.1 MB",
-                     "updated":  "2026-09-25",
-                     "requires":  "Android 8.0+",
-                     "icon":  "https://jaboz.com/jaboz-manager/icon.png",
-                     "screenshots":  [
-
-                                     ],
-                     "releaseNotes":  "1.0.0: Sửa lỗi không mở được app; tự kiểm tra cập nhật khi có bản mới.",
-                     "details":  [
-                                     "Banner nổi bật và lưới app kiểu cửa hàng",
-                                     "Chạm app để xem thông tin chi tiết",
-                                     "Tự thông báo khi có bản Manager mới",
-                                     "Tải APK và mở trình cài đặt ngay trong app",
-                                     "Kéo xuống để làm mới danh sách"
-                                 ],
-                     "pinned":  true,
-                     "packageName":  "com.jaboz.manager"
-                 },
-                 {
-                     "id":  "you-and-me",
-                     "name":  "You \u0026 Me",
-                     "developer":  "Jaboz",
-                     "category":  "Ứng dụng",
-                     "summary":  "Hai điện thoại xem tin nhắn và nhật ký cuộc gọi của nhau khi cả hai đồng ý.",
-                     "description":  "Hai điện thoại xem tin nhắn và nhật ký cuộc gọi của nhau khi cả hai đồng ý.",
-                     "latestVersionCode":  3,
-                     "latestVersionName":  "1.0.2",
-                     "minVersionCode":  1,
-                     "apkUrl":  "https://jaboz.com/you-and-me/You-and-Me.apk",
-                     "sizeLabel":  "7.4 MB",
-                     "updated":  "2026-09-25",
-                     "requires":  "Android 8.0+",
-                     "icon":  "https://jaboz.com/you-and-me/icon.png",
-                     "screenshots":  [
-
-                                     ],
-                     "releaseNotes":  "1.0.2: Mot man hinh QR + quet ma; cap nhat tu dong muot hon.",
-                     "details":  [
-
-                                 ],
-                     "pinned":  false,
-                     "packageName":  "com.youandme"
-                 }
-             ]
+  "apps": [
+    {
+      "id": "jaboz-manager",
+      "name": "Jaboz Manager",
+      "developer": "Jaboz",
+      "category": "Cửa hàng",
+      "summary": "Xem và tải mọi app Jaboz ngay trên điện thoại — không cần mở trình duyệt.",
+      "description": "Jaboz Manager là app chính thức để duyệt, tải và cập nhật các ứng dụng Jaboz. Giao diện kiểu cửa hàng app, màu hồng – vàng – tím.",
+      "latestVersionCode": 2,
+      "latestVersionName": "1.0.1",
+      "minVersionCode": 1,
+      "apkUrl": "https://jaboz.com/jaboz-manager/Jaboz-Manager.apk",
+      "sizeLabel": "5.5 MB",
+      "updated": "2026-09-25",
+      "requires": "Android 8.0+",
+      "icon": "https://jaboz.com/jaboz-manager/icon.png",
+      "screenshots": [],
+      "releaseNotes": "1.0.1: Sửa crash trên máy cũ (S9) — giảm nặng icon, bỏ ViewPager2.",
+      "details": [
+        "Banner nổi bật và lưới app kiểu cửa hàng",
+        "Chạm app để xem thông tin chi tiết",
+        "Tự thông báo khi có bản Manager mới",
+        "Tải APK và mở trình cài đặt ngay trong app",
+        "Kéo xuống để làm mới danh sách"
+      ],
+      "pinned": true,
+      "packageName": "com.jaboz.manager"
+    },
+    {
+      "id": "you-and-me",
+      "name": "You & Me",
+      "developer": "Jaboz",
+      "category": "Ứng dụng",
+      "summary": "Hai điện thoại xem tin nhắn và nhật ký cuộc gọi của nhau khi cả hai đồng ý.",
+      "description": "Hai điện thoại xem tin nhắn và nhật ký cuộc gọi của nhau khi cả hai đồng ý.",
+      "latestVersionCode": 3,
+      "latestVersionName": "1.0.2",
+      "minVersionCode": 1,
+      "apkUrl": "https://jaboz.com/you-and-me/You-and-Me.apk",
+      "sizeLabel": "7.4 MB",
+      "updated": "2026-09-25",
+      "requires": "Android 8.0+",
+      "icon": "https://jaboz.com/you-and-me/icon.png",
+      "screenshots": [],
+      "releaseNotes": "1.0.2: Mot man hinh QR + quet ma; cap nhat tu dong muot hon.",
+      "details": [],
+      "pinned": false,
+      "packageName": "com.youandme"
+    }
+  ]
 }

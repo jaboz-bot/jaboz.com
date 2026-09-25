@@ -1,7 +1,7 @@
 {
-  "latestVersionCode": 1,
-  "latestVersionName": "1.0.0",
+  "latestVersionCode": 2,
+  "latestVersionName": "1.0.1",
   "apkUrl": "https://jaboz.com/jaboz-manager/Jaboz-Manager.apk",
   "packageName": "com.jaboz.manager",
-  "releaseNotes": "1.0.0: Sửa lỗi không mở được app; tự kiểm tra cập nhật khi có bản mới."
+  "releaseNotes": "1.0.1: Sửa crash trên máy cũ (S9) — giảm nặng icon, bỏ ViewPager2."
 }
