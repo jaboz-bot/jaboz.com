@@ -4,8 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="color-scheme" content="light" />
-  <title>Jaboz — Tải APK</title>
-  <meta name="description" content="Trang tải APK chính thức của Jaboz." />
+  <title>Jaboz — Cửa hàng APK</title>
+  <meta name="description" content="Tải app chính thức của Jaboz. Jaboz Manager được ghim đầu trang." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
@@ -14,6 +14,7 @@
       --pink: #e84393;
       --pink-dark: #c2256e;
       --yellow: #f5c518;
+      --yellow-deep: #c98900;
       --purple: #7c3aed;
       --purple-deep: #5b21b6;
       --ink: #2a2033;
@@ -47,10 +48,8 @@
       align-items: center;
       justify-content: space-between;
       padding: 0 20px;
-      background: rgba(255,255,255,0.92);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--line);
-      box-shadow: inset 0 -3px 0 0 transparent;
       background-image: linear-gradient(#fff, #fff), linear-gradient(90deg, var(--pink), var(--yellow), var(--purple));
       background-size: 100% calc(100% - 3px), 100% 3px;
       background-position: top, bottom;
@@ -81,7 +80,7 @@
       -webkit-text-fill-color: #fff;
       font-size: 0.82rem;
       font-weight: 700;
-      background: #c98900;
+      background: var(--yellow-deep);
       padding: 6px 12px;
       border-radius: 999px;
     }
@@ -90,146 +89,153 @@
       width: min(980px, calc(100% - 32px));
       margin: 24px auto 48px;
     }
-    .sheet {
+    .intro {
+      margin-bottom: 18px;
+    }
+    .intro h1 {
+      font-size: clamp(1.6rem, 3vw, 2rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+    }
+    .intro p {
+      margin-top: 6px;
+      color: var(--body);
+      line-height: 1.5;
+    }
+
+    .list { display: grid; gap: 14px; }
+
+    .card {
       background: var(--card);
       border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 28px 28px 32px;
+      border-radius: 18px;
+      padding: 18px;
       box-shadow: 0 1px 2px rgba(60, 64, 67, 0.06);
-    }
-
-    .app-head {
       display: grid;
-      grid-template-columns: 112px 1fr;
-      gap: 20px;
-      align-items: center;
+      grid-template-columns: 84px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+    .card.pinned {
+      border-color: rgba(232, 67, 147, 0.45);
+      box-shadow: 0 8px 24px rgba(124, 58, 237, 0.12);
+      background:
+        linear-gradient(135deg, rgba(232,67,147,0.08), rgba(124,58,237,0.06)),
+        #fff;
     }
     .icon {
-      width: 112px;
-      height: 112px;
-      border-radius: 24px;
-      background: linear-gradient(145deg, var(--pink) 0%, #c98900 48%, var(--purple) 100%);
+      width: 84px;
+      height: 84px;
+      border-radius: 20px;
+      background: linear-gradient(145deg, var(--pink) 0%, var(--yellow-deep) 48%, var(--purple) 100%);
       color: #fff;
       -webkit-text-fill-color: #fff;
-      text-shadow: 0 1px 2px rgba(42, 16, 32, 0.35);
       display: grid;
       place-items: center;
-      font-size: 3rem;
+      font-size: 2.2rem;
       font-weight: 700;
-      letter-spacing: -0.04em;
-      box-shadow: 0 10px 24px rgba(124, 58, 237, 0.28);
       overflow: hidden;
+      flex: none;
     }
     .icon img { width: 100%; height: 100%; object-fit: cover; }
-    h1 {
-      font-size: clamp(1.7rem, 3vw, 2.15rem);
-      font-weight: 500;
-      letter-spacing: -0.03em;
-      line-height: 1.15;
+    .meta-top {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 4px;
     }
-    .dev { margin-top: 4px; font-weight: 500; color: var(--purple); }
+    .name {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .pin {
+      color: #fff;
+      -webkit-text-fill-color: #fff;
+      background: var(--pink);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 999px;
+    }
+    .dev { color: var(--purple); font-weight: 700; font-size: 0.92rem; }
     .summary {
-      margin-top: 8px;
+      margin-top: 6px;
       color: var(--body);
-      font-size: 0.95rem;
+      font-size: 0.94rem;
       line-height: 1.45;
     }
-
     .stats {
       display: flex;
-      gap: 0;
-      margin: 22px 0 18px;
-      overflow-x: auto;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
     }
     .stat {
-      min-width: 92px;
-      padding: 0 18px;
-      border-left: 1px solid var(--line);
-      text-align: center;
+      background: rgba(124, 58, 237, 0.08);
+      color: var(--purple-deep);
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 5px 10px;
+      border-radius: 999px;
     }
-    .stat:first-child { border-left: 0; padding-left: 0; }
-    .stat b {
-      display: block;
-      font-size: 0.95rem;
-      font-weight: 500;
+    .actions {
+      margin-top: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
     }
-    .stat span {
-      display: block;
-      margin-top: 2px;
-      color: var(--muted);
-      font-size: 0.75rem;
-    }
-
     .install {
       appearance: none;
       border: 0;
       background: linear-gradient(90deg, var(--pink), var(--purple));
       color: #fff;
       -webkit-text-fill-color: #fff;
-      min-width: 220px;
-      height: 44px;
-      padding: 0 28px;
-      border-radius: 8px;
-      font-weight: 500;
-      font-size: 0.95rem;
+      min-width: 160px;
+      height: 42px;
+      padding: 0 22px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.92rem;
       cursor: pointer;
     }
-    .install:hover:not(:disabled) { background: linear-gradient(90deg, var(--pink-dark), var(--purple-deep)); }
+    .install:hover { filter: brightness(0.96); }
     .install:disabled {
       background: #e8eaed;
       color: #80868b;
+      -webkit-text-fill-color: #80868b;
       cursor: default;
     }
-    .install-hint {
-      margin-top: 8px;
-      color: var(--muted);
-      font-size: 0.8rem;
-    }
-
-    h2 {
-      font-size: 1.15rem;
-      font-weight: 500;
-      margin: 28px 0 12px;
-      color: var(--purple-deep);
-    }
-    .stat b { color: var(--pink-dark); }
-    .shots {
-      display: flex;
-      gap: 12px;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      padding-bottom: 6px;
-    }
-    .shots img {
-      height: 300px;
-      width: auto;
-      border-radius: 12px;
+    .ghost {
+      appearance: none;
       border: 1px solid var(--line);
-      scroll-snap-align: start;
-      background: #f1f3f4;
+      background: #fff;
+      color: var(--ink);
+      height: 42px;
+      padding: 0 16px;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
     }
-    .prose {
+    .details {
+      margin-top: 10px;
+      padding-left: 1.1rem;
       color: var(--body);
-      font-size: 0.95rem;
-      line-height: 1.65;
-      white-space: pre-wrap;
+      font-size: 0.9rem;
+      line-height: 1.55;
+      display: none;
     }
-    .details { margin: 8px 0 0 1.1rem; color: var(--body); line-height: 1.6; }
-    .details li { margin: 4px 0; }
-    .rows { border-top: 1px solid var(--line); }
-    .row {
-      display: flex;
-      justify-content: space-between;
-      gap: 24px;
-      padding: 14px 0;
-      border-bottom: 1px solid var(--line);
-      font-size: 0.92rem;
+    .details.open { display: block; }
+    .empty, .loading {
+      padding: 28px 18px;
+      text-align: center;
+      color: var(--muted);
+      background: #fff;
+      border: 1px dashed var(--line);
+      border-radius: 16px;
     }
-    .row span { color: var(--muted); }
-    .row b { font-weight: 500; text-align: right; }
-    .steps { margin: 8px 0 0 1.15rem; color: var(--body); line-height: 1.65; }
-    .steps li { margin: 6px 0; }
-    .hidden { display: none; }
 
     footer {
       width: min(980px, calc(100% - 32px));
@@ -242,24 +248,10 @@
       flex-wrap: wrap;
     }
 
-    @media (max-width: 720px) {
-      .sheet { padding: 20px 16px 24px; border-radius: 12px; }
-      .app-head { grid-template-columns: 84px 1fr; gap: 14px; }
-      .icon { width: 84px; height: 84px; border-radius: 20px; font-size: 2.3rem; }
-      .install-wrap {
-        position: fixed;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 40;
-        padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
-        background: #fff;
-        border-top: 1px solid var(--line);
-      }
+    @media (max-width: 640px) {
+      .card { grid-template-columns: 68px 1fr; padding: 14px; gap: 12px; }
+      .icon { width: 68px; height: 68px; border-radius: 16px; font-size: 1.8rem; }
       .install { width: 100%; }
-      .install-hint { display: none; }
-      body { padding-bottom: 84px; }
-      .shots img { height: 240px; }
       .top-note { display: none; }
     }
   </style>
@@ -270,57 +262,17 @@
       <span class="mark">J</span>
       Jaboz
     </a>
-    <span class="top-note">Tải APK chính thức</span>
+    <span class="top-note">Cửa hàng APK</span>
   </header>
 
   <main>
-    <article class="sheet">
-      <div class="app-head">
-        <div class="icon" id="icon" aria-hidden="true">J</div>
-        <div>
-          <h1 id="appName">Jaboz</h1>
-          <p class="dev" id="developer">Jaboz</p>
-          <p class="summary" id="summary">Trang tải APK chính thức.</p>
-        </div>
-      </div>
-
-      <div class="stats" id="stats"></div>
-
-      <div class="install-wrap">
-        <button class="install" id="download" type="button" disabled>Chưa có bản tải</button>
-        <p class="install-hint" id="installHint">Nút tải sẽ bật khi bản phát hành được đăng.</p>
-      </div>
-
-      <section id="shotSection" class="hidden">
-        <h2>Ảnh màn hình</h2>
-        <div class="shots" id="shots"></div>
-      </section>
-
-      <section>
-        <h2>Giới thiệu</h2>
-        <p class="prose" id="description">Đây là trang phân phối APK chính thức của Jaboz. Phiên bản, ảnh màn hình và nút tải sẽ hiện khi bản phát hành được đăng.</p>
-        <ul class="details" id="details"></ul>
-      </section>
-
-      <section id="notesSection" class="hidden">
-        <h2>Có gì mới</h2>
-        <p class="prose" id="releaseNotes"></p>
-      </section>
-
-      <section>
-        <h2>Thông tin ứng dụng</h2>
-        <div class="rows" id="infoRows"></div>
-      </section>
-
-      <section>
-        <h2>Cách cài</h2>
-        <ol class="steps">
-          <li>Bấm Tải APK và chờ file tải xong.</li>
-          <li>Mở file, cho phép cài ứng dụng từ nguồn này nếu máy hỏi.</li>
-          <li>Bấm Cài đặt và mở app.</li>
-        </ol>
-      </section>
-    </article>
+    <div class="intro">
+      <h1>Cửa hàng Jaboz</h1>
+      <p>Tải app chính thức. <strong>Jaboz Manager</strong> được ghim đầu trang — cài một lần, mở mọi app Jaboz sau này không cần vào web.</p>
+    </div>
+    <div class="list" id="list">
+      <div class="loading">Đang tải danh sách…</div>
+    </div>
   </main>
 
   <footer>
@@ -329,112 +281,121 @@
   </footer>
 
   <script>
-    function text(id, value) {
-      const el = document.getElementById(id);
-      if (value) el.textContent = value;
+    const list = document.getElementById("list");
+
+    function letter(name) {
+      return (name || "J").trim().charAt(0).toUpperCase();
     }
 
-    function addStat(label, value) {
-      if (!value) return;
-      const node = document.createElement("div");
-      node.className = "stat";
-      const strong = document.createElement("b");
-      strong.textContent = value;
-      const span = document.createElement("span");
-      span.textContent = label;
-      node.append(strong, span);
-      document.getElementById("stats").append(node);
-    }
+    function card(app) {
+      const el = document.createElement("article");
+      el.className = "card" + (app.pinned ? " pinned" : "");
+      el.id = app.id || "";
 
-    function addRow(label, value) {
-      if (!value) return;
-      const row = document.createElement("div");
-      row.className = "row";
-      const span = document.createElement("span");
-      span.textContent = label;
-      const strong = document.createElement("b");
-      strong.textContent = value;
-      row.append(span, strong);
-      document.getElementById("infoRows").append(row);
-    }
-
-    function paint(info) {
-      text("appName", info.name);
-      text("developer", info.developer);
-      text("summary", info.summary || info.category);
-      text("description", info.description);
-      document.title = (info.name || "Jaboz") + " — Tải APK";
-
-      const icon = document.getElementById("icon");
-      if (info.icon) {
-        icon.textContent = "";
+      const icon = document.createElement("div");
+      icon.className = "icon";
+      if (app.icon) {
         const img = document.createElement("img");
+        img.src = app.icon;
         img.alt = "";
-        img.src = info.icon;
         icon.append(img);
       } else {
-        icon.textContent = (info.name || "J").trim().charAt(0).toUpperCase();
+        icon.textContent = letter(app.name);
       }
 
-      const stats = document.getElementById("stats");
-      stats.textContent = "";
-      addStat("Phiên bản", info.latestVersionName ? "v" + info.latestVersionName : "");
-      addStat("Dung lượng", info.sizeLabel);
-      addStat("Cập nhật", info.updated);
-      addStat("Android", info.requires);
-      if (!stats.childElementCount) addStat("Trạng thái", "Sắp phát hành");
+      const body = document.createElement("div");
+      const top = document.createElement("div");
+      top.className = "meta-top";
+      const name = document.createElement("div");
+      name.className = "name";
+      name.textContent = app.name || "App";
+      top.append(name);
+      if (app.pinned) {
+        const pin = document.createElement("span");
+        pin.className = "pin";
+        pin.textContent = "Ghim";
+        top.append(pin);
+      }
 
-      const shots = document.getElementById("shots");
-      shots.textContent = "";
-      (info.screenshots || []).forEach((src) => {
-        const img = document.createElement("img");
-        img.src = src;
-        img.alt = "Ảnh màn hình";
-        shots.append(img);
+      const dev = document.createElement("div");
+      dev.className = "dev";
+      dev.textContent = app.developer || "Jaboz";
+
+      const summary = document.createElement("p");
+      summary.className = "summary";
+      summary.textContent = app.summary || app.description || "";
+
+      const stats = document.createElement("div");
+      stats.className = "stats";
+      [
+        app.latestVersionName && ("v" + app.latestVersionName),
+        app.sizeLabel,
+        app.updated,
+        app.requires
+      ].filter(Boolean).forEach((t) => {
+        const s = document.createElement("span");
+        s.className = "stat";
+        s.textContent = t;
+        stats.append(s);
       });
-      document.getElementById("shotSection").classList.toggle("hidden", !shots.childElementCount);
 
-      const details = document.getElementById("details");
-      details.textContent = "";
-      (info.details || []).forEach((item) => {
-        const li = document.createElement("li");
-        li.textContent = item;
-        details.append(li);
-      });
-
-      const notes = info.releaseNotes || "";
-      document.getElementById("releaseNotes").textContent = notes;
-      document.getElementById("notesSection").classList.toggle("hidden", !notes);
-
-      const rows = document.getElementById("infoRows");
-      rows.textContent = "";
-      addRow("Nhà phát triển", info.developer || "Jaboz");
-      addRow("Phiên bản", info.latestVersionName || "");
-      addRow("Mã phiên bản", info.latestVersionCode ? String(info.latestVersionCode) : "");
-      addRow("Cập nhật", info.updated);
-      addRow("Dung lượng", info.sizeLabel);
-      addRow("Yêu cầu", info.requires);
-      addRow("Phân phối", "jaboz.com");
-
-      const button = document.getElementById("download");
-      const hint = document.getElementById("installHint");
-      if (info.apkUrl) {
-        button.disabled = false;
-        button.textContent = "Tải APK";
-        button.onclick = () => { window.location.href = info.apkUrl; };
-        hint.textContent = "File APK chính thức trên jaboz.com.";
+      const actions = document.createElement("div");
+      actions.className = "actions";
+      const download = document.createElement("button");
+      download.className = "install";
+      download.type = "button";
+      if (app.apkUrl) {
+        download.textContent = "Tải APK";
+        download.onclick = () => { window.location.href = app.apkUrl; };
       } else {
-        button.disabled = true;
-        button.textContent = "Chưa có bản tải";
-        button.onclick = null;
-        hint.textContent = "Nút tải sẽ bật khi bản phát hành được đăng.";
+        download.textContent = "Chưa có bản tải";
+        download.disabled = true;
       }
+      actions.append(download);
+
+      const detailsList = (app.details || []).concat(app.releaseNotes ? [app.releaseNotes] : []);
+      if (detailsList.length) {
+        const more = document.createElement("button");
+        more.className = "ghost";
+        more.type = "button";
+        more.textContent = "Chi tiết";
+        const ul = document.createElement("ul");
+        ul.className = "details";
+        detailsList.forEach((d) => {
+          const li = document.createElement("li");
+          li.textContent = d;
+          ul.append(li);
+        });
+        more.onclick = () => {
+          ul.classList.toggle("open");
+          more.textContent = ul.classList.contains("open") ? "Thu gọn" : "Chi tiết";
+        };
+        actions.append(more);
+        body.append(top, dev, summary, stats, actions, ul);
+      } else {
+        body.append(top, dev, summary, stats, actions);
+      }
+
+      el.append(icon, body);
+      return el;
     }
 
-    fetch("./update.json", { cache: "no-store" })
+    function paint(apps) {
+      list.textContent = "";
+      if (!apps.length) {
+        list.innerHTML = `<div class="empty">Chưa có app nào.</div>`;
+        return;
+      }
+      const sorted = apps.slice().sort((a, b) => Number(!!b.pinned) - Number(!!a.pinned));
+      sorted.forEach((app) => list.append(card(app)));
+    }
+
+    fetch("./apps.json", { cache: "no-store" })
       .then((res) => { if (!res.ok) throw new Error("fetch"); return res.json(); })
-      .then(paint)
-      .catch(() => paint({}));
+      .then((data) => paint(data.apps || []))
+      .catch(() => {
+        list.innerHTML = `<div class="empty">Không tải được danh sách. Thử tải lại trang.</div>`;
+      });
   </script>
 </body>
 </html>

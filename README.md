@@ -1,25 +1,26 @@
 # jaboz.com
 
-Trang tai APK chinh thuc. Giao dien nam o `index.html`, du lieu nam o `update.json`.
+Cua hang APK chinh thuc.
 
-## Dang ban moi
+- `index.html`: trang cua hang (doc `apps.json`)
+- `apps.json`: danh sach app (Jaboz Manager ghim dau)
+- `update.json`: feed cap nhat cho You & Me
+- `jaboz-manager/`: APK + icon Jaboz Manager
+- `you-and-me/`: APK + icon You & Me
 
-1. Build APK (tang `versionCode`, `versionName`).
-2. Copy APK vao `app/`.
-3. Sua `update.json`:
-   - `name`, `developer`, `summary`, `description`
-   - `latestVersionCode`, `latestVersionName`
-   - `apkUrl` (link file APK tren jaboz.com)
-   - `sizeLabel`, `updated`, `requires`
-   - `icon`, `screenshots` (duong dan anh)
-   - `releaseNotes`, `details`
-4. Push len nhanh `main`.
+## Them app moi
 
-Khi `apkUrl` trong, nut tai tren trang o trang thai chua phat hanh.
+1. Dat APK + icon vao thu muc rieng.
+2. Them muc vao `apps.json` (`pinned: true` neu muon ghim dau).
+3. Push `main`.
 
-## Quy uoc update
+## Jaboz Manager (source)
 
-- `minVersionCode` bang `latestVersionCode`: bat buoc cap nhat.
-- `minVersionCode` nho hon `latestVersionCode`: cap nhat tu nguyen.
+Source Android nam o `../jaboz-manager` (ngoai site). Build:
 
-Android khong cai ngam ngoai CH Play. App mo link APK de nguoi dung cai.
+```
+cd ../jaboz-manager
+gradlew.bat assembleRelease
+```
+
+Ky APK roi copy vao `jaboz-manager/Jaboz-Manager.apk`.
