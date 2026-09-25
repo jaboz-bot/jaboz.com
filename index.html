@@ -320,16 +320,29 @@
       sheetDl.onclick = () => { if (app.apkUrl) window.location.href = app.apkUrl; };
       sheet.classList.add("open");
       document.body.style.overflow = "hidden";
+      if (!history.state || !history.state.jabozDetail) {
+        history.pushState({ jabozDetail: true, id: app.id || "" }, "", "#app");
+      } else {
+        history.replaceState({ jabozDetail: true, id: app.id || "" }, "", "#app");
+      }
     }
 
-    function closeDetail() {
+    function closeDetail(fromPopState) {
+      if (!sheet.classList.contains("open")) return;
       sheet.classList.remove("open");
       document.body.style.overflow = "";
+      current = null;
+      if (!fromPopState && history.state && history.state.jabozDetail) {
+        history.back();
+      }
     }
 
-    document.getElementById("sheetBack").onclick = closeDetail;
+    document.getElementById("sheetBack").onclick = () => closeDetail(false);
+    window.addEventListener("popstate", () => {
+      if (sheet.classList.contains("open")) closeDetail(true);
+    });
     document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && sheet.classList.contains("open")) closeDetail();
+      if (e.key === "Escape" && sheet.classList.contains("open")) closeDetail(false);
     });
 
     function paint(apps) {
