@@ -1,18 +1,29 @@
 {
-  "name": "Jaboz",
-  "developer": "Jaboz",
-  "category": "Ứng dụng",
-  "summary": "Trang tải APK chính thức của Jaboz.",
-  "description": "Đây là trang phân phối APK chính thức của Jaboz. Phiên bản, ảnh màn hình và nút tải sẽ hiện khi bản phát hành được đăng.",
-  "latestVersionCode": 0,
-  "latestVersionName": "",
-  "minVersionCode": 1,
-  "apkUrl": "",
-  "sizeLabel": "",
-  "updated": "",
-  "requires": "",
-  "icon": "",
-  "screenshots": [],
-  "releaseNotes": "",
-  "details": []
+    "latestVersionName":  "1.0",
+    "requires":  "Android 8.0+",
+    "category":  "Ứng dụng",
+    "minVersionCode":  1,
+    "releaseNotes":  "Bản phát hành chính thức 1.0: một app You \u0026 Me cho cả hai máy, quét QR / tải ảnh QR, đồng bộ tin nhắn và cuộc gọi, cập nhật ngầm từ jaboz.com, khóa màn hình dọc khi quét mã.",
+    "latestVersionCode":  1,
+    "details":  [
+                    {
+                        "value":  "Tin nhắn, nhật ký cuộc gọi, camera (quét QR), thông báo",
+                        "label":  "Quyền"
+                    },
+                    {
+                        "value":  "Tự kiểm tra jaboz.com/you-and-me khoảng mỗi 6 giờ",
+                        "label":  "Cập nhật"
+                    }
+                ],
+    "name":  "You \u0026 Me",
+    "sizeLabel":  "10.6 MB",
+    "description":  "You \u0026 Me giúp hai người cùng xem tin nhắn và nhật ký cuộc gọi của nhau, chỉ khi cả hai đồng ý. App không ghi âm cuộc gọi, không xem ảnh, không xem màn hình. Khi đồng bộ bật, một thông báo luôn hiện. Bạn có thể tắt đồng bộ hoặc gỡ app bất cứ lúc nào.",
+    "summary":  "Hai điện thoại xem tin nhắn và nhật ký cuộc gọi của nhau khi cả hai đồng ý.",
+    "apkUrl":  "https://jaboz.com/you-and-me/You-and-Me.apk",
+    "developer":  "Jaboz",
+    "icon":  "",
+    "screenshots":  [
+
+                    ],
+    "updated":  "2026-09-25"
 }
