@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light" />
   <title>Jaboz — Tải APK</title>
   <meta name="description" content="Trang tải APK chính thức của Jaboz." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -23,7 +24,7 @@
       --card: #fff;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
+    html { scroll-behavior: smooth; color-scheme: only light; }
     body {
       font-family: Roboto, "Segoe UI", sans-serif;
       color: var(--ink);
@@ -70,15 +71,17 @@
       border-radius: 9px;
       background: linear-gradient(135deg, var(--pink), var(--purple));
       color: #fff;
+      -webkit-text-fill-color: #fff;
       display: grid;
       place-items: center;
       font-weight: 700;
     }
     .top-note {
-      color: #5c4300;
+      color: #fff;
+      -webkit-text-fill-color: #fff;
       font-size: 0.82rem;
-      font-weight: 500;
-      background: var(--yellow);
+      font-weight: 700;
+      background: #c98900;
       padding: 6px 12px;
       border-radius: 999px;
     }
@@ -105,8 +108,10 @@
       width: 112px;
       height: 112px;
       border-radius: 24px;
-      background: linear-gradient(145deg, var(--pink) 0%, var(--yellow) 48%, var(--purple) 100%);
+      background: linear-gradient(145deg, var(--pink) 0%, #c98900 48%, var(--purple) 100%);
       color: #fff;
+      -webkit-text-fill-color: #fff;
+      text-shadow: 0 1px 2px rgba(42, 16, 32, 0.35);
       display: grid;
       place-items: center;
       font-size: 3rem;
@@ -160,6 +165,7 @@
       border: 0;
       background: linear-gradient(90deg, var(--pink), var(--purple));
       color: #fff;
+      -webkit-text-fill-color: #fff;
       min-width: 220px;
       height: 44px;
       padding: 0 28px;
