@@ -6,7 +6,7 @@
       "developer": "Jaboz",
       "category": "Cửa hàng",
       "summary": "Cài mọi app ngoài cửa hàng — không gì ngăn được.",
-      "description": "Vô Cản giúp bạn cài mọi file APK ngoài cửa hàng một cách suôn sẻ. Dùng cùng Shizuku (miễn phí trên CH Play) để cấp quyền cài đặt. Chỉ cài 1 bản trên tài khoản chính, không tạo bản sao.",
+      "description": "Vô Cản giúp bạn cài mọi file APK ngoài cửa hàng một cách suôn sẻ. Dùng cùng Shizuku (miễn phí trên CH Play) để cấp quyền cài đặt.",
       "latestVersionCode": 6,
       "latestVersionName": "2.0",
       "minVersionCode": 1,
@@ -16,12 +16,11 @@
       "requires": "Android 8.0+",
       "icon": "https://jaboz.com/vo-can/icon.png",
       "screenshots": [],
-      "releaseNotes": "2.0: Đổi tên Vô Cản, bỏ phụ thuộc Live Panel, cài ổn định hơn.",
+      "releaseNotes": "",
       "installGuide": "<ol><li><b>Tải Vô Cản</b> (nút Tải về bên dưới) rồi cài app này trước.</li><li>Mở <b>CH Play</b> → tìm và cài <b>Shizuku</b> (miễn phí).</li><li>Mở <b>Shizuku</b> → chọn <b>Cặp qua Gỡ lỗi không dây</b> → làm theo hướng dẫn trên màn hình đến khi Shizuku hiện đang chạy.</li><li>Mở lại <b>Vô Cản</b> → bấm <b>Cấp quyền cho Vô Cản</b> → Cho phép.</li><li>Bấm <b>Chọn file APK để cài</b> (Jaboz Manager, You &amp; Me, hoặc APK bất kỳ) → chờ báo thành công.</li><li>Vuốt lên màn hình chính → tìm tên app vừa cài để mở.</li></ol><p style=\"margin-top:12px\">Lần sau chỉ cần mở Vô Cản (Shizuku vẫn bật) rồi chọn APK.</p>",
       "details": [
         "Cài mọi file .apk ngoài cửa hàng",
         "Đi cùng Shizuku (CH Play) — làm một lần",
-        "Chỉ 1 bản trên tài khoản chính (không Dual App / bản sao)",
         "Có thể mở / chia sẻ file APK bằng Vô Cản",
         "Dùng cho Jaboz Manager và mọi APK khác"
       ],
