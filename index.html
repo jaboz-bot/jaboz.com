@@ -186,6 +186,10 @@
     .block h2 { font-size: 1.05rem; margin-bottom: 8px; }
     .block p, .block li { color: var(--body); line-height: 1.55; font-size: 0.94rem; }
     .block ul { padding-left: 1.1rem; }
+    .guide { color: var(--body); line-height: 1.6; font-size: 0.95rem; }
+    .guide ol { padding-left: 1.2rem; margin: 8px 0 0; }
+    .guide li { margin: 8px 0; }
+    .guide b { color: var(--ink); }
     .row {
       display: flex; justify-content: space-between; gap: 16px;
       padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 0.92rem;
@@ -285,6 +289,9 @@
       const notes = app.releaseNotes
         ? `<div class="block"><h2>Có gì mới</h2><p>${app.releaseNotes}</p></div>`
         : "";
+      const installGuide = app.installGuide
+        ? `<div class="block"><h2>Hướng dẫn cài đặt (làm lần đầu)</h2><div class="guide">${app.installGuide}</div></div>`
+        : `<div class="block"><h2>Cách cài</h2><p>1. Bấm Tải về và chờ file tải xong.<br>2. Cho phép cài từ nguồn này nếu máy hỏi.<br>3. Bấm Cài đặt và mở app.</p></div>`;
       sheetBody.innerHTML = `
         <div class="detail-head">
           ${iconHtml}
@@ -295,6 +302,7 @@
           </div>
         </div>
         <div class="stats">${stats}</div>
+        ${installGuide}
         <div class="block">
           <h2>Giới thiệu</h2>
           <p>${app.description || app.summary || ""}</p>
@@ -310,10 +318,6 @@
             ["Cập nhật", app.updated],
             ["Yêu cầu", app.requires]
           ].filter(([, v]) => v).map(([k, v]) => `<div class="row"><span>${k}</span><b>${v}</b></div>`).join("")}
-        </div>
-        <div class="block">
-          <h2>Cách cài</h2>
-          <p>1. Bấm Tải về và chờ file tải xong.<br>2. Cho phép cài từ nguồn này nếu máy hỏi.<br>3. Bấm Cài đặt và mở app.</p>
         </div>`;
       sheetDl.disabled = !app.apkUrl;
       sheetDl.textContent = app.apkUrl ? "Tải về" : "Chưa có bản tải";
