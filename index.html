@@ -350,8 +350,11 @@
     });
 
     function paint(apps) {
-      const sorted = apps.slice().sort((a, b) => Number(!!b.pinned) - Number(!!a.pinned));
-      const featured = sorted.find((a) => a.pinned) || sorted[0];
+      const sorted = apps.slice().sort((a, b) => {
+        const rank = (app) => (app.id === "jaboz-manager" ? 0 : 1);
+        return rank(a) - rank(b) || Number(!!b.pinned) - Number(!!a.pinned);
+      });
+      const featured = sorted.find((a) => a.id === "jaboz-manager") || sorted.find((a) => a.pinned) || sorted[0];
       const banner = document.getElementById("banner");
       if (featured) {
         banner.classList.add("show");

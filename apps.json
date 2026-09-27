@@ -7,8 +7,8 @@
       "category": "Cửa hàng",
       "summary": "Cài mọi app ngoài cửa hàng — không gì ngăn được.",
       "description": "Vô Cản giúp bạn cài mọi file APK ngoài cửa hàng một cách suôn sẻ. Dùng cùng Shizuku (miễn phí trên CH Play) để cấp quyền cài đặt.",
-      "latestVersionCode": 6,
-      "latestVersionName": "2.0",
+      "latestVersionCode": 7,
+      "latestVersionName": "2.1",
       "minVersionCode": 1,
       "apkUrl": "https://jaboz.com/vo-can/Vo-Can.apk",
       "sizeLabel": "4.6 MB",
@@ -16,7 +16,7 @@
       "requires": "Android 8.0+",
       "icon": "https://jaboz.com/vo-can/icon.png",
       "screenshots": [],
-      "releaseNotes": "",
+      "releaseNotes": "2.1: Icon mới giống trên web, tự cập nhật khi mở app.",
       "installGuide": "<ol><li><b>Tải Vô Cản</b> (nút Tải về bên dưới) rồi cài app này trước.</li><li>Mở <b>CH Play</b> → tìm và cài <b>Shizuku</b> (miễn phí).</li><li>Mở <b>Shizuku</b> → chọn <b>Cặp qua Gỡ lỗi không dây</b> → làm theo hướng dẫn trên màn hình đến khi Shizuku hiện đang chạy.</li><li>Mở lại <b>Vô Cản</b> → bấm <b>Cấp quyền cho Vô Cản</b> → Cho phép.</li><li>Bấm <b>Chọn file APK để cài</b> (Jaboz Manager, You &amp; Me, hoặc APK bất kỳ) → chờ báo thành công.</li><li>Vuốt lên màn hình chính → tìm tên app vừa cài để mở.</li></ol><p style=\"margin-top:12px\">Lần sau chỉ cần mở Vô Cản (Shizuku vẫn bật) rồi chọn APK.</p>",
       "details": [
         "Cài mọi file .apk ngoài cửa hàng",
@@ -24,7 +24,7 @@
         "Có thể mở / chia sẻ file APK bằng Vô Cản",
         "Dùng cho Jaboz Manager và mọi APK khác"
       ],
-      "pinned": true,
+      "pinned": false,
       "packageName": "com.haly.lpinstaller"
     },
     {
@@ -51,8 +51,8 @@
         "Tải APK và mở trình cài đặt ngay trong app",
         "Kéo xuống để làm mới danh sách"
       ],
-      "installGuide": "<ol><li>Cài <b>Vô Cản</b> trước (app đầu danh sách) và làm theo hướng dẫn trong đó.</li><li>Tải Jaboz Manager → mở bằng <b>Vô Cản</b> để cài.</li><li>Vuốt lên Home → tìm Jaboz Manager.</li></ol>",
-      "pinned": false,
+      "installGuide": "<ol><li>Cài <b>Vô Cản</b> trước và làm theo hướng dẫn trong app đó.</li><li>Tải Jaboz Manager → mở bằng <b>Vô Cản</b> để cài.</li><li>Vuốt lên Home → tìm Jaboz Manager.</li></ol>",
+      "pinned": true,
       "packageName": "com.jaboz.manager"
     },
     {
@@ -84,16 +84,16 @@
       "category": "Ứng dụng",
       "summary": "Che đồng hồ cuộc gọi và hiện khung giờ theo ý bạn, có thể thêm cáo.",
       "description": "Tùy Biến Cuộc Gọi phủ một khung lên đồng hồ đếm giờ khi đang gọi. Có thể ẩn đồng hồ gốc, đổi màu, bo góc, kéo vị trí, và xem thử khung có cáo trước khi gọi.",
-      "latestVersionCode": 1,
-      "latestVersionName": "1.0",
+      "latestVersionCode": 2,
+      "latestVersionName": "1.1",
       "minVersionCode": 1,
       "apkUrl": "https://jaboz.com/tuy-bien-cuoc-goi/Tuy-Bien-Cuoc-Goi.apk",
-      "sizeLabel": "10.7 MB",
+      "sizeLabel": "10.8 MB",
       "updated": "2026-09-27",
       "requires": "Android 8.0+",
       "icon": "https://jaboz.com/tuy-bien-cuoc-goi/icon.png",
       "screenshots": [],
-      "releaseNotes": "1.0: Bản đầu — tự hiện khi có cuộc gọi, chọn màu, bo góc, vị trí, và xem thử cáo.",
+      "releaseNotes": "1.1: Icon mới giống trên web, tự kiểm tra và cài bản cập nhật.",
       "details": [
         "Tự hiện khi có cuộc gọi, tắt khi cuộc gọi kết thúc",
         "Ẩn đồng hồ gốc hoặc đổi màu nền",
