@@ -4,8 +4,8 @@
   "category": "Ứng dụng",
   "summary": "Hai điện thoại xem tin nhắn và nhật ký cuộc gọi của nhau khi cả hai đồng ý.",
   "description": "Hai điện thoại xem tin nhắn và nhật ký cuộc gọi của nhau khi cả hai đồng ý.",
-  "latestVersionCode": 4,
-  "latestVersionName": "1.0.3",
+  "latestVersionCode": 5,
+  "latestVersionName": "1.0.4",
   "minVersionCode": 1,
   "apkUrl": "https://jaboz.com/you-and-me/You-and-Me.apk",
   "sizeLabel": "7.4 MB",
@@ -13,6 +13,6 @@
   "requires": "Android 8.0+",
   "icon": "https://jaboz.com/you-and-me/icon.png",
   "screenshots": [],
-  "releaseNotes": "1.0.3: Sửa lỗi tin nhắn không đồng bộ.",
+  "releaseNotes": "1.0.4: Hiện cả tin đến và tin đi, kèm pin, phiên bản và đèn trạng thái của đối phương.",
   "details": []
 }
