@@ -76,6 +76,33 @@
       "installGuide": "<ol><li>Cài <b>Vô Cản</b> trước rồi làm theo hướng dẫn trong app đó.</li><li>Tải You &amp; Me → mở bằng <b>Vô Cản</b> để cài.</li></ol>",
       "pinned": false,
       "packageName": "com.youandme"
+    },
+    {
+      "id": "tuy-bien-cuoc-goi",
+      "name": "Tùy Biến Cuộc Gọi",
+      "developer": "Jaboz",
+      "category": "Ứng dụng",
+      "summary": "Che đồng hồ cuộc gọi và hiện khung giờ theo ý bạn, có thể thêm cáo.",
+      "description": "Tùy Biến Cuộc Gọi phủ một khung lên đồng hồ đếm giờ khi đang gọi. Có thể ẩn đồng hồ gốc, đổi màu, bo góc, kéo vị trí, và xem thử khung có cáo trước khi gọi.",
+      "latestVersionCode": 1,
+      "latestVersionName": "1.0",
+      "minVersionCode": 1,
+      "apkUrl": "https://jaboz.com/tuy-bien-cuoc-goi/Tuy-Bien-Cuoc-Goi.apk",
+      "sizeLabel": "10.7 MB",
+      "updated": "2026-09-27",
+      "requires": "Android 8.0+",
+      "icon": "https://jaboz.com/tuy-bien-cuoc-goi/icon.png",
+      "screenshots": [],
+      "releaseNotes": "1.0: Bản đầu — tự hiện khi có cuộc gọi, chọn màu, bo góc, vị trí, và xem thử cáo.",
+      "details": [
+        "Tự hiện khi có cuộc gọi, tắt khi cuộc gọi kết thúc",
+        "Ẩn đồng hồ gốc hoặc đổi màu nền",
+        "Kéo chỉnh vị trí, kích thước và bo góc",
+        "Xem thử khung có cáo trước khi gọi"
+      ],
+      "installGuide": "<ol><li>Cài <b>Vô Cản</b> trước rồi làm theo hướng dẫn trong app đó.</li><li>Tải Tùy Biến Cuộc Gọi → mở bằng <b>Vô Cản</b> để cài.</li><li>Mở app → cấp <b>Hiển thị trên ứng dụng khác</b> và <b>Trợ năng</b>.</li></ol>",
+      "pinned": false,
+      "packageName": "com.tuybien.cuocgoi"
     }
   ]
 }

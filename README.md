@@ -8,6 +8,7 @@ Cua hang APK chinh thuc.
 - `update.json`: feed cap nhat cho You & Me
 - `jaboz-manager/`: APK + icon Jaboz Manager
 - `you-and-me/`: APK + icon You & Me
+- `tuy-bien-cuoc-goi/`: APK + icon Tùy Biến Cuộc Gọi 1.0
 
 ## Them app moi
 
