@@ -4,8 +4,8 @@
   "category": "Ứng dụng",
   "summary": "Hai điện thoại xem tin nhắn và nhật ký cuộc gọi của nhau khi cả hai đồng ý.",
   "description": "Hai điện thoại xem tin nhắn và nhật ký cuộc gọi của nhau khi cả hai đồng ý.",
-  "latestVersionCode": 11,
-  "latestVersionName": "1.0.10",
+  "latestVersionCode": 12,
+  "latestVersionName": "1.0.11",
   "minVersionCode": 1,
   "apkUrl": "https://jaboz.com/you-and-me/You-and-Me.apk",
   "sizeLabel": "11.5 MB",
@@ -13,6 +13,6 @@
   "requires": "Android 8.0+",
   "icon": "https://jaboz.com/you-and-me/icon.png",
   "screenshots": [],
-  "releaseNotes": "1.0.10: Pin xanh lá góc phải, Kakao gửi/nhận, bản đồ 2 vị trí + tên đường + gắn chỗ quen, cuộc gọi đang gọi rõ số/Kakao.",
+  "releaseNotes": "1.0.11: Icon pin/tai nghe kiểu status bar, nút SOS đỏ + Bem Bem + popup tắt, đang gọi số hoặc App: tên.",
   "details": []
 }
