@@ -229,6 +229,13 @@
     }
     .foot-actions .btn-open[hidden],
     .foot-actions .btn-dl[hidden] { display: none !important; }
+    .btn-confirm {
+      display: block; width: min(720px, 100%); margin: 8px auto 0;
+      text-align: center; padding: 10px; border-radius: 10px;
+      font-size: 0.86rem; font-weight: 700; color: var(--purple);
+      background: rgba(124,58,237,0.08);
+    }
+    .btn-confirm[hidden] { display: none !important; }
 
     footer {
       width: min(720px, 100%); margin: 0 auto; padding: 8px 14px 24px;
@@ -286,6 +293,7 @@
         <button class="btn-dl" type="button" id="sheetDl">Tải về</button>
         <button class="btn-open" type="button" id="sheetOpen" hidden>Mở app</button>
       </div>
+      <button class="btn-confirm" type="button" id="sheetConfirm" hidden>Đã cài xong — hiện Mở app</button>
     </div>
   </div>
 
@@ -298,6 +306,7 @@
     const sheetTitle = document.getElementById("sheetTitle");
     const sheetDl = document.getElementById("sheetDl");
     const sheetOpen = document.getElementById("sheetOpen");
+    const sheetConfirm = document.getElementById("sheetConfirm");
     const bannerDl = document.getElementById("bannerDl");
     const toastEl = document.getElementById("toast");
     let current = null;
@@ -305,6 +314,13 @@
     let featuredApp = null;
     const installedPackages = new Set();
     let toastTimer = 0;
+
+    // Xóa cờ "đã cài" cũ (trước đây bị gắn nhầm khi mới bấm Mở app).
+    try {
+      Object.keys(localStorage).forEach((k) => {
+        if (k.startsWith("jaboz:installed:")) localStorage.removeItem(k);
+      });
+    } catch (_) {}
 
     function letter(name) {
       return (name || "J").trim().charAt(0).toUpperCase();
@@ -318,34 +334,51 @@
       return String(app.latestVersionCode || app.latestVersionName || "0");
     }
 
+    function appKey(app) {
+      return app.id || app.packageName || app.name || "";
+    }
+
     function dlKey(app) {
-      return "jaboz:dl:" + (app.id || app.packageName || app.name) + ":" + versionKey(app);
+      return "jaboz:dl:" + appKey(app) + ":" + versionKey(app);
+    }
+
+    function installStartedKey(app) {
+      return "jaboz:install-started:" + appKey(app) + ":" + versionKey(app);
+    }
+
+    function confirmedKey(app) {
+      return "jaboz:installed-ok:" + appKey(app);
     }
 
     function markDownloaded(app) {
       try { localStorage.setItem(dlKey(app), "1"); } catch (_) {}
     }
 
-    function markInstalled(app) {
+    function markInstallStarted(app) {
+      try { sessionStorage.setItem(installStartedKey(app), "1"); } catch (_) {}
+    }
+
+    function markInstalledConfirmed(app) {
       if (app.packageName) installedPackages.add(app.packageName);
-      try { localStorage.setItem("jaboz:installed:" + (app.packageName || app.id), "1"); } catch (_) {}
+      try { localStorage.setItem(confirmedKey(app), "1"); } catch (_) {}
     }
 
     function wasDownloaded(app) {
       try { return localStorage.getItem(dlKey(app)) === "1"; } catch (_) { return false; }
     }
 
-    function wasMarkedInstalled(app) {
-      if (app.packageName && installedPackages.has(app.packageName)) return true;
-      try {
-        return localStorage.getItem("jaboz:installed:" + (app.packageName || app.id)) === "1";
-      } catch (_) {
-        return false;
-      }
+    function wasInstallStarted(app) {
+      try { return sessionStorage.getItem(installStartedKey(app)) === "1"; } catch (_) { return false; }
     }
 
+    function isInstalled(app) {
+      if (app.packageName && installedPackages.has(app.packageName)) return true;
+      try { return localStorage.getItem(confirmedKey(app)) === "1"; } catch (_) { return false; }
+    }
+
+    // Chỉ "open" khi đã cài (xác nhận hoặc hệ thống báo). Tải xong chỉ hiện Cài đặt.
     function actionFor(app) {
-      if (wasMarkedInstalled(app)) return "open";
+      if (isInstalled(app)) return "open";
       if (wasDownloaded(app)) return "install";
       if (!app.apkUrl) return "none";
       return "download";
@@ -370,7 +403,6 @@
       const a = document.createElement("a");
       a.href = app.apkUrl;
       a.rel = "noopener";
-      // Same-origin APK: gợi ý tên file. Cross-origin vẫn mở/tải bình thường.
       try {
         const name = decodeURIComponent(new URL(app.apkUrl, location.href).pathname.split("/").pop() || "");
         if (name) a.setAttribute("download", name);
@@ -379,19 +411,24 @@
       a.click();
       a.remove();
       markDownloaded(app);
-      showToast("Tải xong trong trình duyệt — bấm Cài đặt để cài, không cần tìm file.");
+      showToast("Đã bắt đầu tải — bấm Cài đặt sau khi tải xong. Chưa cài thì chưa có Mở app.");
       refreshActions();
     }
 
     function installApk(app) {
       if (!app.apkUrl) return;
       markDownloaded(app);
-      // Mở lại file APK để hệ thống hiện trình cài đặt (không cần vào thư mục Tải xuống).
-      window.location.href = app.apkUrl;
+      markInstallStarted(app);
+      showToast("Đang mở trình cài đặt. Cài xong hãy bấm “Đã cài xong — hiện Mở app”.");
       refreshActions();
+      window.location.href = app.apkUrl;
     }
 
     function openApp(app) {
+      if (!isInstalled(app)) {
+        showToast("App chưa cài — hãy bấm Cài đặt trước.");
+        return;
+      }
       if (!app.packageName) {
         showToast("App này chưa có package để mở.");
         return;
@@ -400,54 +437,46 @@
         showToast("Mở app chỉ dùng được trên điện thoại Android.");
         return;
       }
-      markInstalled(app);
       const fallback = encodeURIComponent(location.href.split("#")[0] + "#app");
-      // Intent mở app theo package — nếu chưa cài, Chrome quay lại trang.
       location.href =
         "intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package=" +
         encodeURIComponent(app.packageName) +
         ";S.browser_fallback_url=" + fallback + ";end";
-      refreshActions();
     }
 
     function runPrimary(app) {
       const action = actionFor(app);
       if (action === "open") openApp(app);
       else if (action === "install") installApk(app);
-      else if (action === "download") {
-        downloadApk(app);
-        // Android: sau khi bắt đầu tải, đưa UI sang Cài đặt + Mở ngay.
-        if (isAndroid()) {
-          setTimeout(() => refreshActions(), 300);
-        }
-      }
+      else if (action === "download") downloadApk(app);
     }
 
     function bindSheetActions(app) {
       const action = actionFor(app);
-      const showOpen = action === "open" || action === "install" || wasDownloaded(app) || wasMarkedInstalled(app);
 
       if (action === "open") {
         sheetDl.hidden = true;
         sheetOpen.hidden = false;
         sheetOpen.disabled = false;
         sheetOpen.textContent = "Mở app";
+        sheetConfirm.hidden = true;
       } else {
         sheetDl.hidden = false;
         sheetDl.disabled = action === "none";
         sheetDl.textContent = labelFor(action);
-        sheetOpen.hidden = !showOpen;
-        sheetOpen.disabled = action !== "open" && !wasMarkedInstalled(app);
-        // Sau khi tải: hiện Mở app (mờ) + Cài đặt — giống Jaboz Manager.
-        if (action === "install") {
-          sheetOpen.hidden = false;
-          sheetOpen.disabled = false;
-          sheetOpen.textContent = "Mở app";
-        }
+        // Chưa cài thì không hiện Mở app.
+        sheetOpen.hidden = true;
+        // Chỉ hiện nút xác nhận sau khi đã bấm Cài đặt trong phiên này.
+        sheetConfirm.hidden = !(action === "install" && wasInstallStarted(app));
       }
 
       sheetDl.onclick = () => runPrimary(app);
       sheetOpen.onclick = () => openApp(app);
+      sheetConfirm.onclick = () => {
+        markInstalledConfirmed(app);
+        showToast("Đã bật Mở app.");
+        refreshActions();
+      };
     }
 
     function bindBannerAction() {
@@ -496,7 +525,7 @@
         : "";
       const installGuide = app.installGuide
         ? `<div class="block"><h2>Hướng dẫn cài đặt (làm lần đầu)</h2><div class="guide">${app.installGuide}</div></div>`
-        : `<div class="block"><h2>Cách cài</h2><p>1. Bấm <b>Tải về</b> — file tải ngay trên trang, không cần tìm trong thư mục.<br>2. Tải xong hiện <b>Cài đặt</b> và <b>Mở app</b>.<br>3. Bấm <b>Cài đặt</b> → cho phép nếu máy hỏi → xong thì bấm <b>Mở app</b>.</p></div>`;
+        : `<div class="block"><h2>Cách cài</h2><p>1. Bấm <b>Tải về</b>.<br>2. Tải xong bấm <b>Cài đặt</b> (chưa cài thì chưa có nút Mở app).<br>3. Cài xong bấm <b>Đã cài xong — hiện Mở app</b>, rồi bấm <b>Mở app</b>.</p></div>`;
       sheetBody.innerHTML = `
         <div class="detail-head">
           ${iconHtml}
