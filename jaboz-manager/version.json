@@ -1,7 +1,7 @@
 {
-  "latestVersionCode": 2,
-  "latestVersionName": "1.0.1",
-  "apkUrl": "https://jaboz.com/jaboz-manager/Jaboz-Manager.apk",
+  "latestVersionCode": 3,
+  "latestVersionName": "1.0.2",
+  "apkUrl": "https://jaboz.com/jaboz-manager/Jaboz-Manager.apk?v=3",
   "packageName": "com.jaboz.manager",
-  "releaseNotes": "1.0.1: Sửa crash trên máy cũ (S9) — giảm nặng icon, bỏ ViewPager2."
+  "releaseNotes": "1.0.2: App đã cài không hiện Tải về nữa — hiện Mở app để vào thẳng app đó."
 }
