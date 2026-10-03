@@ -6,7 +6,6 @@
   <meta name="color-scheme" content="light" />
   <title>Jaboz — Cửa hàng APK</title>
   <meta name="description" content="Cửa hàng APK chính thức của Jaboz." />
-  <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
@@ -89,15 +88,12 @@
       width: 44px; height: 44px; border-radius: 10px; object-fit: cover; background: #fff;
     }
     .banner-bar .title { flex: 1; font-weight: 700; color: #fff; -webkit-text-fill-color: #fff; }
-    .btn-dl, .btn-open {
+    .btn-dl {
+      background: linear-gradient(90deg, var(--pink), var(--purple));
       color: #fff; -webkit-text-fill-color: #fff;
       font-weight: 700; font-size: 0.86rem;
       padding: 8px 14px; border-radius: 8px;
-      white-space: nowrap;
     }
-    .btn-dl { background: linear-gradient(90deg, var(--pink), var(--purple)); }
-    .btn-open { background: var(--purple); }
-    .btn-dl:disabled, .btn-open:disabled { opacity: 0.45; cursor: default; }
 
     .cats {
       display: grid;
@@ -151,27 +147,11 @@
       display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
       overflow: hidden; min-height: 2.5em;
     }
-    .tile .status {
-      margin-top: 2px;
-      font-size: 0.7rem;
-      font-weight: 700;
-      color: var(--pink);
-      min-height: 1em;
-    }
 
     .empty {
       margin: 20px 14px; padding: 24px; text-align: center;
       color: var(--muted); border: 1px dashed var(--line); border-radius: 14px;
     }
-
-    .toast {
-      position: fixed; left: 50%; bottom: 88px; transform: translateX(-50%);
-      z-index: 80; max-width: min(90vw, 420px);
-      background: rgba(32,33,36,0.92); color: #fff;
-      padding: 10px 14px; border-radius: 10px; font-size: 0.86rem;
-      opacity: 0; pointer-events: none; transition: opacity .2s;
-    }
-    .toast.show { opacity: 1; }
 
     /* Detail sheet */
     .sheet {
@@ -187,7 +167,7 @@
       color: #fff; -webkit-text-fill-color: #fff; font-weight: 700;
     }
     .sheet-top .title { flex: 1; font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .sheet-body { flex: 1; overflow: auto; padding: 16px 16px 110px; width: min(720px, 100%); margin: 0 auto; }
+    .sheet-body { flex: 1; overflow: auto; padding: 16px 16px 100px; width: min(720px, 100%); margin: 0 auto; }
     .detail-head { display: flex; gap: 14px; align-items: center; }
     .detail-head img, .detail-head .fallback {
       width: 84px; height: 84px; border-radius: 20px; object-fit: cover;
@@ -220,22 +200,10 @@
       padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
       background: #fff; border-top: 1px solid var(--line);
     }
-    .foot-actions {
-      display: flex; gap: 10px; width: min(720px, 100%); margin: 0 auto;
+    .sheet-foot .btn-dl {
+      display: block; width: min(720px, 100%); margin: 0 auto;
+      text-align: center; padding: 14px; border-radius: 10px; font-size: 0.95rem;
     }
-    .foot-actions .btn-dl,
-    .foot-actions .btn-open {
-      flex: 1; text-align: center; padding: 14px; border-radius: 10px; font-size: 0.95rem;
-    }
-    .foot-actions .btn-open[hidden],
-    .foot-actions .btn-dl[hidden] { display: none !important; }
-    .btn-confirm {
-      display: block; width: min(720px, 100%); margin: 8px auto 0;
-      text-align: center; padding: 10px; border-radius: 10px;
-      font-size: 0.86rem; font-weight: 700; color: var(--purple);
-      background: rgba(124,58,237,0.08);
-    }
-    .btn-confirm[hidden] { display: none !important; }
 
     footer {
       width: min(720px, 100%); margin: 0 auto; padding: 8px 14px 24px;
@@ -289,15 +257,9 @@
     </div>
     <div class="sheet-body" id="sheetBody"></div>
     <div class="sheet-foot">
-      <div class="foot-actions">
-        <button class="btn-dl" type="button" id="sheetDl">Tải về</button>
-        <button class="btn-open" type="button" id="sheetOpen" hidden>Mở app</button>
-      </div>
-      <button class="btn-confirm" type="button" id="sheetConfirm" hidden>Đã cài xong — hiện Mở app</button>
+      <button class="btn-dl" type="button" id="sheetDl">Tải về</button>
     </div>
   </div>
-
-  <div class="toast" id="toast" role="status"></div>
 
   <script>
     const grid = document.getElementById("grid");
@@ -305,206 +267,10 @@
     const sheetBody = document.getElementById("sheetBody");
     const sheetTitle = document.getElementById("sheetTitle");
     const sheetDl = document.getElementById("sheetDl");
-    const sheetOpen = document.getElementById("sheetOpen");
-    const sheetConfirm = document.getElementById("sheetConfirm");
-    const bannerDl = document.getElementById("bannerDl");
-    const toastEl = document.getElementById("toast");
     let current = null;
-    let appsCache = [];
-    let featuredApp = null;
-    const installedPackages = new Set();
-    let toastTimer = 0;
-
-    // Xóa cờ "đã cài" cũ (trước đây bị gắn nhầm khi mới bấm Mở app).
-    try {
-      Object.keys(localStorage).forEach((k) => {
-        if (k.startsWith("jaboz:installed:")) localStorage.removeItem(k);
-      });
-    } catch (_) {}
 
     function letter(name) {
       return (name || "J").trim().charAt(0).toUpperCase();
-    }
-
-    function isAndroid() {
-      return /Android/i.test(navigator.userAgent || "");
-    }
-
-    function versionKey(app) {
-      return String(app.latestVersionCode || app.latestVersionName || "0");
-    }
-
-    function appKey(app) {
-      return app.id || app.packageName || app.name || "";
-    }
-
-    function dlKey(app) {
-      return "jaboz:dl:" + appKey(app) + ":" + versionKey(app);
-    }
-
-    function installStartedKey(app) {
-      return "jaboz:install-started:" + appKey(app) + ":" + versionKey(app);
-    }
-
-    function confirmedKey(app) {
-      return "jaboz:installed-ok:" + appKey(app);
-    }
-
-    function markDownloaded(app) {
-      try { localStorage.setItem(dlKey(app), "1"); } catch (_) {}
-    }
-
-    function markInstallStarted(app) {
-      try { sessionStorage.setItem(installStartedKey(app), "1"); } catch (_) {}
-    }
-
-    function markInstalledConfirmed(app) {
-      if (app.packageName) installedPackages.add(app.packageName);
-      try { localStorage.setItem(confirmedKey(app), "1"); } catch (_) {}
-    }
-
-    function wasDownloaded(app) {
-      try { return localStorage.getItem(dlKey(app)) === "1"; } catch (_) { return false; }
-    }
-
-    function wasInstallStarted(app) {
-      try { return sessionStorage.getItem(installStartedKey(app)) === "1"; } catch (_) { return false; }
-    }
-
-    function isInstalled(app) {
-      if (app.packageName && installedPackages.has(app.packageName)) return true;
-      try { return localStorage.getItem(confirmedKey(app)) === "1"; } catch (_) { return false; }
-    }
-
-    // Chỉ "open" khi đã cài (xác nhận hoặc hệ thống báo). Tải xong chỉ hiện Cài đặt.
-    function actionFor(app) {
-      if (isInstalled(app)) return "open";
-      if (wasDownloaded(app)) return "install";
-      if (!app.apkUrl) return "none";
-      return "download";
-    }
-
-    function labelFor(action) {
-      if (action === "open") return "Mở app";
-      if (action === "install") return "Cài đặt";
-      if (action === "none") return "Chưa có bản tải";
-      return "Tải về";
-    }
-
-    function showToast(msg) {
-      toastEl.textContent = msg;
-      toastEl.classList.add("show");
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => toastEl.classList.remove("show"), 2800);
-    }
-
-    function downloadApk(app) {
-      if (!app.apkUrl) return;
-      const a = document.createElement("a");
-      a.href = app.apkUrl;
-      a.rel = "noopener";
-      try {
-        const name = decodeURIComponent(new URL(app.apkUrl, location.href).pathname.split("/").pop() || "");
-        if (name) a.setAttribute("download", name);
-      } catch (_) {}
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      markDownloaded(app);
-      showToast("Đã bắt đầu tải — bấm Cài đặt sau khi tải xong. Chưa cài thì chưa có Mở app.");
-      refreshActions();
-    }
-
-    function installApk(app) {
-      if (!app.apkUrl) return;
-      markDownloaded(app);
-      markInstallStarted(app);
-      showToast("Đang mở trình cài đặt. Cài xong hãy bấm “Đã cài xong — hiện Mở app”.");
-      refreshActions();
-      window.location.href = app.apkUrl;
-    }
-
-    function openApp(app) {
-      if (!isInstalled(app)) {
-        showToast("App chưa cài — hãy bấm Cài đặt trước.");
-        return;
-      }
-      if (!app.packageName) {
-        showToast("App này chưa có package để mở.");
-        return;
-      }
-      if (!isAndroid()) {
-        showToast("Mở app chỉ dùng được trên điện thoại Android.");
-        return;
-      }
-      const fallback = encodeURIComponent(location.href.split("#")[0] + "#app");
-      location.href =
-        "intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package=" +
-        encodeURIComponent(app.packageName) +
-        ";S.browser_fallback_url=" + fallback + ";end";
-    }
-
-    function runPrimary(app) {
-      const action = actionFor(app);
-      if (action === "open") openApp(app);
-      else if (action === "install") installApk(app);
-      else if (action === "download") downloadApk(app);
-    }
-
-    function bindSheetActions(app) {
-      const action = actionFor(app);
-
-      if (action === "open") {
-        sheetDl.hidden = true;
-        sheetOpen.hidden = false;
-        sheetOpen.disabled = false;
-        sheetOpen.textContent = "Mở app";
-        sheetConfirm.hidden = true;
-      } else {
-        sheetDl.hidden = false;
-        sheetDl.disabled = action === "none";
-        sheetDl.textContent = labelFor(action);
-        // Chưa cài thì không hiện Mở app.
-        sheetOpen.hidden = true;
-        // Chỉ hiện nút xác nhận sau khi đã bấm Cài đặt trong phiên này.
-        sheetConfirm.hidden = !(action === "install" && wasInstallStarted(app));
-      }
-
-      sheetDl.onclick = () => runPrimary(app);
-      sheetOpen.onclick = () => openApp(app);
-      sheetConfirm.onclick = () => {
-        markInstalledConfirmed(app);
-        showToast("Đã bật Mở app.");
-        refreshActions();
-      };
-    }
-
-    function bindBannerAction() {
-      if (!featuredApp) return;
-      const action = actionFor(featuredApp);
-      bannerDl.textContent = labelFor(action === "none" ? "download" : action);
-      bannerDl.disabled = action === "none";
-      bannerDl.onclick = (e) => {
-        e.stopPropagation();
-        runPrimary(featuredApp);
-      };
-    }
-
-    function refreshActions() {
-      if (current) bindSheetActions(current);
-      bindBannerAction();
-      paintGridStatuses();
-    }
-
-    function paintGridStatuses() {
-      grid.querySelectorAll(".tile").forEach((tile) => {
-        const id = tile.dataset.id || "";
-        const app = appsCache.find((a) => (a.id || "") === id);
-        const status = tile.querySelector(".status");
-        if (!status || !app) return;
-        const action = actionFor(app);
-        status.textContent = action === "open" || action === "install" ? labelFor(action) : "";
-      });
     }
 
     function openDetail(app) {
@@ -525,7 +291,7 @@
         : "";
       const installGuide = app.installGuide
         ? `<div class="block"><h2>Hướng dẫn cài đặt (làm lần đầu)</h2><div class="guide">${app.installGuide}</div></div>`
-        : `<div class="block"><h2>Cách cài</h2><p>1. Bấm <b>Tải về</b>.<br>2. Tải xong bấm <b>Cài đặt</b> (chưa cài thì chưa có nút Mở app).<br>3. Cài xong bấm <b>Đã cài xong — hiện Mở app</b>, rồi bấm <b>Mở app</b>.</p></div>`;
+        : `<div class="block"><h2>Cách cài</h2><p>1. Bấm Tải về và chờ file tải xong.<br>2. Cho phép cài từ nguồn này nếu máy hỏi.<br>3. Bấm Cài đặt và mở app.</p></div>`;
       sheetBody.innerHTML = `
         <div class="detail-head">
           ${iconHtml}
@@ -553,7 +319,9 @@
             ["Yêu cầu", app.requires]
           ].filter(([, v]) => v).map(([k, v]) => `<div class="row"><span>${k}</span><b>${v}</b></div>`).join("")}
         </div>`;
-      bindSheetActions(app);
+      sheetDl.disabled = !app.apkUrl;
+      sheetDl.textContent = app.apkUrl ? "Tải về" : "Chưa có bản tải";
+      sheetDl.onclick = () => { if (app.apkUrl) window.location.href = app.apkUrl; };
       sheet.classList.add("open");
       document.body.style.overflow = "hidden";
       if (!history.state || !history.state.jabozDetail) {
@@ -580,69 +348,51 @@
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && sheet.classList.contains("open")) closeDetail(false);
     });
-    document.addEventListener("visibilitychange", () => {
-      if (document.visibilityState === "visible") refreshActions();
-    });
-
-    async function detectInstalledRelatedApps() {
-      if (!navigator.getInstalledRelatedApps) return;
-      try {
-        const list = await navigator.getInstalledRelatedApps();
-        list.forEach((item) => {
-          if (item.id) installedPackages.add(item.id);
-        });
-      } catch (_) {}
-    }
 
     function paint(apps) {
-      appsCache = apps.slice().sort((a, b) => {
+      const sorted = apps.slice().sort((a, b) => {
         const rank = (app) => (app.id === "jaboz-manager" ? 0 : 1);
         return rank(a) - rank(b) || Number(!!b.pinned) - Number(!!a.pinned);
       });
-      featuredApp = appsCache.find((a) => a.id === "jaboz-manager") || appsCache.find((a) => a.pinned) || appsCache[0];
+      const featured = sorted.find((a) => a.id === "jaboz-manager") || sorted.find((a) => a.pinned) || sorted[0];
       const banner = document.getElementById("banner");
-      if (featuredApp) {
+      if (featured) {
         banner.classList.add("show");
-        document.getElementById("bannerTitle").textContent = featuredApp.name || "";
+        document.getElementById("bannerTitle").textContent = featured.name || "";
         const icon = document.getElementById("bannerIcon");
-        if (featuredApp.icon) {
-          icon.src = featuredApp.icon;
-          document.getElementById("bannerBg").style.backgroundImage = `url(${featuredApp.icon})`;
+        if (featured.icon) {
+          icon.src = featured.icon;
+          document.getElementById("bannerBg").style.backgroundImage = `url(${featured.icon})`;
         }
-        bindBannerAction();
-        banner.onclick = () => openDetail(featuredApp);
+        const bdl = document.getElementById("bannerDl");
+        bdl.onclick = (e) => {
+          e.stopPropagation();
+          if (featured.apkUrl) window.location.href = featured.apkUrl;
+        };
+        banner.onclick = () => openDetail(featured);
       }
 
       grid.textContent = "";
-      if (!appsCache.length) {
+      if (!sorted.length) {
         grid.innerHTML = `<div class="empty" style="grid-column:1/-1">Chưa có app nào.</div>`;
         return;
       }
-      appsCache.forEach((app) => {
+      sorted.forEach((app) => {
         const a = document.createElement("button");
         a.type = "button";
         a.className = "tile";
-        a.dataset.id = app.id || "";
-        const action = actionFor(app);
-        a.innerHTML = (app.icon
-          ? `<img src="${app.icon}" alt=""><div class="name"></div><div class="status"></div>`
-          : `<div class="fallback">${letter(app.name)}</div><div class="name"></div><div class="status"></div>`);
+        a.innerHTML = app.icon
+          ? `<img src="${app.icon}" alt=""><div class="name"></div>`
+          : `<div class="fallback">${letter(app.name)}</div><div class="name"></div>`;
         a.querySelector(".name").textContent = app.name || "";
-        a.querySelector(".status").textContent =
-          action === "open" || action === "install" ? labelFor(action) : "";
         a.onclick = () => openDetail(app);
         grid.append(a);
       });
     }
 
-    Promise.all([
-      fetch("./apps.json", { cache: "no-store" }).then((res) => {
-        if (!res.ok) throw new Error("fetch");
-        return res.json();
-      }),
-      detectInstalledRelatedApps()
-    ])
-      .then(([data]) => paint(data.apps || []))
+    fetch("./apps.json", { cache: "no-store" })
+      .then((res) => { if (!res.ok) throw new Error("fetch"); return res.json(); })
+      .then((data) => paint(data.apps || []))
       .catch(() => {
         grid.innerHTML = `<div class="empty" style="grid-column:1/-1">Không tải được danh sách.</div>`;
       });

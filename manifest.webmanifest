@@ -5,23 +5,5 @@
   "scope": "./",
   "display": "standalone",
   "background_color": "#fff7fb",
-  "theme_color": "#7c3aed",
-  "prefer_related_applications": false,
-  "related_applications": [
-    {
-      "platform": "play",
-      "id": "com.jaboz.manager",
-      "url": "https://jaboz.com/jaboz-manager/"
-    },
-    {
-      "platform": "play",
-      "id": "com.haly.lpinstaller",
-      "url": "https://jaboz.com/vo-can/"
-    },
-    {
-      "platform": "play",
-      "id": "com.youandme",
-      "url": "https://jaboz.com/you-and-me/"
-    }
-  ]
+  "theme_color": "#7c3aed"
 }
