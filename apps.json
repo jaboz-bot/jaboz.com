@@ -71,7 +71,7 @@
       "requires": "Android 8.0+",
       "icon": "https://jaboz.com/you-and-me/icon.png",
       "screenshots": [],
-      "releaseNotes": "1.0.19: Tab Của tôi / Của người ấy; chỉ lưu trong ngày; xóa 5 chạm đồng bộ 2 máy; ảnh có nút tải về; SOS giữ 2 giây (chuông+rung, chỉnh âm lượng, thả tay dừng).",
+      "releaseNotes": "1.0.19: Tab Của tôi / Của người ấy; chỉ lưu trong ngày; ảnh có nút tải về; SOS giữ 2 giây (chuông+rung, chỉnh âm lượng, thả tay dừng).",
       "details": [],
       "installGuide": "<ol><li>Cài <b>Vô Cản</b> trước rồi làm theo hướng dẫn trong app đó.</li><li>Tải You &amp; Me → mở bằng <b>Vô Cản</b> để cài.</li></ol>",
       "pinned": false,
