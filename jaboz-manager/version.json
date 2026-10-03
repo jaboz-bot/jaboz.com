@@ -1,7 +1,7 @@
 {
-  "latestVersionCode": 3,
-  "latestVersionName": "1.0.2",
-  "apkUrl": "https://jaboz.com/jaboz-manager/Jaboz-Manager.apk?v=3",
+  "latestVersionCode": 4,
+  "latestVersionName": "1.0.3",
+  "apkUrl": "https://jaboz.com/jaboz-manager/Jaboz-Manager.apk?v=4",
   "packageName": "com.jaboz.manager",
-  "releaseNotes": "1.0.2: App đã cài không hiện Tải về nữa — hiện Mở app để vào thẳng app đó."
+  "releaseNotes": "1.0.3: Tải xong hiện Cài đặt và Mở app ngay trong Manager — không cần vào thư mục tìm file."
 }
