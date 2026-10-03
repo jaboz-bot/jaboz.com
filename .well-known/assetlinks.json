@@ -1,0 +1,32 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.jaboz.manager",
+      "sha256_cert_fingerprints": [
+        "22:1C:83:CE:1B:A8:B4:C5:CD:71:75:AF:B7:13:E6:CC:22:F3:A2:B8:BE:73:6D:6B:C0:EB:AE:93:36:75:59:14"
+      ]
+    }
+  },
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.haly.lpinstaller",
+      "sha256_cert_fingerprints": [
+        "01:FE:EB:44:96:54:8D:14:F5:5E:AE:84:31:70:09:35:EC:D1:E8:91:92:34:26:03:8C:51:21:2B:38:42:17:A8"
+      ]
+    }
+  },
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.youandme",
+      "sha256_cert_fingerprints": [
+        "31:D0:F3:6A:96:AC:FE:8F:85:3B:61:53:FB:46:C8:CF:AC:B7:23:EA:65:4A:06:2C:FC:B9:97:7D:43:CE:B4:0A"
+      ]
+    }
+  }
+]
