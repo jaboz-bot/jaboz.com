@@ -1,39 +1,23 @@
 # jaboz.com
 
-Cua hang APK chinh thuc.
+- **Trang công khai:** `/` — landing Jaboz (không liệt kê app)
+- **Cửa hàng APK (riêng):** [`/app/`](https://jaboz.com/app/) — đọc `app/apps.json`
 
-- `index.html`: trang cua hang (doc `apps.json`)
-- `apps.json`: danh sach app (**Vô Cản** ghim dau — huong dan cai lan dau)
-- `vo-can/`: APK + icon + trang huong dan `vo-can/index.html`
-- `update.json`: feed cap nhat cho You & Me
-- `jaboz-manager/`: APK + icon Jaboz Manager
-- `you-and-me/`: APK + icon You & Me
-- `tuy-bien-cuoc-goi/`: APK + icon Tùy Biến Cuộc Gọi 1.0
+## Cấu trúc
 
-## Them app moi
+- `index.html` — landing công khai
+- `app/index.html` — cửa hàng
+- `app/apps.json` — danh sách app
+- `app/you-and-me/` — APK + `version.json` (cập nhật ngầm You & Me)
+- `you-and-me/version.json` — shim tương thích URL cũ (`jaboz.com/you-and-me/version.json` → APK dưới `/app/…`)
 
-1. Dat APK + icon vao thu muc rieng.
-2. Them muc vao `apps.json` (`pinned: true` neu muon ghim dau).
+## Thêm app mới
+
+1. Đặt APK + icon vào thư mục trong `app/`.
+2. Thêm mục vào `app/apps.json`.
 3. Push `main`.
 
-## Vô Cản (source)
+## You & Me — cập nhật
 
-Source Android nam o `../Dashboard/LivePanelApp/installer`. Build:
-
-```
-cd ../Dashboard/LivePanelApp
-gradlew.bat :installer:assembleRelease
-```
-
-Copy APK sang `vo-can/Vo-Can.apk`.
-
-## Jaboz Manager (source)
-
-Source Android nam o `../jaboz-manager` (ngoai site). Build:
-
-```
-cd ../jaboz-manager
-gradlew.bat assembleRelease
-```
-
-Ky APK roi copy vao `jaboz-manager/Jaboz-Manager.apk`.
+Canonical: `https://jaboz.com/app/you-and-me/version.json`  
+Shim cũ: `https://jaboz.com/you-and-me/version.json` (cùng nội dung, `apk` trỏ `/app/…`)

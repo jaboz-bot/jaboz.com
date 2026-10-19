@@ -7,11 +7,11 @@
   "latestVersionCode": 38,
   "latestVersionName": "1.0.37",
   "minVersionCode": 1,
-  "apkUrl": "https://jaboz.com/you-and-me/You-and-Me.apk?v=38",
+  "apkUrl": "https://jaboz.com/app/you-and-me/You-and-Me.apk?v=38",
   "sizeLabel": "11.8 MB",
   "updated": "2026-10-19",
   "requires": "Android 8.0+",
-  "icon": "https://jaboz.com/you-and-me/icon.png",
+  "icon": "https://jaboz.com/app/you-and-me/icon.png",
   "screenshots": [],
   "releaseNotes": "1.0.37: Status-bar privacy shows System services; auto-dismiss cam/mic panel.",
   "details": []

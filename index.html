@@ -3,395 +3,137 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="color-scheme" content="light" />
-  <title>Jaboz — Cửa hàng APK</title>
-  <meta name="description" content="Cửa hàng APK chính thức của Jaboz." />
+  <meta name="color-scheme" content="dark" />
+  <title>Jaboz</title>
+  <meta name="description" content="Jaboz — studio phần mềm nhỏ, làm sản phẩm dùng hàng ngày." />
+  <meta name="robots" content="noindex, nofollow" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --pink: #e84393;
-      --yellow: #f5c518;
-      --yellow-deep: #c98900;
-      --purple: #7c3aed;
-      --purple-deep: #5b21b6;
-      --ink: #202124;
-      --body: #5f6368;
-      --muted: #80868b;
-      --line: #eee3ef;
-      --bg: #fff;
-      --soft: #fff7fb;
+      --ink: #0e1412;
+      --moss: #1c2e28;
+      --foam: #e7efe8;
+      --mist: #a8b9b0;
+      --copper: #d08a4a;
+      --copper-deep: #a8652e;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html { color-scheme: only light; }
+    html, body { height: 100%; }
     body {
-      font-family: Roboto, "Segoe UI", sans-serif;
-      color: var(--ink);
-      background: var(--bg);
-      min-height: 100vh;
-    }
-    a { color: inherit; text-decoration: none; }
-    button { font: inherit; cursor: pointer; border: 0; background: none; }
-
-    .top {
-      position: sticky;
-      top: 0;
-      z-index: 40;
-      height: 52px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 14px;
-      background: var(--purple);
-      color: #fff;
-    }
-    .top .brand {
-      font-weight: 700;
-      font-size: 1.1rem;
-      letter-spacing: -0.02em;
-      color: #fff;
-      -webkit-text-fill-color: #fff;
-    }
-    .top .icon-btn {
-      width: 36px; height: 36px;
-      display: grid; place-items: center;
-      color: #fff;
-      font-size: 1.2rem;
-    }
-
-    main { width: min(720px, 100%); margin: 0 auto; padding-bottom: 40px; }
-
-    .banner {
-      margin: 12px;
-      border-radius: 16px;
+      font-family: Outfit, system-ui, sans-serif;
+      color: var(--foam);
+      background: var(--ink);
       overflow: hidden;
+    }
+    .stage {
       position: relative;
-      min-height: 180px;
-      background: linear-gradient(135deg, var(--pink), var(--purple));
-      color: #fff;
-      display: none;
-    }
-    .banner.show { display: block; }
-    .banner-bg {
-      position: absolute; inset: 0;
-      background-size: cover; background-position: center;
-      filter: brightness(0.55);
-    }
-    .banner-bar {
-      position: absolute; left: 0; right: 0; bottom: 0;
-      display: flex; align-items: center; gap: 10px;
-      padding: 12px;
-      background: rgba(0,0,0,0.55);
-    }
-    .banner-bar img {
-      width: 44px; height: 44px; border-radius: 10px; object-fit: cover; background: #fff;
-    }
-    .banner-bar .title { flex: 1; font-weight: 700; color: #fff; -webkit-text-fill-color: #fff; }
-    .btn-dl {
-      background: linear-gradient(90deg, var(--pink), var(--purple));
-      color: #fff; -webkit-text-fill-color: #fff;
-      font-weight: 700; font-size: 0.86rem;
-      padding: 8px 14px; border-radius: 8px;
-    }
-
-    .cats {
+      min-height: 100%;
+      min-height: 100dvh;
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-      padding: 8px 10px 4px;
-      text-align: center;
+      place-items: center;
+      padding: clamp(1.5rem, 4vw, 3rem);
+      isolation: isolate;
     }
-    .cat span {
-      width: 52px; height: 52px; border-radius: 50%;
-      display: grid; place-items: center; margin: 0 auto 6px;
-      color: #fff; -webkit-text-fill-color: #fff; font-size: 1.2rem; font-weight: 700;
+    .stage::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 55% at 15% 20%, rgba(208, 138, 74, 0.28), transparent 55%),
+        radial-gradient(ellipse 70% 50% at 85% 75%, rgba(40, 90, 72, 0.45), transparent 50%),
+        linear-gradient(165deg, #121a17 0%, var(--ink) 45%, #0a100e 100%);
+      z-index: -2;
     }
-    .cat p { font-size: 0.78rem; color: var(--ink); }
-    .c1 span { background: #f5a623; }
-    .c2 span { background: var(--pink); }
-    .c3 span { background: var(--purple); }
-    .c4 span { background: linear-gradient(135deg, var(--pink), var(--purple)); }
-
-    .section-head {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 14px 14px 8px;
-      font-size: 1.1rem; font-weight: 700;
+    .stage::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+      opacity: 0.35;
+      pointer-events: none;
+      z-index: -1;
     }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 12px 8px;
-      padding: 4px 12px 20px;
+    .orb {
+      position: absolute;
+      width: min(52vw, 420px);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, rgba(208, 138, 74, 0.35), transparent 62%);
+      filter: blur(8px);
+      animation: drift 14s ease-in-out infinite alternate;
+      z-index: -1;
+      right: 8%;
+      top: 18%;
     }
-    .tile {
-      text-align: center;
-      color: inherit;
+    @keyframes drift {
+      from { transform: translate(0, 0) scale(1); }
+      to { transform: translate(-4%, 6%) scale(1.08); }
     }
-    .tile img, .tile .fallback {
-      width: 72px; height: 72px;
-      border-radius: 16px;
-      object-fit: cover;
-      margin: 0 auto 6px;
-      display: block;
-      background: linear-gradient(145deg, var(--pink), var(--yellow-deep), var(--purple));
-      box-shadow: 0 2px 8px rgba(124,58,237,0.12);
+    .panel {
+      width: min(40rem, 100%);
+      text-align: left;
+      animation: rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
     }
-    .tile .fallback {
-      color: #fff; -webkit-text-fill-color: #fff;
-      display: grid; place-items: center; font-size: 1.6rem; font-weight: 700;
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(18px); }
+      to { opacity: 1; transform: translateY(0); }
     }
-    .tile .name {
-      font-size: 0.75rem; line-height: 1.25;
-      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-      overflow: hidden; min-height: 2.5em;
+    .brand {
+      font-family: Fraunces, Georgia, serif;
+      font-weight: 700;
+      font-size: clamp(3.4rem, 12vw, 6.5rem);
+      line-height: 0.92;
+      letter-spacing: -0.04em;
+      color: var(--foam);
     }
-
-    .empty {
-      margin: 20px 14px; padding: 24px; text-align: center;
-      color: var(--muted); border: 1px dashed var(--line); border-radius: 14px;
+    .brand span {
+      color: var(--copper);
     }
-
-    /* Detail sheet */
-    .sheet {
-      position: fixed; inset: 0; z-index: 60;
-      background: #fff; display: none; flex-direction: column;
+    .line {
+      margin-top: 1.35rem;
+      max-width: 28ch;
+      font-size: clamp(1.05rem, 2.4vw, 1.25rem);
+      font-weight: 400;
+      line-height: 1.45;
+      color: var(--mist);
+      animation: rise 1s 0.12s cubic-bezier(0.22, 1, 0.36, 1) both;
     }
-    .sheet.open { display: flex; }
-    .sheet-top {
-      height: 52px; display: flex; align-items: center; gap: 8px;
-      padding: 0 10px; background: var(--purple); color: #fff;
+    .rule {
+      margin-top: 2rem;
+      width: 3.5rem;
+      height: 2px;
+      background: linear-gradient(90deg, var(--copper), transparent);
+      animation: rise 1s 0.2s cubic-bezier(0.22, 1, 0.36, 1) both;
     }
-    .sheet-top button, .sheet-top .title {
-      color: #fff; -webkit-text-fill-color: #fff; font-weight: 700;
+    .meta {
+      margin-top: 1.25rem;
+      font-size: 0.8rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: color-mix(in srgb, var(--mist) 80%, transparent);
+      animation: rise 1s 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
     }
-    .sheet-top .title { flex: 1; font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .sheet-body { flex: 1; overflow: auto; padding: 16px 16px 100px; width: min(720px, 100%); margin: 0 auto; }
-    .detail-head { display: flex; gap: 14px; align-items: center; }
-    .detail-head img, .detail-head .fallback {
-      width: 84px; height: 84px; border-radius: 20px; object-fit: cover;
-      background: linear-gradient(145deg, var(--pink), var(--purple));
-      color: #fff; display: grid; place-items: center; font-size: 2rem; font-weight: 700;
-    }
-    .detail-head h1 { font-size: 1.35rem; letter-spacing: -0.02em; }
-    .detail-head .dev { color: var(--purple); font-weight: 700; margin-top: 4px; }
-    .detail-head .sum { color: var(--body); font-size: 0.9rem; margin-top: 6px; line-height: 1.4; }
-    .stats { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
-    .stat {
-      background: rgba(232,67,147,0.12); color: var(--pink);
-      font-size: 0.78rem; font-weight: 700; padding: 5px 10px; border-radius: 999px;
-    }
-    .block { margin-top: 22px; }
-    .block h2 { font-size: 1.05rem; margin-bottom: 8px; }
-    .block p, .block li { color: var(--body); line-height: 1.55; font-size: 0.94rem; }
-    .block ul { padding-left: 1.1rem; }
-    .guide { color: var(--body); line-height: 1.6; font-size: 0.95rem; }
-    .guide ol { padding-left: 1.2rem; margin: 8px 0 0; }
-    .guide li { margin: 8px 0; }
-    .guide b { color: var(--ink); }
-    .row {
-      display: flex; justify-content: space-between; gap: 16px;
-      padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 0.92rem;
-    }
-    .row span { color: var(--muted); }
-    .sheet-foot {
-      position: fixed; left: 0; right: 0; bottom: 0;
-      padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
-      background: #fff; border-top: 1px solid var(--line);
-    }
-    .sheet-foot .btn-dl {
-      display: block; width: min(720px, 100%); margin: 0 auto;
-      text-align: center; padding: 14px; border-radius: 10px; font-size: 0.95rem;
-    }
-
     footer {
-      width: min(720px, 100%); margin: 0 auto; padding: 8px 14px 24px;
-      color: var(--muted); font-size: 0.8rem;
-      display: flex; justify-content: space-between;
-    }
-
-    @media (min-width: 700px) {
-      .grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
-      .banner { min-height: 220px; }
+      position: absolute;
+      left: clamp(1.5rem, 4vw, 3rem);
+      bottom: clamp(1.2rem, 3vw, 2rem);
+      font-size: 0.75rem;
+      color: color-mix(in srgb, var(--mist) 55%, transparent);
     }
   </style>
 </head>
 <body>
-  <header class="top">
-    <span class="icon-btn" aria-hidden="true">☰</span>
-    <a class="brand" href="./">Jaboz</a>
-    <span class="icon-btn" aria-hidden="true">⌕</span>
-  </header>
-
-  <main>
-    <div class="banner" id="banner">
-      <div class="banner-bg" id="bannerBg"></div>
-      <div class="banner-bar">
-        <img id="bannerIcon" alt="" />
-        <div class="title" id="bannerTitle"></div>
-        <button class="btn-dl" type="button" id="bannerDl">Tải về</button>
-      </div>
+  <div class="stage">
+    <div class="orb" aria-hidden="true"></div>
+    <div class="panel">
+      <h1 class="brand">Ja<span>boz</span></h1>
+      <p class="line">Studio nhỏ. Phần mềm gọn. Làm những thứ dùng mỗi ngày.</p>
+      <div class="rule" aria-hidden="true"></div>
+      <p class="meta">Seoul · 2026</p>
     </div>
-
-    <div class="cats">
-      <div class="cat c1"><span>▶</span><p>Trò chơi</p></div>
-      <div class="cat c2"><span>▣</span><p>Ứng dụng</p></div>
-      <div class="cat c3"><span>💬</span><p>Tin tức</p></div>
-      <div class="cat c4"><span>J</span><p>Cửa hàng</p></div>
-    </div>
-
-    <div class="section-head"><span>Phát hiện</span><span>›</span></div>
-    <div class="grid" id="grid"><div class="empty" style="grid-column:1/-1">Đang tải…</div></div>
-  </main>
-
-  <footer>
-    <span>© 2026 Jaboz</span>
-    <span>jaboz.com</span>
-  </footer>
-
-  <div class="sheet" id="sheet" role="dialog" aria-modal="true">
-    <div class="sheet-top">
-      <button type="button" id="sheetBack">←</button>
-      <div class="title" id="sheetTitle">Chi tiết</div>
-    </div>
-    <div class="sheet-body" id="sheetBody"></div>
-    <div class="sheet-foot">
-      <button class="btn-dl" type="button" id="sheetDl">Tải về</button>
-    </div>
+    <footer>© Jaboz</footer>
   </div>
-
-  <script>
-    const grid = document.getElementById("grid");
-    const sheet = document.getElementById("sheet");
-    const sheetBody = document.getElementById("sheetBody");
-    const sheetTitle = document.getElementById("sheetTitle");
-    const sheetDl = document.getElementById("sheetDl");
-    let current = null;
-
-    function letter(name) {
-      return (name || "J").trim().charAt(0).toUpperCase();
-    }
-
-    function openDetail(app) {
-      current = app;
-      sheetTitle.textContent = app.name || "Chi tiết";
-      const iconHtml = app.icon
-        ? `<img src="${app.icon}" alt="">`
-        : `<div class="fallback">${letter(app.name)}</div>`;
-      const stats = [
-        app.latestVersionName && ("v" + app.latestVersionName),
-        app.sizeLabel,
-        app.updated,
-        app.requires
-      ].filter(Boolean).map((t) => `<span class="stat">${t}</span>`).join("");
-      const details = (app.details || []).map((d) => `<li>${d}</li>`).join("");
-      const installGuide = app.installGuide
-        ? `<div class="block"><h2>Hướng dẫn cài đặt (làm lần đầu)</h2><div class="guide">${app.installGuide}</div></div>`
-        : `<div class="block"><h2>Cách cài</h2><p>1. Bấm Tải về và chờ file tải xong.<br>2. Cho phép cài từ nguồn này nếu máy hỏi.<br>3. Bấm Cài đặt và mở app.</p></div>`;
-      sheetBody.innerHTML = `
-        <div class="detail-head">
-          ${iconHtml}
-          <div>
-            <h1>${app.name || ""}</h1>
-            <div class="dev">${app.developer || "Jaboz"}</div>
-            <div class="sum">${app.summary || ""}</div>
-          </div>
-        </div>
-        <div class="stats">${stats}</div>
-        ${installGuide}
-        <div class="block">
-          <h2>Giới thiệu</h2>
-          <p>${app.description || app.summary || ""}</p>
-          ${details ? `<ul>${details}</ul>` : ""}
-        </div>
-        <div class="block">
-          <h2>Thông tin</h2>
-          ${[
-            ["Nhà phát triển", app.developer || "Jaboz"],
-            ["Phiên bản", app.latestVersionName],
-            ["Dung lượng", app.sizeLabel],
-            ["Cập nhật", app.updated],
-            ["Yêu cầu", app.requires]
-          ].filter(([, v]) => v).map(([k, v]) => `<div class="row"><span>${k}</span><b>${v}</b></div>`).join("")}
-        </div>`;
-      sheetDl.disabled = !app.apkUrl;
-      sheetDl.textContent = app.apkUrl ? "Tải về" : "Chưa có bản tải";
-      sheetDl.onclick = () => { if (app.apkUrl) window.location.href = app.apkUrl; };
-      sheet.classList.add("open");
-      document.body.style.overflow = "hidden";
-      if (!history.state || !history.state.jabozDetail) {
-        history.pushState({ jabozDetail: true, id: app.id || "" }, "", "#app");
-      } else {
-        history.replaceState({ jabozDetail: true, id: app.id || "" }, "", "#app");
-      }
-    }
-
-    function closeDetail(fromPopState) {
-      if (!sheet.classList.contains("open")) return;
-      sheet.classList.remove("open");
-      document.body.style.overflow = "";
-      current = null;
-      if (!fromPopState && history.state && history.state.jabozDetail) {
-        history.back();
-      }
-    }
-
-    document.getElementById("sheetBack").onclick = () => closeDetail(false);
-    window.addEventListener("popstate", () => {
-      if (sheet.classList.contains("open")) closeDetail(true);
-    });
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && sheet.classList.contains("open")) closeDetail(false);
-    });
-
-    function paint(apps) {
-      const sorted = apps.slice().sort((a, b) => {
-        const rank = (app) => (app.id === "jaboz-manager" ? 0 : 1);
-        return rank(a) - rank(b) || Number(!!b.pinned) - Number(!!a.pinned);
-      });
-      const featured = sorted.find((a) => a.id === "jaboz-manager") || sorted.find((a) => a.pinned) || sorted[0];
-      const banner = document.getElementById("banner");
-      if (featured) {
-        banner.classList.add("show");
-        document.getElementById("bannerTitle").textContent = featured.name || "";
-        const icon = document.getElementById("bannerIcon");
-        if (featured.icon) {
-          icon.src = featured.icon;
-          document.getElementById("bannerBg").style.backgroundImage = `url(${featured.icon})`;
-        }
-        const bdl = document.getElementById("bannerDl");
-        bdl.onclick = (e) => {
-          e.stopPropagation();
-          if (featured.apkUrl) window.location.href = featured.apkUrl;
-        };
-        banner.onclick = () => openDetail(featured);
-      }
-
-      grid.textContent = "";
-      if (!sorted.length) {
-        grid.innerHTML = `<div class="empty" style="grid-column:1/-1">Chưa có app nào.</div>`;
-        return;
-      }
-      sorted.forEach((app) => {
-        const a = document.createElement("button");
-        a.type = "button";
-        a.className = "tile";
-        a.innerHTML = app.icon
-          ? `<img src="${app.icon}" alt=""><div class="name"></div>`
-          : `<div class="fallback">${letter(app.name)}</div><div class="name"></div>`;
-        a.querySelector(".name").textContent = app.name || "";
-        a.onclick = () => openDetail(app);
-        grid.append(a);
-      });
-    }
-
-    fetch("./apps.json", { cache: "no-store" })
-      .then((res) => { if (!res.ok) throw new Error("fetch"); return res.json(); })
-      .then((data) => paint(data.apps || []))
-      .catch(() => {
-        grid.innerHTML = `<div class="empty" style="grid-column:1/-1">Không tải được danh sách.</div>`;
-      });
-  </script>
 </body>
 </html>
