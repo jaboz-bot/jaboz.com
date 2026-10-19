@@ -286,9 +286,6 @@
         app.requires
       ].filter(Boolean).map((t) => `<span class="stat">${t}</span>`).join("");
       const details = (app.details || []).map((d) => `<li>${d}</li>`).join("");
-      const notes = app.releaseNotes
-        ? `<div class="block"><h2>Có gì mới</h2><p>${app.releaseNotes}</p></div>`
-        : "";
       const installGuide = app.installGuide
         ? `<div class="block"><h2>Hướng dẫn cài đặt (làm lần đầu)</h2><div class="guide">${app.installGuide}</div></div>`
         : `<div class="block"><h2>Cách cài</h2><p>1. Bấm Tải về và chờ file tải xong.<br>2. Cho phép cài từ nguồn này nếu máy hỏi.<br>3. Bấm Cài đặt và mở app.</p></div>`;
@@ -308,7 +305,6 @@
           <p>${app.description || app.summary || ""}</p>
           ${details ? `<ul>${details}</ul>` : ""}
         </div>
-        ${notes}
         <div class="block">
           <h2>Thông tin</h2>
           ${[
