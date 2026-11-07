@@ -262,7 +262,9 @@
     </div>
   </div>
 
-  <script>
+  <script type="module">
+    import { applyVersionManifest, isCatalogVersionUrl, versionText } from "./catalog.js";
+
     const grid = document.getElementById("grid");
     const sheet = document.getElementById("sheet");
     const sheetBody = document.getElementById("sheetBody");
@@ -280,8 +282,9 @@
       const iconHtml = app.icon
         ? `<img src="${app.icon}" alt="">`
         : `<div class="fallback">${letter(app.name)}</div>`;
+      const shownVersion = versionText(app);
       const stats = [
-        app.latestVersionName && ("v" + app.latestVersionName),
+        shownVersion && ("v" + shownVersion),
         app.sizeLabel,
         app.updated,
         app.requires
@@ -310,13 +313,14 @@
           <h2>Thông tin</h2>
           ${[
             ["Nhà phát triển", app.developer || "Jaboz"],
-            ["Phiên bản", app.latestVersionName],
+            ["Phiên bản", shownVersion],
             ["Dung lượng", app.sizeLabel],
             ["Cập nhật", app.updated],
             ["Yêu cầu", app.requires]
           ].filter(([, v]) => v).map(([k, v]) => `<div class="row"><span>${k}</span><b>${v}</b></div>`).join("")}
         </div>`;
       sheetDl.disabled = !app.apkUrl;
+      sheetDl.dataset.apk = app.apkUrl || "";
       sheetDl.textContent = app.apkUrl ? "Tải về" : "Chưa có bản tải";
       sheetDl.onclick = () => { if (app.apkUrl) window.location.href = app.apkUrl; };
       sheet.classList.add("open");
@@ -387,9 +391,23 @@
       });
     }
 
+    async function withPublishedVersions(apps) {
+      return Promise.all(apps.map(async (app) => {
+        if (!isCatalogVersionUrl(app.versionUrl)) return app;
+        try {
+          const res = await fetch(app.versionUrl, { cache: "no-store" });
+          if (!res.ok) return app;
+          return applyVersionManifest(app, await res.json(), res.headers.get("last-modified"));
+        } catch {
+          return app;
+        }
+      }));
+    }
+
     fetch("./apps.json", { cache: "no-store" })
       .then((res) => { if (!res.ok) throw new Error("fetch"); return res.json(); })
-      .then((data) => paint(data.apps || []))
+      .then((data) => withPublishedVersions(data.apps || []))
+      .then((apps) => paint(apps))
       .catch(() => {
         grid.innerHTML = `<div class="empty" style="grid-column:1/-1">Không tải được danh sách.</div>`;
       });
