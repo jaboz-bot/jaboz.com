@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.AT" parent="android:Theme.DeviceDefault.Light.NoActionBar">
+        <item name="android:statusBarColor">#DEE1E6</item>
+        <item name="android:navigationBarColor">#FFFFFF</item>
+        <item name="android:windowBackground">#FFFFFF</item>
+    </style>
+</resources>

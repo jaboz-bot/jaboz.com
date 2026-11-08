@@ -1,0 +1,30 @@
+plugins {
+    id "com.android.application"
+}
+
+android {
+    namespace "com.jaboz.at"
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.jaboz.at"
+        minSdk 24
+        targetSdk 34
+        versionCode 10
+        versionName "1.9"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+        debug {
+            debuggable true
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
