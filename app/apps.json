@@ -79,21 +79,21 @@
       "packageName": "com.youandme"
     },
     {
-      "id": "tu-nhan-cuoc-goi",
-      "name": "Tự nhận cuộc gọi Messenger",
+      "id": "tro-ly-cuoc-goi",
+      "name": "Trợ lý cuộc gọi",
       "developer": "Jaboz",
       "category": "Ứng dụng",
       "summary": "Tự nhận cuộc gọi Messenger từ tên bạn chỉ định, kể cả khi máy đang khóa.",
       "description": "Nhập tên người gọi trong app; khi có cuộc gọi thoại hoặc video Messenger khớp tên, app tự bấm Trả lời. Cần bật quyền Trợ năng và quyền thông báo.",
-      "latestVersionCode": 1,
-      "latestVersionName": "1.0-debug",
+      "latestVersionCode": 2,
+      "latestVersionName": "1.1",
       "minVersionCode": 1,
-      "apkUrl": "https://jaboz.com/app/TuNhanCuocGoi.apk",
-      "sizeLabel": "30 KB",
+      "apkUrl": "https://jaboz.com/app/TroLyCuocGoi-1.1.apk",
+      "sizeLabel": "33 KB",
       "updated": "2026-11-09",
       "requires": "Android 8.0+",
       "screenshots": [],
-      "releaseNotes": "Bản thử nghiệm đầu: tự nhận cuộc gọi thoại/video theo tên đã thêm.",
+      "releaseNotes": "1.1: bản dựng mới, thay TuNhanCuocGoi bị gắn cờ.",
       "details": [
         "Tự nhận theo đúng tên bạn nhập trong app",
         "Hỗ trợ cuộc gọi thoại và video Messenger",
@@ -102,7 +102,7 @@
       ],
       "installGuide": "<ol><li>Tải APK rồi cài (nên dùng <b>Vô Cản</b> nếu máy chặn nguồn ngoài).</li><li>Mở app → thêm đúng tên hiển thị lúc có cuộc gọi → bật tự nhận.</li><li>Bật quyền <b>Trợ năng</b>, <b>Thông báo</b>, và đặt pin <b>Không hạn chế</b>.</li></ol>",
       "pinned": false,
-      "packageName": "vn.tunhan.cuocgoi"
+      "packageName": "com.jaboz.callhelper"
     }
   ]
 }
