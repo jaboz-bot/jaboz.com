@@ -1,0 +1,245 @@
+{
+  "howToAdd": "Giữ file cũ. Thêm file mới vào web/<số V>/index.html hoặc apk/<versionName>/AT.apk, thêm một mục vào đây, rồi thêm dòng trên web/index.html và apk/index.html. Số phiên bản lấy từ bookmark (V) hoặc từ APK, không đặt số mới.",
+  "web": [
+    {
+      "id": "1012.2232",
+      "current": true,
+      "published": "2026-10-19",
+      "sha256": "11bc81baebfbdee049d319c4569390f4074685273b6a2f70b973cc0fe70a8339",
+      "bytes": 43417,
+      "file": "web/1012.2232/index.html",
+      "source": "origin/main:app/at/index.html"
+    },
+    {
+      "id": "1003.2238",
+      "current": false,
+      "published": "2026-10-03",
+      "sha256": "ba30e7f56bb5a6c4966cc817f9e6041cf4f5d2398f772c60377adef228dd6f43",
+      "bytes": 41391,
+      "file": "web/1003.2238/index.html",
+      "source": "5d5a8b71d083d00bba6ba815557c1a8d3eaa3442:at/index.html"
+    },
+    {
+      "id": "1003.2217",
+      "current": false,
+      "published": "2026-10-03",
+      "sha256": "88ae31a7e6a4b7f071aba588bd74b36e45cb34e5b4770ff61ac3d67857ee638a",
+      "bytes": 41566,
+      "file": "web/1003.2217/index.html",
+      "source": "f139347410798f830ea08c783f4b77f101c86bd1:at/index.html"
+    },
+    {
+      "id": "1001.2340",
+      "current": false,
+      "published": "2026-10-01",
+      "sha256": "1f0f55d73f1dec0b3100266969449c6d94ad9bb98f1b6e9a93b6ad96fac74770",
+      "bytes": 35447,
+      "file": "web/1001.2340/index.html",
+      "source": "54d56a9bcf613893b5bc51b01ed819b4be90298f:at/index.html"
+    },
+    {
+      "id": "1001.2332",
+      "current": false,
+      "published": "2026-10-01",
+      "sha256": "e4cc0e204714b66e7fa475e3690b302c99d8f3533faf2bc8c14f77c407c52a14",
+      "bytes": 73389,
+      "file": "web/1001.2332/index.html",
+      "source": "1e527802e146cd7bf8249d8c9bb32ca82cb7bc4f:at/index.html"
+    },
+    {
+      "id": "1001.2049",
+      "current": false,
+      "published": "2026-10-01",
+      "sha256": "d7a9f33c6b630f79518c6709adeb571e3f8bfd514a0de886aa5b94e15a8f7e13",
+      "bytes": 72517,
+      "file": "web/1001.2049/index.html",
+      "source": "ab9250ee383f4f4509d5a8748d5bb11dce72d337:at/index.html"
+    },
+    {
+      "id": "1001.2017",
+      "current": false,
+      "published": "2026-10-01",
+      "sha256": "ca5e594336d549a031a5f0739694a7923d338d2ef73ab0871a3659958c6fdc0d",
+      "bytes": 83551,
+      "file": "web/1001.2017/index.html",
+      "source": "eaaff99675967d33df88e18d5afa01a6cd742b10:at/index.html"
+    },
+    {
+      "id": "1001.1936",
+      "current": false,
+      "published": "2026-10-01",
+      "sha256": "caecb12b0f26208e1d121750db61c98899e7fc8d812892cf49e4594378280124",
+      "bytes": 83284,
+      "file": "web/1001.1936/index.html",
+      "source": "224f2efb6f5578c600180e81675e7a54177d22a2:at/index.html"
+    },
+    {
+      "id": "1001.1915",
+      "current": false,
+      "published": "2026-10-01",
+      "sha256": "f82861efa13e1b723e4de8b17f5bb0f3583ab51c35ef32d1e223f9a2624b2311",
+      "bytes": 82763,
+      "file": "web/1001.1915/index.html",
+      "source": "7de955095963fe1a39b3995b0846204ec7c66674:at/index.html"
+    },
+    {
+      "id": "0930.2234",
+      "current": false,
+      "published": "2026-09-30",
+      "sha256": "19e63bfcb3f873d7433c5785cfc4a11a227fd1cc62d498249e5725cbba366090",
+      "bytes": 82033,
+      "file": "web/0930.2234/index.html",
+      "source": "5628b7e4b1c039cae894e4e777416e00ac58eed6:at/index.html"
+    },
+    {
+      "id": "0930.2229",
+      "current": false,
+      "published": "2026-09-30",
+      "sha256": "91b9580c0728afeac82cc8d2957f9790a3a56b56f60134e8a1ec94c122ef94d6",
+      "bytes": 125266,
+      "file": "web/0930.2229/index.html",
+      "source": "069f1060e894b2d67a1f38e05ca6dbe52066319c:at/index.html"
+    },
+    {
+      "id": "0804.0036",
+      "current": false,
+      "published": "2026-08-04",
+      "sha256": "6b08a1841854e2a79b75057e06a27da276dab32607fa0bbe97afb57aed59d046",
+      "bytes": 122319,
+      "file": "web/0804.0036/index.html",
+      "source": "915e8431aac89b906319d7b6c4e83ce0a1f03b56:at/index.html"
+    }
+  ],
+  "apk": [
+    {
+      "versionName": "1.9",
+      "versionCode": 10,
+      "current": true,
+      "buildType": "debug",
+      "release": false,
+      "certSha256": "a356efa30e3c9b75ab5b996ef3c4e5bd6b21cb361d154dae495c794ed249676c",
+      "sha256": "5ca65bb35389d5dde8f3c2b6b4276eb2da6854561e22cfbedf7688f67e01c4dc",
+      "bytes": 36786,
+      "file": "apk/1.9/AT.apk",
+      "published": "2026-11-08",
+      "source": "at/AT.apk"
+    },
+    {
+      "versionName": "1.8",
+      "versionCode": 9,
+      "current": false,
+      "buildType": "debug",
+      "release": false,
+      "certSha256": "31d0f36a96acfe8f853b6153fb46c8cfacb723ea654a062cfcb9977d43ceb40a",
+      "sha256": "2c78a5a655566bdbcbca23fb1527e8ab428d648dd76dfa6ef5459a90dd6b67e6",
+      "bytes": 32350,
+      "file": "apk/1.8/AT.apk",
+      "published": "2026-10-12",
+      "source": "origin/main:app/at/AT.apk"
+    },
+    {
+      "versionName": "1.7",
+      "versionCode": 8,
+      "current": false,
+      "buildType": "debug",
+      "release": false,
+      "certSha256": "31d0f36a96acfe8f853b6153fb46c8cfacb723ea654a062cfcb9977d43ceb40a",
+      "sha256": "9e31ae8231e64efa5f4d0b34ffdebb75aa836967df5d82a99dca53ccd08263a0",
+      "bytes": 30958,
+      "file": "apk/1.7/AT.apk",
+      "published": "2026-10-07",
+      "source": "03d3f7f34a66bd8f4a44084afdb42f4845364947:at/AT.apk"
+    },
+    {
+      "versionName": "1.6",
+      "versionCode": 7,
+      "current": false,
+      "buildType": "debug",
+      "release": false,
+      "certSha256": "31d0f36a96acfe8f853b6153fb46c8cfacb723ea654a062cfcb9977d43ceb40a",
+      "sha256": "d052bc6587d05337c5c49c23bbec1d778dd8af38b933c8fac08a27be2cfa62f0",
+      "bytes": 28477,
+      "file": "apk/1.6/AT.apk",
+      "published": "2026-10-03",
+      "source": "5d5a8b71d083d00bba6ba815557c1a8d3eaa3442:at/AT.apk"
+    },
+    {
+      "versionName": "1.5",
+      "versionCode": 6,
+      "current": false,
+      "buildType": "debug",
+      "release": false,
+      "certSha256": "31d0f36a96acfe8f853b6153fb46c8cfacb723ea654a062cfcb9977d43ceb40a",
+      "sha256": "8fc6151a7bd0c214c06d99b8e7d1134f3299f491e17fb50aadcbc23570fdaea3",
+      "bytes": 28409,
+      "file": "apk/1.5/AT.apk",
+      "published": "2026-10-03",
+      "source": "f139347410798f830ea08c783f4b77f101c86bd1:at/AT.apk"
+    },
+    {
+      "versionName": "1.4",
+      "versionCode": 5,
+      "current": false,
+      "buildType": "debug",
+      "release": false,
+      "certSha256": "31d0f36a96acfe8f853b6153fb46c8cfacb723ea654a062cfcb9977d43ceb40a",
+      "sha256": "046a20921f8695883d053893459ecfcea2fe4b8a885e3212884c8e97c32f2b18",
+      "bytes": 25977,
+      "file": "apk/1.4/AT.apk",
+      "published": "2026-10-02",
+      "source": "e16af26161168d12de1678b1c6947e330449f035:at/AT.apk"
+    },
+    {
+      "versionName": "1.3",
+      "versionCode": 4,
+      "current": false,
+      "buildType": "debug",
+      "release": false,
+      "certSha256": "31d0f36a96acfe8f853b6153fb46c8cfacb723ea654a062cfcb9977d43ceb40a",
+      "sha256": "91fdcf684717546f4eedff2cee1fe52974b06536774dcdad172d9f5ccdc9dd9a",
+      "bytes": 25310,
+      "file": "apk/1.3/AT.apk",
+      "published": "2026-10-02",
+      "source": "fc1b3fb5405f61282e81f81adcab47d11fa0a0c2:at/AT.apk"
+    },
+    {
+      "versionName": "1.2",
+      "versionCode": 3,
+      "current": false,
+      "buildType": "debug",
+      "release": false,
+      "certSha256": "31d0f36a96acfe8f853b6153fb46c8cfacb723ea654a062cfcb9977d43ceb40a",
+      "sha256": "86c46235888a0d319b8537b413504663876b3cfaf926f6f0bd56d712c4e6cc17",
+      "bytes": 24414,
+      "file": "apk/1.2/AT.apk",
+      "published": "2026-10-01",
+      "source": "1e527802e146cd7bf8249d8c9bb32ca82cb7bc4f:at/AT.apk"
+    },
+    {
+      "versionName": "1.1",
+      "versionCode": 2,
+      "current": false,
+      "buildType": "debug",
+      "release": false,
+      "certSha256": "31d0f36a96acfe8f853b6153fb46c8cfacb723ea654a062cfcb9977d43ceb40a",
+      "sha256": "dc72de15a022b958912e30438bc706a0965773afc5385a4e91310b6cd065e1bc",
+      "bytes": 26166,
+      "file": "apk/1.1/AT.apk",
+      "published": "2026-10-01",
+      "source": "eaaff99675967d33df88e18d5afa01a6cd742b10:at/AT.apk"
+    },
+    {
+      "versionName": "1.0",
+      "versionCode": 1,
+      "current": false,
+      "buildType": "debug",
+      "release": false,
+      "certSha256": "31d0f36a96acfe8f853b6153fb46c8cfacb723ea654a062cfcb9977d43ceb40a",
+      "sha256": "3a23bf010472a77965b326cc67cb9e9fcafb561414008e04ba7ed2b14e1a36d1",
+      "bytes": 26086,
+      "file": "apk/1.0/AT.apk",
+      "published": "2026-10-01",
+      "source": "224f2efb6f5578c600180e81675e7a54177d22a2:at/AT.apk"
+    }
+  ]
+}

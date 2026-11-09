@@ -1,2 +1,6 @@
 ﻿_stash/
 .cursor/
+app/at/android/.gradle/
+app/at/android/build/
+app/at/android/app/build/
+app/at/android/local.properties
