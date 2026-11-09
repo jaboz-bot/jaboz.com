@@ -83,26 +83,27 @@
       "name": "Trợ lý cuộc gọi",
       "developer": "Jaboz",
       "category": "Ứng dụng",
-      "summary": "Tự nhận cuộc gọi Messenger từ tên bạn chỉ định, kể cả khi máy đang khóa.",
-      "description": "Nhập tên người gọi trong app; khi có cuộc gọi thoại hoặc video Messenger khớp tên, app tự bấm Trả lời. Cần bật quyền Trợ năng và quyền thông báo.",
-      "latestVersionCode": 2,
-      "latestVersionName": "1.1",
+      "summary": "Tự nhận cuộc gọi Messenger, KakaoTalk và cuộc gọi thường từ người bạn chỉ định, kể cả khi máy đang khóa.",
+      "description": "Thêm tên (Messenger, KakaoTalk) hoặc số điện thoại; khi có cuộc gọi thoại hoặc video khớp và đang trong lịch bạn đặt, app tự bấm Trả lời. Cần bật quyền Trợ năng.",
+      "latestVersionCode": 3,
+      "latestVersionName": "1.2",
       "minVersionCode": 1,
-      "apkUrl": "https://jaboz.com/app/TroLyCuocGoi-1.1.apk",
-      "sizeLabel": "33 KB",
+      "apkUrl": "https://jaboz.com/app/TroLyCuocGoi-1.2.apk",
+      "sizeLabel": "51 KB",
       "updated": "2026-11-09",
       "requires": "Android 8.0+",
       "screenshots": [],
-      "releaseNotes": "1.1: bản dựng mới, thay TuNhanCuocGoi bị gắn cờ.",
+      "releaseNotes": "1.2: giao diện và logo mới, nút bật/tắt, lịch ngày giờ, hỗ trợ KakaoTalk và cuộc gọi thường theo số, tự báo bản mới.",
       "details": [
-        "Tự nhận theo đúng tên bạn nhập trong app",
-        "Hỗ trợ cuộc gọi thoại và video Messenger",
-        "Hoạt động khi màn hình đang khóa (cần thử trên máy)",
-        "Cần bật Trợ năng và quyền thông báo"
+        "Messenger, KakaoTalk và cuộc gọi thường (theo số)",
+        "Nút bật/tắt và lịch theo ngày, giờ",
+        "Hoạt động khi màn hình đang khóa",
+        "Tự báo khi có bản mới"
       ],
-      "installGuide": "<ol><li>Tải APK rồi cài (nên dùng <b>Vô Cản</b> nếu máy chặn nguồn ngoài).</li><li>Mở app → thêm đúng tên hiển thị lúc có cuộc gọi → bật tự nhận.</li><li>Bật quyền <b>Trợ năng</b>, <b>Thông báo</b>, và đặt pin <b>Không hạn chế</b>.</li></ol>",
+      "installGuide": "<ol><li>Tải APK rồi cài đè (giữ nguyên danh sách và cài đặt cũ).</li><li>Mở app → chọn Messenger / KakaoTalk / Điện thoại → nhập tên hoặc số → Thêm.</li><li>Bật quyền <b>Trợ năng</b> (nếu bị từ chối: Thông tin ứng dụng → ⋮ → Cho phép cài đặt hạn chế), nên bật <b>Thông báo</b> và pin <b>Không hạn chế</b>.</li></ol>",
       "pinned": false,
-      "packageName": "com.jaboz.callhelper"
+      "packageName": "com.jaboz.callhelper",
+      "icon": "https://jaboz.com/app/tro-ly-cuoc-goi/icon.png"
     }
   ]
 }
