@@ -77,6 +77,32 @@
       "installGuide": "<ol><li>Cài <b>Vô Cản</b> trước rồi làm theo hướng dẫn trong app đó.</li><li>Tải You &amp; Me → mở bằng <b>Vô Cản</b> để cài.</li></ol>",
       "pinned": false,
       "packageName": "com.youandme"
+    },
+    {
+      "id": "tu-nhan-cuoc-goi",
+      "name": "Tự nhận cuộc gọi Messenger",
+      "developer": "Jaboz",
+      "category": "Ứng dụng",
+      "summary": "Tự nhận cuộc gọi Messenger từ tên bạn chỉ định, kể cả khi máy đang khóa.",
+      "description": "Nhập tên người gọi trong app; khi có cuộc gọi thoại hoặc video Messenger khớp tên, app tự bấm Trả lời. Cần bật quyền Trợ năng và quyền thông báo.",
+      "latestVersionCode": 1,
+      "latestVersionName": "1.0-debug",
+      "minVersionCode": 1,
+      "apkUrl": "https://jaboz.com/app/TuNhanCuocGoi.apk",
+      "sizeLabel": "30 KB",
+      "updated": "2026-11-09",
+      "requires": "Android 8.0+",
+      "screenshots": [],
+      "releaseNotes": "Bản thử nghiệm đầu: tự nhận cuộc gọi thoại/video theo tên đã thêm.",
+      "details": [
+        "Tự nhận theo đúng tên bạn nhập trong app",
+        "Hỗ trợ cuộc gọi thoại và video Messenger",
+        "Hoạt động khi màn hình đang khóa (cần thử trên máy)",
+        "Cần bật Trợ năng và quyền thông báo"
+      ],
+      "installGuide": "<ol><li>Tải APK rồi cài (nên dùng <b>Vô Cản</b> nếu máy chặn nguồn ngoài).</li><li>Mở app → thêm đúng tên hiển thị lúc có cuộc gọi → bật tự nhận.</li><li>Bật quyền <b>Trợ năng</b>, <b>Thông báo</b>, và đặt pin <b>Không hạn chế</b>.</li></ol>",
+      "pinned": false,
+      "packageName": "vn.tunhan.cuocgoi"
     }
   ]
 }
