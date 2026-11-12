@@ -1,6 +1,8 @@
 {
-  "versionCode": 4,
-  "versionName": "1.3",
-  "apkUrl": "https://jaboz.com/app/TroLyCuocGoi-1.3.apk",
-  "notes": "Nhận xong tự về màn hình chính (bật/tắt được), vẫn tự nhận khi đang Không làm phiền, gọi lại sau 5 giây vẫn được tự nhận."
+  "versionCode": 5,
+  "versionName": "1.4",
+  "apkUrl": "https://jaboz.com/app/TroLyCuocGoi-1.4.apk",
+  "sha256": "1064a6b6b52956a15fc16bada27f4bc18c154ade94db053fab4ff2bf0ca1d807",
+  "size": 66775,
+  "notes": "Cập nhật ngay trong app: bấm \"Tải và cài đặt\", app tự tải, kiểm tra chữ ký rồi mở màn hình cài của Android, bạn chỉ cần bấm Cập nhật. Không phải mở trình duyệt nữa (lần này vẫn cài qua trình duyệt)."
 }
