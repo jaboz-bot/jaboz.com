@@ -1,8 +1,8 @@
 {
-  "versionCode": 8,
-  "versionName": "1.3.3",
-  "apkUrl": "https://jaboz.com/app/TroLyCuocGoi-1.3.3.apk",
-  "sha256": "fc9df36df905303c11f1e0f23305ea7bfbd6f103b14d58cd6bcf62126ffe15fe",
-  "size": 121384,
-  "notes": "Bỏ nút huỷ ghép đôi (ghép rồi thì giữ nguyên). Căn giữa hàng mã 12 số và dòng gợi ý dưới mã QR. Nếu Android chặn tự cập nhật vì chưa cho phép cài ứng dụng không rõ nguồn, app hiện nút mở đúng trang cài đặt, không hỏi lại mỗi 5 phút khi chưa bật quyền, rồi tự chạy tiếp sau khi bạn bật."
+  "versionCode": 9,
+  "versionName": "1.3.4",
+  "apkUrl": "https://jaboz.com/app/TroLyCuocGoi-1.3.4.apk",
+  "sha256": "35bd5e68862ec462ce5d05f4ff186a7f1a438888a2be41512f30e2fd7967acf6",
+  "size": 122899,
+  "notes": "Thêm nút Quét mã QR ngay trong app khi ghép đôi (dưới nút Ghép đôi với máy khác và trong hộp nhập mã). Quét được link jaboz.com hoặc mã 12 số, rồi điền vào hộp nhập để gửi yêu cầu. Vẫn nhập mã thủ công được. Nếu máy chưa có ứng dụng quét mã, app gợi ý nhập tay hoặc cài Barcode Scanner."
 }
