@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Ghép đôi – Trợ lý cuộc gọi</title>
+<style>
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:#F3F6FB;color:#14213D;display:flex;min-height:100vh;align-items:center;justify-content:center}
+  .card{background:#fff;border-radius:24px;box-shadow:0 2px 12px rgba(20,33,61,.08);padding:28px 22px;max-width:380px;width:calc(100% - 32px);text-align:center}
+  img{width:64px;height:64px;border-radius:16px}
+  h1{font-size:20px;margin:12px 0 4px}
+  p{color:#6B7489;font-size:14px;line-height:1.5;margin:6px 0}
+  .code{font:700 30px ui-monospace,Menlo,Consolas,monospace;letter-spacing:1px;margin:16px 0 6px}
+  a.btn,button{display:block;width:100%;box-sizing:border-box;border:0;border-radius:14px;padding:14px;font-size:16px;font-weight:600;margin-top:12px;text-decoration:none;cursor:pointer}
+  a.btn{background:#2563EB;color:#fff}
+  button{background:#EEF2F7;color:#14213D}
+  .err{color:#DC2626}
+</style>
+</head>
+<body>
+<div class="card">
+  <img src="/app/tro-ly-cuoc-goi/icon.png" alt="">
+  <h1>Ghép đôi Trợ lý cuộc gọi</h1>
+  <div id="ok" hidden>
+    <p>Mã ghép đôi của máy kia:</p>
+    <div class="code" id="code"></div>
+    <a class="btn" id="open" href="#">Mở app để ghép đôi</a>
+    <button id="copy" type="button">Sao chép mã</button>
+    <p>Nếu app không tự mở: mở Trợ lý cuộc gọi → <b>Ghép đôi với máy khác</b> → nhập mã trên. Máy kia phải bấm <b>Chấp nhận</b>.</p>
+  </div>
+  <p id="bad" class="err" hidden>Mã không hợp lệ. Hãy quét lại mã QR ở cuối app.</p>
+  <p><a href="/app/">Tải Trợ lý cuộc gọi</a></p>
+</div>
+<script>
+  var c = (new URLSearchParams(location.search).get('c') || '').replace(/\D/g, '');
+  if (/^\d{12}$/.test(c)) {
+    document.getElementById('ok').hidden = false;
+    document.getElementById('code').textContent = c.slice(0,4) + '-' + c.slice(4,8) + '-' + c.slice(8);
+    document.getElementById('open').href = 'intent://pair/' + c + '#Intent;scheme=trolycuocgoi;package=com.jaboz.callhelper;S.browser_fallback_url=' + encodeURIComponent('https://jaboz.com/app/') + ';end';
+    document.getElementById('copy').onclick = function () {
+      var t = document.getElementById('code').textContent;
+      (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(function(){ this.textContent = 'Đã sao chép'; }.bind(this), function(){ prompt('Sao chép mã:', t); });
+    };
+  } else document.getElementById('bad').hidden = false;
+</script>
+</body>
+</html>
