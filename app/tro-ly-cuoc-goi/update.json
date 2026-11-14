@@ -1,8 +1,8 @@
 {
-  "versionCode": 7,
-  "versionName": "1.3.2",
-  "apkUrl": "https://jaboz.com/app/TroLyCuocGoi-1.3.2.apk",
-  "sha256": "bb43f0284bb169b40b52acd2189a5ab8bf1291b26cd21e8f3edc01e9230a4544",
-  "size": 120696,
-  "notes": "Ghép đôi 2 máy: mỗi máy có mã cố định (số + mã QR ở cuối app). Nhập mã của máy kia rồi bấm Chấp nhận trên máy đó; từ đó công tắc bật/tắt tự nhận, Về màn hình chính, lịch và thời gian chờ được đồng bộ giữa hai máy trong vài giây, và app hiện máy nào đã đổi, lúc mấy giờ. Tắt trên máy này thì máy kia chỉ đổ chuông."
+  "versionCode": 8,
+  "versionName": "1.3.3",
+  "apkUrl": "https://jaboz.com/app/TroLyCuocGoi-1.3.3.apk",
+  "sha256": "fc9df36df905303c11f1e0f23305ea7bfbd6f103b14d58cd6bcf62126ffe15fe",
+  "size": 121384,
+  "notes": "Bỏ nút huỷ ghép đôi (ghép rồi thì giữ nguyên). Căn giữa hàng mã 12 số và dòng gợi ý dưới mã QR. Nếu Android chặn tự cập nhật vì chưa cho phép cài ứng dụng không rõ nguồn, app hiện nút mở đúng trang cài đặt, không hỏi lại mỗi 5 phút khi chưa bật quyền, rồi tự chạy tiếp sau khi bạn bật."
 }
