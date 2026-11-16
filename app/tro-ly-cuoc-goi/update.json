@@ -1,8 +1,8 @@
 {
-  "versionCode": 16,
-  "versionName": "1.3.11",
-  "apkUrl": "https://jaboz.com/app/TroLyCuocGoi-1.3.11.apk",
-  "sha256": "df61e98cbe12274ece633e241dab298c423f8a04424d8e551a5c419062cce3be",
-  "size": 139955,
-  "notes": "Khi bật Chế độ ngân hàng (Trợ năng tắt), nút tự nhận trên cùng hiện TẮT. Bật lại nút tự nhận = tắt Chế độ ngân hàng: app mở trang Trợ năng của \"Trợ lý cuộc gọi – trả lời người quen\", bạn gạt bật, app tự quay về. App ghi nhớ cách mở trang nào vào thẳng trang bật/tắt trên máy của bạn để lần sau mở đúng chỗ hơn. App không bao giờ tự gạt công tắc."
+  "versionCode": 17,
+  "versionName": "1.3.12",
+  "apkUrl": "https://jaboz.com/app/TroLyCuocGoi-1.3.12.apk",
+  "sha256": "2b1589e013a8112273cedde44938256cfa91ac9446aaf8c524ccd3c7fa17a5bc",
+  "size": 142661,
+  "notes": "Mục Chế độ ngân hàng chuyển xuống cuối màn hình. Thêm ô bảng nhanh \"Tự nhận cuộc gọi\" (kéo thanh thông báo xuống) để mở nhanh trang bật/tắt, có nút \"Thêm ô vào bảng nhanh\". Cách nhanh nhất không cần vào Cài đặt: trong trang Trợ năng của app bật Phím tắt (ví dụ giữ 2 phím âm lượng 3 giây), sau đó bấm phím tắt là Android tự bật/tắt."
 }
