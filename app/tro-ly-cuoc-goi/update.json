@@ -1,8 +1,8 @@
 {
-  "versionCode": 14,
-  "versionName": "1.3.9",
-  "apkUrl": "https://jaboz.com/app/TroLyCuocGoi-1.3.9.apk",
-  "sha256": "cea8d4fac59488f48fa81ab8efa44cd6b97d6331715e4d12916eac78b3002bdf",
-  "size": 135599,
-  "notes": "Chế độ ngân hàng giờ vào thẳng trang bật/tắt của dịch vụ \"Trợ lý cuộc gọi – trả lời người quen\": app thử lần lượt nhiều cách mở trang chi tiết Trợ năng; trên máy Samsung nếu vẫn dừng ở trang \"Hỗ trợ\", app tự bấm \"Ứng dụng đã cài đặt\" rồi bấm đúng dòng của app (chỉ trong vài giây sau khi bạn gạt, không bao giờ tự gạt công tắc). Bạn chỉ cần gạt công tắc để tắt."
+  "versionCode": 15,
+  "versionName": "1.3.10",
+  "apkUrl": "https://jaboz.com/app/TroLyCuocGoi-1.3.10.apk",
+  "sha256": "71236ea8225f6b3ed5320ec95aadc05e3b1be4f3e9eb114d0f6c336e8127792e",
+  "size": 138469,
+  "notes": "Chế độ ngân hàng: sau khi bạn gạt công tắc của \"Trợ lý cuộc gọi – trả lời người quen\" trong Cài đặt (tắt hoặc bật), app tự quay về màn hình Trợ lý cuộc gọi. Trang Cài đặt giờ mở chồng lên app nên bấm Back cũng quay về app. App không bao giờ tự gạt công tắc."
 }
