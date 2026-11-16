@@ -1,8 +1,8 @@
 {
-  "versionCode": 12,
-  "versionName": "1.3.7",
-  "apkUrl": "https://jaboz.com/app/TroLyCuocGoi-1.3.7.apk",
-  "sha256": "d8663a8d6b63fc91a779844a8fccd3194dde6052cbc27398e757fe283789df1e",
-  "size": 128186,
-  "notes": "Ghép đôi: dưới mỗi máy đã ghép hiện phiên bản app của máy kia (mới nhất / chưa cập nhật), cập nhật ngay khi máy kia lên bản mới. Tự cập nhật: nếu đang gọi điện chưa cài được, app sẽ tự mở lại màn hình cài đặt ngay khi tắt cuộc gọi hoặc mở khoá màn hình."
+  "versionCode": 13,
+  "versionName": "1.3.8",
+  "apkUrl": "https://jaboz.com/app/TroLyCuocGoi-1.3.8.apk",
+  "sha256": "6bc4d65c9a63da00e050c51f4481980bdb0210843363428c2e2b5c7af5496d98",
+  "size": 130631,
+  "notes": "Thêm mục \"Chế độ ngân hàng\" ngay dưới nút chính: gạt để mở thẳng trang Trợ năng của Trợ lý cuộc gọi, tắt trợ năng khi cần mở app ngân hàng và bật lại sau đó. App hiện rõ Trợ năng đang bật hay đang tắt; khi tắt, tự nhận cuộc gọi tạm dừng."
 }
