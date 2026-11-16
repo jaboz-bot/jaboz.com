@@ -1,7 +1,8 @@
 {
-  "versionCode": 162,
-  "versionName": "1.3.31",
-  "apk": "https://jaboz.com/app/you-and-me/You-and-Me.apk?v=162",
-  "sha256": "4f865e1753e17ec78a495ae24a309ff3974cc76d00c8039973fde34495f58363",
-  "size": 30887107
+  "versionCode": 163,
+  "versionName": "1.3.32",
+  "apk": "https://jaboz.com/app/you-and-me/You-and-Me.apk?v=163",
+  "sha256": "6b8a7c0416b38f5c634cc91a833a3d2d1e6d3585d5611be04a763ccb9263db5e",
+  "size": 30887107,
+  "notes": "Khôi phục bản đồ thời gian thực và biểu tượng phương tiện; vẫn tự cập nhật vị trí khi di chuyển."
 }
