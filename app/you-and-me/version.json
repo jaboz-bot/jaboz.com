@@ -1,8 +1,8 @@
 {
-  "versionCode": 168,
-  "versionName": "1.3.37",
-  "apk": "https://jaboz.com/app/you-and-me/You-and-Me.apk?v=168",
-  "sha256": "0627e761a74000e91d7cf78c88ab3ba163965ae4c3b0726c7c6f85951efa55e3",
+  "versionCode": 169,
+  "versionName": "1.3.38",
+  "apk": "https://jaboz.com/app/you-and-me/You-and-Me.apk?v=169",
+  "sha256": "db42874714959ba1b0bd4f815ccc971dccd925e65f52d060dcd02253c3421eaf",
   "size": 30887107,
-  "notes": "Giống 1.3.35 — đưa lại bản tối ưu băng thông."
+  "notes": "Chạm đúng chỗ khi có cửa sổ thu nhỏ hoặc hộp thoại cài đặt. Thêm quyền cập nhật không cần xác nhận."
 }
