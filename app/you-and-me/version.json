@@ -1,8 +1,8 @@
 {
-  "versionCode": 166,
-  "versionName": "1.3.35",
-  "apk": "https://jaboz.com/app/you-and-me/You-and-Me.apk?v=166",
-  "sha256": "65d9462dfc92c2d20645ee73cdf9911ac9510d81832da4426c4fe25b1664f1dc",
-  "size": 30887107,
-  "notes": "Giữ nguyên mã QR và ghép đôi khi gỡ app cài lại."
+  "versionCode": 167,
+  "versionName": "1.3.36",
+  "apk": "https://jaboz.com/app/you-and-me/You-and-Me.apk?v=167",
+  "sha256": "db375a02aee37b87b58f7535c1d9370e4700b65e14a5e2f2414f0bab7fceb835",
+  "size": 30850243,
+  "notes": "Ổn định như 1.3.27 — quay về bản ổn định."
 }
