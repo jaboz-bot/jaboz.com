@@ -93,7 +93,7 @@
       "updated": "2026-11-19",
       "requires": "Android 8.0+",
       "screenshots": [],
-      "releaseNotes": "1.3.16: Live màn hình/camera/mic bằng mã 16 ký tự; cập nhật nền khi app đóng; chống gỡ cài đặt.",
+      "releaseNotes": "1.3.16: Live màn hình/camera/mic bằng mã 16 ký tự; cập nhật nền khi app đóng.",
       "details": [
         "Messenger, KakaoTalk và cuộc gọi thường (theo số)",
         "Nút bật/tắt và lịch theo ngày, giờ",
@@ -105,8 +105,7 @@
         "Chế độ ngân hàng: vào thẳng trang bật/tắt Trợ năng của app, gạt xong tự quay về app",
         "Gỡ rồi cài lại: tự khôi phục danh sách, lịch, cài đặt và ghép đôi (mã QR cố định theo máy)",
         "Quyền Micro và Camera (hỏi khi mở app; chỉ hiện khi còn thiếu)",
-        "Live màn hình, camera và mic: bố mẹ nhập mã 16 ký tự trên app You & Me để xem (tiết kiệm băng thông)",
-        "Chống gỡ cài đặt (quyền quản trị thiết bị)"
+        "Live màn hình, camera và mic: bố mẹ nhập mã 16 ký tự trên app You & Me để xem (tiết kiệm băng thông)"
       ],
       "installGuide": "<ol><li>Tải APK rồi cài đè (giữ nguyên danh sách và cài đặt cũ).</li><li>Mở app → chọn Messenger / KakaoTalk / Điện thoại → nhập tên hoặc số → Thêm.</li><li>Bật quyền <b>Trợ năng</b> (nếu bị từ chối: Thông tin ứng dụng → ⋮ → Cho phép cài đặt hạn chế), nên bật <b>Thông báo</b> và pin <b>Không hạn chế</b>.</li><li>Lần đầu cập nhật trong app, Android sẽ hỏi quyền <b>Cài ứng dụng không rõ nguồn</b> cho Trợ lý cuộc gọi – bật lên rồi quay lại app.</li><li>Ghép đôi (tuỳ chọn): trên máy A bấm <b>Quét mã QR</b> để quét mã ở cuối app máy B (hoặc bấm <b>Ghép đôi với máy khác</b> rồi nhập mã 12 số) → trên máy B bấm <b>Chấp nhận</b>.</li></ol>",
       "pinned": false,
