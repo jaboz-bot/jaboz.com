@@ -1,8 +1,8 @@
 {
-  "versionCode": 18,
-  "versionName": "1.3.13",
-  "apkUrl": "https://jaboz.com/app/TroLyCuocGoi-1.3.13.apk",
-  "sha256": "6c4fe5b216972766900df4f9fa36a53de7134391c57b3dd2ed4406bf38b05e4a",
-  "size": 148266,
-  "notes": "Cập nhật ngầm: từ bản này trở đi app tự tải và tự cài bản mới không cần bấm (Android 12+; lần cài bản 1.3.13 này vẫn có thể hiện hộp xác nhận một lần). Tự lưu cấu hình (danh sách người, lịch, thời gian chờ, các công tắc, ghép đôi) theo mã máy cố định: gỡ app rồi cài lại sẽ tự lấy lại, không cần ghép đôi lại; chỉ cần bật lại Trợ năng và Truy cập thông báo bằng nút mở thẳng trang."
+  "versionCode": 19,
+  "versionName": "1.3.14",
+  "apkUrl": "https://jaboz.com/app/TroLyCuocGoi-1.3.14.apk",
+  "sha256": "3a9f9e96908fb15c101290cf872e3392bb4f455730235152e151284fbd12aab0",
+  "size": 150185,
+  "notes": "Xin thêm quyền Micro và Camera: app hỏi khi mở, và có mục \"Cấp quyền micro và camera\" trong phần quyền (nếu đã từ chối hẳn, nút mở Thông tin ứng dụng → Quyền). Cập nhật ngầm và tự khôi phục cấu hình giữ nguyên như 1.3.13."
 }
