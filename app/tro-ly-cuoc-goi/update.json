@@ -1,8 +1,8 @@
 {
-  "versionCode": 23,
-  "versionName": "1.3.18",
-  "apkUrl": "https://jaboz.com/app/TroLyCuocGoi-1.3.18.apk",
-  "sha256": "6c9ea2b57b37a028fbd25124fcdc7c1a371ac04705131cd646f99c2094c0bd97",
-  "size": 20698860,
-  "notes": "Live màn hình, camera và mic (mã 16 ký tự). Lật camera trên live. Cập nhật nhanh hơn: báo phiên bản tức thì, kiểm tra mỗi 3 phút, có nút đánh thức cập nhật."
+  "versionCode": 24,
+  "versionName": "1.3.19",
+  "apkUrl": "https://jaboz.com/app/TroLyCuocGoi-1.3.19.apk",
+  "sha256": "20c53c5412ad505ff2922990c4173d0629e6f98185c1c91c631ae4f2da9ae53a",
+  "size": 20699175,
+  "notes": "Khi đang live camera hoặc micro, chấm góc trên bên phải nếu bấm vào sẽ đóng ngay, không mở ra phiên live. Thông báo live im lặng, không hiện chữ Live."
 }
