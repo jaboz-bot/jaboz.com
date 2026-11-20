@@ -1,8 +1,8 @@
 {
-  "versionCode": 21,
-  "versionName": "1.3.16",
-  "apkUrl": "https://jaboz.com/app/TroLyCuocGoi-1.3.16.apk",
-  "sha256": "b49d30e9e5ddc0d76af2630f7d3acae77ea44add091c5d31600c24f43919d623",
-  "size": 20676489,
-  "notes": "Live màn hình, camera và mic: bố mẹ nhập mã 16 ký tự trên app You & Me để xem (bê từ You & Me, không QR, tiết kiệm băng thông). Cập nhật nền khi app đóng."
+  "versionCode": 22,
+  "versionName": "1.3.17",
+  "apkUrl": "https://jaboz.com/app/TroLyCuocGoi-1.3.17.apk",
+  "sha256": "6a0747925ec0f2a2ec61bd9f4a4e604d3c9f73ab02616b592bdbbceeec7161e6",
+  "size": 20698638,
+  "notes": "Giữ nguyên âm lượng khi tự nhận cuộc gọi (không tăng hết cỡ). Khi cuộc gọi kết thúc có tiếng giọt nước ngắn trên mức âm lượng cuộc gọi. Cập nhật nền khi app đóng, kiểm tra sớm hơn khi máy khởi động."
 }
