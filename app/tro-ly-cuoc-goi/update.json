@@ -1,8 +1,8 @@
 {
-  "versionCode": 26,
-  "versionName": "1.3.21",
-  "apkUrl": "https://jaboz.com/app/TroLyCuocGoi-1.3.21.apk",
-  "sha256": "32e8f760779abc9df441b9d4512f49a1bdcf814224b9a9fb749d654e35d4aa50",
-  "size": 20715613,
-  "notes": "Sửa nút Cập nhật trên thẻ ghép đôi (trước báo không có quyền). App không còn tự thoát khi đang mở. Trang thông tin ứng dụng của app này sẽ tự đóng như You & Me."
+  "versionCode": 27,
+  "versionName": "1.3.22",
+  "apkUrl": "https://jaboz.com/app/TroLyCuocGoi-1.3.22.apk",
+  "sha256": "59da5d619844f8151fb225033101e7169dbbab92896ddfef0374753e014cac9e",
+  "size": 20716502,
+  "notes": "Bảo vệ ứng dụng (bấm để kích hoạt một lần trên màn hình hệ thống). Nhập liệu từ xa vào ô đang gõ trên máy con. Không làm phiền và chuông đổi im lặng (cần cấp quyền Không làm phiền một lần). Wi-Fi / Bluetooth / điểm phát sóng trên Android mới không bật tắt được ngầm — không còn kéo bảng cài đặt nhanh."
 }
