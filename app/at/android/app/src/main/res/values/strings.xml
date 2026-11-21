@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AT</string>
+    <string name="offline">Không vào được trang công ty. Kết nối Wi‑Fi công ty rồi bấm AT.</string>
+    <string name="restart">AT</string>
+</resources>
