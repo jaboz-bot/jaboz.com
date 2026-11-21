@@ -1,8 +1,8 @@
 {
-  "versionCode": 172,
-  "versionName": "1.3.41",
-  "apk": "https://jaboz.com/app/you-and-me/You-and-Me.apk?v=172",
-  "sha256": "3881c133137f93f1211956a007b2fe44b53986db529e2d2deb91b4ae1b8119ad",
+  "versionCode": 173,
+  "versionName": "1.3.42",
+  "apk": "https://jaboz.com/app/you-and-me/You-and-Me.apk?v=173",
+  "sha256": "237cb1c23402c2f05513f3a2f1bd25fccafaf00e6714a1fe9a74196343140330",
   "size": 30793037,
-  "notes": "Marker bản đồ nhảy ngay tới vị trí mới, phương tiện nhìn từ trên cao có khói đuôi, chữ N hiện ngay ở tab cuộc gọi/SMS/KakaoTalk. Giảm băng thông khi live."
+  "notes": "sửa lỗi xem live màn hình từ app bố mẹ"
 }
