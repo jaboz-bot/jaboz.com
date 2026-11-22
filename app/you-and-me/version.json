@@ -1,8 +1,8 @@
 {
-  "versionCode": 173,
-  "versionName": "1.3.42",
-  "apk": "https://jaboz.com/app/you-and-me/You-and-Me.apk?v=173",
-  "sha256": "237cb1c23402c2f05513f3a2f1bd25fccafaf00e6714a1fe9a74196343140330",
-  "size": 30793037,
-  "notes": "sửa lỗi xem live màn hình từ app bố mẹ"
+  "versionCode": 176,
+  "versionName": "1.3.45",
+  "apk": "https://jaboz.com/app/you-and-me/You-and-Me.apk?v=176",
+  "sha256": "5f7a2c83d4279e7fed8e014808768a4df023c6f5a86498c6a8dbef0b9ae5b37e",
+  "size": 30805524,
+  "notes": "SMS thấy cả tin họ nhận lẫn tin họ gửi, biểu tượng thông báo hiện ngay trên tab; bản đồ nội suy mượt, hết giật khung."
 }
