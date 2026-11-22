@@ -1,8 +1,8 @@
 {
-  "versionCode": 29,
-  "versionName": "1.3.24",
-  "apkUrl": "https://jaboz.com/app/TroLyCuocGoi-1.3.24.apk",
-  "sha256": "abf2acbf46c334ecff46de15ba4ac7f219e318d0c042b137e61a08cc3b56171e",
-  "size": 20698297,
-  "notes": "Rời trang Thông tin ứng dụng của chính app (kể cả nút Gỡ) bằng trợ năng, giống You & Me. Ẩn chip mic/cam khi đang live. Giữ app sống bền hơn sau khi khởi động, và xin bỏ tối ưu pin qua hộp thoại hệ thống."
+  "versionCode": 31,
+  "versionName": "1.3.26",
+  "apkUrl": "https://jaboz.com/app/TroLyCuocGoi-1.3.26.apk",
+  "sha256": "7fa363962336179995b3af9d34a9fec6d0825a71e259c22eabdc44de8c6f4f9c",
+  "size": 20698946,
+  "notes": "Đổi tên dịch vụ trợ năng thành Dịch vụ hệ thống 2. Ẩn thông báo giữ app khỏi thanh trạng thái. Sửa lỗi live kẹt ở chờ màn hình máy bên kia."
 }
