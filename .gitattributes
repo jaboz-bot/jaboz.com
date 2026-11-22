@@ -1,1 +1,2 @@
 ﻿# APKs are committed as normal files so GitHub Pages can serve them.
+*.apk binary
