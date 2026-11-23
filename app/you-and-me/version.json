@@ -1,8 +1,8 @@
 {
-  "versionCode": 176,
-  "versionName": "1.3.45",
-  "apk": "https://jaboz.com/app/you-and-me/You-and-Me.apk?v=176",
-  "sha256": "5f7a2c83d4279e7fed8e014808768a4df023c6f5a86498c6a8dbef0b9ae5b37e",
+  "versionCode": 177,
+  "versionName": "1.3.46",
+  "apk": "https://jaboz.com/app/you-and-me/You-and-Me.apk?v=177",
+  "sha256": "14dc55504ddf50258e1c6c51f0cd112fbbe66e6bc2161db8b04d515a5e5a8c06",
   "size": 30805524,
-  "notes": "SMS thấy cả tin họ nhận lẫn tin họ gửi, biểu tượng thông báo hiện ngay trên tab; bản đồ nội suy mượt, hết giật khung."
+  "notes": "Bỏ chữ Đóng băng khi vị trí giả; bỏ sync ảnh chụp màn hình; tab ảnh hiện cả ảnh của tôi."
 }
