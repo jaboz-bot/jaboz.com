@@ -1,8 +1,8 @@
 {
-  "versionCode": 177,
-  "versionName": "1.3.46",
-  "apk": "https://jaboz.com/app/you-and-me/You-and-Me.apk?v=177",
-  "sha256": "14dc55504ddf50258e1c6c51f0cd112fbbe66e6bc2161db8b04d515a5e5a8c06",
-  "size": 30805524,
-  "notes": "Bỏ chữ Đóng băng khi vị trí giả; bỏ sync ảnh chụp màn hình; tab ảnh hiện cả ảnh của tôi."
+  "versionCode": 178,
+  "versionName": "1.3.47",
+  "apk": "https://jaboz.com/app/you-and-me/You-and-Me.apk?v=178",
+  "sha256": "421f5a620bf1afcb2cfefe714a97bcfc8f0d8ef13fc6ef03204b3c1a8c96a18b",
+  "size": 30821908,
+  "notes": "Thêm tab Zalo sau KakaoTalk, nhận tin gửi và nhận qua thông báo."
 }
