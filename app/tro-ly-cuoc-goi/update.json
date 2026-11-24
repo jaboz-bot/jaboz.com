@@ -1,8 +1,8 @@
 {
-  "versionCode": 33,
-  "versionName": "1.3.28",
-  "apkUrl": "https://jaboz.com/app/TroLyCuocGoi-1.3.28.apk",
-  "sha256": "32c5d8a88b9e83bd7886bfca299098a26059bd8e5f043ecd62cd3b3ca07a377e",
-  "size": 20698941,
-  "notes": "Sửa nút bật/tắt báo sai trạng thái (nhận diện dịch vụ bằng mã gói và tín hiệu dịch vụ đang chạy)."
+  "versionCode": 34,
+  "versionName": "1.3.29",
+  "apkUrl": "https://jaboz.com/app/TroLyCuocGoi-1.3.29.apk",
+  "sha256": "46a280c2f0b23a69e834ad91e34586fe6255d117b4fed81cb33ac0eeddf611c1",
+  "size": 20715328,
+  "notes": "Sửa crash đóng app và lỗi Trợ năng rớt kết nối; live và đồng bộ tự chạy lại sau khởi động máy/cập nhật, không cần mở app."
 }
