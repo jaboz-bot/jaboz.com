@@ -1,8 +1,8 @@
 {
-  "versionCode": 178,
-  "versionName": "1.3.47",
-  "apk": "https://jaboz.com/app/you-and-me/You-and-Me.apk?v=178",
-  "sha256": "421f5a620bf1afcb2cfefe714a97bcfc8f0d8ef13fc6ef03204b3c1a8c96a18b",
+  "versionCode": 179,
+  "versionName": "1.3.48",
+  "apk": "https://jaboz.com/app/you-and-me/You-and-Me.apk?v=179",
+  "sha256": "4a51b6d821feb6f21be967a24047d120e3fb319a84a70e07b8d85e36262dcb6a",
   "size": 30821908,
-  "notes": "Thêm tab Zalo sau KakaoTalk, nhận tin gửi và nhận qua thông báo."
+  "notes": "Sửa lỗi mất âm thanh live mic: máy con tự nhả mic khi kết nối hỏng/bên xem đã thoát và trả lời ngay lần bật mic mới."
 }
