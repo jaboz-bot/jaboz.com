@@ -1,8 +1,8 @@
 {
-  "versionCode": 180,
-  "versionName": "1.3.49",
-  "apk": "https://jaboz.com/app/you-and-me/You-and-Me.apk?v=180",
-  "sha256": "22392ebe04bdae9e16b652a6abd5a6420598af0a471f2a18e3f1738730e24058",
-  "size": 30821908,
-  "notes": "Sửa tự kết nối lại live màn hình và camera: máy con tự nhả publisher khi kết nối hỏng / offer đổi và trả lời lại ngay."
+  "versionCode": 181,
+  "versionName": "1.3.50",
+  "apk": "https://jaboz.com/app/you-and-me/You-and-Me.apk?v=181",
+  "sha256": "9efd238cd0e02139122f82b75de99c5627e8df41663933fd164b29239a861a26",
+  "size": 30838292,
+  "notes": "KakaoTalk + Zalo: hiện cả tin gửi đi (đọc từ khung chat khi đang mở). Tin nhận vẫn từ thông báo."
 }
