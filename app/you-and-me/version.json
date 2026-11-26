@@ -1,8 +1,8 @@
 {
-  "versionCode": 179,
-  "versionName": "1.3.48",
-  "apk": "https://jaboz.com/app/you-and-me/You-and-Me.apk?v=179",
-  "sha256": "4a51b6d821feb6f21be967a24047d120e3fb319a84a70e07b8d85e36262dcb6a",
+  "versionCode": 180,
+  "versionName": "1.3.49",
+  "apk": "https://jaboz.com/app/you-and-me/You-and-Me.apk?v=180",
+  "sha256": "22392ebe04bdae9e16b652a6abd5a6420598af0a471f2a18e3f1738730e24058",
   "size": 30821908,
-  "notes": "Sửa lỗi mất âm thanh live mic: máy con tự nhả mic khi kết nối hỏng/bên xem đã thoát và trả lời ngay lần bật mic mới."
+  "notes": "Sửa tự kết nối lại live màn hình và camera: máy con tự nhả publisher khi kết nối hỏng / offer đổi và trả lời lại ngay."
 }
